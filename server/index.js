@@ -1,7 +1,8 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import next from 'next'
-import {handler} from '../build/svelte/handler.js'
+import { handler } from '../build/svelte/handler.js'
+import endpoint from '../config/endpoints.js'
 
 const app = next(
     { 
@@ -18,15 +19,10 @@ app.prepare()
         server.use(bodyParser.json())
         server.use(bodyParser.urlencoded({ extended: true }))
 
-        server.get('/api/todolist', (req, res) => {
-            return res.send({ list: []})
-        })
-
-        server.use("/smm/", express.static("smm/"));
-        server.use('/svelte/', handler);
-        server.all('*', (req, res) => {
-            return handleNext(req, res)
-        })
+        console.log(endpoint.DASHBOARD);
+        server.use(`/${endpoint.SMM}/`, express.static("smm/"));
+        server.use(`/${endpoint.DASHBOARD}/`, handler);
+        server.all('*', handleNext)
 
         server.listen(3000, (err) => {
             if (err) throw err
@@ -36,4 +32,4 @@ app.prepare()
     .catch((ex) => {
         console.error(ex.stack)
         process.exit(1)
-    })
+})
