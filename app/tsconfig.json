@@ -1,6 +1,31 @@
 {
   "compilerOptions": {
     "target": "es5",
+
+    /* Additional Checks */
+    "noUnusedLocals": true /* Report errors on unused locals. */,
+    "noUnusedParameters": true /* Report errors on unused parameters. */,
+    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
+    "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
+    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,  
+    "alwaysStrict": true,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,  /* Enable strict null checks. (important!) */
+    "strictFunctionTypes": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    
+    // use these for libraries that need decorators, ORMS should need these
+    /* Experimental Options */
+    // "experimentalDecorators": true /* Enables experimental support for ES7 decorators. */,
+    // "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
+    
+
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
