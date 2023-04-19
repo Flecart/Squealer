@@ -6,5 +6,5 @@ module.exports = {
     /*
      * Custom URL to show upon failure
      */
-    helpUrl: 'https://github.com/conventional-changelog/commitlint/#what-is-commitlint',
+    helpUrl: ' Per maggiori informazioni sui linters vedere https://github.com/Flecart/Squealer/wiki#git-commits'
 };
