@@ -1,0 +1,13 @@
+all:
+  children:
+    server_group1:
+      hosts:
+        donbartolo:
+          ansible_host: donbartolo.cs.unibo.it
+          ansible_user: xuanqiang.huang
+        marullo:
+          ansible_host: marullo.cs.unibo.it
+          ansible_user: giovanni.spadaccini2
+        eufemia:
+          ansible_host: eufemia.cs.unibo.it
+          ansible_user: luca.panariello3

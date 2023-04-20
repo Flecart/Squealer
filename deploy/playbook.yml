@@ -1,0 +1,12 @@
+
+---
+- name: Clone a private repository into debian
+  hosts: donbartolo, marullo, eufemia
+  tasks:
+    - name: Clone a private repository into debian
+      ansible.builtin.git:
+        repo: https://github.com/flecart/squealer
+        version: main
+        dest: "/home/web/site212252/html/project"
+        force: yes
+      become: no
