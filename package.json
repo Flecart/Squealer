@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server/index.js",
     "prepare": "husky install",
-    "commit": "cz"
+    "commit": "cz",
+    "deploy:flecs": "cd deploy && ansible-playbook playbook.yml --limit donbartolo",
+    "deploy:gio": "cd deploy && ansible-playbook playbook.yml --limit marullo",
+    "deploy:luca": "cd deploy && ansible-playbook playbook.yml --limit eufemia"
   },
   "dependencies": {
     "express": "^4.18.2"
