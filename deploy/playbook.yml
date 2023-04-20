@@ -1,11 +1,63 @@
 
 ---
-- name: Clone a private repository into debian
-  hosts: donbartolo, marullo, eufemia
+- name: Set variables
+  hosts: all
+  tasks:
+    - set_fact:
+        dest_folder: "/home/web/site212252/html/prova"
+    - set_fact:
+        git_repository: "git@github.com:Flecart/Squealer.git"
+
+- name: Clone a private repository into debian, for flecs
+  hosts: donbartolo
   tasks:
     - name: Clone a private repository into debian
-      ansible.builtin.git:
-        repo: https://github.com/flecart/squealer
-        version: main
-        dest: "/home/web/site212252/html/boh"
       become: no
+      ansible.builtin.git:
+        repo: "{{ git_repository }}"
+        version: main
+        dest: "{{ dest_folder }}"
+        depth: 1
+        key_file: /home/students/xuanqiang.huang/.ssh/web-github
+        umask: "0007"
+      register: git_result
+
+    - name: Add common taks
+      ansible.builtin.import_tasks:
+        file: compile-start.yml
+
+
+- name: Clone a private repository into debian, for giospada
+  hosts: marullo
+  tasks:
+    - name: Clone a private repository into debian
+      become: no
+      ansible.builtin.git:
+        repo: "{{ git_repository }}"
+        version: main
+        dest: "{{ dest_folder }}"
+        depth: 1
+        key_file: /home/students/giovanni.spadaccini2/.ssh/TODO
+      register: git_result
+    
+    - name: Add common taks
+      ansible.builtin.import_tasks:
+        file: compile-start.yml
+
+
+- name: Clone a private repository into debian, for lucap
+  hosts: eufemia
+  tasks:
+    - name: Clone a private repository into debian
+      become: no
+      ansible.builtin.git:
+        repo: "{{ git_repository }}"
+        version: main
+        dest: "{{ dest_folder }}"
+        depth: 1
+        key_file: /home/students/luca.panariello3/.ssh/TODO
+      register: git_result
+
+    - name: Add common taks
+      ansible.builtin.import_tasks:
+        file: compile-start.yml

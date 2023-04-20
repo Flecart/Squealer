@@ -1,0 +1,31 @@
+- name: Download nvm
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh
+    dest: /tmp/nvm_install.sh
+    mode: 0755
+  become: no
+
+- name: Install nvm
+  ansible.builtin.shell: "/bin/bash /tmp/nvm_install.sh"
+  become: no
+
+- name: Install node
+  ansible.builtin.shell: /bin/bash -c "source ~/.nvm/nvm.sh && nvm install 20.0.0 && nvm alias default 20.0.0"
+  become: no
+
+# Per qualche motivo questa parte non funziona...
+# - name: Install node dependencies
+#   ansible.builtin.shell:  /bin/bash -c "source ~/.nvm/nvm.sh && cd {{ dest_folder }} && npm install --cache ../npm-cache"
+#   become: no
+#   # when: git_result is defined and git_result is changed
+
+# # TODO: change me when we have a nice build shell
+# - name: build the application
+#   ansible.builtin.shell:  /bin/bash -c "source ~/.nvm/nvm.sh && cd {{ dest_folder }} && npm run build --workspace=svelte"
+#   become: no
+#   # when: git_result is defined and git_result is changed
+
+# - name: run the application
+#   ansible.builtin.shell:  /bin/bash -c "source ~/.nvm/nvm.sh && cd {{ dest_folder }} && NODE_ENV=production npm run start"
+#   become: no
+#   # when: git_result is defined and git_result is changed
