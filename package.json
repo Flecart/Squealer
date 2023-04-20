@@ -32,7 +32,7 @@
   },
   "husky": {
     "hooks": {
-      "prepare-commit-msg": "npx commitlint --edit $1"
+      "commit-msg": "npx commitlint --edit $1"
     }
-  } 
+  }
 }
