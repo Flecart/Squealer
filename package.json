@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server/index.js",
     "prepare": "husky install",
-    "commit": "git-cz"
+    "commit": "cz"
   },
   "dependencies": {
     "express": "^4.18.2"
