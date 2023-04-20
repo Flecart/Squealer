@@ -7,6 +7,5 @@
       ansible.builtin.git:
         repo: https://github.com/flecart/squealer
         version: main
-        dest: "/home/web/site212252/html/project"
-        force: yes
+        dest: "/home/web/site212252/html/boh"
       become: no
