@@ -11,9 +11,6 @@
         "path": "./tsconfig.vitest.json"
         }
     ],
-    "rootDirs": [
-        "../config"
-    ],
     "compilerOptions": {
         "ignoreDeprecations": "5.0",
     }
