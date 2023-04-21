@@ -4,7 +4,7 @@ import endpoint from '../config/endpoints.json';
 import path from 'path';
 import { RegisterRoutes } from "../build/api/routes";
 
-import initMongo from './mongo.js';
+import initMongo from './mongo';
 
 // https://stackoverflow.com/questions/46745014/alternative-for-dirname-in-node-js-when-using-es6-modules
 

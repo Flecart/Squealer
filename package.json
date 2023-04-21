@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=production node build/server/index.js",
-    "dev": "yarn workspace dashboard dev",
+    "dev": "yarn workspace moddash dev",
+    "dev:server": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "build": "npm run build:api && npm run build:app && npm run build:moddash",
     "build:server": "tsoa spec-and-routes && tsc",
     "build:app": "yarn workspace app build",
@@ -28,15 +29,32 @@
     "@commitlint/cz-commitlint": "^17.5.0",
     "@types/express": "^4.17.17",
     "commitizen": "^4.3.0",
+    "concurrently": "^8.0.1",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^8.0.0",
     "inquirer": "^8.2.5",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   },
   "workspaces": [
     "app",
     "moddash"
   ],
+  "nodemonConfig": {
+    "exec": "ts-node server/index.ts",
+    "watch": [
+      "server/*",
+      "model/*",
+      "api/*"
+    ],
+    "ext": "ts",
+    "ignore": [
+      "**/test/**",
+      "**/docs/**"
+    ],
+    "delay": "5000"
+  },
   "config": {
     "commitizen": {
       "path": "@commitlint/cz-commitlint"
