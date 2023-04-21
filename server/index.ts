@@ -7,8 +7,6 @@ import { RegisterRoutes } from "../build/api/routes";
 import swaggerUi from "swagger-ui-express";
 import initMongo from './mongo';
 
-// https://stackoverflow.com/questions/46745014/alternative-for-dirname-in-node-js-when-using-es6-modules
-
 initMongo()
 .then(() => {
     const server = express()
