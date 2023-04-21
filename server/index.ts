@@ -1,7 +1,6 @@
-import express from 'express'
-import bodyParser from 'body-parser'
-// @ts-ignore the path is found but the typescript compiler doesn't find it
-import endpoint from '../config/endpoints.js';
+import express from 'express';
+import bodyParser from 'body-parser';
+import endpoint from '../config/endpoints.json' assert { type: "json" };
 import path from 'path';
 import { fileURLToPath } from 'url';
 import controllers from '../api/api.js';
@@ -27,13 +26,11 @@ server.use(express.static(path.resolve(__dirname, '../app')));
 
 server.use(`/${endpoint.DASHBOARD}`,express.static(path.resolve(__dirname, '../', endpoint.DASHBOARD))); 
 
-// @ts-ignore
-server.all(`/${endpoint.DASHBOARD}`, (req, res) => {
+server.all(`/${endpoint.DASHBOARD}`, (_, res) => {
     res.sendFile(path.resolve(__dirname, '../', endpoint.DASHBOARD, 'index.html'));
 });
 
-// @ts-ignore
-server.all('*', (req, res) => {
+server.all('*', (_, res) => {
     res.sendFile(path.resolve(__dirname, '../app', 'index.html'));
 });
 
