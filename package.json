@@ -7,8 +7,7 @@
     "start": "NODE_ENV=production node build/server/index.js",
     "dev": "yarn workspace dashboard dev",
     "build": "npm run build:api && npm run build:app && npm run build:moddash",
-    "build:main": "tsc",
-    "build:api": "yarn workspace api build",
+    "build:server": "tsc",
     "build:app": "yarn workspace app build",
     "build:moddash": "yarn workspace moddash build",
     "prepare": "husky install",
@@ -35,8 +34,7 @@
   },
   "workspaces": [
     "app",
-    "moddash",
-    "api"
+    "moddash"
   ],
   "config": {
     "commitizen": {
