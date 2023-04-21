@@ -7,6 +7,9 @@ import { RegisterRoutes } from "../build/api/routes";
 import swaggerUi from "swagger-ui-express";
 import initMongo from './mongo';
 
+// utilizzato per compatibilità con i comandi di dev
+const DEV_DIR = process.env['NODE_ENV'] === "development" ? 'build/' : '';
+
 initMongo()
 .then(() => {
     const server = express()
@@ -16,7 +19,7 @@ initMongo()
     RegisterRoutes(server);
     server.use(`/${endpoint.APIDOCS}`, swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
         return res.send(
-            swaggerUi.generateHTML(await import("../build/swagger.json"))
+            swaggerUi.generateHTML(await import(`../${DEV_DIR}swagger.json`))
         );
     });
     
@@ -24,12 +27,12 @@ initMongo()
     
     server.use(`/${endpoint.DASHBOARD}`, express.static(path.resolve(__dirname, '../', endpoint.DASHBOARD))); 
     server.all(`/${endpoint.DASHBOARD}`, (_req: ExRequest, res: ExResponse) => {
-        res.sendFile(path.resolve(__dirname, '../', endpoint.DASHBOARD, 'index.html'));
+        res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.DASHBOARD, 'index.html'));
     });
     
-    server.use(express.static(path.resolve(__dirname, '../app'))); 
+    server.use(express.static(path.resolve(__dirname, `../${DEV_DIR}app`))); 
     server.all('*', (_req: ExRequest, res: ExResponse) => {
-        res.sendFile(path.resolve(__dirname, '../app', 'index.html'));
+        res.sendFile(path.resolve(__dirname, `../${DEV_DIR}app`, 'index.html'));
     });
 
     

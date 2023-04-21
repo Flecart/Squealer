@@ -5,8 +5,10 @@
   "scripts": {
     "start": "node build/server/index.js",
     "dev": "yarn workspace moddash dev",
-    "dev:server": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
-    "build": "npm run build:api && npm run build:app && npm run build:moddash",
+    "dev:app:noapi": "yarn workspace app start",
+    "dev:app": "NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app build:watch\"",
+    "dev:server": "NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
+    "build": "rm -r build && npm run build:server && npm run build:app && npm run build:moddash",
     "build:server": "tsoa spec-and-routes && tsc",
     "build:app": "yarn workspace app build",
     "build:moddash": "yarn workspace moddash build",
