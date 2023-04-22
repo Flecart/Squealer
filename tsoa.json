@@ -16,6 +16,7 @@
         "specVersion": 3
     },
     "routes": {
+        "authenticationModule": "server/auth.ts",
         "basePath": "/api",
         "routesDir": "build/api"
     },

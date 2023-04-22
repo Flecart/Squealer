@@ -7,6 +7,13 @@ import { RegisterRoutes } from "../build/api/routes";
 import swaggerUi from "swagger-ui-express";
 import initMongo from './mongo';
 
+import dotenv from "dotenv";
+
+dotenv.config({
+    path: "./.env",
+});
+
+
 // utilizzato per compatibilità con i comandi di dev
 const DEV_DIR = process.env['NODE_ENV'] === "development" ? 'build/' : '';
 
