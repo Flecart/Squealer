@@ -1,12 +1,29 @@
 {
+    "swagger": {
+        "info": {
+            "description": "Apis for the squealer project",
+            "version": "1.0.0",
+            "title": "squealer Rest Apis"
+         },
+         "schemes": [ "http", "https" ]
+     },
+
     "entryFile": "server/index.ts",
     "noImplicitAdditionalProperties": "throw-on-extras",
     "controllerPathGlobs": ["api/**/*Controller.ts"],
     "spec": {
-      "outputDirectory": "build",
-      "specVersion": 3
+        "outputDirectory": "build",
+        "specVersion": 3
     },
     "routes": {
-      "routesDir": "build/api"
+        "basePath": "/api",
+        "routesDir": "build/api"
+    },
+
+    "compilerOptions": {
+        "baseUrl": "./",
+        "paths": {
+            "@model/*": ["model/*"]
+        }
     }
 }

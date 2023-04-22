@@ -30,7 +30,10 @@
     //   "moduleResolution": "bundler",                     /* Specify how TypeScript looks up a file from a given module specifier. */
       "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
       "paths": {
-        "@api": ["./api/api.ts"]
+            "@api/*": ["api/*"],
+            "@config/*": ["config/*"],
+            "@server/*": ["server/*"],
+            "@model/*": ["model/*"],
       },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
       // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
       "typeRoots": [
@@ -113,9 +116,10 @@
     },
     "include": [
         "server/**/*.ts",
-        "./api/**/*.ts",
+        "api/**/*.ts",
         "config/*.ts",
-        "config/endpoints.json"
+        "config/endpoints.json",
+        "models/**/*.ts",
     ],
   }
   
