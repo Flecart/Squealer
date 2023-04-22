@@ -1,4 +1,4 @@
-import {Get, Body,Post,  Route, Response } from '@tsoa/runtime';
+import {Get, Body,Post,  Route, Response, Path } from '@tsoa/runtime';
 import { IMessage } from '../../model/message'
 import { MessageService } from './messageService';
 
@@ -22,4 +22,31 @@ export class MessageController {
     public async readAll(): Promise<IMessage[]> {
         return new MessageService().getMessages();
     }
+
+    @Get('/{id}/')
+    @Response<IMessage[]>(200, 'OK')
+    public async readThread(
+        @Path('id') _id: string
+    ): Promise<IMessage[]> {
+        return new MessageService().getMessages();
+    }
+    
+    @Post('/batch-view')
+    public async batchView(@Body() _messageIds: string[]) {
+        // TODO: return new MessageService().batchView(messageIds);
+        return "todo";
+    }
+
+    @Post('/{id}/like')
+    public async likeMessage(@Path("id") _id: string) {
+        // TODO: return new MessageService().likeMessage(id);
+        return {};
+    }
+
+    @Post('/{id}/dislike')
+    public async dislikeMessage(@Path("id") _id: string) {
+        // TODO: return new MessageService().dislikeMessage(id);
+        return {};
+    }
+
 }
