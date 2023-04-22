@@ -78,6 +78,18 @@
     }
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+      "**/*": "prettier --write --ignore-unknown"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "arrowParens": "always",
+    "endOfLine": "lf"
   }
 }
