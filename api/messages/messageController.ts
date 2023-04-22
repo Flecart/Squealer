@@ -8,7 +8,7 @@ import { MessageService } from './messageService';
 */
 export type MessageCreation = Pick<IMessage, 'destination' | 'creator' | 'content'>;
 
-@Route('/api/message')
+@Route('/message')
 export class MessageController {
     @Post('')
     public async createMessage(

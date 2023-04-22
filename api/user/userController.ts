@@ -2,7 +2,7 @@ import {Get, Post, Route} from "@tsoa/runtime";
 
 // import {IUser} from "../../model/user";
 
-@Route('/api/user')
+@Route('/user')
 export class UserController {
     
     @Post('')
