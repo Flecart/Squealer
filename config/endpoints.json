@@ -1,4 +1,5 @@
 {
+    "APIDOCS": "docs",
     "SMM": "smm",
     "DASHBOARD": "moddash"
 }
