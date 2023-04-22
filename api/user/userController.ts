@@ -1,19 +1,16 @@
-import {Get, Post, Route} from "@tsoa/runtime";
+import {Security,Request,Get, Post, Route} from "@tsoa/runtime";
 
 // import {IUser} from "../../model/user";
 
 @Route('/user')
 export class UserController {
     
-    @Post('')
-    public async createUser() {
+    @Get()
+    @Security('jwt')
+    public async currentUser(@Request() request: any) {
+        console.log(request);
         return "todo";
     }
-    
-    @Get('/')
-    getManagedClient(){
-
-    } 
 
     // TODO: probabilmente le Quota sono da spostare in un controller sotto /api/user/Quota
     @Get('/quota')

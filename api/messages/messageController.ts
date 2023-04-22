@@ -1,5 +1,5 @@
 import {Get, Body,Post,  Route, Response, Path } from '@tsoa/runtime';
-import { IMessage } from '@model/message'
+import { IMessage } from '../../model/message'
 import { MessageService } from './messageService';
 
 /*
