@@ -9,7 +9,7 @@
     "dev:app": "NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app build:watch\"",
     "dev:server": "NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "build": "rm -r build && npm run build:server && npm run build:app && npm run build:moddash",
-    "build:server": "tsoa spec-and-routes && tsc",
+    "build:server": "tsoa spec-and-routes && tsc && resolve-tspaths",
     "build:app": "yarn workspace app build",
     "build:moddash": "yarn workspace moddash build",
     "prepare": "husky install",
@@ -25,6 +25,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "mongoose": "^7.0.4",
+    "resolve-tspaths": "^0.8.13",
     "swagger-ui-express": "^4.6.2",
     "tsoa": "^5.1.1",
     "typescript": "^5.0.4"
@@ -59,7 +60,7 @@
     "moddash"
   ],
   "nodemonConfig": {
-    "exec": "ts-node server/index.ts",
+    "exec": "ts-node -r tsconfig-paths/register server/index.ts",
     "watch": [
       "server/*",
       "model/*",
@@ -78,7 +79,7 @@
     }
   },
   "lint-staged": {
-      "**/*": "prettier --write --ignore-unknown"
+    "**/*": "prettier --write --ignore-unknown"
   },
   "prettier": {
     "printWidth": 120,
