@@ -13,9 +13,11 @@
     "controllerPathGlobs": ["api/**/*Controller.ts"],
     "spec": {
         "outputDirectory": "build",
+        "basePath": "/api",
         "specVersion": 3
     },
     "routes": {
+        "authenticationModule": "server/auth.ts",
         "basePath": "/api",
         "routesDir": "build/api"
     },

@@ -1,5 +1,5 @@
 
-import MessageModel, {Img, Maps} from "@model/message"
+import MessageModel, {Img, Maps} from "../../model/message"
 
 export class MessageService{
     public async create( destination: string, creator: string, content: { type: string; data: string | Img | Maps; }) {
