@@ -1,9 +1,6 @@
+import { JWT_SECRET, JWT_ISSUER } from "../config/config";
 import * as express from "express";
 import * as jose from "jose";
-
-
-const jwt_secrt=  new TextEncoder().encode(process.env["JWT_TOKEN"]|| 'secret');
-
 
 function handleJWT(
     request: express.Request,
@@ -12,13 +9,19 @@ function handleJWT(
     const token =
         request.body.token ||
         request.headers["x-access-token"];
+    
     return new Promise((resolve, reject) => {
-        jose.jwtVerify(token,jwt_secrt ,{ }).then((obj)=>{
-            console.log(obj);
+        jose.jwtVerify(token, JWT_SECRET, {
+            // TODO: settare questi con issuer e audience corretta.
+            // audience è tipo il dominio (o risorsa) che può accedere al token
+            issuer: JWT_ISSUER,
+            audience: 'urn:example:audience',
+        }).then((obj)=>{
+            console.log( "JWT VALID "+obj);
             resolve(obj);
-        }
-        ).catch((err)=>{
-            reject(err);
+        })
+        .catch((e) => {
+            reject(e);
         });
     })
 }
@@ -28,9 +31,12 @@ export function expressAuthentication(
   securityName: string,
   scopes?: string[]
 ): Promise<any> {
-    switch (securityName){
+    switch (securityName) {
         case 'jwt':
-            return handleJWT(request,scopes);
+            return handleJWT(request, scopes);
+        default:
+            return Promise.reject({});
     }
+
     return Promise.reject({});
 }

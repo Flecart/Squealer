@@ -1,21 +1,20 @@
 import mongoose from "mongoose";
 
+export const UserModelName = "User";
+
 export interface IUser {
-    username: string;
-    password: string;
-    role: "admin" | "pro" | "normal";
+    name: string;
+    profile_pic: string;
     channels: string[];
     day_quote: number; 
     month_quote: number; 
     week_quote: number; 
-    clients?:string[];
+    clients?: string[];
 }
 
-
 const UserSchema = new mongoose.Schema<IUser>({
-    username: { type: String, required: true },
-    password: { type: String, required: true },
-    role: { type: String, required: true },
+    name: { type: String, required: true },
+    profile_pic:{type: String, required:true},
     channels: { type: [String], required: true },
     day_quote: { type: Number, required: true },
     month_quote: { type: Number, required: true },
@@ -23,4 +22,6 @@ const UserSchema = new mongoose.Schema<IUser>({
     clients: { type: [String], required: false },
 });
 
-export default mongoose.model<IUser>("User", UserSchema);
+// https://www.dicebear.com/how-to-use/js-library
+
+export default mongoose.model<IUser>(UserModelName, UserSchema);

@@ -17,6 +17,7 @@ export class LoginController {
     ) {
        return new LoginService().login(credentials.username,credentials.password); 
     }
+    
     @Post('create')
     @Response<string>(200, 'OK')
     public async createUser(
