@@ -1,20 +1,20 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-export const UserModelName = "User";
+export const UserModelName = 'User';
 
 export interface IUser {
     name: string;
     profile_pic: string;
     channels: string[];
-    day_quote: number; 
-    month_quote: number; 
-    week_quote: number; 
+    day_quote: number;
+    month_quote: number;
+    week_quote: number;
     clients?: string[];
 }
 
 const UserSchema = new mongoose.Schema<IUser>({
     name: { type: String, required: true },
-    profile_pic:{type: String, required:true},
+    profile_pic: { type: String, required: true },
     channels: { type: [String], required: true },
     day_quote: { type: Number, required: true },
     month_quote: { type: Number, required: true },

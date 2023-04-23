@@ -4,9 +4,9 @@
             "description": "Apis for the squealer project",
             "version": "1.0.0",
             "title": "squealer Rest Apis"
-         },
-         "schemes": [ "http", "https" ]
-     },
+        },
+        "schemes": ["http", "https"]
+    },
 
     "entryFile": "server/index.ts",
     "noImplicitAdditionalProperties": "throw-on-extras",

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export interface IChannel {
     name: string;
@@ -16,4 +16,4 @@ const ChannelSchema = new mongoose.Schema<IChannel>({
     messages: { type: [String], required: true },
 });
 
-export default mongoose.model<IChannel>("Channel", ChannelSchema);
+export default mongoose.model<IChannel>('Channel', ChannelSchema);

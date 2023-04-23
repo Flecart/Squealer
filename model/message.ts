@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 /** 
 Commento per le api
@@ -18,7 +18,7 @@ export interface IMessage {
         type: string;
         data: string | Img | Maps;
     };
-    creator:string,
+    creator: string;
     date: Date;
     views: number;
     posReaction: number;
@@ -27,7 +27,7 @@ export interface IMessage {
 
 const MessageSchema = new mongoose.Schema<IMessage>({
     destination: { type: String, required: true },
-    creator: {type:String,required:true},
+    creator: { type: String, required: true },
     content: { type: Object, required: true },
     date: { type: Date, required: true },
     views: { type: Number, required: true },
@@ -35,4 +35,4 @@ const MessageSchema = new mongoose.Schema<IMessage>({
     negReaction: { type: Number, required: true },
 });
 
-export default mongoose.model<IMessage>("Messages", MessageSchema);
+export default mongoose.model<IMessage>('Messages', MessageSchema);

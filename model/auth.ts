@@ -1,15 +1,15 @@
-import mongoose from "mongoose";
-import { UserModelName } from "./user";
+import mongoose from 'mongoose';
+import { UserModelName } from './user';
 
 export interface IUserAuth {
     username: string;
     password: string;
     salt: string;
-    role: "admin" | "pro" | "normal";
+    role: 'admin' | 'pro' | 'normal';
     userId: {
         type: mongoose.Schema.Types.ObjectId;
         ref: string;
-    }
+    };
 }
 
 const UserAuthSchema = new mongoose.Schema({
@@ -34,7 +34,7 @@ const UserAuthSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: UserModelName,
         required: true,
-    }
+    },
 });
 
-export default mongoose.model<IUserAuth>("UserAuth", UserAuthSchema);
+export default mongoose.model<IUserAuth>('UserAuth', UserAuthSchema);

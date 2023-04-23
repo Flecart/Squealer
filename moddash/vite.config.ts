@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 // @ts-ignore include file that is outside rootDir
-import endpoints from "../config/endpoints.json"
+import endpoints from '../config/endpoints.json'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,7 +15,7 @@ export default defineConfig({
     }
   },
   base: `/${endpoints.DASHBOARD}`,
-  build:{
-	outDir: `../build/${endpoints.DASHBOARD}`
+  build: {
+    outDir: `../build/${endpoints.DASHBOARD}`
   }
 })
