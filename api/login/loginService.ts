@@ -41,6 +41,7 @@ export class LoginService {
                 username = usernamePref + lastNameNumber.toString();
             } else {
                 username = usernamePref;
+                console.log('found one user with first name!');
             }
 
             const userModel = await new UserModel({
@@ -54,7 +55,7 @@ export class LoginService {
             }).save();
 
             const salt = crypto.randomBytes(16).toString('hex');
-            const authModel = await new AuthUserModel({
+            await new AuthUserModel({
                 username: username,
                 password: hashPassword(username, salt + password),
                 salt: salt,
@@ -62,14 +63,13 @@ export class LoginService {
                 userId: userModel._id,
             }).save();
 
-            if (authModel) {
-                return createJWTSession(username);
-            }
+            return createJWTSession(username);
         } catch (e) {
             console.log(e);
             return Promise.reject({ status: 500, message: 'Internal server error' });
         }
 
+        console.log('invalid username or password');
         return Promise.reject({ status: 401, message: 'Invalid username or password' });
     }
 
@@ -84,11 +84,11 @@ export class LoginService {
             if (e instanceof Error) {
                 console.log(e.message);
             } else {
-                console.log(e);
+                console.log('unknown error in login');
             }
             return Promise.reject({ status: 500, message: 'Internal server error' });
         }
-
+        console.log('invalid username or password');
         return Promise.reject({ status: 401, message: 'Invalid username or password' });
     }
 }

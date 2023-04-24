@@ -14,7 +14,14 @@
     "spec": {
         "outputDirectory": "build",
         "basePath": "/api",
-        "specVersion": 3
+        "specVersion": 3,
+        "securityDefinitions": {
+            "jwt": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "JWT token bearer security"
+            }
+        }
     },
     "routes": {
         "authenticationModule": "server/auth.ts",

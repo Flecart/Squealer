@@ -10,12 +10,19 @@ import initMongo from './mongo';
 
 // utilizzato per compatibilità con i comandi di dev
 
+function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Function) {
+    console.error(err);
+    res.status(500).send(err.message);
+}
+
 initMongo().then(() => {
     const server = express();
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
 
     RegisterRoutes(server);
+    server.use('/api/', errorHandler);
+
     server.use(`/${endpoint.APIDOCS}`, swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
         return res.send(swaggerUi.generateHTML(await import(`../${DEV_DIR}swagger.json`)));
     });
