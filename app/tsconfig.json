@@ -16,6 +16,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+        "@flux/*": ["src/flux/*"],
+      }
   },
   "include": ["./src/**/*.ts", "./src/**/*.tsx", ".eslintrc.cjs"]
 }

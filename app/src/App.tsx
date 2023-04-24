@@ -1,12 +1,9 @@
 import React from 'react';
 
+import Login from './components/Login';
+
 function App(): JSX.Element {
-    return (
-        <div>
-            <h1>My App</h1>
-            <p>My App is working!</p>
-        </div>
-    );
+    return <Login />;
 }
 
 export default App;
