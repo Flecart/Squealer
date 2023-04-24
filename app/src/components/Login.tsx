@@ -13,6 +13,8 @@ export default function Login() {
             event.preventDefault();
             const name = event.currentTarget['username'].value;
             const password = event.currentTarget['password'].value;
+            event.currentTarget['username'].value = '';
+            event.currentTarget['password'].value = '';
             dispatch(userActions.createUser({ name, password }));
         },
         [dispatch],

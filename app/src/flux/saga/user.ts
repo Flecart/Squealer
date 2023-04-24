@@ -6,6 +6,7 @@ import { ActionType } from 'typesafe-actions';
 function* createUser(action: ActionType<typeof userActions.createUser>) {
     const data: string = yield call(userApi.createUser, action.payload.name, action.payload.password);
     yield put(userActions.setUserName({ name: 'test' })); // TODO: sostiutire con il nome dello user
+    console.log(data);
     return data;
 }
 
