@@ -7,12 +7,17 @@ import { DEV_DIR } from '../config/config';
 
 import swaggerUi from 'swagger-ui-express';
 import initMongo from './mongo';
+import { HttpError } from '@model/error';
 
 // utilizzato per compatibilità con i comandi di dev
 
 function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Function) {
-    console.error(err);
-    res.status(500).send(err.message);
+    console.error(err.message);
+    if (err instanceof HttpError) {
+        res.status(err.status).send(err.message);
+    } else {
+        res.status(500).send(err.message);
+    }
 }
 
 initMongo().then(() => {
