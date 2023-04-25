@@ -1,7 +1,7 @@
 import * as userApi from '@flux/api/user';
 import * as userActions from '@flux/actions/user';
 import { takeEvery, put, call } from 'redux-saga/effects';
-import { ActionType } from 'typesafe-actions';
+import { type ActionType } from 'typesafe-actions';
 
 function* createUser(action: ActionType<typeof userActions.createUser>) {
     const data: string = yield call(userApi.createUser, action.payload.name, action.payload.password);

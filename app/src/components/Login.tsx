@@ -5,7 +5,7 @@ import * as userActions from '@flux/actions/user';
 
 import { Button, Container, Form, FormGroup } from 'react-bootstrap';
 
-export default function Login() {
+export default function Login(): JSX.Element {
     const dispatch = useDispatch();
 
     const handleCreateUser = useCallback(
