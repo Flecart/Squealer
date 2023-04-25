@@ -1,5 +1,5 @@
 import { Body, Post, Route, Response, SuccessResponse, Controller } from '@tsoa/runtime';
-import { LoginService } from './loginService';
+import { LoginService, type CreateUserResponse } from './loginService';
 
 export interface Credentials {
     username: string;
@@ -16,8 +16,9 @@ export class LoginController extends Controller {
     }
 
     @Post('create')
-    @Response<string>(201, 'Created')
-    public async createUser(@Body() credentials: Credentials) {
+    @Response<string>(400, 'Bad request')
+    @SuccessResponse<CreateUserResponse>(201, 'Created')
+    public async createUser(@Body() credentials: Credentials): Promise<CreateUserResponse> {
         return new LoginService().createUser(credentials.username, credentials.password);
     }
 }

@@ -6,43 +6,33 @@ import crypto from 'crypto';
 import * as jose from 'jose';
 import { HydratedDocument, Types } from 'mongoose';
 
+export interface CreateUserResponse {
+    username: string;
+    token: string;
+}
+
 export class LoginService {
-    public async createUser(name: string, password: string) {
-        try {
-            const username = await this._createUserName(name);
+    public async createUser(name: string, password: string): Promise<CreateUserResponse> {
+        const username = await this._createUserName(name);
 
-            const userModel = this._createDefaultUser(name);
-            await userModel.save();
+        const userModel = this._createDefaultUser(name);
+        await userModel.save();
 
-            const userAuthModel = this._createDefaultUserAuth(username, password, userModel._id);
-            await userAuthModel.save();
+        const userAuthModel = this._createDefaultUserAuth(username, password, userModel._id);
+        await userAuthModel.save();
 
-            return this._createJWTSession(username);
-        } catch (e) {
-            // TODO: vedere quali tipi di errore possono essere lanciati
-            // e cambiare questa gestione.
-            if (e instanceof Error) {
-                return Promise.reject(new HttpError(500, e.message));
-            } else {
-                return Promise.reject(new HttpError(500, 'Internal server error'));
-            }
-        }
+        return {
+            username: username,
+            token: await this._createJWTSession(username),
+        } as CreateUserResponse;
     }
 
     public async login(username: string, password: string) {
-        try {
-            const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
-            if (model && model.password == this._hashPassword(model.salt, password)) {
-                return this._createJWTSession(model.username, model.role);
-            }
-        } catch (e) {
-            if (e instanceof Error) {
-                console.log(e.message);
-            } else {
-                console.log('unknown error in login');
-            }
-            return Promise.reject({ status: 500, message: 'Internal server error' });
+        const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
+        if (model && model.password == this._hashPassword(model.salt, password)) {
+            return this._createJWTSession(model.username, model.role);
         }
+
         return Promise.reject(new HttpError(401, 'Invalid username or password'));
     }
 
@@ -50,12 +40,10 @@ export class LoginService {
         // TODO: simplify me
         const usernamePref = name.toLowerCase().split(' ').join('');
         let username = '';
-        const isPresent = (await AuthUserModel.findOne({ username: usernamePref }).exec()) !== null;
-        if (!isPresent) {
-            const lastName = await AuthUserModel.find(
-                { username: new RegExp('^' + usernamePref + '[0-9]*$') },
-                'username',
-            )
+        const isPresent = (await AuthUserModel.count({ username: usernamePref }).exec()) > 0;
+
+        if (isPresent) {
+            const lastName = await AuthUserModel.find({ username: new RegExp(`^${usernamePref}[0-9]*$`) }, 'username')
                 .sort({ username: -1 })
                 .limit(1)
                 .exec();
@@ -65,7 +53,6 @@ export class LoginService {
             username = usernamePref + lastNameNumber.toString();
         } else {
             username = usernamePref;
-            console.log('found one user with first name!');
         }
 
         return username;
