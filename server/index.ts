@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import endpoint from '../config/endpoints.json';
 import path from 'path';
 import { RegisterRoutes } from '../build/api/routes';
-import { DEV_DIR } from '../config/config';
+import { DEV_DIR, PORT } from '../config/config';
 
 import swaggerUi from 'swagger-ui-express';
 import initMongo from './mongo';
@@ -44,7 +44,7 @@ initMongo().then(() => {
         res.sendFile(path.resolve(__dirname, `../${DEV_DIR}app`, 'index.html'));
     });
 
-    server.listen(3000, () => {
-        console.log('> Ready on http://localhost:3000');
+    server.listen(PORT, () => {
+        console.log(`> Ready on http://localhost:${PORT}`);
     });
 });

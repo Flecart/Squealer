@@ -31,9 +31,9 @@ export class LoginService {
 
     public async login(username: string, password: string) {
         try {
-            const model = await AuthUserModel.findOne({ username: username }, 'salt password');
+            const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
             if (model && model.password == this._hashPassword(model.salt, password)) {
-                return this._createJWTSession(model.username);
+                return this._createJWTSession(model.username, model.role);
             }
         } catch (e) {
             if (e instanceof Error) {

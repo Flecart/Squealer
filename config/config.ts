@@ -12,3 +12,4 @@ export const MONGO_USER = process.env['MONGO_USER']; // TODO aggiungerci quelle 
 export const MONGO_PASS = process.env['MONGO_PASS'];
 export const MONGO_DOMAIN = process.env['MONGO_DOMAIN'];
 export const JWT_ISSUER = process.env['JWT_ISSUER'] || 'urn:squealer:issuer';
+export const PORT = process.env['PORT'] || 3000;
