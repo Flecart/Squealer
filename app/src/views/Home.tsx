@@ -1,15 +1,16 @@
 import React from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './scss/App.scss';
-import logo from './logo.svg';
+import '../scss/App.scss';
+import logo from '../logo.svg';
 import { Container, Navbar } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
 import { Row, Col } from 'react-bootstrap';
-import { MakeFeed } from './components/Post';
-import { Header } from './components/Header';
-import RegisterAccess from './components/RegisterAccess';
-import AddPost from './components/AddPost';
+import { MakeFeed } from '../components/Post';
+import { Header } from '../components/Header';
+import RegisterAccess from '../components/RegisterAccess';
+import AddPost from '../components/AddPost';
+import { Link } from 'react-router-dom';
 
 export default function App() {
     return (
@@ -38,30 +39,25 @@ export default function App() {
 function LeftContent() {
     return (
         <Navbar className="d-none d-lg-flex flex-column align-items-start ps-3" sticky="top">
-            <DarkButton img={logo} />
-            <DarkButton text="Esplora" />
-            <DarkButton text="Impostazioni" />
+            <Button className="rounded" variant="dark">
+                <img src={logo} alt="logo" width="30" height="30" />
+            </Button>
+
+            <Link to="#">
+                <Button className="rounded" variant="dark">
+                    Esplora
+                </Button>
+            </Link>
+            <Link to="#">
+                <Button className="rounded" variant="dark">
+                    Impostazioni
+                </Button>
+            </Link>
+            <Link to="/login">
+                <Button className="rounded" variant="dark">
+                    Login
+                </Button>
+            </Link>
         </Navbar>
-    );
-}
-
-interface DarkButtonProps {
-    text?: string;
-    img?: string;
-}
-
-// TODO: refactor
-function DarkButton({ text, img }: DarkButtonProps) {
-    let label;
-    if (img != null) {
-        label = <img src={img} alt="logo" width="30" height="30" />;
-    } else {
-        label = <label className="fs-4">{text}</label>;
-    }
-
-    return (
-        <Button as="a" className="rounded" variant="dark">
-            {label}
-        </Button>
     );
 }
