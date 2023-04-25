@@ -6,10 +6,7 @@ export interface IUserAuth {
     password: string;
     salt: string;
     role: 'admin' | 'pro' | 'normal';
-    userId: {
-        type: mongoose.Schema.Types.ObjectId;
-        ref: string;
-    };
+    userId: mongoose.Types.ObjectId;
 }
 
 const UserAuthSchema = new mongoose.Schema({
