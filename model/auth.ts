@@ -5,11 +5,11 @@ export interface IUserAuth {
     username: string;
     password: string;
     salt: string;
-    role: 'admin' | 'pro' | 'normal';
+    role: 'admin' | 'pro' | 'normal'; // TODO distinguere tra il social media manager e il moderator
     userId: mongoose.Types.ObjectId;
 }
 
-const UserAuthSchema = new mongoose.Schema({
+const UserAuthSchema = new mongoose.Schema<IUserAuth>({
     username: {
         type: String,
         required: true,
