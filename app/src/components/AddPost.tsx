@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Collapse, Container, Form, FormGroup, Button, ButtonGroup } from 'react-bootstrap';
 
-export default function AddPost() {
+export default function AddPost(): JSX.Element {
     const [open, setOpen] = useState(false);
     return (
         <Container
@@ -11,7 +11,9 @@ export default function AddPost() {
             <Button
                 className="col-3"
                 variant="outline-primary"
-                onClick={() => setOpen(!open)}
+                onClick={() => {
+                    setOpen(!open);
+                }}
                 aria-expanded={open}
                 aria-controls="post_form"
             >

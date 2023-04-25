@@ -1,8 +1,8 @@
-import React from 'react';
 import { Container, Stack } from 'react-bootstrap';
 
-var g_post: PostProps[] = [
+const gPost: PostProps[] = [
     {
+        key: 1,
         author: {
             name: 'Utente 1',
             img: {
@@ -19,6 +19,7 @@ var g_post: PostProps[] = [
         },
     },
     {
+        key: 2,
         author: {
             name: 'Utente 2',
             img: {
@@ -35,6 +36,7 @@ var g_post: PostProps[] = [
         },
     },
     {
+        key: 3,
         author: {
             name: 'Utente 3',
             img: {
@@ -50,6 +52,7 @@ var g_post: PostProps[] = [
 ];
 
 interface PostProps {
+    key: number;
     author: AuthorProps;
     content: PostContentProps;
 }
@@ -70,7 +73,7 @@ interface PostContentProps {
     text: string | null;
 }
 
-function MakePost({ author, content }: PostProps) {
+function MakePost({ author, content }: PostProps): JSX.Element {
     return (
         <Container className="p-3 border-bottom border-light d-flex flex-column d-flex">
             <Author {...author} />
@@ -80,7 +83,7 @@ function MakePost({ author, content }: PostProps) {
     );
 }
 
-function PostContent(content: PostContentProps) {
+function PostContent(content: PostContentProps): JSX.Element {
     return (
         <Container className="bg-dark">
             <Stack className="" gap={3}>
@@ -99,7 +102,7 @@ function PostContent(content: PostContentProps) {
     );
 }
 
-function Author(author: AuthorProps) {
+function Author(author: AuthorProps): JSX.Element {
     return (
         <Container className="bg-dark">
             <Container className="d-flex align-items-center">
@@ -114,14 +117,14 @@ function Author(author: AuthorProps) {
     );
 }
 
-export function MakeFeed() {
-    const contents = g_post;
+export function MakeFeed(): JSX.Element {
+    const contents = gPost;
     const Feed = contents.map((content: PostProps) => {
-        return <MakePost author={content.author} content={content.content} />;
+        return <MakePost author={content.author} content={content.content} key={content.key} />;
     });
 
     return (
-        //xs={6} -> className="... col-xs-6 ..."
+        // xs={6} -> className="... col-xs-6 ..."
         <Stack className="d-flex col-xs-6 flex-column-reverse p-1">{Feed}</Stack>
     );
 }

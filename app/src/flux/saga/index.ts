@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { all } from 'redux-saga/effects';
 import userSaga from '@flux/saga/user';
 

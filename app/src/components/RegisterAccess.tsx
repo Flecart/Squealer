@@ -1,16 +1,30 @@
 import { useState } from 'react';
 import { Button, Collapse, Container, Form, FormGroup, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 
-export default function RegisterAccess() {
+export default function RegisterAccess(): JSX.Element {
     const [open, setOpen] = useState(true);
 
     return (
         <Container id="navbar-register" className="container-fluid d-flex flex-column align-items-center">
             <ToggleButtonGroup type="radio" name="acc_or_reg" defaultValue={1} className="mt-5 m-0 me-4 z-index-1">
-                <ToggleButton value={1} id="radio_ar_1" variant="light" onClick={() => setOpen(true)}>
+                <ToggleButton
+                    value={1}
+                    id="radio_ar_1"
+                    variant="light"
+                    onClick={() => {
+                        setOpen(true);
+                    }}
+                >
                     Registrazione
                 </ToggleButton>
-                <ToggleButton value={2} id="radio_ar_2" variant="light" onClick={() => setOpen(false)}>
+                <ToggleButton
+                    value={2}
+                    id="radio_ar_2"
+                    variant="light"
+                    onClick={() => {
+                        setOpen(false);
+                    }}
+                >
                     Accesso
                 </ToggleButton>
             </ToggleButtonGroup>

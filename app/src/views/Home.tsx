@@ -3,16 +3,14 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../scss/App.scss';
 import logo from '../logo.svg';
-import { Container, Navbar } from 'react-bootstrap';
-import { Button } from 'react-bootstrap';
-import { Row, Col } from 'react-bootstrap';
+import { Container, Navbar, Button, Row, Col } from 'react-bootstrap';
 import { MakeFeed } from '../components/Post';
 import { Header } from '../components/Header';
 import RegisterAccess from '../components/RegisterAccess';
 import AddPost from '../components/AddPost';
 import { Link } from 'react-router-dom';
 
-export default function App() {
+export default function App(): JSX.Element {
     return (
         <div className="bg-dark">
             <Row>
@@ -36,7 +34,7 @@ export default function App() {
     );
 }
 
-function LeftContent() {
+function LeftContent(): JSX.Element {
     return (
         <Navbar className="d-none d-lg-flex flex-column align-items-start ps-3" sticky="top">
             <Button className="rounded" variant="dark">

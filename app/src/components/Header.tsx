@@ -2,7 +2,7 @@ import { Nav, Navbar, NavDropdown, Container, Form } from 'react-bootstrap';
 
 import RegisterAccess from './RegisterAccess';
 
-export function Header() {
+export function Header(): JSX.Element {
     return (
         <Navbar className="container-fluid" bg="dark" variant="dark" expand="lg" sticky="top">
             <Container className="d-flex flex-row justify-content-center">

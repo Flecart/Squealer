@@ -7,8 +7,10 @@ export async function createUser(username: string, password: string): Promise<st
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            username: username,
-            password: password,
+            username,
+            password,
         }),
-    }).then((res) => res.json());
+    }).then(async (res) => {
+        return (await res.json()) as unknown as string; // TODO: settare il tipo di ritorno corretto, dipende dall'API.
+    });
 }

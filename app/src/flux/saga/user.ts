@@ -1,3 +1,5 @@
+/* eslint-disable */
+// TODO: fixare eslint per i sagas
 import * as userApi from '@flux/api/user';
 import * as userActions from '@flux/actions/user';
 import { takeEvery, put, call } from 'redux-saga/effects';
