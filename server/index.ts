@@ -12,12 +12,19 @@ import { HttpError } from '@model/error';
 // utilizzato per compatibilità con i comandi di dev
 
 function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Function) {
-    console.error(err.message);
+    let httpError: HttpError;
     if (err instanceof HttpError) {
-        res.status(err.status).send(err.message);
+        httpError = err;
     } else {
-        res.status(500).send(err.message);
+        httpError = new HttpError(500, err.message);
     }
+
+    res.status(httpError.status).send(
+        JSON.stringify({
+            status: httpError.status,
+            message: httpError.message,
+        }),
+    );
 }
 
 initMongo().then(() => {
