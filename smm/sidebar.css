@@ -13,14 +13,6 @@ html {
     fill: currentColor;
 }
 
-.dropdown-toggle {
-    outline: 0;
-}
-
-.nav-flush .nav-link {
-    border-radius: 0;
-}
-
 .btn-toggle {
     display: inline-flex;
     align-items: center;
@@ -47,6 +39,7 @@ html {
 .btn-toggle[aria-expanded='true'] {
     color: rgba(0, 0, 0, 0.85);
 }
+
 .btn-toggle[aria-expanded='true']::before {
     transform: rotate(90deg);
 }
@@ -58,23 +51,16 @@ html {
     margin-left: 1.25rem;
     text-decoration: none;
 }
-.btn-toggle-nav a:hover,
-.btn-toggle-nav a:focus {
-    background-color: #d2f4ea;
-}
 
 .scrollarea {
     overflow-y: auto;
 }
 
-.fw-semibold {
-    font-weight: 600;
-}
-.lh-tight {
-    line-height: 1.25;
-}
-
 .sidebar .nav-link {
     font-weight: 500;
     color: #333;
+}
+
+.sidebar .nav-link.active {
+    color: #2470dc;
 }

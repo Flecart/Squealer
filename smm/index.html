@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
     <head>
         <meta charset="utf-8" />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content="Website per la gestione degli account come social media manager" />
+        <meta name="description" content="Website for Squealer social media managers" />
         <link rel="apple-touch-icon" href="/logo192.png" />
         <link rel="manifest" href="/manifest.json" />
 
@@ -77,9 +77,13 @@
             </symbol>
         </svg>
 
-        <header>
+        <header class="navbar sticky-top bg-light flex-md-nowrap justify-content-between p-0 shadow d-md-none">
+            <svg aria-hidden="true" focusable="false" class="bi me-2" width="40" height="32">
+                <use href="#bootstrap" />
+            </svg>
+            <span class="fs-4" title="Squealer Social Media Manager">Squealer SMM</span>
             <button
-                class="navbar-toggler position-absolute d-md-none collapsed"
+                class="navbar-toggler bg-light collapsed"
                 type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#sidebarMenu"
@@ -95,20 +99,17 @@
             <div class="position-fixed">
                 <div class="d-flex vh-100 flex-column justify-content-between">
                     <div class="pt-3">
-                        <a
-                            href="/"
-                            class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"
-                        >
+                        <a href="/" class="align-items-center d-md-flex d-none mb-3 link-dark text-decoration-none">
                             <!-- TODO: cambiare use ref, o comunque il link qui. -->
                             <svg aria-hidden="true" focusable="false" class="bi me-2" width="40" height="32">
                                 <use href="#bootstrap" />
                             </svg>
                             <span class="fs-4" title="Squealer Social Media Manager">Squealer SMM</span>
                         </a>
-                        <hr />
-                        <ul class="nav nav-pills flex-column mb-auto">
+                        <hr class="d-none d-md-block" />
+                        <ul class="nav flex-column mb-auto">
                             <li>
-                                <a href="#" class="nav-link active">
+                                <a href="#" class="nav-link active" aria-current="page">
                                     <svg aria-hidden="true" focusable="false" class="bi me-2" width="16" height="16">
                                         <use href="#speedometer2" />
                                     </svg>
