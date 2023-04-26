@@ -5,7 +5,8 @@
 // questi modelli sono nel front end.
 
 export interface UserStore {
-    name: string;
+    username: string;
+    jwt?: string;
 }
 
 // esempi:

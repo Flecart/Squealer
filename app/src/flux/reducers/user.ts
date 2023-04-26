@@ -2,16 +2,16 @@ import * as userActions from '@flux/actions/user';
 import { type UserStore } from '@flux/StoreInterfaces';
 import { type ActionType, getType } from 'typesafe-actions';
 
-export type GameAction = ActionType<typeof userActions>;
+export type UserAction = ActionType<typeof userActions>;
 
 const defaultState: UserStore = {
-    name: '',
+    username: '',
 };
 
-const userReducer = (state = defaultState, action: GameAction): UserStore => {
+const userReducer = (state = defaultState, action: UserAction): UserStore => {
     switch (action.type) {
-        case getType(userActions.setUserName):
-            return { ...state, name: action.payload.name };
+        case getType(userActions.authParameter):
+            return { ...state, username: action.payload.username, jwt: action.payload.jwt };
         default:
             return state;
     }

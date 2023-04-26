@@ -35,3 +35,8 @@ const UserAuthSchema = new mongoose.Schema<IUserAuth>({
 });
 
 export default mongoose.model<IUserAuth>('UserAuth', UserAuthSchema);
+
+export interface AuthRensponse {
+    username: string;
+    token: string;
+}

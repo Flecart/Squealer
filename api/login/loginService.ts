@@ -5,14 +5,10 @@ import UserModel, { IUser } from '@model/user';
 import crypto from 'crypto';
 import * as jose from 'jose';
 import { HydratedDocument, Types } from 'mongoose';
-
-export interface CreateUserResponse {
-    username: string;
-    token: string;
-}
+import { AuthRensponse } from '@model/auth';
 
 export class LoginService {
-    public async createUser(name: string, password: string): Promise<CreateUserResponse> {
+    public async createUser(name: string, password: string): Promise<AuthRensponse> {
         const username = await this._createUserName(name);
 
         const userModel = this._createDefaultUser(name);
@@ -24,13 +20,16 @@ export class LoginService {
         return {
             username: username,
             token: await this._createJWTSession(username),
-        } as CreateUserResponse;
+        } as AuthRensponse;
     }
 
-    public async login(username: string, password: string) {
+    public async login(username: string, password: string): Promise<AuthRensponse> {
         const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
         if (model && model.password == this._hashPassword(model.salt, password)) {
-            return this._createJWTSession(model.username, model.role);
+            return {
+                username: username,
+                token: await this._createJWTSession(model.username, model.role),
+            } as AuthRensponse;
         }
 
         return Promise.reject(new HttpError(401, 'Invalid username or password'));
