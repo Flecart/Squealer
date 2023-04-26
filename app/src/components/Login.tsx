@@ -18,7 +18,7 @@ export default function Login(): JSX.Element {
         [dispatch, formName, formPassword],
     );
 
-    const name = useSelector(userSelectors.getUserName);
+    const name: string = useSelector(userSelectors.getUserName);
     return (
         <Container className="d-flex justify-content-center">
             <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleCreateUser}>
