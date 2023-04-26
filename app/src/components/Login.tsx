@@ -13,7 +13,7 @@ export default function Login(): JSX.Element {
     const handleCreateUser = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            dispatch(userActions.createUser({ name: formName, password: formPassword }));
+            dispatch(userActions.loginUser({ username: formName, password: formPassword }));
         },
         [dispatch, formName, formPassword],
     );
