@@ -30,7 +30,7 @@
     "build": "NODE_ENV=production BUILD_PATH='../build/app' craco build",
     "test": "craco test",
     "eject": "craco eject",
-    "build:watch": "npm run build && run-when-changed --watch \"src/*.tsx\" --exec \"npm run build\""
+    "build:watch": "npm run build && run-when-changed --watch \"src/*.ts\" --watch \"src/*.tsx\" --exec \"npm run build\""
   },
   "eslintConfig": {
     "extends": [
