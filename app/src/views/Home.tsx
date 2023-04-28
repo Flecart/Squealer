@@ -1,6 +1,5 @@
 import React from 'react';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '../scss/App.scss';
 import { Container, Row, Col } from 'react-bootstrap';
 import { MakeFeed } from '../components/Post';

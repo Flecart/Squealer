@@ -6,7 +6,11 @@ import NotFound from './views/NotFound';
 import Login from './views/Login';
 import { Provider } from 'react-redux';
 import { Store } from '@flux/store';
+<<<<<<< HEAD
 import { User } from './views/User';
+=======
+import User from './views/User';
+>>>>>>> fff6efb (feat(app): users page)
 
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 
@@ -15,7 +19,11 @@ const router = createBrowserRouter(
         <>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+<<<<<<< HEAD
             <Route path="/user" element={<User />} />
+=======
+            <Route path="/user/:username" element={<User />} />
+>>>>>>> fff6efb (feat(app): users page)
             <Route path="*" element={<NotFound />} />
         </>,
     ),
