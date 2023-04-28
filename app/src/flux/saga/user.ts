@@ -6,6 +6,7 @@ import { type ActionType } from 'typesafe-actions';
 import { type IUser } from '../../../../model/user';
 
 function* fetchUser(action: ActionType<typeof userAction.fetchUser>) {
+    yield put(userAction.removeDisplayUser()); // TODO: sostiutire con il nome dello user
     const data: IUser = yield call(userAction.fetchUser, { username: action.payload.username });
     yield put(userAction.setDisplayUser({ user: data })); // TODO: sostiutire con il nome dello user
     return data;

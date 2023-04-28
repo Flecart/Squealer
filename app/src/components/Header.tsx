@@ -1,7 +1,5 @@
 import { Nav, Navbar, NavDropdown, Container, Form } from 'react-bootstrap';
 
-import RegisterAccess from './RegisterAccess';
-
 export function Header(): JSX.Element {
     return (
         <Navbar className="container-fluid" bg="dark" variant="dark" expand="lg" sticky="top">
@@ -19,9 +17,6 @@ export function Header(): JSX.Element {
                             <Form.Control type="search" placeholder="Cerca un Utente" />
                         </Form>
                     </Nav>
-                    <Container className="d-lg-none">
-                        <RegisterAccess />
-                    </Container>
                 </Navbar.Collapse>
             </Container>
         </Navbar>
