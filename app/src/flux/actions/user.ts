@@ -1,5 +1,5 @@
 import { createAction } from 'typesafe-actions';
+import { type IUser } from '../../../../model/user';
 
-export const createUser = createAction('user/create_user')<{ display_name: string; password: string }>();
-export const loginUser = createAction('user/login')<{ username: string; password: string }>();
-export const authParameter = createAction('user/set_auth_Parameter')<{ username: string; jwt: string }>();
+export const fetchUser = createAction('user/fetch_user')<{ username: string }>();
+export const setDisplayUser = createAction('user/fetch_display_user')<{ user: IUser }>();

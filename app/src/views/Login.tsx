@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as userSelectors from '@flux/selectors/user';
-import * as userActions from '@flux/actions/user';
+import * as authSelector from '@flux/selectors/auth';
+import * as authAction from '@flux/actions/auth';
 
 import { Button, Container, Form, FormGroup } from 'react-bootstrap';
 
@@ -13,12 +13,12 @@ export default function Login(): JSX.Element {
     const handleCreateUser = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            dispatch(userActions.loginUser({ username: formName, password: formPassword }));
+            dispatch(authAction.loginUser({ username: formName, password: formPassword }));
         },
         [dispatch, formName, formPassword],
     );
 
-    const name: string = useSelector(userSelectors.getUserName);
+    const name: string = useSelector(authSelector.getUserName);
     return (
         <Container className="d-flex justify-content-center">
             <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleCreateUser}>

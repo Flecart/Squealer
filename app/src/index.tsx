@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import Home from './views/Home';
 import NotFound from './views/NotFound';
-import Login from './components/Login';
+import Login from './views/Login';
 import { Provider } from 'react-redux';
 import { Store } from '@flux/store';
+import { User } from './views/User';
 
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ const router = createBrowserRouter(
         <>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/user" element={<User />} />
             <Route path="*" element={<NotFound />} />
         </>,
     ),

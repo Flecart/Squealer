@@ -1,7 +1,5 @@
-import { createSelector } from 'reselect';
+// import { createSelector } from 'reselect';
 import { type IStore } from '@flux/store';
-import { type UserStore } from '@flux/StoreInterfaces';
+import { type IUser } from '../../../../model/user';
 
-export const selectUserStore = (state: IStore): UserStore => state.user;
-export const getUserName = createSelector(selectUserStore, (user) => user.username);
-export const getJWT = createSelector(selectUserStore, (user) => user.jwt);
+export const selectDisplayUser = (state: IStore): IUser => state.display_user;

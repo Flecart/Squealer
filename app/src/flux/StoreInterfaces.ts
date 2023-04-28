@@ -4,7 +4,7 @@
 // di tutti i modelli di dati che vengono utilizzati nell'applicazione
 // questi modelli sono nel front end.
 
-export interface UserStore {
+export interface AuthStore {
     username: string;
     jwt?: string;
 }

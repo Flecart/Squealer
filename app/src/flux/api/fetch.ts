@@ -1,11 +1,11 @@
 import { Store } from '@flux/store';
 import { type HttpError } from '../../../../model/error';
-import * as userSelector from '@flux/selectors/user';
+import * as authSelector from '@flux/selectors/auth';
 
 export async function fetchApi<T>(url: string, method: string, auth: boolean, body: object): Promise<T | HttpError> {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
-    const jwt = userSelector.getJWT(Store.getState());
+    const jwt = authSelector.getJWT(Store.getState());
     if (auth && jwt !== undefined) {
         headers.append('Authorization', 'Bearer ' + jwt);
     }

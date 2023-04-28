@@ -7,9 +7,6 @@ export class UserController {
     @Get()
     @Security('jwt')
     public async currentUser(@Request() request: any) {
-        console.log(request.user);
-        console.log(request);
-        console.log(request.user['payload']['username']);
         return new UserService().getUser(request.user['payload']['username']);
     }
 
