@@ -1,6 +1,5 @@
 import React from 'react';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '../scss/App.scss';
 import logo from '../logo.svg';
 import { Container, Navbar, Button, Row, Col } from 'react-bootstrap';

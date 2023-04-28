@@ -6,6 +6,7 @@ import NotFound from './views/NotFound';
 import Login from './components/Login';
 import { Provider } from 'react-redux';
 import { Store } from '@flux/store';
+import User from './views/User';
 
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ const router = createBrowserRouter(
         <>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/user/:username" element={<User />} />
             <Route path="*" element={<NotFound />} />
         </>,
     ),
