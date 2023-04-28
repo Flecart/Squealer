@@ -1,5 +1,6 @@
 import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
+import Post from '../components/NewPost';
 
 function User(): JSX.Element {
     // const { _username } = useParams();
@@ -36,20 +37,24 @@ function User(): JSX.Element {
                         </span>
                     </div>
                 </Row>
+                {/* TODO: edit profile button if the user is him self */}
             </Container>
 
-            <Container>
+            <Container as="main">
                 {/* TODO: refactor tab element to have li childs as elements?? */}
                 <Tabs
                     defaultActiveKey="hightlight" // TODO: decidere il default a seconda della route?, sarebbe bono, poi renderizzare solo tramite quello.
-                    id="uncontrolled-tab-example"
                     onSelect={handleTabChange}
                     className="mb-3"
                 >
                     {/* TODO: forse i tabs dovrebbero essere dei componenti? dovremmo dare chiave, elemento, poi anche funzione (che carichi le cose, quindi credo vera
                         mente che sarebbe meglio farlo componente separato) */}
                     <Tab eventKey="hightlight" title="Highlight">
-                        profile
+                        <Post />
+                        <Post />
+                        <Post />
+                        <Post />
+                        <Post />
                     </Tab>
                     <Tab eventKey="posts" title="Last Posts">
                         hello
