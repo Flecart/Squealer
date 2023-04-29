@@ -1,4 +1,3 @@
-import React from 'react';
 
 import '../scss/App.scss';
 import { Container, Row, Col } from 'react-bootstrap';

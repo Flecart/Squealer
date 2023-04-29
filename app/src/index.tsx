@@ -1,14 +1,12 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import Home from './views/Home';
 import NotFound from './views/NotFound';
 import Login from './views/Login';
-import { Provider } from 'react-redux';
-import { Store } from '@flux/store';
 import User from './views/User';
-
+import { type AuthParams, AuthContext, } from './context/authContext';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
+import React, { useState } from 'react';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -22,10 +20,13 @@ const router = createBrowserRouter(
 );
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+
+ const [authState, setAuthState] = useState<AuthParams | null>(null);
+
 root.render(
     <React.StrictMode>
-        <Provider store={Store}>
+        <AuthContext.Provider value={[authState, setAuthState]}>
             <RouterProvider router={router} />
-        </Provider>
+        </AuthContext.Provider>
     </React.StrictMode>,
 );
