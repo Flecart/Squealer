@@ -1,5 +1,5 @@
-import { Security, Request, Get, Post, Route ,Path} from '@tsoa/runtime';
-// import {IUser} from "../../model/user";
+import { Security, Request, Get, Post, Route, Path } from '@tsoa/runtime';
+// import {IUser} from "@model/user";
 import UserService from './userService';
 
 @Route('/user')

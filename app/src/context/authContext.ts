@@ -1,10 +1,7 @@
-import {  createContext, type Dispatch, type SetStateAction} from "react";
+import { createContext, type Dispatch, type SetStateAction } from 'react';
+import { type AuthResponse } from '../../../model/auth';
 
-
-export interface AuthParams {
-    username: string;
-    jwt: string;
-};
-
-
-export const AuthContext = createContext<[AuthParams | null,Dispatch<SetStateAction<AuthParams|null>>]>([authState,setAuthState]);
+export const AuthContext = createContext<[AuthResponse | null, Dispatch<SetStateAction<AuthResponse | null>>]>([
+    null,
+    () => null,
+]);

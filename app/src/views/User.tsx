@@ -1,35 +1,56 @@
 import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import Post from '../components/NewPost';
-// import { type IUser } from '../../../model/user';
-import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { type IUser } from '../../../model/user';
+import { type HttpError } from '../../../model/error';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { fetchApi } from '../api/fetch';
+import { apiUserBase } from 'src/api/routes';
 
 function User(): JSX.Element {
     const { username } = useParams();
+    const navigator = useNavigate();
+
+    const [user, setUser] = useState<IUser | null>(null);
+    const handlerApiError = (_error: HttpError): void => {
+        navigator('/404');
+    };
 
     useEffect(() => {
+        if (username === undefined) return;
+        fetchApi<IUser>(
+            `${apiUserBase}/${username}`,
+            {
+                method: 'GET',
+            },
+            null,
+            (user) => {
+                setUser(() => user);
+            },
+            handlerApiError,
+        );
     }, [username]);
 
     const handleTabChange = (key: string | null): void => {
         console.log(key);
     };
 
-    // const user: IUser | null = null;
     return (
         <>
             <Container className="d-flex justify-content-center flex-column pb-4">
                 <Row className="py-3 m-auto">
-                    <Image src={username} alt="profile image" roundedCircle />
+                    <Image src={user?.profile_pic} alt="profile image" roundedCircle />
+                </Row>
+                {/* TODO: mettere schermata di loading, tipo scheletons */}
+                <Row>
+                    <h1 className="text-center">{user?.name ?? ' '}</h1>
                 </Row>
                 <Row>
-                    <h1 className="text-center"> {username} </h1>
+                    <h2 className="text-center">{username}</h2>
                 </Row>
                 <Row>
-                    <h2 className="text-center"> {username} </h2>
-                </Row>
-                <Row>
-                    <p className="text-center"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. </p>
+                    <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
                 </Row>
 
                 <Row>
