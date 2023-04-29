@@ -18,7 +18,8 @@
     "deploy:gio": "cd deploy && ansible-playbook playbook.yml --limit marullo",
     "deploy:luca": "cd deploy && ansible-playbook playbook.yml --limit eufemia",
     "lint": "eslint --ext .ts,.tsx .",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "init":"yarn install && yarn workspace app install && yarn workspace moddash install && mkdir build"
   },
   "dependencies": {
     "@decorators/express": "^2.9.3",
