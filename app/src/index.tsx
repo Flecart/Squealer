@@ -7,7 +7,7 @@ import User from './views/User';
 import { AuthContext } from './context/authContext';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import React, { useState } from 'react';
-import { type AuthResponse } from '../../model/auth';
+import { type AuthResponse } from '@model/auth';
 
 const router = createBrowserRouter(
     createRoutesFromElements(

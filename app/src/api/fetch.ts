@@ -1,5 +1,5 @@
-import { type AuthResponse } from '../../../model/auth';
-import { HttpError } from '../../../model/error';
+import { type AuthResponse } from '@model/auth';
+import { HttpError } from '@model/error';
 
 export async function fetchApi<T>(
     url: RequestInfo,

@@ -1,4 +1,8 @@
+/* eslint-disable */
 const path = require('path');
+
+const { CracoAliasPlugin } = require('react-app-alias-ex/src');
+
 module.exports = {
     webpack: {
         alias: {
@@ -9,4 +13,10 @@ module.exports = {
             return devServerConfig;
         },
     },
+    plugins: [
+        {
+            plugin: CracoAliasPlugin,
+            options: {},
+        },
+    ],
 };

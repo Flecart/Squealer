@@ -1,8 +1,8 @@
 import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import Post from '../components/NewPost';
-import { type IUser } from '../../../model/user';
-import { type HttpError } from '../../../model/error';
+import { type IUser } from '@model/user';
+import { type HttpError } from '@model/error';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
@@ -30,6 +30,8 @@ function User(): JSX.Element {
             },
             handlerApiError,
         );
+
+        console.log("richiesta dell'utente");
     }, [username]);
 
     const handleTabChange = (key: string | null): void => {
