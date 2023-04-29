@@ -1,35 +1,29 @@
 import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import Post from '../components/NewPost';
-import { useDispatch, useSelector } from 'react-redux';
-import * as userSelector from '@flux/selectors/user';
-import { type IUser } from '../../../model/user';
-import * as userAction from '@flux/actions/user';
+// import { type IUser } from '../../../model/user';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 function User(): JSX.Element {
     const { username } = useParams();
 
-    const dispatch = useDispatch();
-
     useEffect(() => {
-        dispatch(userAction.fetchUser({ username: (username ?? '') }));
-    }, [dispatch]);
+    }, [username]);
 
     const handleTabChange = (key: string | null): void => {
         console.log(key);
     };
 
-    const user: IUser | null = useSelector(userSelector.selectDisplayUser);
+    // const user: IUser | null = null;
     return (
         <>
             <Container className="d-flex justify-content-center flex-column pb-4">
                 <Row className="py-3 m-auto">
-                    <Image src={user?.profile_pic} alt="profile image" roundedCircle />
+                    <Image src={username} alt="profile image" roundedCircle />
                 </Row>
                 <Row>
-                    <h1 className="text-center"> {user?.profile_pic} </h1>
+                    <h1 className="text-center"> {username} </h1>
                 </Row>
                 <Row>
                     <h2 className="text-center"> {username} </h2>
