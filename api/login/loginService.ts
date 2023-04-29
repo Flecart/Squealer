@@ -11,7 +11,7 @@ export class LoginService {
     public async createUser(name: string, password: string): Promise<AuthRensponse> {
         const username = await this._createUserName(name);
 
-        const userModel = this._createDefaultUser(name);
+        const userModel = this._createDefaultUser(username,name);
         await userModel.save();
 
         const userAuthModel = this._createDefaultUserAuth(username, password, userModel._id);
@@ -57,14 +57,14 @@ export class LoginService {
         return username;
     }
 
-    private _createDefaultUser(name: string): HydratedDocument<IUser> {
+    private _createDefaultUser(username:string,name: string): HydratedDocument<IUser> {
         return new UserModel({
             name: name,
             channels: [],
             day_quote: 0,
             week_quote: 0,
             month_quote: 0,
-            profile_pic: 'None',
+            profile_pic:`https://api.dicebear.com/6.x/notionists/svg?seed=${username}`,
             clients: [],
         });
     }
