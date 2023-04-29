@@ -1,22 +1,19 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { Button, Container, Form, FormGroup } from 'react-bootstrap';
-import { AuthContext } from '../context/authContext'
-import useFetch from 'react-fetch-hook'
-import { useNavigate } from "react-router-dom";
-// import { type AuthParams } from '../context/authContext';
-
-
-
-
+import { Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import { AuthContext } from '../context/authContext';
+import { useNavigate } from 'react-router-dom';
+import { fetchApi } from 'src/api/fetch';
+import { type AuthResponse } from '@model/auth';
+import { apiLogin } from 'src/api/routes';
 
 export default function Login(): JSX.Element {
-    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     const [authState, setAuthState] = useContext(AuthContext);
 
     const [formName, setFormName] = useState('');
     const [formPassword, setFormPassword] = useState('');
 
     const [pendingRequest, setPendingRequest] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const navigate = useNavigate();
 
@@ -27,38 +24,35 @@ export default function Login(): JSX.Element {
     const handleCreateUser = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            if (!pendingRequest ) {
-                setPendingRequest(() => true);
+            setErrorMessage(null);
+            setFormName('');
+            setFormPassword('');
+
+            if (!pendingRequest) {
+                setPendingRequest(true);
+                fetchApi<AuthResponse>(
+                    apiLogin,
+                    {
+                        method: 'post',
+                        body: JSON.stringify({
+                            username: formName,
+                            password: formPassword,
+                        }),
+                    },
+                    authState,
+                    (auth) => {
+                        setAuthState(() => auth);
+                        navigate('/');
+                    },
+                    (error) => {
+                        setErrorMessage(() => error.message);
+                        setPendingRequest(false);
+                    },
+                );
             }
         },
         [formName, formPassword],
     );
-
-    const { isLoading, data, error } = useFetch('api/login', {
-        method: "post",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            username: formName,
-            password: formPassword
-        }),
-        depends: [pendingRequest]
-    });
-    if (data!=null) {
-        console.log(data);
-        // setAuthState(() => data);
-    }
-
-    if (error!=null) {
-        setPendingRequest(() => false);
-        console.log(error);
-    }
-
-    if (isLoading) {
-        console.log(isLoading);
-    }
 
     return (
         <Container className="d-flex justify-content-center">
@@ -89,6 +83,20 @@ export default function Login(): JSX.Element {
                     <Button className="col-6 me-1" variant="outline-success" type="submit">
                         Login
                     </Button>
+                    {errorMessage !== null && (
+                        <>
+                            <br />
+                            <p className="text-danger">{errorMessage}</p>
+                        </>
+                    )}
+                    {pendingRequest && (
+                        <>
+                            <br />
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                        </>
+                    )}
                 </Container>
             </Form>
         </Container>

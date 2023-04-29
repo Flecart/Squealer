@@ -1,7 +1,10 @@
 import { Navbar, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/authContext';
 
 export function SideBar(): JSX.Element {
+    const [authState] = useContext(AuthContext);
     return (
         <Navbar className="d-none d-lg-flex flex-column align-items-start ps-3" sticky="top">
             <Link to="#">
@@ -14,11 +17,13 @@ export function SideBar(): JSX.Element {
                     Impostazioni
                 </Button>
             </Link>
-            <Link to="/login">
-                <Button className="rounded" variant="dark">
-                    Login
-                </Button>
-            </Link>
+            {authState == null && (
+                <Link to="/login">
+                    <Button className="rounded" variant="dark">
+                        Login
+                    </Button>
+                </Link>
+            )}
         </Navbar>
     );
 }

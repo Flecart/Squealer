@@ -36,7 +36,7 @@ const UserAuthSchema = new mongoose.Schema<IUserAuth>({
 
 export default mongoose.model<IUserAuth>('UserAuth', UserAuthSchema);
 
-export interface AuthRensponse {
+export interface AuthResponse {
     username: string;
     token: string;
 }
