@@ -13,8 +13,9 @@ function User(): JSX.Element {
     const navigator = useNavigate();
 
     const [user, setUser] = useState<IUser | null>(null);
-    const handlerApiError = (_error: HttpError): void => {
-        navigator('/404');
+    const handlerApiError = (error: HttpError): void => {
+        console.log(error.message);
+        if (error.status === 404) navigator('/404');
     };
 
     useEffect(() => {
@@ -30,8 +31,6 @@ function User(): JSX.Element {
             },
             handlerApiError,
         );
-
-        console.log("richiesta dell'utente");
     }, [username]);
 
     const handleTabChange = (key: string | null): void => {
@@ -41,15 +40,15 @@ function User(): JSX.Element {
     return (
         <>
             <Container className="d-flex justify-content-center flex-column pb-4">
-                <Row className="py-3 m-auto">
-                    <Image src={user?.profile_pic} alt="profile image" roundedCircle />
+                <Row className="py-3 m-auto" style={{ maxWidth: '10rem', minWidth: '10rem' }}>
+                    {user !== null && <Image src={user?.profile_pic} alt="profile image" roundedCircle />}
                 </Row>
                 {/* TODO: mettere schermata di loading, tipo scheletons */}
                 <Row>
                     <h1 className="text-center">{user?.name ?? ' '}</h1>
                 </Row>
                 <Row>
-                    <h2 className="text-center">{username}</h2>
+                    <h2 className="text-center">@{username}</h2>
                 </Row>
                 <Row>
                     <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>

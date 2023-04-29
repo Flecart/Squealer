@@ -1,9 +1,10 @@
-import express, { Response as ExResponse, Request as ExRequest, NextFunction } from 'express';
+import express, { Response as ExResponse, Request as ExRequest } from 'express';
 import bodyParser from 'body-parser';
 import endpoint from '../config/endpoints.json';
 import path from 'path';
 import { RegisterRoutes } from '../build/api/routes';
-import { CROSS_ORIGIN, DEV_DIR, PORT } from '../config/config';
+import { ENABLE_CROSS_ORIGIN, DEV_DIR, PORT } from '../config/config';
+import cors from 'cors';
 
 import swaggerUi from 'swagger-ui-express';
 import initMongo from './mongo';
@@ -29,13 +30,10 @@ function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Funct
 
 initMongo().then(() => {
     const server = express();
-    if (CROSS_ORIGIN) {
-        //@ts-ignore
-        server.all(function (_req: ExRequest, res: ExResponse, next: NextFunction) {
-            res.header('Access-Control-Allow-Origin', '*');
-            res.header('Access-Control-Allow-Headers', 'X-Requested-With');
-            next();
-        });
+    server.disable('x-powered-by');
+
+    if (ENABLE_CROSS_ORIGIN) {
+        server.use(cors());
     }
 
     server.use(bodyParser.json());

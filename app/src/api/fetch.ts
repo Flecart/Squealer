@@ -10,6 +10,8 @@ export async function fetchApi<T>(
 ): void {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
+    headers.append('Accept', 'application/json');
+
     if (auth !== null) {
         headers.append('Authorization', 'Bearer ' + auth.token);
     }
@@ -19,7 +21,7 @@ export async function fetchApi<T>(
         .then(async (res) => {
             // TOOD: patterna match?
             if (res.status === 200 || res.status === 201) success((await res.json()) as T);
-            error((await res.json()) as HttpError);
+            else error((await res.json()) as HttpError);
         })
         .catch(() => {
             error(new HttpError(500, 'Network Error'));

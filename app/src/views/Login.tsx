@@ -1,10 +1,10 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { AuthContext } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
-import { apiLogin } from 'src/api/routes';
+import { apiLogin as loginEndpoint } from 'src/api/routes';
 
 export default function Login(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);
@@ -17,9 +17,11 @@ export default function Login(): JSX.Element {
 
     const navigate = useNavigate();
 
-    if (authState !== null) {
-        navigate('/logout');
-    }
+    useEffect(() => {
+        if (authState !== null) {
+            navigate('/logout');
+        }
+    }, [authState]);
 
     const handleCreateUser = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
@@ -31,9 +33,9 @@ export default function Login(): JSX.Element {
             if (!pendingRequest) {
                 setPendingRequest(true);
                 fetchApi<AuthResponse>(
-                    apiLogin,
+                    loginEndpoint,
                     {
-                        method: 'post',
+                        method: 'POST',
                         body: JSON.stringify({
                             username: formName,
                             password: formPassword,
