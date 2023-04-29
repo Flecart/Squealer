@@ -6,7 +6,7 @@
     "start": "node build/server/index.js",
     "dev": "yarn workspace moddash dev",
     "dev:app:noapi": "yarn workspace app start",
-    "dev:app": "NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app build:watch\"",
+    "dev:app": "NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app start\"",
     "dev:server": "NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "build": "rm -r build && npm run build:server && npm run build:app && npm run build:moddash",
     "build:server": "tsoa spec-and-routes && tsc && resolve-tspaths",
@@ -19,21 +19,21 @@
     "deploy:luca": "cd deploy && ansible-playbook playbook.yml --limit eufemia",
     "lint": "eslint --ext .ts,.tsx .",
     "prettier": "prettier --write .",
-    "init":"yarn install && yarn workspace app install && yarn workspace moddash install && mkdir build"
+    "init": "yarn install && yarn workspace app install && yarn workspace moddash install && mkdir build"
   },
   "dependencies": {
-    "@decorators/express": "^2.9.3",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "jose": "^4.14.1",
-    "mongoose": "^7.0.4",
-    "node-sass": "^7.0.3",
-    "resolve-tspaths": "^0.8.13",
-    "swagger-ui-express": "^4.6.2",
-    "tsoa": "^5.1.1",
-    "typescript": "^5.0.4"
-  },
-  "devDependencies": {
+      "cors": "^2.8.5",
+      "dotenv": "^16.0.3",
+      "express": "^4.18.2",
+      "jose": "^4.14.1",
+      "mongoose": "^7.0.4",
+      "resolve-tspaths": "^0.8.13",
+      "swagger-ui-express": "^4.6.2",
+      "tsoa": "^5.1.1",
+      "typescript": "^5.0.4"
+    },
+"devDependencies": {
+    "@types/cors": "^2.8.13",
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
     "@commitlint/cz-commitlint": "^17.5.0",
