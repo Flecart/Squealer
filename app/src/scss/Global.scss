@@ -1,7 +1,8 @@
-@import '../node_modules/bootstrap/scss/bootstrap';
-@import '../node_modules/bootswatch/dist/darkly/_bootswatch.scss';
+@import '~bootstrap/scss/bootstrap';
+@import '~bootswatch/dist/darkly/_bootswatch.scss';
+
 [data-bs-theme='dark'] {
-    @import '../node_modules/bootswatch/dist/darkly/_variables.scss';
+    @import '~bootswatch/dist/darkly/_variables.scss';
     // Darkly 5.2.2
     // Bootswatch
     $theme: 'darkly';
@@ -107,6 +108,7 @@
     $navbar-light-hover-color: $gray-900;
     $navbar-light-active-color: $gray-900;
     $navbar-light-toggler-border-color: rgba($gray-900, 0.1);
+    $navbar-color: #{$body-color}; // so that also navl links change col
 
     // Pagination
 
