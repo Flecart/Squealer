@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -16,10 +16,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-        "@flux/*": ["src/flux/*"],
-      }
+    "baseUrl": "."
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", ".eslintrc.cjs"]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", ".eslintrc.cjs", "craco.config.js"]
 }

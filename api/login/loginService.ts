@@ -5,13 +5,13 @@ import UserModel, { IUser } from '@model/user';
 import crypto from 'crypto';
 import * as jose from 'jose';
 import { HydratedDocument, Types } from 'mongoose';
-import { AuthRensponse } from '@model/auth';
+import { AuthResponse } from '@model/auth';
 
 export class LoginService {
-    public async createUser(name: string, password: string): Promise<AuthRensponse> {
+    public async createUser(name: string, password: string): Promise<AuthResponse> {
         const username = await this._createUserName(name);
 
-        const userModel = this._createDefaultUser(name);
+        const userModel = this._createDefaultUser(username, name);
         await userModel.save();
 
         const userAuthModel = this._createDefaultUserAuth(username, password, userModel._id);
@@ -20,16 +20,16 @@ export class LoginService {
         return {
             username: username,
             token: await this._createJWTSession(username),
-        } as AuthRensponse;
+        } as AuthResponse;
     }
 
-    public async login(username: string, password: string): Promise<AuthRensponse> {
+    public async login(username: string, password: string): Promise<AuthResponse> {
         const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
         if (model && model.password == this._hashPassword(model.salt, password)) {
             return {
                 username: username,
                 token: await this._createJWTSession(model.username, model.role),
-            } as AuthRensponse;
+            } as AuthResponse;
         }
 
         return Promise.reject(new HttpError(401, 'Invalid username or password'));
@@ -57,14 +57,14 @@ export class LoginService {
         return username;
     }
 
-    private _createDefaultUser(name: string): HydratedDocument<IUser> {
+    private _createDefaultUser(username: string, name: string): HydratedDocument<IUser> {
         return new UserModel({
             name: name,
             channels: [],
             day_quote: 0,
             week_quote: 0,
             month_quote: 0,
-            profile_pic: 'None',
+            profile_pic: `https://api.dicebear.com/6.x/notionists/svg?seed=${username}`,
             clients: [],
         });
     }

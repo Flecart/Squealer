@@ -1,14 +1,9 @@
-import React from 'react';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '../scss/App.scss';
-import logo from '../logo.svg';
-import { Container, Navbar, Button, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { MakeFeed } from '../components/Post';
 import { Header } from '../components/Header';
-import RegisterAccess from '../components/RegisterAccess';
 import AddPost from '../components/AddPost';
-import { Link } from 'react-router-dom';
+import { SideBar } from '../components/SideBar';
 
 export default function App(): JSX.Element {
     return (
@@ -16,7 +11,7 @@ export default function App(): JSX.Element {
             <Row>
                 <Col lg={3}>
                     <Container className="d-none d-lg-block">
-                        <LeftContent />
+                        <SideBar />
                     </Container>
                 </Col>
                 <Col lg={6} className="border-start border-end border-light">
@@ -24,38 +19,7 @@ export default function App(): JSX.Element {
                     <MakeFeed />
                     <AddPost />
                 </Col>
-                <Col className="" lg={3}>
-                    <Navbar className="d-none d-lg-block col-3 position-fixed top-0 end-0" expand="lg">
-                        <RegisterAccess />
-                    </Navbar>
-                </Col>
             </Row>
         </div>
-    );
-}
-
-function LeftContent(): JSX.Element {
-    return (
-        <Navbar className="d-none d-lg-flex flex-column align-items-start ps-3" sticky="top">
-            <Button className="rounded" variant="dark">
-                <img src={logo} alt="logo" width="30" height="30" />
-            </Button>
-
-            <Link to="#">
-                <Button className="rounded" variant="dark">
-                    Esplora
-                </Button>
-            </Link>
-            <Link to="#">
-                <Button className="rounded" variant="dark">
-                    Impostazioni
-                </Button>
-            </Link>
-            <Link to="/login">
-                <Button className="rounded" variant="dark">
-                    Login
-                </Button>
-            </Link>
-        </Navbar>
     );
 }

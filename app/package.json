@@ -11,26 +11,26 @@
     "@types/node": "^16.18.24",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
+    "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "node-sass": "^7.0.3",
     "react": "^18.2.0",
+    "react-app-alias-ex": "^2.1.0",
     "react-bootstrap": "^2.7.4",
     "react-dom": "^18.2.0",
-    "react-redux": "^8.0.5",
+    "react-fetch-hook": "^1.9.5",
     "react-router-dom": "^6.10.0",
     "react-scripts": "^5.0.1",
-    "redux": "^4.2.1",
-    "redux-saga": "^1.2.3",
     "reselect": "^4.1.8",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "PORT=3001 craco start",
     "build": "NODE_ENV=production BUILD_PATH='../build/app' craco build",
     "test": "craco test",
     "eject": "craco eject",
-    "build:watch": "npm run build && run-when-changed --watch \"src/*.tsx\" --exec \"npm run build\""
+    "build:watch": "npm run build && run-when-changed --watch \"src/**/*.ts\" --watch \"src/**/*.tsx\" --exec \"npm run build\""
   },
   "eslintConfig": {
     "extends": [

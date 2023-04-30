@@ -3,7 +3,8 @@ import bodyParser from 'body-parser';
 import endpoint from '../config/endpoints.json';
 import path from 'path';
 import { RegisterRoutes } from '../build/api/routes';
-import { DEV_DIR, PORT } from '../config/config';
+import { ENABLE_CROSS_ORIGIN, DEV_DIR, PORT } from '../config/config';
+import cors from 'cors';
 
 import swaggerUi from 'swagger-ui-express';
 import initMongo from './mongo';
@@ -29,6 +30,12 @@ function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Funct
 
 initMongo().then(() => {
     const server = express();
+    server.disable('x-powered-by');
+
+    if (ENABLE_CROSS_ORIGIN) {
+        server.use(cors());
+    }
+
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
 
