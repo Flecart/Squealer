@@ -4,9 +4,9 @@ import Home from './views/Home';
 import NotFound from './views/NotFound';
 import Login from './views/Login';
 import User from './views/User';
-import { AuthContext } from './context/authContext';
+import { AuthContext, ThemeContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { type AuthResponse } from '@model/auth';
 
 const router = createBrowserRouter(
@@ -24,11 +24,31 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 function App(): JSX.Element {
     const [authState, setAuthState] = useState<AuthResponse | null>(null);
+    const [themeState, setThemeState] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        const theme = localStorage.getItem('theme');
+        if (theme !== null && (theme === 'light' || theme === 'dark')) {
+            setThemeState(theme);
+        }
+    }, []);
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-bs-theme', themeState);
+        localStorage.setItem('theme', themeState);
+    }, [themeState]);
+
+    const toggleTheme = useCallback(() => {
+        if (themeState === 'dark') setThemeState('light');
+        else setThemeState('dark');
+    }, [themeState]);
 
     return (
         <React.StrictMode>
             <AuthContext.Provider value={[authState, setAuthState]}>
-                <RouterProvider router={router} />
+                <ThemeContext.Provider value={[themeState, toggleTheme]}>
+                    <RouterProvider router={router} />
+                </ThemeContext.Provider>
             </AuthContext.Provider>
         </React.StrictMode>
     );

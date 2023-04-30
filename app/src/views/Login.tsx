@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
-import { AuthContext } from '../context/authContext';
+import { AuthContext } from '../contexts';
 import { useNavigate } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
