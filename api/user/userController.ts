@@ -1,22 +1,21 @@
-import { Security, Request, Get, Post, Route } from '@tsoa/runtime';
+import { Security, Request, Get, Post, Route, SuccessResponse, Controller } from '@tsoa/runtime';
 // import {IUser} from "../../model/user";
 import UserService from './userService';
 
 @Route('/user')
-export class UserController {
+export class UserController extends Controller {
     @Get()
     @Security('jwt')
     public async currentUser(@Request() request: any) {
-        console.log(request.user);
-        console.log(request);
-        console.log(request.user['payload']['username']);
         return new UserService().getUser(request.user['payload']['username']);
     }
 
     // TODO: probabilmente le Quota sono da spostare in un controller sotto /api/user/Quota
     @Get('/quota')
-    getQuota() {
-        return 'todo';
+    @Security('jwt')
+    @SuccessResponse(201, 'Quota Retrieved')
+    public async getQuota(@Request() request: any) {
+        return new UserService().getQuota(request.user['payload']['username']);
     }
 
     @Post('/quota/buy')

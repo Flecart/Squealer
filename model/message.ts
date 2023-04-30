@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { UserAuthModelName } from './auth';
 
 /** 
 Commento per le api
@@ -18,7 +19,7 @@ export interface IMessage {
         type: string;
         data: string | Img | Maps;
     };
-    creator: string;
+    creator: mongoose.Types.ObjectId;
     date: Date;
     views: number;
     posReaction: number;
@@ -27,7 +28,7 @@ export interface IMessage {
 
 const MessageSchema = new mongoose.Schema<IMessage>({
     destination: { type: String, required: true },
-    creator: { type: String, required: true },
+    creator: { type: mongoose.Schema.Types.ObjectId, required: true, ref: UserAuthModelName },
     content: { type: Object, required: true },
     date: { type: Date, required: true },
     views: { type: Number, required: true },

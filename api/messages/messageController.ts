@@ -1,4 +1,4 @@
-import { Get, Body, Post, Route, Response, Path } from '@tsoa/runtime';
+import { Get, Body, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
 import { IMessage } from '@model/message';
 import { MessageService } from './messageService';
 
@@ -6,13 +6,20 @@ import { MessageService } from './messageService';
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
 */
-export type MessageCreation = Pick<IMessage, 'destination' | 'creator' | 'content'>;
+export type MessageCreation = Pick<IMessage, 'destination' | 'content'>;
 
 @Route('/message')
 export class MessageController {
     @Post('')
-    public async createMessage(@Body() body_data: MessageCreation) {
-        await new MessageService().create(body_data.destination, body_data.creator, body_data.content);
+    @Security('jwt')
+    @Response<IMessage>(204, 'Message Created')
+    @Response<Error>(400, 'Bad request')
+    public async createMessage(@Body() body_data: MessageCreation, @Request() request: any) {
+        await new MessageService().create(
+            body_data.destination,
+            body_data.content,
+            request.user['payload']['username'],
+        );
     }
 
     @Get('/')

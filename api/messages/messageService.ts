@@ -1,10 +1,14 @@
+import UserAuthModel from '@model/auth';
 import MessageModel, { Img, Maps } from '@model/message';
+//import mongoose from 'mongoose';
 
 export class MessageService {
-    public async create(destination: string, creator: string, content: { type: string; data: string | Img | Maps }) {
+    public async create(destination: string, content: { type: string; data: string | Img | Maps }, username: string) {
+        const c = await UserAuthModel.findOne({ username: username });
+
         return new MessageModel({
             destination: destination,
-            creator: creator,
+            creator: c,
             content: content,
             date: new Date(),
             views: 0,
