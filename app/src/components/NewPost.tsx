@@ -23,10 +23,10 @@ function Post(): JSX.Element {
                             </a>
 
                             <a href={profiloUrl} className="text-decoration-none ">
-                                <span className=""> @mario </span>
+                                <span className="fw-light"> @mario </span>
                             </a>
 
-                            <span className=""> - 1h </span>
+                            <span className="fw-light"> - 1h </span>
                         </div>
                     </Row>
                     <Row>
