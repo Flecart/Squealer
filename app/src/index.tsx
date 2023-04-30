@@ -8,6 +8,7 @@ import { AuthContext, ThemeContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
 import { type AuthResponse } from '@model/auth';
+import usePersistState from './hooks/usePersistState';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -24,18 +25,10 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 function App(): JSX.Element {
     const [authState, setAuthState] = useState<AuthResponse | null>(null);
-    const [themeState, setThemeState] = useState<'light' | 'dark'>('light');
-
-    useEffect(() => {
-        const theme = localStorage.getItem('theme');
-        if (theme !== null && (theme === 'light' || theme === 'dark')) {
-            setThemeState(theme);
-        }
-    }, []);
+    const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
 
     useEffect(() => {
         document.documentElement.setAttribute('data-bs-theme', themeState);
-        localStorage.setItem('theme', themeState);
     }, [themeState]);
 
     const toggleTheme = useCallback(() => {
