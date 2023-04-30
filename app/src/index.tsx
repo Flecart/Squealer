@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import './scss/Global.scss';
 import Home from './views/Home';
 import NotFound from './views/NotFound';
 import Login from './views/Login';

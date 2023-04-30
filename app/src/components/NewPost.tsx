@@ -18,15 +18,15 @@ function Post(): JSX.Element {
                 <Container className="d-flex justify-content-center flex-column pb-4">
                     <Row>
                         <div>
-                            <a href={profiloUrl} className="text-decoration-none link-dark">
+                            <a href={profiloUrl} className="text-decoration-none ">
                                 <span className="fs-4 fw-bolder"> Mario rossi </span>
                             </a>
 
-                            <a href={profiloUrl} className="text-decoration-none link-dark">
-                                <span className="fw-light"> @mario </span>
+                            <a href={profiloUrl} className="text-decoration-none ">
+                                <span className=""> @mario </span>
                             </a>
 
-                            <span className="fw-light"> - 1h </span>
+                            <span className=""> - 1h </span>
                         </div>
                     </Row>
                     <Row>

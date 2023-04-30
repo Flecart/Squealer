@@ -20,7 +20,7 @@ export default function AddPost(): JSX.Element {
                 Posta
             </Button>
             <Collapse in={open}>
-                <Form className="bg-dark p-1" id="post_form">
+                <Form className=" p-1" id="post_form">
                     <div className="d-flex flex-column align-items-center">
                         <FormGroup className="container-fluid">
                             <Form.Control type="text" placeholder="Inserisci Utenti e/o Canali destinatari" />
