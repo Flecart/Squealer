@@ -4,11 +4,11 @@ import MessageModel, { Img, Maps } from '@model/message';
 
 export class MessageService {
     public async create(destination: string, content: { type: string; data: string | Img | Maps }, username: string) {
-        const c = await UserAuthModel.findOne({ username: username });
+        const creator = await UserAuthModel.findOne({ username: username });
 
         return new MessageModel({
             destination: destination,
-            creator: c,
+            creator: creator,
             content: content,
             date: new Date(),
             views: 0,
