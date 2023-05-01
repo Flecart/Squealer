@@ -18,7 +18,7 @@ export class UserController extends Controller {
     // TODO: probabilmente le Quota sono da spostare in un controller sotto /api/user/Quota
     @Get('/quota')
     @Security('jwt')
-    @SuccessResponse(201, 'Quota Retrieved')
+    @SuccessResponse(200, 'Quota Retrieved')
     public async getQuota(@Request() request: any) {
         return new UserService().getQuota(request.user['payload']['username']);
     }
