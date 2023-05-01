@@ -1,18 +1,50 @@
 import mongoose from 'mongoose';
 
+type readPermType = 1;
+type writePermType = 2;
+export type permissionType = writePermType | readPermType;
+export const readPermission: permissionType = 1;
+export const writePermission: permissionType = 2;
+
+export type channelType = 'user' | 'owned' | 'squealer' | 'public';
+
+export function isSingleOwnerChannel(channel: IChannel): boolean {
+    return channel.members.type === 'user' || channel.members.type === 'public';
+}
+
+export function isMultiOwnerChannel(channel: IChannel): boolean {
+    return !isSingleOwnerChannel(channel);
+}
+
+export interface UserChannel {
+    type: 'user' | 'public';
+    ownerRef: mongoose.Types.ObjectId;
+}
+
+export interface OwnedChannel {
+    type: 'owned' | 'squealer';
+    ownerRef: mongoose.Types.ObjectId[];
+    users: [
+        {
+            userRef: mongoose.Types.ObjectId;
+            permission: permissionType;
+        },
+    ];
+    admins: mongoose.Types.ObjectId[];
+}
+
+// user e public sono userchannels, altri sono ownedchannels
 export interface IChannel {
     name: string;
     description: string;
-    private: boolean;
-    members: string[];
-    messages: string[];
+    members: UserChannel | OwnedChannel; // tutti i dati relativi alle persone nel canale
+    messages: string[]; // TODO: create tipo per i messaggi, che mettiamo qui
 }
 
 const ChannelSchema = new mongoose.Schema<IChannel>({
     name: { type: String, required: true },
     description: { type: String, required: false },
-    private: { type: Boolean, required: true },
-    members: { type: [String], required: true },
+    members: { type: Object, required: true }, // TODO: add validations for the object
     messages: { type: [String], required: true },
 });
 
