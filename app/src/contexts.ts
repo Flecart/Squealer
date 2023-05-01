@@ -5,3 +5,5 @@ export const AuthContext = createContext<[AuthResponse | null, Dispatch<SetState
     null,
     () => null,
 ]);
+
+export const ThemeContext = createContext<['light' | 'dark', () => void]>(['light', () => {}]);

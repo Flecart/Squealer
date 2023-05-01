@@ -77,7 +77,7 @@ function MakePost({ author, content }: PostProps): JSX.Element {
     return (
         <Container className="p-3 border-bottom border-light d-flex flex-column d-flex">
             <Author {...author} />
-            <hr className="text-light" />
+            <hr className="" />
             <PostContent {...content} />
         </Container>
     );
@@ -85,10 +85,10 @@ function MakePost({ author, content }: PostProps): JSX.Element {
 
 function PostContent(content: PostContentProps): JSX.Element {
     return (
-        <Container className="bg-dark">
+        <Container className="">
             <Stack className="" gap={3}>
                 {content.text !== null ? (
-                    <Container className="container-fluid text-light text-break">{content.text}</Container>
+                    <Container className="container-fluid  text-break">{content.text}</Container>
                 ) : null}
                 {content.img !== null ? (
                     <img
@@ -104,9 +104,9 @@ function PostContent(content: PostContentProps): JSX.Element {
 
 function Author(author: AuthorProps): JSX.Element {
     return (
-        <Container className="bg-dark">
+        <Container className="">
             <Container className="d-flex align-items-center">
-                <Container className="container-fluid text-light text-break">{author.name}</Container>
+                <Container className="container-fluid text-break">{author.name}</Container>
                 <img
                     src={author.img.src}
                     className="rounded align-self-center image-fluid"

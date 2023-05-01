@@ -2,7 +2,7 @@ import { Nav, Navbar, NavDropdown, Container, Form } from 'react-bootstrap';
 
 export function Header(): JSX.Element {
     return (
-        <Navbar className="container-fluid" bg="dark" variant="dark" expand="lg" sticky="top">
+        <Navbar className="container-fluid" expand="lg" sticky="top">
             <Container className="d-flex flex-row justify-content-center">
                 <Navbar.Brand>Squealer</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav border" />
