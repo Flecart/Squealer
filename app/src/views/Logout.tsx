@@ -12,29 +12,26 @@ export default function Logout(): JSX.Element {
     }
 
     return (
-        <>
-            <SidebarSearchLayout>
-                <Container className="d-flex justify-content-center">
-                    {authState === null && (
-                        <Container>
-                            <Alert variant="danger">Non sei loggato</Alert>
-                            <Button
-                                onClick={() => {
-                                    navigate('/login');
-                                }}
-                            >
-                                LogOut
-                            </Button>
-                        </Container>
-                    )}
-                    {authState !== null && (
-                        <Container className="d-flex justify-content-center">
-                            <Alert variant="light">Attualmente sei loggato come {authState?.username}</Alert>
-                            <Button onClick={handleLogout}>LogOut</Button>
-                        </Container>
-                    )}
-                </Container>
-            </SidebarSearchLayout>
-        </>
+        <SidebarSearchLayout>
+            <Container className="d-flex justify-content-center">
+                {authState === null ? (
+                    <Container>
+                        <Alert variant="danger">Non sei loggato</Alert>
+                        <Button
+                            onClick={() => {
+                                navigate('/login');
+                            }}
+                        >
+                            LogOut
+                        </Button>
+                    </Container>
+                ) : (
+                    <Container className="d-flex justify-content-center">
+                        <Alert variant="light">Attualmente sei loggato come {authState?.username}</Alert>
+                        <Button onClick={handleLogout}>LogOut</Button>
+                    </Container>
+                )}
+            </Container>
+        </SidebarSearchLayout>
     );
 }
