@@ -30,7 +30,7 @@ export interface IMessage {
     negReaction: mongoose.Types.ObjectId[];
 }
 
-const MessageSchema = new mongoose.Schema<IMessage>({
+export const MessageSchema = new mongoose.Schema<IMessage>({
     destination: { type: String, required: true },
     creator: { type: mongoose.Schema.Types.ObjectId, required: true, ref: UserAuthModelName },
     content: { type: Object, required: true },
@@ -41,3 +41,7 @@ const MessageSchema = new mongoose.Schema<IMessage>({
     posReaction: { type: [mongoose.Types.ObjectId], required: true, ref: UserModelName },
     negReaction: { type: [mongoose.Types.ObjectId], required: true, ref: UserModelName },
 });
+
+export const MessageModelName = 'Message';
+
+export default mongoose.model<IMessage>(MessageModelName, MessageSchema);

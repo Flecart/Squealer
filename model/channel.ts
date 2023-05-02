@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { IMessage } from './message';
+import { UserModelName } from './user';
 
 type readPermType = 1;
 type writePermType = 2;
@@ -22,6 +23,11 @@ export interface IUserChannel {
     ownerRef: mongoose.Types.ObjectId;
 }
 
+export const UserChannelScheme = new mongoose.Schema<IUserChannel>({
+    type: { type: String, required: true },
+    ownerRef: { type: mongoose.Schema.Types.ObjectId, required: true, ref: UserModelName },
+});
+
 export interface IOwnedChannel {
     type: 'owned' | 'squealer';
     ownerRef: mongoose.Types.ObjectId[];
@@ -33,6 +39,21 @@ export interface IOwnedChannel {
     ];
     admins: mongoose.Types.ObjectId[];
 }
+
+export const OwnedChannelScheme = new mongoose.Schema<IOwnedChannel>({
+    type: { type: String, required: true },
+    ownerRef: { type: [mongoose.Schema.Types.ObjectId], required: true, ref: UserModelName },
+    users: {
+        type: [
+            {
+                userRef: { type: mongoose.Schema.Types.ObjectId, required: true, ref: UserModelName },
+                permission: { type: Number, required: true },
+            },
+        ],
+        required: true,
+    },
+    admins: { type: [mongoose.Schema.Types.ObjectId], required: true, ref: UserModelName },
+});
 
 // user e public sono userchannels, altri sono ownedchannels
 export interface IChannel {
