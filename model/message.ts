@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import { UserAuthModelName } from './auth';
+import { UserModelName } from './user';
+import { IQuotas } from './quota';
 
 /** 
 Commento per le api
@@ -22,8 +24,10 @@ export interface IMessage {
     creator: mongoose.Types.ObjectId;
     date: Date;
     views: number;
-    posReaction: number;
-    negReaction: number;
+    used_quota: IQuotas;
+    max_quota: IQuotas;
+    posReaction: mongoose.Types.ObjectId[];
+    negReaction: mongoose.Types.ObjectId[];
 }
 
 const MessageSchema = new mongoose.Schema<IMessage>({
@@ -32,8 +36,8 @@ const MessageSchema = new mongoose.Schema<IMessage>({
     content: { type: Object, required: true },
     date: { type: Date, required: true },
     views: { type: Number, required: true },
-    posReaction: { type: Number, required: true },
-    negReaction: { type: Number, required: true },
+    used_quota: { type: Object, required: true },
+    max_quota: { type: Object, required: true },
+    posReaction: { type: [mongoose.Types.ObjectId], required: true, ref: UserModelName },
+    negReaction: { type: [mongoose.Types.ObjectId], required: true, ref: UserModelName },
 });
-
-export default mongoose.model<IMessage>('Messages', MessageSchema);

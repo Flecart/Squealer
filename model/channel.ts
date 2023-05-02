@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { IMessage } from './message';
 
 type readPermType = 1;
 type writePermType = 2;
@@ -16,12 +17,12 @@ export function isMultiOwnerChannel(channel: IChannel): boolean {
     return !isSingleOwnerChannel(channel);
 }
 
-export interface UserChannel {
+export interface IUserChannel {
     type: 'user' | 'public';
     ownerRef: mongoose.Types.ObjectId;
 }
 
-export interface OwnedChannel {
+export interface IOwnedChannel {
     type: 'owned' | 'squealer';
     ownerRef: mongoose.Types.ObjectId[];
     users: [
@@ -37,8 +38,8 @@ export interface OwnedChannel {
 export interface IChannel {
     name: string;
     description: string;
-    members: UserChannel | OwnedChannel; // tutti i dati relativi alle persone nel canale
-    messages: string[]; // TODO: create tipo per i messaggi, che mettiamo qui
+    members: IUserChannel | IOwnedChannel; // tutti i dati relativi alle persone nel canale
+    messages: IMessage; // TODO: create tipo per i messaggi, che mettiamo qui
 }
 
 const ChannelSchema = new mongoose.Schema<IChannel>({
