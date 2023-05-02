@@ -4,6 +4,7 @@ import Home from './views/Home';
 import NotFound from './views/NotFound';
 import Login from './views/Login';
 import User from './views/User';
+import Logout from './views/Logout';
 import { AuthContext, ThemeContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ const router = createBrowserRouter(
         <>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/logout" element={<Logout />} />
             <Route path="/user/:username" element={<User />} />
             <Route path="*" element={<NotFound />} />
         </>,

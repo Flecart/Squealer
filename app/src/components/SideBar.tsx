@@ -17,9 +17,19 @@ export function SideBar(): JSX.Element {
             <Link to="#">
                 <Button className="rounded">Impostazioni</Button>
             </Link>
-            {authState == null && (
+            {authState === null && (
                 <Link to="/login">
                     <Button className="rounded">Login</Button>
+                </Link>
+            )}
+            {authState !== null && (
+                <Link to="/logout">
+                    <Button className="rounded">Logout</Button>
+                </Link>
+            )}
+            {authState !== null && (
+                <Link to={`/user/${authState.username}`}>
+                    <Button className="rounded">Me</Button>
                 </Link>
             )}
             <Button
