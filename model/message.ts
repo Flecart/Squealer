@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { UserAuthModelName } from './auth';
 import { UserModelName } from './user';
 import { ChannelModelName } from './channel';
 
@@ -17,6 +16,7 @@ export type Img = string;
 Commento per le api
 */
 export interface IMessage {
+    _id: mongoose.Types.ObjectId;
     channel: mongoose.Types.ObjectId; // il canale a cui appartiene il messaggio
     parent?: mongoose.Types.ObjectId; // il messaggio a cui risponde
     content: {
@@ -24,7 +24,7 @@ export interface IMessage {
         data: string | Img | Maps;
     };
     children: mongoose.Types.ObjectId[];
-    creator: mongoose.Types.ObjectId;
+    creator: string;
     date: Date;
     views: number; // impressions.
 
@@ -40,7 +40,7 @@ export type MessageWithId = IMessage & {
 export const MessageModelName = 'Message';
 
 export const MessageSchema = new mongoose.Schema<IMessage>({
-    creator: { type: mongoose.Schema.Types.ObjectId, required: true, ref: UserAuthModelName },
+    creator: { type: String, required: true },
     channel: { type: mongoose.Schema.Types.ObjectId, required: true, ref: ChannelModelName },
     content: { type: Object, required: true },
     date: { type: Date, required: true },

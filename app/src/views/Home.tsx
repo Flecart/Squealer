@@ -1,5 +1,4 @@
-import { MakeFeed } from '../components/Post';
-import AddPost from '../components/AddPost';
+import { MakeFeed } from '../components/LoadFeed';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 
 export default function App(): JSX.Element {
@@ -7,7 +6,6 @@ export default function App(): JSX.Element {
         <SidebarSearchLayout>
             <>
                 <MakeFeed />
-                <AddPost />
             </>
         </SidebarSearchLayout>
     );

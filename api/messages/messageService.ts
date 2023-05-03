@@ -5,6 +5,7 @@ import { HttpError } from '@model/error';
 
 export class MessageService {
     public async create(destination: string, content: { type: string; data: string | Img | Maps }, username: string) {
+        // TODO: forse si può toglere questo controllo perchè l'utente deve essere loggato con il JWT valido
         const creatorName = await UserModel.findOne({ username: username });
         const channel = await ChannelModel.findOne({ name: destination });
 
@@ -19,7 +20,7 @@ export class MessageService {
             parent: null,
             content,
             children: [],
-            creator: creatorName._id,
+            creator: username,
             date: new Date(),
             views: 0,
             posReaction: [],

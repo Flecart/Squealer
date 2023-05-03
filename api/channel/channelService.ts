@@ -5,6 +5,10 @@ import AuthModel from '@model/auth';
 import { HydratedDocument } from 'mongoose';
 
 export class ChannelService {
+    public async list(): Promise<IChannel[]> {
+        return await ChannelModel.find({});
+    }
+
     public async create(channelName: string, owner: string, description?: string): Promise<ChannelResponse> {
         const ownerUser = await AuthModel.findOne({ username: owner });
         if (ownerUser === null) {
@@ -19,9 +23,8 @@ export class ChannelService {
             name: channelName,
             description: description ?? '',
             type: 'user',
-            members: {
-                userRef: ownerUser.userId,
-            },
+            owner: ownerUser._id,
+            members: [],
             messages: [],
         });
 

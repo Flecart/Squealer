@@ -1,33 +1,56 @@
 import { type IMessage } from '@model/message';
+import { useEffect, useState } from 'react';
 import { Row, Col, Container, Image } from 'react-bootstrap';
+import { apiUserBase } from '../api/routes';
+import { type IUser } from '@model/user';
+import { fetchApi } from '../api/fetch';
 
 interface PostProps {
     message: IMessage;
 }
 
 function Post({ message }: PostProps): JSX.Element {
-    const profiloUrl = '/user/1';
+    const [user, setUser] = useState<IUser | null>(null);
+
+    useEffect(() => {
+        fetchApi<IUser>(
+            `${apiUserBase}/${message.creator}`,
+            { method: 'GET' },
+            null,
+            (user) => {
+                setUser(() => user);
+            },
+            (error) => {
+                // TODO: rifare la richeista
+                console.log(error);
+            },
+        );
+    }, [message.creator]);
+
+    const profiloUrl = user !== null ? `/user/${user.username}` : '/404';
 
     return (
         <Row className="g-4" as="article" role="article">
             <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
-                <Image
-                    className="w-100 float-end"
-                    src="https://picsum.photos/100/100?1"
-                    alt="profile image"
-                    style={{ minWidth: '3rem', maxWidth: '5rem' }}
-                    roundedCircle
-                />
+                {user != null && (
+                    <Image
+                        className="w-100 float-end"
+                        src="{user.profileImage}"
+                        alt="profile image"
+                        style={{ minWidth: '3rem', maxWidth: '5rem' }}
+                        roundedCircle
+                    />
+                )}
             </Col>
             <Col>
                 <Container className="d-flex justify-content-center flex-column pb-4">
                     <Row>
                         <div>
                             <a href={profiloUrl} className="text-decoration-none ">
-                                <span className="fs-4 fw-bolder"> Mario rossi </span>
+                                <span className="fs-4 fw-bolder"> {user?.name}</span>
                             </a>
                             <a href={profiloUrl} className="text-decoration-none ">
-                                <span className="fw-light"> @mario </span>
+                                <span className="fw-light"> @{user?.username} </span>
                             </a>
                             <span className="fw-light"> {message.date.toString()} </span>{' '}
                             {/* TODO: transform in user good date. (like 1h or similiar */}

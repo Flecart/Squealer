@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { UserModelName } from './user';
 
 export interface IUserAuth {
     username: string;
@@ -25,11 +24,6 @@ const UserAuthSchema = new mongoose.Schema<IUserAuth>({
     },
     role: {
         type: String,
-        required: true,
-    },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: UserModelName,
         required: true,
     },
 });
