@@ -1,5 +1,5 @@
 import { Get, Body, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
-import { IMessage, MessageWithId } from '@model/message';
+import { IMessage, MessageCreation } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
 
@@ -7,9 +7,6 @@ import { getUserFromRequest } from '@api/utils';
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
 */
-export type MessageCreation = Pick<IMessage, 'content'> & {
-    destination: string;
-};
 
 @Route('/message')
 export class MessageController {
@@ -18,19 +15,18 @@ export class MessageController {
     @Response<IMessage>(204, 'Message Created')
     @Response<Error>(400, 'Bad request')
     public async createMessage(@Body() body_data: MessageCreation, @Request() request: any) {
-        await new MessageService().create(body_data.destination, body_data.content, getUserFromRequest(request));
+        await new MessageService().create(body_data, getUserFromRequest(request));
     }
 
     @Get('/')
     @Response<IMessage[]>(200, 'OK')
     public async readAll(): Promise<IMessage[]> {
-        return new MessageService().getMessages();
+        return new MessageService().getMessages(null);
     }
 
-    @Get('/{id}/')
-    @Response<MessageWithId[]>(200, 'OK')
-    public async readThread(@Path('id') _id: string): Promise<MessageWithId[]> {
-        return new MessageService().getMessages();
+    @Response<IMessage[]>(200, 'OK')
+    public async readThread(@Path('id') id: string): Promise<IMessage[]> {
+        return new MessageService().getMessages(id);
     }
 
     @Post('/batch-view')

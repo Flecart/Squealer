@@ -14,7 +14,13 @@ export type Img = string;
 
 /** 
 Commento per le api
+
 */
+
+export type MessageCreation = Pick<IMessage, 'content' | 'parent'> & {
+    destination: string;
+};
+
 export interface IMessage {
     _id: mongoose.Types.ObjectId;
     channel: mongoose.Types.ObjectId; // il canale a cui appartiene il messaggio

@@ -24,6 +24,9 @@ export function SideBar(): JSX.Element {
                     <Link to={`/user/${authState.username}`}>
                         <Button className="rounded">Me</Button>
                     </Link>
+                    <Link to={`/addpost`}>
+                        <Button className="rounded">Post</Button>
+                    </Link>
                 </>
             ) : (
                 <Link to="/login">
