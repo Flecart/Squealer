@@ -17,8 +17,8 @@ export class UserController extends Controller {
 
     @Delete('/delete')
     @Security('jwt')
-    @SuccessResponse(204, 'User Deleted')
-    public async deleteUser(@Request() request: any) {
+    @SuccessResponse(201, 'User Deleted')
+    public async deleteUser(@Request() request: any): Promise<any> {
         return new UserService().deleteUser(request.user['payload']['username']);
     }
 

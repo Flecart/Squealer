@@ -1,4 +1,4 @@
-import ModelUser,{IUser} from '@model/user';
+import ModelUser, { IUser } from '@model/user';
 import ModelUserAuth from '@model/auth';
 import UserModel from '@model/user';
 import { IQuotas } from '@model/quota';
@@ -13,11 +13,12 @@ export default class UserService {
         return userModel;
     }
 
-    public async deleteUser(username: string): Promise<void> {
+    public async deleteUser(username: string): Promise<any> {
         const authModel = await ModelUserAuth.findOne({ username: username }, 'userId').exec();
         if (authModel == null) throw new Error('User not found');
         ModelUser.deleteOne({ _id: authModel.userId }).exec();
         ModelUserAuth.deleteOne({ username: username }).exec();
+        return { message: 'User deleted' };
     }
 
     public async getQuota(username: string): Promise<IQuotas> {
