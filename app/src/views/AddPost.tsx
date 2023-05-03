@@ -47,9 +47,8 @@ export default function AddPost(): JSX.Element {
                 data: messageText,
                 type: 'text/plain',
             },
-
             channel: destination,
-            parent: parent ?? '',
+            parent,
         };
         fetchApi<IMessage>(
             `${apiMessageBase}/`,
@@ -94,10 +93,8 @@ export default function AddPost(): JSX.Element {
                 {parentMessage}
                 <Form>
                     <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                        <Form.Label>Email address</Form.Label>
+                        <Form.Label>Channel</Form.Label>
                         <Form.Control
-                            type="email"
-                            placeholder="name@example.com"
                             onChange={(e) => {
                                 setDestination(e.target.value);
                             }}
@@ -117,7 +114,9 @@ export default function AddPost(): JSX.Element {
                         <Form.Label>Default file input example</Form.Label>
                         <Form.Control type="file" />
                     </Form.Group>
-                    <Button type="submit" onClick={sendMessage}></Button>
+                    <Button type="submit" onClick={sendMessage}>
+                        Send
+                    </Button>
                 </Form>
             </>
         </SidebarSearchLayout>

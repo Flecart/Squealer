@@ -8,7 +8,7 @@ export class MessageService {
     public async getOwnedMessages(username: string) {
         return await MessageModel.find({ creator: username });
     }
-    public async create(message: MessageCreation, username: string) {
+    public async create(message: MessageCreation, username: string): Promise<IMessage> {
         const creatorName = await UserModel.findOne({ username: username });
 
         if (!creatorName) {
@@ -21,7 +21,7 @@ export class MessageService {
             throw new HttpError(404, 'Channel not found');
         }
         let parent = null;
-        if (message.parent !== null) {
+        if (message.parent !== undefined) {
             const tmp = await MessageModel.findOne({ _id: message.parent });
             if (tmp === null) throw new HttpError(404, 'Parent not found');
             else parent = tmp._id;
@@ -36,13 +36,13 @@ export class MessageService {
             views: 0,
             posReaction: [],
             negReaction: [],
+            parent,
         });
-        if (parent !== null) savedMessage.parent = parent;
         savedMessage.save();
 
         //TODO: aggiungere i messaggio da tutte le parti in cui serve
-        if (message.parent === null) {
-            channel.messages.push(message.parent);
+        if (message.parent === undefined) {
+            channel.messages.push(savedMessage._id);
             channel.save();
         }
         return savedMessage;

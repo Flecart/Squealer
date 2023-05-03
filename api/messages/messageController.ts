@@ -14,8 +14,8 @@ export class MessageController {
     @Security('jwt')
     @Response<IMessage>(204, 'Message Created')
     @Response<Error>(400, 'Bad request')
-    public async createMessage(@Body() body_data: MessageCreation, @Request() request: any) {
-        await new MessageService().create(body_data, getUserFromRequest(request));
+    public async createMessage(@Body() body_data: MessageCreation, @Request() request: any): Promise<IMessage> {
+        return await new MessageService().create(body_data, getUserFromRequest(request));
     }
 
     @Get('/')

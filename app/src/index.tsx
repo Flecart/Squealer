@@ -20,6 +20,7 @@ const router = createBrowserRouter(
             <Route path="/logout" element={<Logout />} />
             <Route path="/user/:username" element={<User />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/addpost/" element={<AddPost />} />
             <Route path="/addpost/:parent" element={<AddPost />} />
         </>,
     ),

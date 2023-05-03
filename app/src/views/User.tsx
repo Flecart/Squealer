@@ -1,6 +1,6 @@
 import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
-import Post from '../components/NewPost';
+import Post from '../components/Post';
 import { type IUser } from '@model/user';
 import { type HttpError } from '@model/error';
 import { useCallback, useEffect, useState } from 'react';
