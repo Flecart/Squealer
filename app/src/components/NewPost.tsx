@@ -35,7 +35,7 @@ function Post({ message }: PostProps): JSX.Element {
                 {user != null && (
                     <Image
                         className="w-100 float-end"
-                        src="{user.profileImage}"
+                        src={user.profile_pic}
                         alt="profile image"
                         style={{ minWidth: '3rem', maxWidth: '5rem' }}
                         roundedCircle
