@@ -2,20 +2,20 @@ import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import Post from '../components/NewPost';
 import { type IUser } from '@model/user';
-import { type MessageWithId } from '@model/message';
 import { type HttpError } from '@model/error';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
-import { apiGetMessages, apiUserBase } from 'src/api/routes';
+import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
+import { type IMessage } from '@model/message';
 
 function User(): JSX.Element {
     const { username } = useParams();
     const navigator = useNavigate();
 
     const [user, setUser] = useState<IUser | null>(null);
-    const [messages, setMessages] = useState<MessageWithId[] | null>(null);
+    const [messages, setMessages] = useState<IMessage[] | null>(null);
 
     const handleUserError = useCallback((error: HttpError): void => {
         console.log(error.message);
@@ -38,8 +38,8 @@ function User(): JSX.Element {
             handleUserError,
         );
 
-        fetchApi<MessageWithId[]>(
-            apiGetMessages,
+        fetchApi<IMessage[]>(
+            `${apiMessageBase}/user/${username}`,
             { method: 'GET' },
             null,
             (messages) => {

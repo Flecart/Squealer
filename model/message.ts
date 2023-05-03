@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { UserModelName } from './user';
-import { ChannelModelName } from './channel';
 
 /** 
 Commento per le api
@@ -14,16 +13,10 @@ export type Img = string;
 
 /** 
 Commento per le api
-
 */
-
-export type MessageCreation = Pick<IMessage, 'content' | 'parent'> & {
-    destination: string;
-};
-
 export interface IMessage {
     _id: mongoose.Types.ObjectId;
-    channel: mongoose.Types.ObjectId; // il canale a cui appartiene il messaggio
+    channel: string; // il canale a cui appartiene il messaggio
     parent?: mongoose.Types.ObjectId; // il messaggio a cui risponde
     content: {
         type: string;
@@ -39,15 +32,20 @@ export interface IMessage {
     negReaction: mongoose.Types.ObjectId[];
 }
 
-export type MessageWithId = IMessage & {
-    _id: mongoose.Types.ObjectId;
-};
+export interface MessageCreation {
+    channel: string; // il canale a cui appartiene il messaggio
+    parent?: string; // il messaggio a cui risponde
+    content: {
+        type: string;
+        data: string | Img | Maps;
+    };
+}
 
 export const MessageModelName = 'Message';
 
 export const MessageSchema = new mongoose.Schema<IMessage>({
     creator: { type: String, required: true },
-    channel: { type: mongoose.Schema.Types.ObjectId, required: true, ref: ChannelModelName },
+    channel: { type: String, required: true },
     content: { type: Object, required: true },
     date: { type: Date, required: true },
     children: { type: [mongoose.Types.ObjectId], require: true, ref: MessageModelName },

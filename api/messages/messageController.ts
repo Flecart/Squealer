@@ -24,6 +24,13 @@ export class MessageController {
         return new MessageService().getMessages(null);
     }
 
+    @Get('/user/{username}')
+    @Response<IMessage[]>(200, 'OK')
+    public async userMessage(@Path('username') user: string): Promise<IMessage[]> {
+        return new MessageService().getOwnedMessages(user);
+    }
+
+    @Get('/{id}/')
     @Response<IMessage[]>(200, 'OK')
     public async readThread(@Path('id') id: string): Promise<IMessage[]> {
         return new MessageService().getMessages(id);

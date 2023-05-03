@@ -3,7 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
-import { MessageCreation, type IMessage } from '@model/message';
+import { type MessageCreation, type IMessage } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase } from 'src/api/routes';
@@ -13,8 +13,8 @@ export default function AddPost(): JSX.Element {
     const navigate = useNavigate();
     const { parent } = useParams();
 
-    const [messageText, setMessageText] = useState('');
-    const [destination, setDestination] = useState('');
+    const [messageText, setMessageText] = useState<string>('');
+    const [destination, setDestination] = useState<string>('');
 
     if (authState === null) {
         navigate('/login');
@@ -33,21 +33,22 @@ export default function AddPost(): JSX.Element {
             (messaggio) => {
                 setDisplayParent(() => messaggio);
             },
-            (error) => {
+            (_error) => {
                 // TODO: gestire il caso in cui il parent non ci sia
                 setDisplayParent(() => undefined);
             },
         );
     }, [parent]);
 
-    function sendMessage(event: React.FormEvent<HTMLFormElement>): void {
+    function sendMessage(event: React.FormEvent<HTMLButtonElement>): void {
         event?.preventDefault();
         const message: MessageCreation = {
             content: {
                 data: messageText,
                 type: 'text/plain',
             },
-            destination: destination,
+
+            channel: destination,
             parent: parent ?? '',
         };
         fetchApi<IMessage>(
@@ -57,8 +58,12 @@ export default function AddPost(): JSX.Element {
                 body: JSON.stringify(message),
             },
             authState,
-            (message) => {},
-            (error) => {},
+            (message) => {
+                console.log(message);
+            },
+            (error) => {
+                console.log(error);
+            },
         );
     }
     let parentMessage = <> </>;
