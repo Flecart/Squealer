@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import * as jose from 'jose';
 import { HydratedDocument, Types } from 'mongoose';
 import { AuthResponse } from '@model/auth';
+import { DEFAULT_QUOTA } from '@config/api';
 
 export class LoginService {
     public async createUser(name: string, password: string): Promise<AuthResponse> {
@@ -60,12 +61,13 @@ export class LoginService {
     private _createDefaultUser(username: string, name: string): HydratedDocument<IUser> {
         return new UserModel({
             name: name,
+            username: username,
             channels: [],
-            day_quote: 0,
-            week_quote: 0,
-            month_quote: 0,
+            messages: [],
             profile_pic: `https://api.dicebear.com/6.x/notionists/svg?seed=${username}`,
             clients: [],
+            maxQuota: DEFAULT_QUOTA,
+            usedQuota: { today: 0, week: 0, month: 0 },
         });
     }
 

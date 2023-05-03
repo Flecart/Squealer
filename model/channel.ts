@@ -1,19 +1,48 @@
 import mongoose from 'mongoose';
+import { IMessage } from './message';
+import { UserModelName } from './user';
 
+type readPermType = 1;
+type writePermType = 2;
+export type permissionType = writePermType | readPermType;
+export const readPermission: permissionType = 1;
+export const writePermission: permissionType = 2;
+
+export type channelType = 'user' | 'owned' | 'squealer' | 'public';
+
+export function isSingleOwnerChannel(channel: IChannel): boolean {
+    return channel.type == 'user' || channel.type == 'public';
+}
+
+export function isMultiOwnerChannel(channel: IChannel): boolean {
+    return !isSingleOwnerChannel(channel);
+}
+
+// user e public sono userchannels, altri sono ownedchannels
 export interface IChannel {
     name: string;
     description: string;
-    private: boolean;
-    members: string[];
-    messages: string[];
+    type: channelType;
+    owner: mongoose.Schema.Types.ObjectId;
+    users: {
+        user: mongoose.Schema.Types.ObjectId[];
+        privilege: permissionType;
+    };
+    messages: IMessage; // TODO: create tipo per i messaggi, che mettiamo qui
 }
 
 const ChannelSchema = new mongoose.Schema<IChannel>({
     name: { type: String, required: true },
     description: { type: String, required: false },
-    private: { type: Boolean, required: true },
-    members: { type: [String], required: true },
     messages: { type: [String], required: true },
+    type: { type: String, required: true },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: UserModelName, required: true },
+    users: {
+        user: [{ type: mongoose.Schema.Types.ObjectId, ref: UserModelName, required: true }],
+        privilege: { type: Number, required: true },
+    },
 });
 
-export default mongoose.model<IChannel>('Channel', ChannelSchema);
+export const ChannelModelName = 'Channel';
+
+export default mongoose.model<IChannel>(ChannelModelName, ChannelSchema);

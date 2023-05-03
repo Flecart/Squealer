@@ -1,7 +1,13 @@
+import * as mongoose from 'mongoose';
+
 export interface IQuotas {
-    total: number;
     day: number;
     month: number;
     week: number;
-    extraQuota: number;
 }
+
+export const QutasSchema = new mongoose.Schema<IQuotas>({
+    day: { type: Number, required: true },
+    month: { type: Number, required: true },
+    week: { type: Number, required: true },
+});
