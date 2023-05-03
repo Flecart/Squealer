@@ -33,6 +33,10 @@ export interface IMessage {
     negReaction: mongoose.Types.ObjectId[];
 }
 
+export type MessageWithId = IMessage & {
+    _id: mongoose.Types.ObjectId;
+};
+
 export const MessageModelName = 'Message';
 
 export const MessageSchema = new mongoose.Schema<IMessage>({

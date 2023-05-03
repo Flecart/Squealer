@@ -1,5 +1,5 @@
 import { Get, Body, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
-import { IMessage } from '@model/message';
+import { IMessage, MessageWithId } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
 
@@ -28,8 +28,8 @@ export class MessageController {
     }
 
     @Get('/{id}/')
-    @Response<IMessage[]>(200, 'OK')
-    public async readThread(@Path('id') _id: string): Promise<IMessage[]> {
+    @Response<MessageWithId[]>(200, 'OK')
+    public async readThread(@Path('id') _id: string): Promise<MessageWithId[]> {
         return new MessageService().getMessages();
     }
 

@@ -1,16 +1,21 @@
+import { type IMessage } from '@model/message';
 import { Row, Col, Container, Image } from 'react-bootstrap';
-import '../scss/Posts.scss';
 
-function Post(): JSX.Element {
+interface PostProps {
+    message: IMessage;
+}
+
+function Post({ message }: PostProps): JSX.Element {
     const profiloUrl = '/user/1';
 
     return (
         <Row className="g-4" as="article" role="article">
             <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
                 <Image
-                    className="w-100 min-max-img float-end"
+                    className="w-100 float-end"
                     src="https://picsum.photos/100/100?1"
                     alt="profile image"
+                    style={{ minWidth: '3rem', maxWidth: '5rem' }}
                     roundedCircle
                 />
             </Col>
@@ -21,22 +26,17 @@ function Post(): JSX.Element {
                             <a href={profiloUrl} className="text-decoration-none ">
                                 <span className="fs-4 fw-bolder"> Mario rossi </span>
                             </a>
-
                             <a href={profiloUrl} className="text-decoration-none ">
                                 <span className="fw-light"> @mario </span>
                             </a>
-
-                            <span className="fw-light"> - 1h </span>
+                            <span className="fw-light"> {message.date.toString()} </span>{' '}
+                            {/* TODO: transform in user good date. (like 1h or similiar */}
                         </div>
                     </Row>
                     <Row>
                         <p>
-                            {' '}
-                            LLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                            ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                            laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-                            voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                            cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id{' '}
+                            {message.content.data}{' '}
+                            {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
                         </p>
                     </Row>
                 </Container>

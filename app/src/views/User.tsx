@@ -2,11 +2,12 @@ import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import Post from '../components/NewPost';
 import { type IUser } from '@model/user';
+import { type MessageWithId } from '@model/message';
 import { type HttpError } from '@model/error';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
-import { apiUserBase } from 'src/api/routes';
+import { apiGetMessages, apiUserBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 
 function User(): JSX.Element {
@@ -14,28 +15,43 @@ function User(): JSX.Element {
     const navigator = useNavigate();
 
     const [user, setUser] = useState<IUser | null>(null);
-    const handlerApiError = (error: HttpError): void => {
+    const [messages, setMessages] = useState<MessageWithId[] | null>(null);
+
+    const handleUserError = useCallback((error: HttpError): void => {
         console.log(error.message);
         if (error.status === 404) navigator('/404');
-    };
+    }, []);
+
+    const handleMessageError = useCallback((error: HttpError): void => {
+        console.log(error.message);
+    }, []);
 
     useEffect(() => {
         if (username === undefined) return;
         fetchApi<IUser>(
             `${apiUserBase}/${username}`,
-            {
-                method: 'GET',
-            },
+            { method: 'GET' },
             null,
             (user) => {
                 setUser(() => user);
             },
-            handlerApiError,
+            handleUserError,
+        );
+
+        fetchApi<MessageWithId[]>(
+            apiGetMessages,
+            { method: 'GET' },
+            null,
+            (messages) => {
+                setMessages(messages);
+            },
+            handleMessageError,
         );
     }, [username]);
 
     const handleTabChange = (key: string | null): void => {
         console.log(key);
+        // TODO: set stuff of tab change...
     };
 
     return (
@@ -81,11 +97,11 @@ function User(): JSX.Element {
                         {/* TODO: forse i tabs dovrebbero essere dei componenti? dovremmo dare chiave, elemento, poi anche funzione (che carichi le cose, quindi credo vera
                             mente che sarebbe meglio farlo componente separato) */}
                         <Tab eventKey="hightlight" title="Highlight">
-                            <Post />
-                            <Post />
-                            <Post />
-                            <Post />
-                            <Post />
+                            {/* Display posts in for loop if they exists */}
+
+                            {messages?.map((message) => (
+                                <Post key={message._id as unknown as string} message={message} />
+                            ))}
                         </Tab>
                         <Tab eventKey="posts" title="Last Posts">
                             hello

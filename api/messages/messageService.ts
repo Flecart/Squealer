@@ -28,6 +28,6 @@ export class MessageService {
     }
 
     public async getMessages() {
-        return MessageModel.find({});
+        return await MessageModel.find({});
     }
 }
