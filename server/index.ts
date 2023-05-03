@@ -17,7 +17,8 @@ function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Funct
     if (err instanceof HttpError) {
         httpError = err;
     } else {
-        httpError = new HttpError(500, err.message);
+        console.error(err);
+        httpError = new HttpError(500, `Error: ${err.message}`);
     }
 
     res.status(httpError.status).send(

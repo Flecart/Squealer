@@ -19,14 +19,18 @@ export class ChannelService {
             throw new HttpError(400, 'Channel name already exists');
         }
 
-        ChannelModel.create({
-            name: channelName,
-            description: description ?? '',
-            type: 'user',
-            owner: ownerUser._id,
-            members: [],
-            messages: [],
-        });
+        try {
+            ChannelModel.create({
+                name: channelName,
+                description: description ?? '',
+                type: 'user',
+                owner: ownerUser._id,
+                users: [],
+                messages: [],
+            });
+        } catch (err) {
+            throw new HttpError(500, 'Error creating channel');
+        }
 
         return { message: 'Channel created' };
     }
