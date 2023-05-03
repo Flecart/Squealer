@@ -2,3 +2,4 @@ const apiBase = `${process.env.NODE_ENV === 'development' ? 'http://localhost:30
 
 export const apiLogin = `${apiBase}/auth/login`;
 export const apiUserBase = `${apiBase}/user`;
+export const apiCreate = `${apiBase}/auth/create`;

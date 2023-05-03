@@ -1,4 +1,4 @@
-import { Security, Request, Get, Post, Route, SuccessResponse, Controller, Path } from '@tsoa/runtime';
+import { Security, Request, Get, Post, Route, SuccessResponse, Controller, Path, Delete } from '@tsoa/runtime';
 // import {IUser} from "../../model/user";
 import UserService from './userService';
 
@@ -13,6 +13,13 @@ export class UserController extends Controller {
     @Get('{username}')
     public async getUser(@Path() username: string) {
         return new UserService().getUser(username);
+    }
+
+    @Delete('/delete')
+    @Security('jwt')
+    @SuccessResponse(204, 'User Deleted')
+    public async deleteUser(@Request() request: any) {
+        return new UserService().deleteUser(request.user['payload']['username']);
     }
 
     // TODO: probabilmente le Quota sono da spostare in un controller sotto /api/user/Quota

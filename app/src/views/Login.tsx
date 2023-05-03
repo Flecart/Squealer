@@ -24,7 +24,7 @@ export default function Login(): JSX.Element {
         }
     }, [authState]);
 
-    const handleCreateUser = useCallback(
+    const handleLoginUser = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             setErrorMessage(null);
@@ -60,7 +60,7 @@ export default function Login(): JSX.Element {
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center">
-                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleCreateUser}>
+                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleLoginUser}>
                     <FormGroup className="mb-3">
                         <Form.Label className="text-light">Username</Form.Label>
                         <Form.Control

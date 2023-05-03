@@ -26,9 +26,14 @@ export function SideBar(): JSX.Element {
                     </Link>
                 </>
             ) : (
-                <Link to="/login">
-                    <Button className="rounded">Login</Button>
-                </Link>
+                <>
+                    <Link to="/login">
+                        <Button className="rounded">Login</Button>
+                    </Link>
+                    <Link to="/create">
+                        <Button className="rounded">Registrati</Button>
+                    </Link>
+                </>
             )}
         </Navbar>
     );
