@@ -11,7 +11,7 @@ export const writePermission: permissionType = 2;
 export type channelType = 'user' | 'owned' | 'squealer' | 'public';
 
 export function isSingleOwnerChannel(channel: IChannel): boolean {
-    return channel.members.type === 'user' || channel.members.type === 'public';
+    return channel.type == 'user' || channel.type == 'public';
 }
 
 export function isMultiOwnerChannel(channel: IChannel): boolean {
@@ -26,7 +26,7 @@ export interface IChannel {
     owner: mongoose.Schema.Types.ObjectId;
     users: {
         user: mongoose.Schema.Types.ObjectId[];
-        privilage: number;
+        privilege: permissionType;
     };
     messages: IMessage; // TODO: create tipo per i messaggi, che mettiamo qui
 }
@@ -39,8 +39,10 @@ const ChannelSchema = new mongoose.Schema<IChannel>({
     owner: { type: mongoose.Schema.Types.ObjectId, ref: UserModelName, required: true },
     users: {
         user: [{ type: mongoose.Schema.Types.ObjectId, ref: UserModelName, required: true }],
-        privilage: { type: Number, required: true },
+        privilege: { type: Number, required: true },
     },
 });
 
-export default mongoose.model<IChannel>('Channel', ChannelSchema);
+export const ChannelModelName = 'Channel';
+
+export default mongoose.model<IChannel>(ChannelModelName, ChannelSchema);

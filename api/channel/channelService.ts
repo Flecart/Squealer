@@ -1,7 +1,7 @@
 import { HttpError } from '@model/error';
 import { ChannelResponse } from './channelController';
-import ChannelModel, { IChannel, isMultiOwnerChannel } from '@model/channel';
-import AuthModel, { IUserAuth } from '@model/auth';
+import ChannelModel, { IChannel } from '@model/channel';
+import AuthModel from '@model/auth';
 import { HydratedDocument } from 'mongoose';
 
 export class ChannelService {
@@ -66,16 +66,17 @@ export class ChannelService {
         return { message: `TODO: User ${username} added as owner of channel ${channelName}` };
     }
 
-    async getOwnerNames(channel: HydratedDocument<IChannel>): Promise<string[]> {
-        if (isMultiOwnerChannel(channel)) {
-            const owners = await AuthModel.find({ userId: { $in: channel.members.ownerRef } });
-            return owners.map((owner: IUserAuth) => owner.username);
-        } else {
-            const owner = await AuthModel.findOne({ userId: channel.members.ownerRef });
-            if (owner === null) {
-                throw new HttpError(500, `User with id ${channel.members.ownerRef} does not exist`);
-            }
-            return [owner.username];
-        }
+    async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {
+        // if (isMultiOwnerChannel(channel)) {
+        //     const owners = await AuthModel.find({ userId: { $in: channel.members.ownerRef } });
+        //     return owners.map((owner: IUserAuth) => owner.username);
+        // } else {
+        //     const owner = await AuthModel.findOne({ userId: channel.ownerRef });
+        //     if (owner === null) {
+        //         throw new HttpError(500, `User with id ${channel.ownerRef} does not exist`);
+        //     }
+        //     return [owner.username];
+        // }
+        return [];
     }
 }
