@@ -3,7 +3,7 @@ import { Spinner, Stack, Container } from 'react-bootstrap';
 import Post from './Post';
 import { type IMessage } from '@model/message';
 import { fetchApi } from '../api/fetch';
-import { apiMessageBase } from '../api/routes';
+import { apiFeedBase } from '../api/routes';
 
 export function MakeFeed(): JSX.Element {
     // TODO: gestire il caricamento etc
@@ -11,7 +11,7 @@ export function MakeFeed(): JSX.Element {
 
     useEffect(() => {
         fetchApi<IMessage[]>(
-            `${apiMessageBase}`,
+            `${apiFeedBase}`,
             { method: 'GET' },
             null,
             (contents) => {

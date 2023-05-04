@@ -34,7 +34,7 @@ export interface IMessage {
 
 export interface MessageCreation {
     channel: string; // il canale a cui appartiene il messaggio
-    parent?: string; // il messaggio a cui risponde
+    parent: string | undefined; // il messaggio a cui risponde
     content: {
         type: string;
         data: string | Img | Maps;
