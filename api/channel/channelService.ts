@@ -24,7 +24,7 @@ export class ChannelService {
             description: description ?? '',
             type: 'user',
             owner: ownerUser._id,
-            members: [],
+            users: [],
             messages: [],
         });
 

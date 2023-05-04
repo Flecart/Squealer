@@ -26,11 +26,14 @@ export class ChannelController extends Controller {
     public async list(): Promise<IChannel[]> {
         return new ChannelService().list();
     }
+
     @Post('create')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(201, 'Channel created')
     public async create(@Body() channelInfo: ChannelInfo, @Request() request: any): Promise<ChannelResponse> {
+        console.info('ChannelController.create: ', channelInfo, getUserFromRequest(request));
+
         return new ChannelService().create(
             channelInfo.channelName,
             getUserFromRequest(request),
