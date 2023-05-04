@@ -40,17 +40,25 @@ export class LoginService {
         // TODO: simplify me
         const usernamePref = name.toLowerCase().split(' ').join('');
         let username = '';
-        const isPresent = (await AuthUserModel.count({ username: usernamePref }).exec()) > 0;
 
-        if (isPresent) {
+        const isPresent = async (username: string) => (await AuthUserModel.count({ username: username }).exec()) > 0;
+
+        if (await isPresent(usernamePref)) {
             const lastName = await AuthUserModel.find({ username: new RegExp(`^${usernamePref}[0-9]*$`) }, 'username')
                 .sort({ username: -1 })
                 .limit(1)
                 .exec();
 
-            const lastNameNumber =
-                lastName && lastName[0] ? parseInt(lastName[0].username.replace(usernamePref, '')) + 1 : 1;
-            username = usernamePref + lastNameNumber.toString();
+            if (lastName !== null && lastName.length > 0) {
+                const suffix = lastName[0]?.username.replace(usernamePref, '');
+                if (suffix === '' || suffix === undefined) username = usernamePref + '1';
+                else username = usernamePref + (parseInt(suffix) + 1).toString();
+            } else {
+                username = usernamePref + '1';
+            }
+            if (await isPresent(username)) {
+                return Promise.reject(new HttpError(400, 'Username already taken'));
+            }
         } else {
             username = usernamePref;
         }
