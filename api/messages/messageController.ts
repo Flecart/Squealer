@@ -2,6 +2,7 @@ import { Get, Body, Post, Route, Request, Response, Path, Security } from '@tsoa
 import { IMessage, MessageCreation } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
+import { type MessageCreationRensponse } from '../../model/message';
 
 /*
     MessageCreation is a type that is used to create a message.
@@ -14,16 +15,18 @@ export class MessageController {
     @Security('jwt')
     @Response<IMessage>(204, 'Message Created')
     @Response<Error>(400, 'Bad request')
-    public async createMessage(@Body() bodyData: MessageCreation, @Request() request: any): Promise<IMessage> {
+    public async createMessage(
+        @Body() bodyData: MessageCreation,
+        @Request() request: any,
+    ): Promise<MessageCreationRensponse> {
         console.info('MessageController.createMessage: ', bodyData, getUserFromRequest(request));
-
         return await new MessageService().create(bodyData, getUserFromRequest(request));
     }
 
     @Get('/')
     @Response<IMessage[]>(200, 'OK')
     public async readAll(): Promise<IMessage[]> {
-        return new MessageService().getMessages(null);
+        return new MessageService().getMessages();
     }
 
     @Get('/user/{username}')
@@ -33,9 +36,9 @@ export class MessageController {
     }
 
     @Get('/{id}/')
-    @Response<IMessage[]>(200, 'OK')
-    public async readThread(@Path('id') id: string): Promise<IMessage[]> {
-        return new MessageService().getMessages(id);
+    @Response<IMessage>(200, 'OK')
+    public async readThread(@Path('id') id: string): Promise<IMessage> {
+        return new MessageService().getMessagesWithId(id);
     }
 
     @Post('/batch-view')

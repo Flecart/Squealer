@@ -58,6 +58,6 @@ export const MessageSchema = new mongoose.Schema<IMessage>({
 export default mongoose.model<IMessage>(MessageModelName, MessageSchema);
 
 export interface MessageCreationRensponse {
-    _id: mongoose.Types.ObjectId;
+    id: string;
     channel: string;
 }
