@@ -121,5 +121,8 @@
         "config/endpoints.json",
         "models/**/*.ts", "deploy/scripts/scripts.ts",
     ],
+    "exclude": [
+        "api/**/*.spec.ts",
+    ]
   }
   

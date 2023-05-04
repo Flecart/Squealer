@@ -1,6 +1,6 @@
 import { describe, expect } from '@jest/globals';
 
-describe('UserService', () => {
+describe('ChannelService', () => {
     it('should compile', () => {
         expect(true).toBeTruthy();
     });
