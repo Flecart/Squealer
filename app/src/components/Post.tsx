@@ -65,9 +65,12 @@ function Post({ message }: PostProps): JSX.Element {
                             {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
                         </p>
                     </Row>
-                    <Row>
-                        <Link to={`/addpost/${message._id.toString()}`}>Replay</Link>
-                    </Row>
+                    {authState !== null && (
+                        <Row>
+                            {' '}
+                            <Link to={`/addpost/${message._id.toString()}`}>Replay</Link>{' '}
+                        </Row>
+                    )}
                 </Container>
             </Col>
         </Row>
