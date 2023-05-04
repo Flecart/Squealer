@@ -1,9 +1,11 @@
 import { type IMessage } from '@model/message';
-import { useEffect, useState } from 'react';
-import { Row, Col, Container, Image } from 'react-bootstrap';
-import { apiUserBase } from '../api/routes';
 import { type IUser } from '@model/user';
+import { useContext, useEffect, useState } from 'react';
+import { Col, Container, Image, Row } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
+import { apiUserBase } from '../api/routes';
 
 interface PostProps {
     message: IMessage;
@@ -11,6 +13,7 @@ interface PostProps {
 
 function Post({ message }: PostProps): JSX.Element {
     const [user, setUser] = useState<IUser | null>(null);
+    const [authState] = useContext(AuthContext);
 
     useEffect(() => {
         fetchApi<IUser>(
@@ -61,6 +64,9 @@ function Post({ message }: PostProps): JSX.Element {
                             {message.content.data}{' '}
                             {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
                         </p>
+                    </Row>
+                    <Row>
+                        <Link to={`/addpost/${message._id.toString()}`}>Replay</Link>
                     </Row>
                 </Container>
             </Col>

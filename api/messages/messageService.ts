@@ -2,7 +2,7 @@ import UserModel from '@model/user';
 import ChannelModel from '@model/channel';
 import MessageModel, { IMessage } from '@model/message';
 import { HttpError } from '@model/error';
-import { MessageCreation } from '@model/message';
+import { MessageCreation, MessageCreationRensponse } from '@model/message';
 
 export class MessageService {
     
@@ -10,7 +10,7 @@ export class MessageService {
         return await MessageModel.find({ creator: username });
     }
 
-    public async create(message: MessageCreation, username: string): Promise<IMessage> {
+    public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {
         const creatorName = await UserModel.findOne({ username: username });
         if (!creatorName) {
             throw new HttpError(404, 'Username not found');
@@ -47,7 +47,10 @@ export class MessageService {
             channel.messages.push(savedMessage._id);
             channel.save();
         }
-        return savedMessage;
+        return {
+            _id: savedMessage._id,
+            channel: savedMessage.channel,
+        };
     }
 
     public async getMessages(id: string | null) {

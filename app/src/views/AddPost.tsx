@@ -50,7 +50,7 @@ export default function AddPost(): JSX.Element {
             channel: destination,
             parent,
         };
-        fetchApi<IMessage>(
+        fetchApi<MessageCreationRensponse>(
             `${apiMessageBase}/`,
             {
                 method: 'POST',
@@ -58,11 +58,9 @@ export default function AddPost(): JSX.Element {
             },
             authState,
             (message) => {
-                console.log(message);
+                navigate(`/message/${message.id}`);
             },
-            (error) => {
-                console.log(error);
-            },
+            (error) => {},
         );
     }
     let parentMessage = <> </>;
