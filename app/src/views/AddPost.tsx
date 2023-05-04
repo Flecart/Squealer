@@ -81,41 +81,39 @@ export default function AddPost(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <>
-                {parentMessage}
-                <Form>
-                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                        <Form.Label>Channel</Form.Label>
-                        <Form.Control
-                            onChange={(e) => {
-                                setDestination(e.target.value);
-                            }}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                        <Form.Label>Example textarea</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            onChange={(e) => {
-                                setMessageText(e.target.value);
-                            }}
-                        />
-                    </Form.Group>
-                    <Form.Group>
-                        <Form.Label>Default file input example</Form.Label>
-                        <Form.Control type="file" />
-                    </Form.Group>
-                    <Button type="submit" onClick={sendMessage}>
-                        Send
-                    </Button>
-                    {error !== null && (
-                        <Row>
-                            <Alert variant="danger">{error}</Alert>
-                        </Row>
-                    )}
-                </Form>
-            </>
+            {parentMessage}
+            <Form>
+                <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                    <Form.Label>Channel</Form.Label>
+                    <Form.Control
+                        onChange={(e) => {
+                            setDestination(e.target.value);
+                        }}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                    <Form.Label>Example textarea</Form.Label>
+                    <Form.Control
+                        as="textarea"
+                        rows={3}
+                        onChange={(e) => {
+                            setMessageText(e.target.value);
+                        }}
+                    />
+                </Form.Group>
+                <Form.Group>
+                    <Form.Label>Default file input example</Form.Label>
+                    <Form.Control type="file" />
+                </Form.Group>
+                <Button type="submit" onClick={sendMessage}>
+                    Send
+                </Button>
+                {error !== null && (
+                    <Row>
+                        <Alert variant="danger">{error}</Alert>
+                    </Row>
+                )}
+            </Form>
         </SidebarSearchLayout>
     );
 }

@@ -3,7 +3,7 @@ import { Header } from '../components/Header';
 import { Container, Row, Col } from 'react-bootstrap';
 
 interface Props {
-    children: JSX.Element;
+    children: JSX.Element | JSX.Element[];
 }
 
 export default function SidebarSearchLayout({ children }: Props): JSX.Element {
@@ -16,7 +16,7 @@ export default function SidebarSearchLayout({ children }: Props): JSX.Element {
             </Col>
             <Col lg={6} className="border-start border-end border-light">
                 <Header />
-                {children}
+                {children instanceof Array ? children.map((child) => child) : children}
             </Col>
         </Row>
     );

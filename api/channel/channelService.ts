@@ -23,7 +23,7 @@ export class ChannelService {
             name: channelName,
             description: description ?? '',
             type: 'user',
-            owner: ownerUser._id,
+            owner: owner,
             users: [],
             messages: [],
         });
