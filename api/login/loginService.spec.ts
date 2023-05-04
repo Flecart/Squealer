@@ -4,15 +4,11 @@ import { Credentials } from './loginController';
 import initMongo from '../../server/mongo';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { baseUrl, apiUserCreate, apiUserLogin } from '../utils';
 
 dotenv.config({
     path: './.env',
 });
-
-const baseUrl = 'http://localhost:3000';
-
-const apiUserCreate = '/api/auth/create';
-const apiUserLogin = '/api/auth/login';
 
 const dropDatabase = () => {
     initMongo().then(async () => {
