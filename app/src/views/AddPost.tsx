@@ -79,6 +79,14 @@ export default function AddPost(): JSX.Element {
         }
     }
 
+    const channelValue = (): string => {
+        if (parent !== undefined && displayParent instanceof Object) {
+            return displayParent.channel;
+        } else {
+            return '';
+        }
+    };
+
     return (
         <SidebarSearchLayout>
             {parentMessage}
@@ -92,13 +100,15 @@ export default function AddPost(): JSX.Element {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                    <Form.Label>Example textarea</Form.Label>
+                    <Form.Label>Message Content</Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={3}
                         onChange={(e) => {
                             setMessageText(e.target.value);
                         }}
+                        disabled={parent !== undefined}
+                        value={channelValue()}
                     />
                 </Form.Group>
                 <Form.Group>

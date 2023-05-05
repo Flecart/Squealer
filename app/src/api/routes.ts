@@ -4,3 +4,4 @@ export const apiLogin = `${apiBase}/auth/login`;
 export const apiUserBase = `${apiBase}/user`;
 export const apiMessageBase = `${apiBase}/message`;
 export const apiFeedBase = `${apiBase}/feed`;
+export const apiChannelBase = `${apiBase}/channel`;
