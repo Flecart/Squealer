@@ -64,14 +64,14 @@ export default function AddPost(): JSX.Element {
 
     function sendMessage(event: React.FormEvent<HTMLButtonElement>): void {
         event?.preventDefault();
-        if (user !== null && haveEnoughtQuota(user, messageText.length)) {
+        if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
             setError(() => 'Not enought quota');
             return;
         }
         const message: MessageCreation = {
             content: {
                 data: messageText,
-                type: 'text/plain',
+                type: 'text',
             },
             channel: destination,
             parent,

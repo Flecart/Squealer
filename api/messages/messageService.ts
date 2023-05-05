@@ -31,15 +31,20 @@ export class MessageService {
         if (message.content.type === 'text') {
             const lenChar = message.content.data.length;
             if (haveEnoughtQuota(creator, lenChar)) {
+                console.log(creator);
                 creator.usedQuota.day += lenChar;
                 creator.usedQuota.week += lenChar;
                 creator.usedQuota.month += lenChar;
+                creator.markModified('usedQuota');
                 creator.save();
+
+                console.log(creator);
             } else {
                 throw new HttpError(403, 'Quota exceeded');
             }
         } else {
             //TODO:implementare per gli latri tipi
+            throw new HttpError(501, 'Not implemented');
         }
 
         let savedMessage = new MessageModel({

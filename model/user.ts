@@ -26,9 +26,9 @@ export interface IUser {
 
 export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
     return (
-        user.usedQuota.day + lenChar > user.maxQuota.day &&
-        user.usedQuota.week + lenChar > user.maxQuota.week &&
-        user.usedQuota.month + lenChar > user.maxQuota.month
+        user.usedQuota.day + lenChar < user.maxQuota.day &&
+        user.usedQuota.week + lenChar < user.maxQuota.week &&
+        user.usedQuota.month + lenChar < user.maxQuota.month
     );
 }
 
