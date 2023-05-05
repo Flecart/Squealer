@@ -5,3 +5,5 @@ export const DEFAULT_QUOTA: IQuotas = {
     month: 1000,
     week: 20000,
 };
+
+export const DEFAULT_UPLOAD_DIR = 'uploads/';

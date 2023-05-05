@@ -8,9 +8,13 @@ export async function fetchApi<T>(
     success: (a: T) => void,
     error: (a: HttpError) => void,
 ): void {
-    const headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    headers.append('Accept', 'application/json');
+    let headers = new Headers();
+    if (init.headers === undefined) {
+        headers.append('Content-Type', 'application/json');
+        headers.append('Accept', 'application/json');
+    } else {
+        headers = init.headers as unknown as Headers;
+    }
 
     if (auth !== null) {
         headers.append('Authorization', 'Bearer ' + auth.token);
