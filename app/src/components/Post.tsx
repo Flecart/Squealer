@@ -1,9 +1,11 @@
 import { type IMessage } from '@model/message';
-import { useEffect, useState } from 'react';
-import { Row, Col, Container, Image } from 'react-bootstrap';
-import { apiUserBase } from '../api/routes';
 import { type IUser } from '@model/user';
+import { useContext, useEffect, useState } from 'react';
+import { Col, Container, Image, Row } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
+import { apiUserBase } from '../api/routes';
 
 interface PostProps {
     message: IMessage;
@@ -11,7 +13,8 @@ interface PostProps {
 
 function Post({ message }: PostProps): JSX.Element {
     const [user, setUser] = useState<IUser | null>(null);
-
+    const [authState] = useContext(AuthContext);
+    const navigator = useNavigate();
     useEffect(() => {
         fetchApi<IUser>(
             `${apiUserBase}/${message.creator}`,
@@ -56,12 +59,22 @@ function Post({ message }: PostProps): JSX.Element {
                             {/* TODO: transform in user good date. (like 1h or similiar */}
                         </div>
                     </Row>
-                    <Row>
+                    <Row
+                        onClick={() => {
+                            navigator(`/message/${message._id.toString()}`);
+                        }}
+                    >
                         <p>
                             {message.content.data}{' '}
                             {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
                         </p>
                     </Row>
+                    {authState !== null && (
+                        <Row>
+                            {' '}
+                            <Link to={`/addpost/${message._id.toString()}`}>Replay</Link>{' '}
+                        </Row>
+                    )}
                 </Container>
             </Col>
         </Row>

@@ -90,7 +90,7 @@ async function createMessages(loginTokens: string[]) {
                     data: 'test-message',
                 },
             })
-            .expect(204)
+            .expect(200)
     });
 
     return await Promise.all(promises)

@@ -1,13 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import { Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { AuthContext } from '../contexts';
 import { useNavigate } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
-import { apiLogin as loginEndpoint } from 'src/api/routes';
+import { apiCreate as createEndpoint } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
 
-export default function Login(): JSX.Element {
+export default function Register(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);
 
     const [formName, setFormName] = useState('');
@@ -24,7 +24,7 @@ export default function Login(): JSX.Element {
         }
     }, [authState]);
 
-    const handleLoginUser = useCallback(
+    const handleCreateUser = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             setErrorMessage(null);
@@ -34,7 +34,7 @@ export default function Login(): JSX.Element {
             if (!pendingRequest) {
                 setPendingRequest(true);
                 fetchApi<AuthResponse>(
-                    loginEndpoint,
+                    createEndpoint,
                     {
                         method: 'POST',
                         body: JSON.stringify({
@@ -60,7 +60,7 @@ export default function Login(): JSX.Element {
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center">
-                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleLoginUser}>
+                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleCreateUser}>
                     <FormGroup className="mb-3">
                         <Form.Label className="text-light">Username</Form.Label>
                         <Form.Control
@@ -85,13 +85,17 @@ export default function Login(): JSX.Element {
                     </FormGroup>
                     <Container className="d-flex justify-content-center">
                         <Button className="col-6 me-1" variant="outline-success" type="submit">
-                            Login
+                            Registrati
                         </Button>
-                    </Container>
-                    <Container className="d-flex justify-content-center">
-                        {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
+                        {errorMessage !== null && (
+                            <>
+                                <br />
+                                <p className="text-danger">{errorMessage}</p>
+                            </>
+                        )}
                         {pendingRequest && (
                             <>
+                                <br />
                                 <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>
                                 </Spinner>
