@@ -21,7 +21,7 @@
     "prettier": "prettier --write .",
     "init": "yarn install && yarn workspace app install && yarn workspace moddash install && mkdir build",
     "scripts:populate": "ts-node deploy/scripts/scripts.ts",
-    "test:api": "jest api"
+    "test:api": "jest api --detectOpenHandles --runInBand"
   },
   "dependencies": {
     "cors": "^2.8.5",

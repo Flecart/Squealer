@@ -10,14 +10,15 @@ dotenv.config({
     path: './.env',
 });
 
-const dropDatabase = () => {
-    initMongo().then(async () => {
-        await mongoose.connection.db.dropDatabase(); // tanto nessuna informazione importante è presente, è sicuro droppare così
-        mongoose.connection.close();
-    });
+const dropDatabase = async () => {
+    await initMongo();
+    await mongoose.connection.db.dropDatabase(); // tanto nessuna informazione importante è presente, è sicuro droppare così
+    await mongoose.connection.close();
 };
 
-beforeAll(dropDatabase);
+beforeAll(async () => {
+    await dropDatabase();
+});
 
 describe('User Creation', () => {
     it('should create non existent user', async () => {
@@ -45,17 +46,15 @@ describe('User Creation', () => {
     });
 
     it('should return username and jwt', async () => {
-        request(baseUrl)
+        const res = await request(baseUrl)
             .post(apiUserCreate)
             .send({
                 username: 'test-1',
                 password: 'test',
             } as Credentials)
-            .expect(201)
-            .end((_, res) => {
-                expect(res.body.username).toBe('test-1');
-                expect(res.body.token).toBeDefined();
-            });
+            .expect(201);
+        expect(res.body.username).toBe('test-1');
+        expect(res.body.token).toBeDefined();
     });
 });
 
@@ -66,7 +65,8 @@ describe('User Login', () => {
             .send({
                 username: 'test',
                 password: 'test',
-            } as Credentials);
+            } as Credentials)
+            .expect(201);
     });
 
     it('login on correct username and password', async () => {
@@ -80,17 +80,15 @@ describe('User Login', () => {
     });
 
     it('should return username and password on correct username and password', async () => {
-        request(baseUrl)
+        const res = await request(baseUrl)
             .post(apiUserLogin)
             .send({
                 username: 'test',
                 password: 'test',
             } as Credentials)
-            .expect(200)
-            .end((_, res) => {
-                expect(res.body.username).toBe('test');
-                expect(res.body.token).toBeDefined();
-            });
+            .expect(200);
+        expect(res.body.username).toBe('test');
+        expect(res.body.token).toBeDefined();
     });
 
     it('should return error on incorrect password', async () => {

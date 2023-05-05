@@ -8,7 +8,7 @@ function handleJWT(request: express.Request, _scopes?: string[]): Promise<jose.J
     const token = tokenHeader?.split(' ')[1]?.trim(); // format: "Bearer <token>"
 
     if (!token) {
-        throw new HttpError(401, 'No token provided');
+        return Promise.reject(new HttpError(401, 'No token provided'));
     }
 
     return jose.jwtVerify(token, JWT_SECRET, {
