@@ -1,15 +1,13 @@
-import { Get, Body, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
-import { IMessage } from '@model/message';
+import { Get, Body, Query, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
+import { IMessage, MessageCreation } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
+import { type MessageCreationRensponse } from '../../model/message';
 
 /*
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
 */
-export type MessageCreation = Pick<IMessage, 'content'> & {
-    destination: string;
-};
 
 @Route('/message')
 export class MessageController {
@@ -17,20 +15,30 @@ export class MessageController {
     @Security('jwt')
     @Response<IMessage>(204, 'Message Created')
     @Response<Error>(400, 'Bad request')
-    public async createMessage(@Body() body_data: MessageCreation, @Request() request: any) {
-        await new MessageService().create(body_data.destination, body_data.content, getUserFromRequest(request));
+    public async createMessage(
+        @Body() bodyData: MessageCreation,
+        @Request() request: any,
+    ): Promise<MessageCreationRensponse> {
+        console.info('MessageController.createMessage: ', bodyData, getUserFromRequest(request));
+        return await new MessageService().create(bodyData, getUserFromRequest(request));
     }
 
     @Get('/')
     @Response<IMessage[]>(200, 'OK')
-    public async readAll(): Promise<IMessage[]> {
-        return new MessageService().getMessages();
+    public async readAll(@Query('ids') ids: string[]): Promise<IMessage[]> {
+        return new MessageService().getMessages(ids);
+    }
+
+    @Get('/user/{username}')
+    @Response<IMessage[]>(200, 'OK')
+    public async userMessage(@Path('username') user: string): Promise<IMessage[]> {
+        return new MessageService().getOwnedMessages(user);
     }
 
     @Get('/{id}/')
-    @Response<IMessage[]>(200, 'OK')
-    public async readThread(@Path('id') _id: string): Promise<IMessage[]> {
-        return new MessageService().getMessages();
+    @Response<IMessage>(200, 'OK')
+    public async readThread(@Path('id') id: string): Promise<IMessage> {
+        return new MessageService().getMessagesWithId(id);
     }
 
     @Post('/batch-view')

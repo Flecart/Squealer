@@ -18,17 +18,15 @@ export interface IUser {
     username: string;
     profile_pic: string;
     channels: string[];
-
     usedQuota: IQuotas;
     maxQuota: IQuotas;
-
     clients?: string[];
     messages: IMessageInbox[];
 }
 
 const UserSchema = new mongoose.Schema<IUser>({
     name: { type: String, required: true },
-    username: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
     profile_pic: { type: String, required: true },
     channels: { type: [String], required: true },
 

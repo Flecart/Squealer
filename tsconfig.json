@@ -119,7 +119,7 @@
         "api/**/*.ts",
         "config/*.ts",
         "config/endpoints.json",
-        "models/**/*.ts",
+        "models/**/*.ts", "deploy/scripts/scripts.ts",
     ],
   }
   

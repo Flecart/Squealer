@@ -1,130 +1,84 @@
-import { Container, Stack } from 'react-bootstrap';
-
-const gPost: PostProps[] = [
-    {
-        key: 1,
-        author: {
-            name: 'Utente 1',
-            img: {
-                src: 'https://picsum.photos/50/50',
-                description: 'Immagine profilo 1',
-            },
-        },
-        content: {
-            img: {
-                src: 'https://picsum.photos/300/500',
-                description: 'Immagine 1',
-            },
-            text: null,
-        },
-    },
-    {
-        key: 2,
-        author: {
-            name: 'Utente 2',
-            img: {
-                src: 'https://picsum.photos/50/50',
-                description: 'Immagine profilo 2',
-            },
-        },
-        content: {
-            img: {
-                src: 'https://picsum.photos/500/300',
-                description: 'Immagine 2',
-            },
-            text: 'Lorem Lorem Lorem Lorem Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nunc nisl aliquam nunc, vitae aliquam nisl nunc vitae nisl.',
-        },
-    },
-    {
-        key: 3,
-        author: {
-            name: 'Utente 3',
-            img: {
-                src: 'https://picsum.photos/50/50',
-                description: 'Immagine profilo 3',
-            },
-        },
-        content: {
-            img: null,
-            text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nunc nisl aliquam nunc, vitae aliquam nisl nunc vitae nisl.',
-        },
-    },
-];
+import { type IMessage } from '@model/message';
+import { type IUser } from '@model/user';
+import { useContext, useEffect, useState } from 'react';
+import { Col, Container, Image, Row } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from 'src/contexts';
+import { fetchApi } from '../api/fetch';
+import { apiUserBase } from '../api/routes';
 
 interface PostProps {
-    key: number;
-    author: AuthorProps;
-    content: PostContentProps;
+    message: IMessage;
 }
 
-interface AuthorProps {
-    name: string;
-    img: {
-        src: string;
-        description: string;
-    };
-}
+function Post({ message }: PostProps): JSX.Element {
+    const [user, setUser] = useState<IUser | null>(null);
+    const [authState] = useContext(AuthContext);
+    const navigator = useNavigate();
+    useEffect(() => {
+        fetchApi<IUser>(
+            `${apiUserBase}/${message.creator}`,
+            { method: 'GET' },
+            null,
+            (user) => {
+                setUser(() => user);
+            },
+            (error) => {
+                // TODO: rifare la richeista
+                console.log(error);
+            },
+        );
+    }, [message.creator]);
 
-interface PostContentProps {
-    img: {
-        src: string;
-        description: string;
-    } | null;
-    text: string | null;
-}
+    const profiloUrl = user !== null ? `/user/${user.username}` : '/404';
 
-function MakePost({ author, content }: PostProps): JSX.Element {
     return (
-        <Container className="p-3 border-bottom border-light d-flex flex-column d-flex">
-            <Author {...author} />
-            <hr className="" />
-            <PostContent {...content} />
-        </Container>
-    );
-}
-
-function PostContent(content: PostContentProps): JSX.Element {
-    return (
-        <Container className="">
-            <Stack className="" gap={3}>
-                {content.text !== null ? (
-                    <Container className="container-fluid  text-break">{content.text}</Container>
-                ) : null}
-                {content.img !== null ? (
-                    <img
-                        src={content.img.src}
-                        className="rounded align-self-center image-fluid"
-                        alt={content.img.description}
+        <Row className="g-4" as="article" role="article">
+            <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
+                {user != null && (
+                    <Image
+                        className="w-100 float-end"
+                        src={user.profile_pic}
+                        alt="profile image"
+                        style={{ minWidth: '3rem', maxWidth: '5rem' }}
+                        roundedCircle
                     />
-                ) : null}
-            </Stack>
-        </Container>
+                )}
+            </Col>
+            <Col>
+                <Container className="d-flex justify-content-center flex-column pb-4">
+                    <Row>
+                        <div>
+                            <a href={profiloUrl} className="text-decoration-none ">
+                                <span className="fs-4 fw-bolder"> {user?.name}</span>
+                            </a>
+                            <a href={profiloUrl} className="text-decoration-none ">
+                                <span className="fw-light"> @{user?.username} </span>
+                            </a>
+                            <span className="fw-light"> {message.date.toString()} </span>{' '}
+                            {/* TODO: transform in user good date. (like 1h or similiar */}
+                        </div>
+                    </Row>
+                    <Row
+                        onClick={() => {
+                            navigator(`/message/${message._id.toString()}`);
+                        }}
+                    >
+                        <p>
+                            {message.content.data}{' '}
+                            {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
+                        </p>
+                    </Row>
+                    {authState !== null && (
+                        <Row>
+                            {' '}
+                            <Link to={`/addpost/${message._id.toString()}`}>Replay</Link>{' '}
+                        </Row>
+                    )}
+                </Container>
+            </Col>
+        </Row>
     );
 }
 
-function Author(author: AuthorProps): JSX.Element {
-    return (
-        <Container className="">
-            <Container className="d-flex align-items-center">
-                <Container className="container-fluid text-break">{author.name}</Container>
-                <img
-                    src={author.img.src}
-                    className="rounded align-self-center image-fluid"
-                    alt={author.img.description}
-                />
-            </Container>
-        </Container>
-    );
-}
-
-export function MakeFeed(): JSX.Element {
-    const contents = gPost;
-    const Feed = contents.map((content: PostProps) => {
-        return <MakePost author={content.author} content={content.content} key={content.key} />;
-    });
-
-    return (
-        // xs={6} -> className="... col-xs-6 ..."
-        <Stack className="d-flex col-xs-6 flex-column-reverse p-1">{Feed}</Stack>
-    );
-}
+export default Post;

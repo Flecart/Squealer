@@ -6,7 +6,6 @@ import { AuthContext } from '../contexts';
 
 export function SideBar(): JSX.Element {
     const [authState] = useContext(AuthContext);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 
     return (
         <Navbar className="d-none d-lg-flex flex-column align-items-start ps-3" sticky="top">
@@ -28,6 +27,9 @@ export function SideBar(): JSX.Element {
                         <Button className="rounded" variant="danger">
                             Elimina Account
                         </Button>
+                    </Link>
+                    <Link to={`/addpost`}>
+                        <Button className="rounded">Post</Button>
                     </Link>
                 </>
             ) : (

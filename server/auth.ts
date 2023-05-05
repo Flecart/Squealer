@@ -5,7 +5,7 @@ import * as jose from 'jose';
 
 function handleJWT(request: express.Request, _scopes?: string[]): Promise<jose.JWTVerifyResult> {
     const tokenHeader = request.get('Authorization');
-    const token = tokenHeader?.split(' ')[1]; // format: "Bearer <token>"
+    const token = tokenHeader?.split(' ')[1]?.trim(); // format: "Bearer <token>"
 
     if (!token) {
         return Promise.reject(new HttpError(401, 'No token provided'));
