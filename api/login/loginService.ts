@@ -33,7 +33,7 @@ export class LoginService {
             } as AuthResponse;
         }
 
-        return Promise.reject(new HttpError(401, 'Invalid username or password'));
+        throw new HttpError(401, 'Invalid username or password, cant login');
     }
 
     public async changePassword(

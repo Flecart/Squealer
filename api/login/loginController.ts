@@ -15,14 +15,14 @@ export class LoginController extends Controller {
     @Response<HttpError>(401, 'Unauthorized')
     @SuccessResponse(200, 'Login successful')
     public async login(@Body() credentials: Credentials): Promise<AuthResponse> {
-        return new LoginService().login(credentials.username, credentials.password);
+        return await new LoginService().login(credentials.username, credentials.password);
     }
 
     @Post('create')
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(201, 'Created')
     public async createUser(@Body() credentials: Credentials): Promise<AuthResponse> {
-        return new LoginService().createUser(credentials.username, credentials.password);
+        return await new LoginService().createUser(credentials.username, credentials.password);
     }
 
     @Post('user/{username}/change-password')
