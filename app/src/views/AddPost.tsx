@@ -97,6 +97,8 @@ export default function AddPost(): JSX.Element {
                         onChange={(e) => {
                             setDestination(e.target.value);
                         }}
+                        disabled={parent !== undefined}
+                        value={channelValue()}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
@@ -107,8 +109,6 @@ export default function AddPost(): JSX.Element {
                         onChange={(e) => {
                             setMessageText(e.target.value);
                         }}
-                        disabled={parent !== undefined}
-                        value={channelValue()}
                     />
                 </Form.Group>
                 <Form.Group>
