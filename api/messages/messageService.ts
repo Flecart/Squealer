@@ -1,4 +1,4 @@
-import UserModel from '@model/user';
+import UserModel, { haveEnoughtQuota } from '@model/user';
 import ChannelModel from '@model/channel';
 import MessageModel, { IMessage } from '@model/message';
 import { HttpError } from '@model/error';
@@ -11,8 +11,8 @@ export class MessageService {
     }
 
     public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {
-        const creatorName = await UserModel.findOne({ username: username });
-        if (!creatorName) {
+        const creator = await UserModel.findOne({ username: username });
+        if (!creator) {
             throw new HttpError(404, 'Username not found');
         }
 
@@ -26,6 +26,20 @@ export class MessageService {
             // FIXME: message parent non è un id
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
+        }
+
+        if (message.content.type === 'text') {
+            const lenChar = message.content.data.length;
+            if (haveEnoughtQuota(creator, lenChar)) {
+                creator.usedQuota.day += lenChar;
+                creator.usedQuota.week += lenChar;
+                creator.usedQuota.month += lenChar;
+                creator.save();
+            } else {
+                throw new HttpError(403, 'Quota exceeded');
+            }
+        } else {
+            //TODO:implementare per gli latri tipi
         }
 
         let savedMessage = new MessageModel({
@@ -57,10 +71,8 @@ export class MessageService {
     }
 
     public async getMessages(ids: string[]): Promise<IMessage[]> {
-        console.log(ids);
         return await Promise.all(
             ids.map(async (id) => {
-                console.log(id);
                 const rens = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
                 if (rens === null) throw new HttpError(404, 'Message not found');
                 else return rens;

@@ -6,8 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase } from 'src/api/routes';
+import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import Post from 'src/components/Post';
+import { type IUser, haveEnoughtQuota } from '@model/user';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -17,6 +18,8 @@ export default function AddPost(): JSX.Element {
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
+
+    const [user, setUser] = useState<IUser | null>(null);
 
     if (authState === null) {
         navigate('/login');
@@ -42,8 +45,29 @@ export default function AddPost(): JSX.Element {
         );
     }, [parent]);
 
+    useEffect(() => {
+        if (authState === null) return;
+        fetchApi<IUser>(
+            `${apiUserBase}/${authState.username}/`,
+            {
+                method: 'GET',
+            },
+            authState,
+            (user) => {
+                setUser(() => user);
+            },
+            (error) => {
+                setDisplayParent(() => error.message);
+            },
+        );
+    }, [authState?.username]);
+
     function sendMessage(event: React.FormEvent<HTMLButtonElement>): void {
         event?.preventDefault();
+        if (user !== null && haveEnoughtQuota(user, messageText.length)) {
+            setError(() => 'Not enought quota');
+            return;
+        }
         const message: MessageCreation = {
             content: {
                 data: messageText,
@@ -92,7 +116,15 @@ export default function AddPost(): JSX.Element {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                    <Form.Label>Example textarea</Form.Label>
+                    <Form.Label>
+                        Message textarea{' '}
+                        {user !== null &&
+                            `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
+                                user.usedQuota.week + messageText.length
+                            }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
+                                user.maxQuota.month
+                            }`}
+                    </Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={3}
