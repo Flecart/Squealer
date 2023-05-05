@@ -37,8 +37,13 @@ initMongo().then(() => {
         server.use(cors());
     }
 
-    server.use(bodyParser.json());
-    server.use(bodyParser.urlencoded({ extended: true }));
+    server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+    server.use(bodyParser.json({ limit: '50mb' }));
+
+    server.use((_req: ExRequest, _res: ExResponse, next: Function) => {
+        console.log(`Request: ${JSON.stringify(_req.body)}`);
+        next();
+    });
 
     RegisterRoutes(server);
     server.use('/api/', errorHandler);
