@@ -12,7 +12,7 @@ export function SideBar(): JSX.Element {
             <Link to="#">
                 <Button className="rounded">Esplora</Button>
             </Link>
-            <Link to="#">
+            <Link to="/setting">
                 <Button className="rounded">Impostazioni</Button>
             </Link>
             {authState !== null ? (
