@@ -1,24 +1,23 @@
-import { Alert, Button, Container } from 'react-bootstrap';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { Container, Stack } from 'react-bootstrap';
+import { useContext } from 'react';
 import { AuthContext } from '../contexts';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 
 export default function Settings(): JSX.Element {
-    const [authState, setAuthState] = useContext(AuthContext);
-    const navigate = useNavigate();
+    const [authState] = useContext(AuthContext);
 
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center">
-                {authState !== null ? (
-                    //reset password
-                    //change password
-                    <>
-                        <Link to="/changepass"></Link>
-                        <Link to="/reset"></Link>
-                        <Link to="/delete">clicca qui per eliminare l'account</Link>
-                    </>
+                {authState === null ? (
+                    <Stack className="d-flex rounded border p-2">
+                        <Link to="/user/changepass">Cambio Password</Link>
+                        <Link to="/user/reset">Reset Password</Link>
+                        <Link to="/user/delete" className="text-danger">
+                            Clicca qui per eliminare account
+                        </Link>
+                    </Stack>
                 ) : (
                     <Container>Cose Da Aggiungere</Container>
                 )}
