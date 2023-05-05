@@ -44,12 +44,17 @@ export default function AddPost(): JSX.Element {
 
     function sendMessage(event: React.FormEvent<HTMLButtonElement>): void {
         event?.preventDefault();
+        let channel = destination;
+        if (parent !== undefined) {
+            if (displayParent instanceof Object) channel = displayParent.channel;
+            else setError(() => 'Parent not found');
+        }
         const message: MessageCreation = {
             content: {
                 data: messageText,
                 type: 'text/plain',
             },
-            channel: destination,
+            channel,
             parent,
         };
         fetchApi<MessageCreationRensponse>(
@@ -69,7 +74,7 @@ export default function AddPost(): JSX.Element {
     }
     let parentMessage = <> </>;
 
-    if (parent != null) {
+    if (parent !== undefined) {
         if (displayParent == null) {
             parentMessage = <> Loading Message </>;
         } else if (displayParent instanceof String) {
@@ -83,16 +88,18 @@ export default function AddPost(): JSX.Element {
         <SidebarSearchLayout>
             {parentMessage}
             <Form>
-                <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                    <Form.Label>Channel</Form.Label>
-                    <Form.Control
-                        onChange={(e) => {
-                            setDestination(e.target.value);
-                        }}
-                    />
-                </Form.Group>
+                {parent === undefined && (
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>Channel</Form.Label>
+                        <Form.Control
+                            onChange={(e) => {
+                                setDestination(e.target.value);
+                            }}
+                        />
+                    </Form.Group>
+                )}
                 <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                    <Form.Label>Example textarea</Form.Label>
+                    <Form.Label>Message Content</Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={3}

@@ -9,14 +9,14 @@ export function SideBar(): JSX.Element {
 
     return (
         <Navbar className="d-none d-lg-flex flex-column align-items-start ps-3" sticky="top">
-            <Link to="#">
+            <Link to="/">
                 <Button className="rounded">Esplora</Button>
-            </Link>
-            <Link to="#">
-                <Button className="rounded">Impostazioni</Button>
             </Link>
             {authState !== null ? (
                 <>
+                    <Link to="#">
+                        <Button className="rounded">Impostazioni</Button>
+                    </Link>
                     <Link to="/logout">
                         <Button className="rounded">Logout</Button>
                     </Link>
