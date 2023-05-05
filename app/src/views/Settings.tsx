@@ -17,7 +17,6 @@ export default function Settings(): JSX.Element {
                     <>
                         <Link to="/changepass"></Link>
                         <Link to="/reset"></Link>
-
                         <Link to="/delete">clicca qui per eliminare l'account</Link>
                     </>
                 ) : null}
