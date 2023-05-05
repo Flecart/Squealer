@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
-import { IMessage } from './message';
-import { UserModelName } from './user';
+import { MessageModelName } from './message';
 
 type readPermType = 1;
 type writePermType = 2;
@@ -23,24 +22,26 @@ export interface IChannel {
     name: string;
     description: string;
     type: channelType;
-    owner: mongoose.Schema.Types.ObjectId;
+    owner: string;
     users: {
-        user: mongoose.Schema.Types.ObjectId[];
+        user: string;
         privilege: permissionType;
-    };
-    messages: IMessage; // TODO: create tipo per i messaggi, che mettiamo qui
+    }[];
+    messages: mongoose.Types.ObjectId[]; // TODO: create tipo per i messaggi, che mettiamo qui
 }
 
 const ChannelSchema = new mongoose.Schema<IChannel>({
     name: { type: String, required: true },
     description: { type: String, required: false },
-    messages: { type: [String], required: true },
+    messages: { type: [mongoose.Types.ObjectId], required: true, ref: MessageModelName },
     type: { type: String, required: true },
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: UserModelName, required: true },
-    users: {
-        user: [{ type: mongoose.Schema.Types.ObjectId, ref: UserModelName, required: true }],
-        privilege: { type: Number, required: true },
-    },
+    owner: { type: String, required: true },
+    users: [
+        {
+            user: { type: String, required: true },
+            privilege: { type: Number, required: true },
+        },
+    ],
 });
 
 export const ChannelModelName = 'Channel';

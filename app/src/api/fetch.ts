@@ -23,7 +23,8 @@ export async function fetchApi<T>(
             if (res.status === 200 || res.status === 201) success((await res.json()) as T);
             else error((await res.json()) as HttpError);
         })
-        .catch(() => {
-            error(new HttpError(500, 'Network Error'));
+        .catch((e) => {
+            console.log(e);
+            error(new HttpError(1000, 'Network error'));
         });
 }

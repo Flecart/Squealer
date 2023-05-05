@@ -36,6 +36,42 @@ export class LoginService {
         return Promise.reject(new HttpError(401, 'Invalid username or password'));
     }
 
+    public async changePassword(
+        old_password: string,
+        new_password: string,
+        username: string,
+    ): Promise<{ message: string }> {
+        const authUser = await AuthUserModel.findOne({ username: username }, 'username salt password');
+        if (authUser === null) {
+            throw new HttpError(400, 'User not found');
+        }
+
+        if (authUser.password !== this._hashPassword(authUser.salt, old_password)) {
+            throw new HttpError(400, 'Invalid password');
+        }
+
+        authUser.password = this._hashPassword(authUser.salt, new_password);
+        await authUser.save();
+        return { message: 'Password changed' };
+    }
+
+    public async changeUsername(new_username: string, current_username: string): Promise<{ message: string }> {
+        const authUser = await AuthUserModel.findOne({ username: current_username }, 'username salt password');
+        const user = await UserModel.findOne({ username: current_username }, 'username');
+        if (authUser === null || user === null) {
+            throw new HttpError(400, 'User not found');
+        }
+
+        authUser.username = new_username;
+        await authUser.save();
+
+        // TODO: può succedere che salvi da uno ma non salvi dall'altro?
+        user.username = new_username;
+        await user.save();
+
+        return { message: 'Username changed' };
+    }
+
     private async _createUserName(name: string): Promise<string> {
         // TODO: simplify me
         const usernamePref = name.toLowerCase().split(' ').join('');

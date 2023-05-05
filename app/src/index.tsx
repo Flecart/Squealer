@@ -10,6 +10,8 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import React, { useCallback, useEffect, useState } from 'react';
 import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
+import AddPost from './views/AddPost';
+import Message from './views/Message';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -19,6 +21,9 @@ const router = createBrowserRouter(
             <Route path="/logout" element={<Logout />} />
             <Route path="/user/:username" element={<User />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/addpost/" element={<AddPost />} />
+            <Route path="/addpost/:parent" element={<AddPost />} />
+            <Route path="/message/:id" element={<Message />} />
         </>,
     ),
 );

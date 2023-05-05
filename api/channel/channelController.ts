@@ -1,8 +1,9 @@
-import { Body, Post, Route, Response, SuccessResponse, Controller } from '@tsoa/runtime';
+import { Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@tsoa/runtime';
 import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
 import { getUserFromRequest } from '@api/utils';
+import { IChannel } from '@model/channel';
 
 export interface ChannelInfo {
     channelName: string;
@@ -19,11 +20,20 @@ export interface ChannelResponse {
 
 @Route('/channel/')
 export class ChannelController extends Controller {
+    @Get()
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200)
+    public async list(): Promise<IChannel[]> {
+        return new ChannelService().list();
+    }
+
     @Post('create')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(201, 'Channel created')
-    public async login(@Body() channelInfo: ChannelInfo, @Request() request: any): Promise<ChannelResponse> {
+    public async create(@Body() channelInfo: ChannelInfo, @Request() request: any): Promise<ChannelResponse> {
+        console.info('ChannelController.create: ', channelInfo, getUserFromRequest(request));
+
         return new ChannelService().create(
             channelInfo.channelName,
             getUserFromRequest(request),
