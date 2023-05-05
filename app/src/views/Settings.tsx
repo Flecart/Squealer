@@ -19,7 +19,9 @@ export default function Settings(): JSX.Element {
                         <Link to="/reset"></Link>
                         <Link to="/delete">clicca qui per eliminare l'account</Link>
                     </>
-                ) : null}
+                ) : (
+                    <Container>Cose Da Aggiungere</Container>
+                )}
             </Container>
         </SidebarSearchLayout>
     );
