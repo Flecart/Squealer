@@ -22,7 +22,7 @@ export default function Logout(): JSX.Element {
                                 navigate('/login');
                             }}
                         >
-                            LogOut
+                            Login
                         </Button>
                     </Container>
                 ) : (
