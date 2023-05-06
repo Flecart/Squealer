@@ -5,6 +5,8 @@ import NotFound from './views/NotFound';
 import Login from './views/Login';
 import User from './views/User';
 import Logout from './views/Logout';
+import Register from './views/Register';
+import Delete from './views/Delete';
 import { AuthContext, ThemeContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -12,6 +14,7 @@ import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
 import AddPost from './views/AddPost';
 import Message from './views/Message';
+import Channel from './views/Channel';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -19,11 +22,14 @@ const router = createBrowserRouter(
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
+            <Route path="/create" element={<Register />} />
             <Route path="/user/:username" element={<User />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/user/delete" element={<Delete />} />
             <Route path="/addpost/" element={<AddPost />} />
             <Route path="/addpost/:parent" element={<AddPost />} />
             <Route path="/message/:id" element={<Message />} />
+            <Route path="/channel/:channelId" element={<Channel />} />
         </>,
     ),
 );
