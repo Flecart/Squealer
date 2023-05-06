@@ -1,13 +1,20 @@
-// import multer from 'multer';
-// import { DEFAULT_UPLOAD_DIR } from '@config/api';
-
-// const multerUpload = multer({
-//     dest: DEFAULT_UPLOAD_DIR
-// })
+import { DEFAULT_UPLOAD_DIR } from '@config/api';
+import fs from 'fs';
+import path from 'path';
 
 export class UploadService {
     public async uploadFile(file: Express.Multer.File): Promise<{ message: string }> {
-        console.log(file);
-        return { message: 'todo' };
+        const name = await this.makeNameUnique(file.originalname);
+
+        return new Promise((resolve, reject) => {
+            fs.writeFile(path.join(DEFAULT_UPLOAD_DIR, name), file.buffer, (err) => {
+                if (err) reject(err);
+                resolve({ message: 'file saved successfully' });
+            });
+        });
+    }
+
+    private async makeNameUnique(name: string): Promise<string> {
+        return `${new Date().getTime()}_${name}`;
     }
 }
