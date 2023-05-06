@@ -9,9 +9,8 @@ function UploadAndDisplayImage(): JSX.Element {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
     const handleFileSubmit = useCallback(() => {
-        // TODO: handle prevent default and sumbit button
+        // TODO: handle prevent default and submit button
         if (selectedImage == null) {
-            console.log('no image');
             return;
         }
         const formData = new FormData();
@@ -22,9 +21,7 @@ function UploadAndDisplayImage(): JSX.Element {
             apiFileUpload,
             {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                headers: {}, // so that the browser can set the content type automatically
                 body: formData,
             },
             authState,
@@ -38,12 +35,10 @@ function UploadAndDisplayImage(): JSX.Element {
     }, [selectedImage]);
 
     return (
-        <div>
-            <h1>Upload and Display Image usign React Hook</h1>
-
+        <>
             {selectedImage != null && (
                 <div>
-                    <img alt="not found" width={'250px'} src={URL.createObjectURL(selectedImage)} />
+                    <img alt="uploaded image" width={'250px'} src={URL.createObjectURL(selectedImage)} />
                     <br />
                     <button
                         onClick={() => {
@@ -55,19 +50,19 @@ function UploadAndDisplayImage(): JSX.Element {
                 </div>
             )}
 
+            {/* TODO: use correct bootsrap components and fix accessibiility of this */}
             <input
                 type="file"
-                name="myImage"
+                name="image "
                 onChange={(event) => {
                     if (event.target.files === null || event.target.files.length < 1) return;
-                    console.log(event.target.files[0]);
                     setSelectedImage(event.target.files[0] as File);
                 }}
             />
             <button onClick={handleFileSubmit} className="btn btn-primary">
                 Upload
             </button>
-        </div>
+        </>
     );
 }
 
