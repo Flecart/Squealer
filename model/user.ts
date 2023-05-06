@@ -24,6 +24,14 @@ export interface IUser {
     messages: IMessageInbox[];
 }
 
+export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
+    return (
+        user.usedQuota.day + lenChar < user.maxQuota.day &&
+        user.usedQuota.week + lenChar < user.maxQuota.week &&
+        user.usedQuota.month + lenChar < user.maxQuota.month
+    );
+}
+
 const UserSchema = new mongoose.Schema<IUser>({
     name: { type: String, required: true },
     username: { type: String, required: true, unique: true },
