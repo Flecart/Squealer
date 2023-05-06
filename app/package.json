@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start": "cross-env PORT=3001 craco start",
-    "build": "cross-env NODE_ENV=production BUILD_PATH='../build/app' craco build  --max_old_space_size=520",
+    "build": "cross-env NODE_ENV=production BUILD_PATH='../build/app' craco build",
     "test": "craco test",
     "eject": "craco eject",
     "build:watch": "npm run build && run-when-changed --watch \"src/**/*.ts\" --watch \"src/**/*.tsx\" --exec \"npm run build\""
