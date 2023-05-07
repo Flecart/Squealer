@@ -9,6 +9,14 @@ export class ChannelService {
         return await ChannelModel.find({});
     }
 
+    public async getChannel(channelName: string): Promise<IChannel> {
+        const channel = await ChannelModel.findOne({ name: channelName });
+        if (channel === null) {
+            throw new HttpError(400, `Channel with name ${channelName} does not exist`);
+        }
+        return channel;
+    }
+
     public async create(channelName: string, owner: string, description?: string): Promise<ChannelResponse> {
         const ownerUser = await AuthModel.findOne({ username: owner });
         if (ownerUser === null) {

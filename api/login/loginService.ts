@@ -111,7 +111,7 @@ export class LoginService {
             profile_pic: `https://api.dicebear.com/6.x/notionists/svg?seed=${username}`,
             clients: [],
             maxQuota: DEFAULT_QUOTA,
-            usedQuota: { today: 0, week: 0, month: 0 },
+            usedQuota: { day: 0, week: 0, month: 0 },
         });
     }
 

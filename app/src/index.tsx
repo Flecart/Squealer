@@ -15,6 +15,7 @@ import usePersistState from './hooks/usePersistState';
 import AddPost from './views/AddPost';
 import Message from './views/Message';
 import Settings from './views/Settings';
+import Channel from './views/Channel';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -30,6 +31,7 @@ const router = createBrowserRouter(
             <Route path="/addpost/" element={<AddPost />} />
             <Route path="/addpost/:parent" element={<AddPost />} />
             <Route path="/message/:id" element={<Message />} />
+            <Route path="/channel/:channelId" element={<Channel />} />
         </>,
     ),
 );

@@ -56,6 +56,11 @@ function Post({ message }: PostProps): JSX.Element {
                                 <span className="fw-light"> @{user?.username} </span>
                             </a>
                             <span className="fw-light"> {message.date.toString()} </span>{' '}
+                            {message.channel !== undefined && (
+                                <span className="fw-light">
+                                    <Link to={`/channel/${message.channel}`}>{message.channel}</Link>
+                                </span>
+                            )}
                             {/* TODO: transform in user good date. (like 1h or similiar */}
                         </div>
                     </Row>

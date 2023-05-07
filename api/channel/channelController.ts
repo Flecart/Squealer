@@ -57,6 +57,13 @@ export class ChannelController extends Controller {
         );
     }
 
+    @Get('{channelName}/')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200)
+    public async GetChannel(@Path('channelName') channelName: string): Promise<IChannel> {
+        return new ChannelService().getChannel(channelName);
+    }
+
     @Post('{channelName}/join')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
