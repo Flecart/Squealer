@@ -7,5 +7,5 @@ export const DEFAULT_QUOTA: IQuotas = {
 };
 
 const rootDir = require('path').resolve('./');
-export const CLIENT_UPLOAD_DIR = `uploads`; // utilizzato per accedere al file dal client
-export const DEFAULT_UPLOAD_DIR = `${rootDir}/build/app/${CLIENT_UPLOAD_DIR}/`;
+export const CLIENT_UPLOAD_DIR = `uploads/`; // utilizzato per accedere al file dal client
+export const DEFAULT_UPLOAD_DIR = `${rootDir}/build/app/${CLIENT_UPLOAD_DIR}`;
