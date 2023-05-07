@@ -4,13 +4,13 @@ export interface IFile {
     name: string;
     size: number;
     mimetype: string;
+    buffer: Buffer;
 }
 
 const FileSchema = new mongoose.Schema<IFile>({
     name: {
         type: String,
         required: true,
-        unique: true,
     },
     size: {
         type: Number,
@@ -18,6 +18,10 @@ const FileSchema = new mongoose.Schema<IFile>({
     },
     mimetype: {
         type: String,
+        required: true,
+    },
+    buffer: {
+        type: Buffer,
         required: true,
     },
 });

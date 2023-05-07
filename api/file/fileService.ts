@@ -1,20 +1,27 @@
-import { DEFAULT_UPLOAD_DIR } from '@config/api';
-import fs from 'fs';
-import path from 'path';
+import { HttpError } from '@model/error';
+import FileModel, { IFile } from '@model/file';
 
-export class UploadService {
-    public async uploadFile(file: Express.Multer.File): Promise<{ message: string }> {
-        const name = await this.makeNameUnique(file.originalname);
+export class FileService {
+    public async downloadFile(fileId: string): Promise<IFile> {
+        const file = await FileModel.findById(fileId);
 
-        return new Promise((resolve, reject) => {
-            fs.writeFile(path.join(DEFAULT_UPLOAD_DIR, name), file.buffer, (err) => {
-                if (err) reject(err);
-                resolve({ message: 'file saved successfully' });
-            });
-        });
+        if (!file) {
+            throw new HttpError(404, `File with id '${fileId}' not found`);
+        }
+
+        return file;
     }
 
-    private async makeNameUnique(name: string): Promise<string> {
-        return `${new Date().getTime()}_${name}`;
+    public async uploadFile(file: Express.Multer.File): Promise<{ fileId: string }> {
+        const fileModel = new FileModel({
+            name: file.originalname,
+            size: file.size,
+            mimetype: file.mimetype,
+            buffer: file.buffer,
+        });
+
+        await fileModel.save();
+
+        return { fileId: fileModel._id.toString() };
     }
 }

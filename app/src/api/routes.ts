@@ -7,4 +7,4 @@ export const apiDelete = `${apiBase}/user/delete`;
 export const apiMessageBase = `${apiBase}/message`;
 export const apiFeedBase = `${apiBase}/feed`;
 export const apiChannelBase = `${apiBase}/channel`;
-export const apiFileUpload = `${apiBase}/upload`;
+export const apiFileUpload = `${apiBase}/file/upload`;
