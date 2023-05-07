@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "start": "node build/server/index.js",
-    "dev": "yarn workspace moddash dev",
+    "dev:smm": "yarn workspace smm dev",
     "dev:app:noapi": "yarn workspace app start",
     "dev:app": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app start\"",
     "dev:server": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
-    "build": "npm run build:server && npm run build:app && npm run build:moddash",
+    "build": "npm run build:server && npm run build:app && npm run build:smm",
     "build:server": "tsoa spec-and-routes && tsc && resolve-tspaths",
     "build:app": "yarn workspace app build",
-    "build:moddash": "yarn workspace moddash build",
+    "build:smm": "yarn workspace smm build",
     "prepare": "husky install",
     "commit": "cz",
     "deploy:flecs": "cd deploy && ansible-playbook playbook.yml --limit donbartolo",
@@ -19,7 +19,7 @@
     "deploy:luca": "cd deploy && ansible-playbook playbook.yml --limit eufemia",
     "lint": "eslint --ext .ts,.tsx .",
     "prettier": "prettier --write .",
-    "init": "yarn install && yarn workspace app install && yarn workspace moddash install && mkdir build",
+    "init": "yarn install && yarn workspace app install && yarn workspace smm install && mkdir build",
     "scripts:populate": "ts-node deploy/scripts/scripts.ts"
   },
   "dependencies": {
@@ -64,7 +64,7 @@
   },
   "workspaces": [
     "app",
-    "moddash"
+    "smm"
   ],
   "nodemonConfig": {
     "exec": "ts-node -r tsconfig-paths/register server/index.ts",
