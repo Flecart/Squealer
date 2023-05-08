@@ -1,5 +1,5 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { Form, Button, Alert, Row } from 'react-bootstrap';
+import { Form, Button, Alert, Row, Image } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,8 @@ export default function AddPost(): JSX.Element {
 
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
     const [error, setError] = useState<string | null>(null);
 
     const [user, setUser] = useState<IUser | null>(null);
@@ -128,30 +130,62 @@ export default function AddPost(): JSX.Element {
                         />
                     </Form.Group>
                 )}
-                <Form.Group className="mb-3">
-                    <Form.Label>
-                        Message textarea{' '}
-                        {user !== null &&
-                            `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
-                                user.usedQuota.week + messageText.length
-                            }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
-                                user.maxQuota.month
-                            }`}
-                    </Form.Label>
+                {selectedImage == null ? (
+                    <Form.Group className="mb-3">
+                        <Form.Label>
+                            Message textarea{' '}
+                            {user !== null &&
+                                `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
+                                    user.usedQuota.week + messageText.length
+                                }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
+                                    user.maxQuota.month
+                                }`}
+                        </Form.Label>
 
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            onChange={(e) => {
+                                setMessageText(e.target.value);
+                            }}
+                        />
+                    </Form.Group>
+                ) : (
+                    <div>
+                        {user !== null &&
+                            `day:${user.usedQuota.day + 100}/${user.maxQuota.day} week: ${user.usedQuota.week + 100}/${
+                                user.maxQuota.week
+                            } month:${user.usedQuota.month + 100}/${user.maxQuota.month}`}
+                        <Image
+                            className="mb-3"
+                            alt="uploaded image"
+                            src={URL.createObjectURL(selectedImage)}
+                            thumbnail
+                        />
+                        <Button
+                            onClick={() => {
+                                setSelectedImage(null);
+                            }}
+                        >
+                            Remove
+                        </Button>
+                    </div>
+                )}
+
+                <Form.Group>
+                    <Form.Label>Image: </Form.Label>
                     <Form.Control
-                        as="textarea"
-                        rows={3}
-                        onChange={(e) => {
-                            setMessageText(e.target.value);
+                        title="upload image"
+                        type="file"
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            console.log(event);
+                            if (event.target.files === null || event.target.files.length < 1) return;
+                            setSelectedImage(event.target.files[0] as File);
                         }}
                     />
                 </Form.Group>
-                <Form.Group>
-                    <Form.Label>Default file input: </Form.Label>
-                    <Form.Control type="file" />
-                </Form.Group>
-                <Button type="submit" onClick={sendMessage}>
+
+                <Button className="mt-2" type="submit" onClick={sendMessage}>
                     Send
                 </Button>
                 {error !== null && (
