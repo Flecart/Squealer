@@ -85,8 +85,9 @@ async function createMessages(loginTokens: string[]) {
             .set('Authorization', `Bearer ${token}`)
             .send({
                 channel: 'test-channel',
+                parent:undefined,
                 content: {
-                    type: 'string',
+                    type: 'text',
                     data: 'test-message',
                 },
             })
