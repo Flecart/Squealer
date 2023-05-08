@@ -26,41 +26,20 @@ export class MessageController {
     @Post('')
     @Security('jwt')
     @Response<IMessage>(204, 'Message Created')
-    @Response<Error>(400, 'Bad request')
+    @Response<HttpError>(400, 'Bad request')
     public async createMessage(
-        @Body() bodyData: MessageCreation,
+        @FormField() data: string,
         @Request() request: any,
-    ): Promise<MessageCreationRensponse> {
-        console.info('MessageController.createMessage: ', bodyData, getUserFromRequest(request));
-        return await new MessageService().create(bodyData, getUserFromRequest(request));
-    }
-
-    @Post('/new')
-    @Security('jwt')
-    @Response<IMessage>(204, 'Message Created')
-    @Response<Error>(400, 'Bad request')
-    public async createMessageNew(
-        @FormField() parent: string,
-        @FormField() channel: string,
-        @FormField() type: string,
-        @Request() request: any,
-        @FormField() content?: string,
         @UploadedFile('image') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
-        console.info('MessageController.createMessageNew: ', channel);
+        console.info(`MessageController.createMessage: ${data} from ${getUserFromRequest(request)}`);
+        // TODO: validate data
+        const bodyData: MessageCreation = JSON.parse(data);
 
-        if (content == undefined && file == undefined) {
-            throw new HttpError(404, 'Content and file are undefined');
+        if (bodyData.content.type == 'image') {
+            if (file == undefined) throw new HttpError(404, 'Image File is undefined');
+            else bodyData.content.data = file;
         }
-
-        const bodyData: MessageCreation = {
-            channel: channel,
-            parent: parent,
-            content: {
-                type: type,
-                data: content || (file as string | Express.Multer.File),
-            },
-        };
 
         return await new MessageService().create(bodyData, getUserFromRequest(request));
     }

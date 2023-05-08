@@ -3,10 +3,10 @@ import { Form, Button, Alert, Row, Image } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
-import { type IMessage, type MessageCreationRensponse } from '@model/message';
+import { type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase, apiUserBase, apiUploadMessage } from 'src/api/routes';
+import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import Post from 'src/components/Post';
 import { type IUser, haveEnoughtQuota } from '@model/user';
 
@@ -81,24 +81,26 @@ export default function AddPost(): JSX.Element {
                 }
             }
 
+            const message: MessageCreation = {
+                content: {
+                    data: '',
+                    type: 'text',
+                },
+                channel,
+                parent,
+            };
+
             const formData = new FormData();
             if (selectedImage != null) {
                 formData.append('image', selectedImage);
-                formData.append('type', 'image');
+                message.content.type = 'image';
             } else {
-                formData.append(
-                    'content',
-                    JSON.stringify({
-                        data: messageText,
-                    }),
-                );
-                formData.append('type', 'text');
+                message.content.data = messageText;
             }
-            formData.append('channel', channel);
-            formData.append('parent', parent ?? '');
+            formData.append('data', JSON.stringify(message));
 
             fetchApi<MessageCreationRensponse>(
-                `${apiUploadMessage}`,
+                `${apiMessageBase}`,
                 {
                     method: 'POST',
                     headers: {}, // so that the browser can set the content type automatically
@@ -106,8 +108,8 @@ export default function AddPost(): JSX.Element {
                 },
                 authState,
                 (message) => {
-                    console.log(message);
-                    // navigate(`/message/${message.id}`);
+                    setError(() => null);
+                    navigate(`/message/${message.id}`);
                 },
                 (error) => {
                     setError(() => error.message);
@@ -117,7 +119,7 @@ export default function AddPost(): JSX.Element {
         [messageText, destination, parent, displayParent, selectedImage, authState, user],
     );
 
-    const displayParentMessage = useCallback((): JSX.Element => {
+    const renderParentMessage = useCallback((): JSX.Element => {
         if (parent === undefined) return <> </>;
         if (displayParent == null) {
             return <> Loading Message </>;
@@ -130,9 +132,34 @@ export default function AddPost(): JSX.Element {
         }
     }, [parent, displayParent]);
 
+    const renderImagePreview = useCallback((): JSX.Element => {
+        // FIXME:, stranamente ogni volta che scrivo qualcosa, l'URL della src cambia, prova a
+        // tenere l'ispector aperto quando scrivi qualcosa e vedi cosa succede.
+
+        // TODO: effetti sconosciuti quando provo a caricare un file e non un immagine.
+        if (selectedImage == null) return <></>;
+
+        return (
+            <div>
+                {user !== null &&
+                    `day:${user.usedQuota.day + 100}/${user.maxQuota.day} week: ${user.usedQuota.week + 100}/${
+                        user.maxQuota.week
+                    } month:${user.usedQuota.month + 100}/${user.maxQuota.month}`}
+                <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} thumbnail />
+                <Button
+                    onClick={() => {
+                        setSelectedImage(null);
+                    }}
+                >
+                    Remove
+                </Button>
+            </div>
+        );
+    }, [user, selectedImage]);
+
     return (
         <SidebarSearchLayout>
-            {displayParentMessage()}
+            {renderParentMessage()}
             <Form>
                 {parent === undefined && (
                     <Form.Group className="mb-3">
@@ -144,6 +171,7 @@ export default function AddPost(): JSX.Element {
                         />
                     </Form.Group>
                 )}
+                {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {selectedImage == null ? (
                     <Form.Group className="mb-3">
                         <Form.Label>
@@ -165,25 +193,7 @@ export default function AddPost(): JSX.Element {
                         />
                     </Form.Group>
                 ) : (
-                    <div>
-                        {user !== null &&
-                            `day:${user.usedQuota.day + 100}/${user.maxQuota.day} week: ${user.usedQuota.week + 100}/${
-                                user.maxQuota.week
-                            } month:${user.usedQuota.month + 100}/${user.maxQuota.month}`}
-                        <Image
-                            className="mb-3"
-                            alt="uploaded image"
-                            src={URL.createObjectURL(selectedImage)}
-                            thumbnail
-                        />
-                        <Button
-                            onClick={() => {
-                                setSelectedImage(null);
-                            }}
-                        >
-                            Remove
-                        </Button>
-                    </div>
+                    renderImagePreview()
                 )}
 
                 <Form.Group>
@@ -199,7 +209,7 @@ export default function AddPost(): JSX.Element {
                     />
                 </Form.Group>
 
-                <Button className="mt-2" type="submit" onClick={sendMessage}>
+                <Button className="my-2" type="submit" onClick={sendMessage}>
                     Send
                 </Button>
                 {error !== null && (
