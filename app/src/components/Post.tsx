@@ -1,17 +1,46 @@
-import { type IMessage } from '@model/message';
+import { ReactionType, type IMessage, type Reaction } from '@model/message';
 import { type IUser } from '@model/user';
 import { useContext, useEffect, useState } from 'react';
 import { Button, Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
-import { apiUserBase } from '../api/routes';
-import * as Icon from 'react-bootstrap-icons';
+import { apiMessageBase, apiUserBase } from '../api/routes';
 import { toHumanReadableDate } from 'src/utils';
+import * as Icon from 'react-bootstrap-icons';
 
 interface PostProps {
     message: IMessage;
 }
+
+interface ReactionButton {
+    clicked: JSX.Element;
+    nonclicked: JSX.Element;
+    type: ReactionType;
+}
+
+const reactionsAndButtons = [
+    {
+        clicked: <Icon.HeartFill width={16} />,
+        nonclicked: <Icon.Heart width={16} />,
+        type: ReactionType.LOVE,
+    },
+    {
+        clicked: <Icon.HandThumbsUpFill width={16} />,
+        nonclicked: <Icon.HandThumbsUp width={16} />,
+        type: ReactionType.LIKE,
+    },
+    {
+        clicked: <Icon.HandThumbsDownFill width={16} />,
+        nonclicked: <Icon.HandThumbsDown width={16} />,
+        type: ReactionType.DISLIKE,
+    },
+    {
+        clicked: <Icon.HeartbreakFill width={16} />,
+        nonclicked: <Icon.Heartbreak width={16} />,
+        type: ReactionType.ANGRY,
+    },
+];
 
 function Post({ message }: PostProps): JSX.Element {
     const [user, setUser] = useState<IUser | null>(null);
@@ -33,6 +62,64 @@ function Post({ message }: PostProps): JSX.Element {
             },
         );
     }, [message.creator]);
+
+    function ReactionComponent(): JSX.Element {
+        let initReaction: ReactionType = ReactionType.UNSET;
+        let reactions: Reaction[] = [];
+        if (authState !== null) {
+            const current = message.reaction.find((m: Reaction) => m.id === authState.username);
+            initReaction = current?.type ?? ReactionType.UNSET;
+            reactions = message.reaction.filter((m: Reaction) => m.id !== authState.username);
+        } else {
+            reactions = message.reaction;
+        }
+        const [reaction, setReaction] = useState<ReactionType>(initReaction);
+        const [active, setActive] = useState<boolean>(authState !== null);
+
+        const handleReaction = (type: ReactionType): void => {
+            if (authState === null) return;
+            setActive(false);
+            setReaction(ReactionType.UNSET);
+            fetchApi<ReactionType>(
+                `${apiMessageBase}/${message._id.toString()}/reaction`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ type }),
+                },
+                authState,
+                (reaction) => {
+                    setReaction(reaction);
+                    setActive(true);
+                },
+                (_) => {
+                    setActive(true);
+                },
+            );
+            setActive(true);
+        };
+        return reactionsAndButtons
+            .map((type: ReactionButton) => {
+                return (
+                    <Button
+                        key={type.type}
+                        disabled={!active}
+                        onClick={() => {
+                            handleReaction(reaction === type.type ? ReactionType.UNSET : type.type);
+                        }}
+                    >
+                        <span className="fw-light pe-2">
+                            {reactions.filter((m) => m.type === type.type).length + (reaction === type.type ? 1 : 0)}
+                        </span>
+                        {reaction === type.type ? type.clicked : type.nonclicked}
+                    </Button>
+                );
+            })
+            .reduce((prev, curr) => (
+                <>
+                    {prev} {curr}
+                </>
+            ));
+    }
 
     const profiloUrl = user !== null ? `/user/${user.username}` : '/404';
 
@@ -69,24 +156,7 @@ function Post({ message }: PostProps): JSX.Element {
                         </div>
                     </Row>
                     <Row>
-                        <div>
-                            <Button className="me-3">
-                                <span className="fw-light pe-2"> {message.posReaction.length} </span>
-                                {user !== null && message.posReaction.includes(user.username) ? (
-                                    <Icon.HandThumbsUpFill width={18} />
-                                ) : (
-                                    <Icon.HandThumbsUp width={18} />
-                                )}
-                            </Button>
-                            <Button className="me-3">
-                                <span className="fw-light pe-2"> {message.negReaction.length} </span>
-                                {user !== null && message.negReaction.includes(user.username) ? (
-                                    <Icon.HandThumbsDownFill width={18} />
-                                ) : (
-                                    <Icon.HandThumbsDown width={18} />
-                                )}
-                            </Button>
-                        </div>
+                        <div></div>
                     </Row>
                     <Row
                         onClick={() => {
@@ -98,12 +168,16 @@ function Post({ message }: PostProps): JSX.Element {
                             {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
                         </p>
                     </Row>
-                    {authState !== null && (
-                        <Row>
-                            {' '}
-                            <Link to={`/addpost/${message._id.toString()}`}>Replay</Link>{' '}
-                        </Row>
-                    )}
+                    <Row>
+                        <div>
+                            {authState !== null && (
+                                <Link to={`/addpost/${message._id.toString()}`} className="me-3">
+                                    Replay
+                                </Link>
+                            )}
+                            <ReactionComponent />
+                        </div>
+                    </Row>
                 </Container>
             </Col>
         </Row>

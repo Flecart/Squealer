@@ -1,4 +1,5 @@
-import MessageModel, { IMessage } from '@model/message';
+import { IMessage } from '@model/message';
+import MessageModel from '@db/message';
 
 export class FeedService {
     public async getMessages(): Promise<IMessage[]> {

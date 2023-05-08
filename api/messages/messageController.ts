@@ -1,5 +1,5 @@
 import { Get, Body, Query, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
-import { IMessage, MessageCreation } from '@model/message';
+import { IMessage, MessageCreation, ReactionType } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
 import { type MessageCreationRensponse } from '../../model/message';
@@ -47,15 +47,13 @@ export class MessageController {
         return 'todo';
     }
 
-    @Post('/{id}/like')
-    public async likeMessage(@Path('id') _id: string) {
-        // TODO: return new MessageService().likeMessage(id);
-        return {};
-    }
-
-    @Post('/{id}/dislike')
-    public async dislikeMessage(@Path('id') _id: string) {
-        // TODO: return new MessageService().dislikeMessage(id);
-        return {};
+    @Post('/{id}/reaction')
+    @Security('jwt')
+    public async reatMessage(
+        @Request() req: any,
+        @Path('id') id: string,
+        @Body() reaction: { type: ReactionType },
+    ): Promise<ReactionType> {
+        return new MessageService().reactMessage(id, reaction.type, getUserFromRequest(req));
     }
 }
