@@ -30,12 +30,14 @@
     "jose": "^4.14.1",
     "mongoose": "^7.0.4",
     "react-bootstrap-icons": "^1.10.3",
+    "multer": "^1.4.5-lts.1",
     "resolve-tspaths": "^0.8.13",
     "swagger-ui-express": "^4.6.2",
     "tsoa": "^5.1.1",
     "typescript": "^5.0.4"
   },
   "devDependencies": {
+    "@types/multer": "^1.4.7",
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
     "@commitlint/cz-commitlint": "^17.5.0",
