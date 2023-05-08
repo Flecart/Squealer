@@ -64,53 +64,58 @@ export default function AddPost(): JSX.Element {
         );
     }, [authState?.username]);
 
-    function sendMessage(event: React.FormEvent<HTMLButtonElement>): void {
-        event?.preventDefault();
-        if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
-            setError(() => 'Not enought quota');
-            return;
-        }
-
-        let channel = destination;
-        if (parent !== undefined) {
-            if (displayParent instanceof Object) channel = displayParent.channel;
-            else {
-                setError(() => 'Parent not found');
+    const sendMessage = useCallback(
+        (event: React.FormEvent<HTMLButtonElement>) => {
+            event?.preventDefault();
+            if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
+                setError(() => 'Not enought quota');
                 return;
             }
-        }
 
-        const formData = new FormData();
-        if (selectedImage != null) {
-            formData.append('file', selectedImage);
-        } else {
-            formData.append(
-                'content',
-                JSON.stringify({
-                    data: messageText,
-                    type: 'text',
-                }),
+            let channel = destination;
+            if (parent !== undefined) {
+                if (displayParent instanceof Object) channel = displayParent.channel;
+                else {
+                    setError(() => 'Parent not found');
+                    return;
+                }
+            }
+
+            const formData = new FormData();
+            if (selectedImage != null) {
+                formData.append('image', selectedImage);
+                formData.append('type', 'image');
+            } else {
+                formData.append(
+                    'content',
+                    JSON.stringify({
+                        data: messageText,
+                    }),
+                );
+                formData.append('type', 'text');
+            }
+            formData.append('channel', channel);
+            formData.append('parent', parent ?? '');
+
+            fetchApi<MessageCreationRensponse>(
+                `${apiUploadMessage}`,
+                {
+                    method: 'POST',
+                    headers: {}, // so that the browser can set the content type automatically
+                    body: formData,
+                },
+                authState,
+                (message) => {
+                    console.log(message);
+                    // navigate(`/message/${message.id}`);
+                },
+                (error) => {
+                    setError(() => error.message);
+                },
             );
-        }
-        formData.append('channel', channel);
-        formData.append('parent', parent ?? '');
-
-        fetchApi<MessageCreationRensponse>(
-            `${apiUploadMessage}`,
-            {
-                method: 'POST',
-                headers: {}, // so that the browser can set the content type automatically
-                body: formData,
-            },
-            authState,
-            (message) => {
-                navigate(`/message/${message.id}`);
-            },
-            (error) => {
-                setError(() => error.message);
-            },
-        );
-    }
+        },
+        [messageText, destination, parent, displayParent, selectedImage, authState, user],
+    );
 
     const displayParentMessage = useCallback((): JSX.Element => {
         if (parent === undefined) return <> </>;

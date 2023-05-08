@@ -1,9 +1,21 @@
-import { Get, Body, Query, Post, Route, Request, Response, Path, Security, FormField } from '@tsoa/runtime';
+import {
+    Get,
+    Body,
+    Query,
+    Post,
+    Route,
+    Request,
+    Response,
+    Path,
+    Security,
+    FormField,
+    UploadedFile,
+} from '@tsoa/runtime';
 import { IMessage, MessageCreation } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
 import { type MessageCreationRensponse } from '../../model/message';
-
+import { HttpError } from '@model/error';
 /*
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
@@ -28,12 +40,28 @@ export class MessageController {
     @Response<IMessage>(204, 'Message Created')
     @Response<Error>(400, 'Bad request')
     public async createMessageNew(
-        @FormField() channel: string,
         @FormField() parent: string,
-        @Body() bodyData: MessageCreation,
+        @FormField() channel: string,
+        @FormField() type: string,
         @Request() request: any,
+        @FormField() content?: string,
+        @UploadedFile('image') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
-        console.info('MessageController.createMessageNew: ', bodyData, getUserFromRequest(request));
+        console.info('MessageController.createMessageNew: ', channel);
+
+        if (content == undefined && file == undefined) {
+            throw new HttpError(404, 'Content and file are undefined');
+        }
+
+        const bodyData: MessageCreation = {
+            channel: channel,
+            parent: parent,
+            content: {
+                type: type,
+                data: content || (file as string | Express.Multer.File),
+            },
+        };
+
         return await new MessageService().create(bodyData, getUserFromRequest(request));
     }
 

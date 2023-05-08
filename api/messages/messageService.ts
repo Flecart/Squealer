@@ -4,6 +4,7 @@ import MessageModel, { IMessage } from '@model/message';
 import { HttpError } from '@model/error';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
 import mongoose from 'mongoose';
+import { UploadService } from '@api/upload/uploadService';
 
 export class MessageService {
     public async getOwnedMessages(username: string) {
@@ -28,28 +29,41 @@ export class MessageService {
             if (parent === null) throw new HttpError(404, 'Parent not found');
         }
 
+        let lenChar = 0;
+        let messageContent: IMessage['content'];
         if (message.content.type === 'text') {
-            const lenChar = message.content.data.length;
-            if (haveEnoughtQuota(creator, lenChar)) {
-                console.log(creator);
-                creator.usedQuota.day += lenChar;
-                creator.usedQuota.week += lenChar;
-                creator.usedQuota.month += lenChar;
-                creator.markModified('usedQuota');
-                creator.save();
-
-                console.log(creator);
-            } else {
-                throw new HttpError(403, 'Quota exceeded');
-            }
+            const data: string = message.content.data as string;
+            lenChar = data.length;
+            messageContent = message.content;
+        } else if (message.content.type === 'image') {
+            const data: Express.Multer.File = message.content.data as Express.Multer.File;
+            const path = await new UploadService().uploadFile(data);
+            lenChar = 100;
+            messageContent = {
+                type: message.content.type,
+                data: path.path,
+            };
         } else {
             //TODO:implementare per gli latri tipi
             throw new HttpError(501, 'Not implemented');
         }
 
+        if (haveEnoughtQuota(creator, lenChar)) {
+            console.log(creator);
+            creator.usedQuota.day += lenChar;
+            creator.usedQuota.week += lenChar;
+            creator.usedQuota.month += lenChar;
+            creator.markModified('usedQuota');
+            creator.save();
+
+            console.log(creator);
+        } else {
+            throw new HttpError(403, 'Quota exceeded');
+        }
+
         let savedMessage = new MessageModel({
             channel: channel.name,
-            content: message.content,
+            content: messageContent,
             children: [],
             creator: username,
             date: new Date(),

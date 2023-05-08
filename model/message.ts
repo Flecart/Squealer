@@ -9,7 +9,7 @@ export type Maps = string;
 /** 
 Commento per le api
 */
-export type Img = string;
+export type Img = Express.Multer.File;
 
 /** 
 Commento per le api
