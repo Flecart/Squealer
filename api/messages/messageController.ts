@@ -1,4 +1,4 @@
-import { Get, Body, Query, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
+import { Get, Body, Query, Post, Route, Request, Response, Path, Security, FormField } from '@tsoa/runtime';
 import { IMessage, MessageCreation } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
@@ -20,6 +20,20 @@ export class MessageController {
         @Request() request: any,
     ): Promise<MessageCreationRensponse> {
         console.info('MessageController.createMessage: ', bodyData, getUserFromRequest(request));
+        return await new MessageService().create(bodyData, getUserFromRequest(request));
+    }
+
+    @Post('/new')
+    @Security('jwt')
+    @Response<IMessage>(204, 'Message Created')
+    @Response<Error>(400, 'Bad request')
+    public async createMessageNew(
+        @FormField() channel: string,
+        @FormField() parent: string,
+        @Body() bodyData: MessageCreation,
+        @Request() request: any,
+    ): Promise<MessageCreationRensponse> {
+        console.info('MessageController.createMessageNew: ', bodyData, getUserFromRequest(request));
         return await new MessageService().create(bodyData, getUserFromRequest(request));
     }
 

@@ -3,10 +3,10 @@ import { Form, Button, Alert, Row, Image } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
-import { type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
+import { type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase, apiUserBase } from 'src/api/routes';
+import { apiMessageBase, apiUserBase, apiUploadMessage } from 'src/api/routes';
 import Post from 'src/components/Post';
 import { type IUser, haveEnoughtQuota } from '@model/user';
 
@@ -79,19 +79,28 @@ export default function AddPost(): JSX.Element {
                 return;
             }
         }
-        const message: MessageCreation = {
-            content: {
-                data: messageText,
-                type: 'text',
-            },
-            channel,
-            parent,
-        };
+
+        const formData = new FormData();
+        if (selectedImage != null) {
+            formData.append('file', selectedImage);
+        } else {
+            formData.append(
+                'content',
+                JSON.stringify({
+                    data: messageText,
+                    type: 'text',
+                }),
+            );
+        }
+        formData.append('channel', channel);
+        formData.append('parent', parent ?? '');
+
         fetchApi<MessageCreationRensponse>(
-            `${apiMessageBase}/`,
+            `${apiUploadMessage}`,
             {
                 method: 'POST',
-                body: JSON.stringify(message),
+                headers: {}, // so that the browser can set the content type automatically
+                body: formData,
             },
             authState,
             (message) => {

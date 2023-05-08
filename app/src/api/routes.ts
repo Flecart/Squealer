@@ -8,3 +8,5 @@ export const apiMessageBase = `${apiBase}/message`;
 export const apiFeedBase = `${apiBase}/feed`;
 export const apiChannelBase = `${apiBase}/channel`;
 export const apiFileUpload = `${apiBase}/upload`;
+
+export const apiUploadMessage = `${apiBase}/message/new`;
