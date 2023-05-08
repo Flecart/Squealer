@@ -1,6 +1,6 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { Form, Button, Alert, Row } from 'react-bootstrap';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import { type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
@@ -73,8 +73,8 @@ export default function AddPost(): JSX.Element {
         if (parent !== undefined) {
             if (displayParent instanceof Object) channel = displayParent.channel;
             else {
-              setError(() => 'Parent not found');
-              return;
+                setError(() => 'Parent not found');
+                return;
             }
         }
         const message: MessageCreation = {
@@ -100,24 +100,26 @@ export default function AddPost(): JSX.Element {
             },
         );
     }
-    let parentMessage = <> </>;
 
-    if (parent !== undefined) {
+    const displayParentMessage = useCallback((): JSX.Element => {
+        if (parent === undefined) return <> </>;
         if (displayParent == null) {
-            parentMessage = <> Loading Message </>;
+            return <> Loading Message </>;
         } else if (displayParent instanceof String) {
-            parentMessage = <Alert variant="danger">{displayParent}</Alert>;
+            return <Alert variant="danger">{displayParent}</Alert>;
         } else if (displayParent instanceof Object) {
-            parentMessage = <Post message={displayParent}></Post>;
+            return <Post message={displayParent}></Post>;
+        } else {
+            return <> </>;
         }
-    }
+    }, [parent, displayParent]);
 
     return (
         <SidebarSearchLayout>
-            {parentMessage}
+            {displayParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                    <Form.Group className="mb-3">
                         <Form.Label>Channel</Form.Label>
                         <Form.Control
                             onChange={(e) => {
@@ -126,7 +128,7 @@ export default function AddPost(): JSX.Element {
                         />
                     </Form.Group>
                 )}
-                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                <Form.Group className="mb-3">
                     <Form.Label>
                         Message textarea{' '}
                         {user !== null &&
@@ -146,7 +148,7 @@ export default function AddPost(): JSX.Element {
                     />
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>Default file input example</Form.Label>
+                    <Form.Label>Default file input: </Form.Label>
                     <Form.Control type="file" />
                 </Form.Group>
                 <Button type="submit" onClick={sendMessage}>
