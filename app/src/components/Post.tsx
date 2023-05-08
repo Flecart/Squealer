@@ -1,11 +1,12 @@
 import { type IMessage } from '@model/message';
 import { type IUser } from '@model/user';
 import { useContext, useEffect, useState } from 'react';
-import { Col, Container, Image, Row } from 'react-bootstrap';
+import { Button, Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
 import { apiUserBase } from '../api/routes';
+import * as Icon from 'react-bootstrap-icons';
 import { toHumanReadableDate } from 'src/utils';
 
 interface PostProps {
@@ -14,8 +15,10 @@ interface PostProps {
 
 function Post({ message }: PostProps): JSX.Element {
     const [user, setUser] = useState<IUser | null>(null);
+
     const [authState] = useContext(AuthContext);
     const navigator = useNavigate();
+
     useEffect(() => {
         fetchApi<IUser>(
             `${apiUserBase}/${message.creator}`,
@@ -25,7 +28,7 @@ function Post({ message }: PostProps): JSX.Element {
                 setUser(() => user);
             },
             (error) => {
-                // TODO: rifare la richeista
+                // TODO: rifare la richiesta
                 console.log(error);
             },
         );
@@ -63,6 +66,26 @@ function Post({ message }: PostProps): JSX.Element {
                                 </span>
                             )}
                             {/* TODO: transform in user good date. (like 1h or similiar */}
+                        </div>
+                    </Row>
+                    <Row>
+                        <div>
+                            <Button className="me-3">
+                                <span className="fw-light pe-2"> {message.posReaction.length} </span>
+                                {user !== null && message.posReaction.includes(user.username) ? (
+                                    <Icon.HandThumbsUpFill width={18} />
+                                ) : (
+                                    <Icon.HandThumbsUp width={18} />
+                                )}
+                            </Button>
+                            <Button className="me-3">
+                                <span className="fw-light pe-2"> {message.negReaction.length} </span>
+                                {user !== null && message.negReaction.includes(user.username) ? (
+                                    <Icon.HandThumbsDownFill width={18} />
+                                ) : (
+                                    <Icon.HandThumbsDown width={18} />
+                                )}
+                            </Button>
                         </div>
                     </Row>
                     <Row

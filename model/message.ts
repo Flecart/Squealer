@@ -27,9 +27,9 @@ export interface IMessage {
     date: Date;
     views: number; // impressions.
 
-    // si tengono tutti gli utenti che fanno fatto queste reactions su questo messaggio.
-    posReaction: mongoose.Types.ObjectId[];
-    negReaction: mongoose.Types.ObjectId[];
+    // si tengono tutti gli username di utenti che fanno fatto queste reactions su questo messaggio.
+    posReaction: string[];
+    negReaction: string[];
 }
 
 export interface MessageCreation {
@@ -51,8 +51,8 @@ export const MessageSchema = new mongoose.Schema<IMessage>({
     children: { type: [mongoose.Types.ObjectId], require: true, ref: MessageModelName },
     views: { type: Number, required: true },
     parent: { type: mongoose.Types.ObjectId, ref: MessageModelName },
-    posReaction: { type: [mongoose.Types.ObjectId], required: true, ref: UserModelName },
-    negReaction: { type: [mongoose.Types.ObjectId], required: true, ref: UserModelName },
+    posReaction: { type: [String], required: true, ref: UserModelName },
+    negReaction: { type: [String], required: true, ref: UserModelName },
 });
 
 export default mongoose.model<IMessage>(MessageModelName, MessageSchema);
