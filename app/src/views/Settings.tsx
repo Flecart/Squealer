@@ -10,10 +10,11 @@ export default function Settings(): JSX.Element {
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center">
-                {authState === null ? (
+                {authState !== null ? (
                     <Stack className="d-flex rounded border p-2">
-                        <Link to="/user/changepass">Cambio Password</Link>
-                        <Link to="/user/reset">Reset Password</Link>
+                        <Link to={`/user/${authState.username}/change-password`}>Modifica Password</Link>
+                        <Link to={`/user/${authState.username}/change-username`}>Modifica Username</Link>
+                        <Link to="user/reset">Reset</Link>
                         <Link to="/user/delete" className="text-danger">
                             Clicca qui per eliminare account
                         </Link>
