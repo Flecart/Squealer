@@ -14,8 +14,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  base: `/${endpoints.DASHBOARD}`,
+  base: `/${endpoints.SMM}`,
   build: {
-    outDir: `../build/${endpoints.DASHBOARD}`
+    outDir: `../build/${endpoints.SMM}`
   }
 })
