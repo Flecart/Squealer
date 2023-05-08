@@ -14,12 +14,14 @@ import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
 import AddPost from './views/AddPost';
 import Message from './views/Message';
+import Settings from './views/Settings';
 import Channel from './views/Channel';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Home />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/create" element={<Register />} />

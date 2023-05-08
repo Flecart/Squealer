@@ -7,6 +7,7 @@ import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
 import { apiUserBase } from '../api/routes';
 import * as Icon from 'react-bootstrap-icons';
+import { toHumanReadableDate } from 'src/utils';
 
 interface PostProps {
     message: IMessage;
@@ -58,7 +59,7 @@ function Post({ message }: PostProps): JSX.Element {
                             <a href={profiloUrl} className="text-decoration-none ">
                                 <span className="fw-light"> @{user?.username} </span>
                             </a>
-                            <span className="fw-light"> {message.date.toString()} </span>{' '}
+                            <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>{' '}
                             {message.channel !== undefined && (
                                 <span className="fw-light">
                                     <Link to={`/channel/${message.channel}`}>{message.channel}</Link>

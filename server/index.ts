@@ -47,11 +47,11 @@ initMongo().then(() => {
         return res.send(swaggerUi.generateHTML(await import(`../${DEV_DIR}swagger.json`)));
     });
 
-    server.use(`/${endpoint.SMM}`, express.static(endpoint.SMM));
+    server.use(`/${endpoint.DASHBOARD}`, express.static(endpoint.DASHBOARD));
 
-    server.use(`/${endpoint.DASHBOARD}`, express.static(path.resolve(__dirname, '../', endpoint.DASHBOARD)));
-    server.all(`/${endpoint.DASHBOARD}`, (_req: ExRequest, res: ExResponse) => {
-        res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.DASHBOARD, 'index.html'));
+    server.use(`/${endpoint.SMM}`, express.static(path.resolve(__dirname, '../', endpoint.SMM)));
+    server.all(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
+        res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'));
     });
 
     server.use(express.static(path.resolve(__dirname, `../${DEV_DIR}app`)));

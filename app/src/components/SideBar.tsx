@@ -8,10 +8,14 @@ export function SideBar(): JSX.Element {
     const [authState] = useContext(AuthContext);
 
     return (
-        <Navbar className="d-none d-lg-flex flex-column align-items-start ps-3" sticky="top">
-            <Link to="/">
+        <Navbar className="d-flex flex-column align-items-start ps-3" sticky="top">
+            <Link to="#">
                 <Button className="rounded">Esplora</Button>
             </Link>
+            <Link to="/settings">
+                <Button className="rounded">Impostazioni</Button>
+            </Link>
+            
             {authState !== null ? (
                 <>
                     <Link to="#">
@@ -22,11 +26,6 @@ export function SideBar(): JSX.Element {
                     </Link>
                     <Link to={`/user/${authState.username}`}>
                         <Button className="rounded">Me</Button>
-                    </Link>
-                    <Link to="/user/delete">
-                        <Button className="rounded" variant="danger">
-                            Elimina Account
-                        </Button>
                     </Link>
                     <Link to={`/addpost`}>
                         <Button className="rounded">Post</Button>
