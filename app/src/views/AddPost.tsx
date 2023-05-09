@@ -1,5 +1,5 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { Form, Button, Alert, Row, Image } from 'react-bootstrap';
+import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
@@ -92,8 +92,13 @@ export default function AddPost(): JSX.Element {
 
             const formData = new FormData();
             if (selectedImage != null) {
-                formData.append('image', selectedImage);
-                message.content.type = 'image';
+                formData.append('file', selectedImage);
+                if (selectedImage.type.startsWith('image/')) message.content.type = 'image';
+                else if (selectedImage.type.startsWith('video/')) message.content.type = 'video';
+                else {
+                    setError(() => 'File type not supported');
+                    return;
+                }
             } else {
                 message.content.data = messageText;
             }
@@ -132,7 +137,7 @@ export default function AddPost(): JSX.Element {
         }
     }, [parent, displayParent]);
 
-    const renderImagePreview = useCallback((): JSX.Element => {
+    const renderFilePreview = useCallback((): JSX.Element => {
         // FIXME:, stranamente ogni volta che scrivo qualcosa, l'URL della src cambia, prova a
         // tenere l'ispector aperto quando scrivi qualcosa e vedi cosa succede.
 
@@ -145,7 +150,19 @@ export default function AddPost(): JSX.Element {
                     `day:${user.usedQuota.day + 100}/${user.maxQuota.day} week: ${user.usedQuota.week + 100}/${
                         user.maxQuota.week
                     } month:${user.usedQuota.month + 100}/${user.maxQuota.month}`}
-                <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} thumbnail />
+
+                {selectedImage.type.startsWith('image/') && (
+                    <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} fluid />
+                )}
+
+                {selectedImage.type.startsWith('video/') && (
+                    <Container>
+                        <video className="mb-3 w-100" controls>
+                            <source src={URL.createObjectURL(selectedImage)} type={selectedImage.type}></source>
+                        </video>
+                    </Container>
+                )}
+
                 <Button
                     onClick={() => {
                         setSelectedImage(null);
@@ -193,17 +210,24 @@ export default function AddPost(): JSX.Element {
                         />
                     </Form.Group>
                 ) : (
-                    renderImagePreview()
+                    renderFilePreview()
                 )}
 
                 <Form.Group>
-                    <Form.Label>Image: </Form.Label>
+                    <Form.Label>File to upload: </Form.Label>
                     <Form.Control
                         title="upload image"
                         type="file"
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            console.log(event);
+                            console.log('got change');
                             if (event.target.files === null || event.target.files.length < 1) return;
+                            const file: File = event.target.files[0] as File;
+                            if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+                                setError(() => 'You can only upload images or videos');
+                                return;
+                            }
+
+                            console.log('type is ', file.type);
                             setSelectedImage(event.target.files[0] as File);
                         }}
                     />

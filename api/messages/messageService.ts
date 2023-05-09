@@ -36,7 +36,7 @@ export class MessageService {
             const data: string = message.content.data as string;
             lenChar = data.length;
             messageContent = message.content;
-        } else if (message.content.type === 'image') {
+        } else if (message.content.type === 'image' || message.content.type === 'video') {
             const data: Express.Multer.File = message.content.data as Express.Multer.File;
             const path = await new UploadService().uploadFile(data);
             lenChar = 100; // TODO: sostituire con costante dalla config
@@ -46,7 +46,7 @@ export class MessageService {
             };
         } else {
             //TODO:implementare per gli latri tipi
-            throw new HttpError(501, 'Message type is not implemented');
+            throw new HttpError(501, `Message type ${message.content.type} is not implemented`);
         }
 
         if (haveEnoughtQuota(creator, lenChar)) {

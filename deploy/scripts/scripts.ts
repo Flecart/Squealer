@@ -79,19 +79,21 @@ async function createChannels(loginToken: string) {
 }
 
 async function createMessages(loginTokens: string[]) {
+
+    const message  = {
+        channel: 'test-channel',
+        content: {
+            type: 'text',
+            data: 'test-message',
+        },
+    }
+
     const promises = loginTokens.map((token) => {
         return request(baseUrl)
             .post(messageCreateRoute)
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                channel: 'test-channel',
-                parent:undefined,
-                content: {
-                    type: 'text',
-                    data: 'test-message',
-                },
-            })
-            .expect(200)
+            .field('data', JSON.stringify(message))
+            .expect(200);
     });
 
     return await Promise.all(promises)
