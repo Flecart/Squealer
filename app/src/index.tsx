@@ -49,7 +49,7 @@ function App(): JSX.Element {
 
     useEffect((): (() => void) => {
         if (authState !== null) {
-            const interval = setInterval(() => {
+            const getNotification = (): void => {
                 fetchApi<string[]>(
                     `${apiUserBase}/notification`,
                     { method: 'GET' },
@@ -61,7 +61,10 @@ function App(): JSX.Element {
                         console.log(error);
                     },
                 );
-            }, 10000);
+            };
+
+            getNotification();
+            const interval = setInterval(getNotification, 10000);
             return () => {
                 clearInterval(interval);
             };
