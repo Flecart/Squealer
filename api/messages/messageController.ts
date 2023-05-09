@@ -1,5 +1,5 @@
 import { Get, Body, Query, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
-import { IMessage, MessageCreation, ReactionType } from '@model/message';
+import { IMessage, MessageCreation, IReactionType } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
 import { type MessageCreationRensponse } from '../../model/message';
@@ -52,8 +52,8 @@ export class MessageController {
     public async reatMessage(
         @Request() req: any,
         @Path('id') id: string,
-        @Body() reaction: { type: ReactionType },
-    ): Promise<ReactionType> {
+        @Body() reaction: { type: IReactionType },
+    ): Promise<IReactionType> {
         return new MessageService().reactMessage(id, reaction.type, getUserFromRequest(req));
     }
 }

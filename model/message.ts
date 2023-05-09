@@ -25,10 +25,10 @@ export interface IMessage {
     creator: string;
     date: Date;
     views: number; // impressions.
-    reaction: Reaction[];
+    reaction: IReaction[];
 }
 
-export enum ReactionType {
+export enum IReactionType {
     ANGRY = -2,
     DISLIKE = -1,
     LIKE = 1,
@@ -36,9 +36,9 @@ export enum ReactionType {
     UNSET = 0,
 }
 
-export interface Reaction {
+export interface IReaction {
     id: string;
-    type: ReactionType;
+    type: IReactionType;
 }
 
 export interface MessageCreation {

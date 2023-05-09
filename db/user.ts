@@ -21,6 +21,4 @@ const UserSchema = new mongoose.Schema<IUser>({
     messages: { type: [MessageInboxSchema], required: true },
 });
 
-// https://www.dicebear.com/how-to-use/js-library
-
 export default mongoose.model<IUser>(UserModelName, UserSchema);

@@ -1,5 +1,5 @@
 import { haveEnoughtQuota } from '@model/user';
-import { IMessage, ReactionType } from '@model/message';
+import { IMessage, IReactionType } from '@model/message';
 import { HttpError } from '@model/error';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
 import mongoose from 'mongoose';
@@ -92,18 +92,18 @@ export class MessageService {
         else return rens;
     }
 
-    public async reactMessage(id: string, type: ReactionType, username: string): Promise<ReactionType> {
+    public async reactMessage(id: string, type: IReactionType, username: string): Promise<IReactionType> {
         // get message from mongo
         const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
         if (message == null) throw new HttpError(404, 'Message not found');
-        const find = message.reaction.find((reaction) => reaction.id === username);
-        if (find) {
-            if (type === ReactionType.UNSET) {
+        const userReaction = message.reaction.find((reaction) => reaction.id === username);
+        if (userReaction) {
+            if (type === IReactionType.UNSET) {
                 message.reaction = message.reaction.filter((reaction) => reaction.id !== username);
             } else {
-                find.type = type;
+                userReaction.type = type;
             }
-        } else if (type !== ReactionType.UNSET) message.reaction.push({ id: username, type: type });
+        } else if (type !== IReactionType.UNSET) message.reaction.push({ id: username, type: type });
 
         message.markModified('reaction');
         message.save();

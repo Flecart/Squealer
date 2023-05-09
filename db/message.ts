@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 import { Img } from '@model/message';
 import { Maps } from '@model/message';
-import { Reaction } from '@model/message';
+import { IReaction } from '@model/message';
 import { IMessage } from '@model/message';
 
-const ReactionSchema = new mongoose.Schema<Reaction>({
+const IReactionSchema = new mongoose.Schema<IReaction>({
     id: { type: String, required: true },
     type: { type: Number, required: true },
 });
@@ -28,7 +28,7 @@ export const MessageSchema = new mongoose.Schema<IMessage>({
     children: { type: [mongoose.Types.ObjectId], require: true },
     views: { type: Number, required: true },
     parent: { type: mongoose.Types.ObjectId, ref: MessageModelName },
-    reaction: { type: [ReactionSchema], required: true },
+    reaction: { type: [IReactionSchema], required: true },
 });
 
 export default mongoose.model<IMessage>(MessageModelName, MessageSchema);
