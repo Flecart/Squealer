@@ -10,6 +10,8 @@ Commento per le api
 */
 export type Img = Express.Multer.File;
 
+type SupportedContent = 'text' | 'image' | 'video' | 'maps';
+
 /** 
 Commento per le api
 */
@@ -18,7 +20,7 @@ export interface IMessage {
     channel: string; // il canale a cui appartiene il messaggio
     parent?: mongoose.Types.ObjectId; // il messaggio a cui risponde
     content: {
-        type: string;
+        type: SupportedContent;
         data: string | Img | Maps;
     };
     children: mongoose.Types.ObjectId[];
@@ -45,7 +47,7 @@ export interface MessageCreation {
     channel: string; // il canale a cui appartiene il messaggio
     parent: string | undefined; // il messaggio a cui risponde
     content: {
-        type: string;
+        type: SupportedContent;
         data: string | Img | Maps;
     };
 }

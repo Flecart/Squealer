@@ -126,6 +126,14 @@ function Post({ message }: PostProps): JSX.Element {
 
         if (message.content.type === 'image') {
             return <Image src={`${imageBase}/${message.content.data as string}`} fluid />;
+        } else if (message.content.type === 'video') {
+            return (
+                <Container>
+                    <video className="mb-3 w-100" controls>
+                        <source src={`${imageBase}/${message.content.data as string}`}></source>
+                    </video>
+                </Container>
+            );
         } else {
             return <p>{message.content.data as string} </p>;
         }

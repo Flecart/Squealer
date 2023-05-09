@@ -1,4 +1,4 @@
-import { IMessage, MessageCreation, IReactionType,type MessageCreationRensponse  } from '@model/message';
+import { IMessage, MessageCreation, IReactionType, type MessageCreationRensponse } from '@model/message';
 import {
     Get,
     Body,
@@ -29,14 +29,14 @@ export class MessageController {
     public async createMessage(
         @FormField() data: string,
         @Request() request: any,
-        @UploadedFile('image') file?: Express.Multer.File,
+        @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
         console.info(`MessageController.createMessage: ${data} from ${getUserFromRequest(request)}`);
         // TODO: validate data
         const bodyData: MessageCreation = JSON.parse(data);
 
-        if (bodyData.content.type == 'image') {
-            if (file == undefined) throw new HttpError(404, 'Image File is undefined');
+        if (bodyData.content.type == 'image' || bodyData.content.type == 'video') {
+            if (file == undefined) throw new HttpError(400, 'File attachment is undefined');
             else bodyData.content.data = file;
         }
 
