@@ -1,4 +1,4 @@
-import { IMessage, MessageCreation, IReactionType,type MessageCreationRensponse  } from '@model/message';
+import { IMessage, MessageCreation, IReactionType, type MessageCreationRensponse } from '@model/message';
 import {
     Get,
     Body,
@@ -59,12 +59,6 @@ export class MessageController {
     @Response<IMessage>(200, 'OK')
     public async readThread(@Path('id') id: string): Promise<IMessage> {
         return new MessageService().getMessagesWithId(id);
-    }
-
-    @Post('/batch-view')
-    public async batchView(@Body() _messageIds: string[]) {
-        // TODO: return new MessageService().batchView(messageIds);
-        return 'todo';
     }
 
     @Post('/{id}/reaction')

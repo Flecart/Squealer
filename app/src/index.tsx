@@ -16,6 +16,10 @@ import AddPost from './views/AddPost';
 import Message from './views/Message';
 import Settings from './views/Settings';
 import Channel from './views/Channel';
+import Notification from './views/Notification';
+import { fetchApi } from './api/fetch';
+import { apiUserBase } from './api/routes';
+import { NotificationStore } from './notification';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -32,6 +36,7 @@ const router = createBrowserRouter(
             <Route path="/addpost/:parent" element={<AddPost />} />
             <Route path="/message/:id" element={<Message />} />
             <Route path="/channel/:channelId" element={<Channel />} />
+            <Route path="/notification" element={<Notification />} />
         </>,
     ),
 );
@@ -41,6 +46,28 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 function App(): JSX.Element {
     const [authState, setAuthState] = useState<AuthResponse | null>(null);
     const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
+
+    useEffect((): (() => void) => {
+        if (authState !== null) {
+            const interval = setInterval(() => {
+                fetchApi<string[]>(
+                    `${apiUserBase}/notification`,
+                    { method: 'GET' },
+                    authState,
+                    (messages) => {
+                        NotificationStore.setNotification(messages);
+                    },
+                    (error) => {
+                        console.log(error);
+                    },
+                );
+            }, 10000);
+            return () => {
+                clearInterval(interval);
+            };
+        }
+        return () => {};
+    }, [authState]);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-bs-theme', themeState);

@@ -19,6 +19,31 @@ export class MessageService {
             throw new HttpError(404, 'Username not found');
         }
 
+        if (message.channel.startsWith('@')) {
+            const savedMessage = new MessageModel({
+                channel: 'test-string',
+                content: {
+                    type: 'text',
+                    data: message.content.data,
+                },
+                children: [],
+                creator: username,
+                date: new Date(),
+                views: 0,
+                reaction: [],
+                parent: undefined,
+            });
+            await savedMessage.save();
+
+            const user = await UserModel.findOne({ username: message.channel.substring(1) });
+            user?.messages.push({ message: savedMessage._id, viewed: false });
+            user?.save();
+            return {
+                id: savedMessage._id.toString(),
+                channel: '',
+            };
+        }
+
         const channel = await ChannelModel.findOne({ name: message.channel });
         if (!channel) {
             throw new HttpError(404, 'Channel not found');
@@ -92,7 +117,9 @@ export class MessageService {
             ids.map(async (id) => {
                 const rens = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
                 if (rens === null) throw new HttpError(404, 'Message not found');
-                else return rens;
+                rens.views++;
+                rens.save();
+                return rens;
             }),
         );
     }
@@ -100,7 +127,9 @@ export class MessageService {
     public async getMessagesWithId(id: string): Promise<IMessage> {
         const rens = await MessageModel.findOne({ _id: id });
         if (rens === null) throw new HttpError(404, 'Message not found');
-        else return rens;
+        rens.views++;
+        rens.save();
+        return rens;
     }
 
     public async reactMessage(id: string, type: IReactionType, username: string): Promise<IReactionType> {
