@@ -1,9 +1,11 @@
-import UserModel, { haveEnoughtQuota } from '@model/user';
-import ChannelModel from '@model/channel';
-import MessageModel, { IMessage } from '@model/message';
+import { haveEnoughtQuota } from '@model/user';
+import { IMessage, IReactionType } from '@model/message';
 import { HttpError } from '@model/error';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
 import mongoose from 'mongoose';
+import UserModel from '@db/user';
+import ChannelModel from '@db/channel';
+import MessageModel from '@db/message';
 import { UploadService } from '@api/upload/uploadService';
 
 export class MessageService {
@@ -65,8 +67,7 @@ export class MessageService {
             creator: username,
             date: new Date(),
             views: 0,
-            posReaction: [],
-            negReaction: [],
+            reaction: [],
             parent: parent?._id,
         });
         await savedMessage.save();
@@ -79,7 +80,7 @@ export class MessageService {
             parent.children.push(savedMessage._id);
             await parent.save();
         }
-
+        console.info(savedMessage);
         return {
             id: savedMessage._id.toString(),
             channel: savedMessage.channel,
@@ -100,5 +101,25 @@ export class MessageService {
         const rens = await MessageModel.findOne({ _id: id });
         if (rens === null) throw new HttpError(404, 'Message not found');
         else return rens;
+    }
+
+    public async reactMessage(id: string, type: IReactionType, username: string): Promise<IReactionType> {
+        // get message from mongo
+        const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (message == null) throw new HttpError(404, 'Message not found');
+        const userReaction = message.reaction.find((reaction) => reaction.id === username);
+        if (userReaction) {
+            if (type === IReactionType.UNSET) {
+                message.reaction = message.reaction.filter((reaction) => reaction.id !== username);
+            } else {
+                userReaction.type = type;
+            }
+        } else if (type !== IReactionType.UNSET) message.reaction.push({ id: username, type: type });
+
+        message.markModified('reaction');
+        message.save();
+        console.info(message);
+
+        return type;
     }
 }

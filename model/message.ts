@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { UserModelName } from './user';
 
 /** 
 Commento per le api
@@ -26,10 +25,20 @@ export interface IMessage {
     creator: string;
     date: Date;
     views: number; // impressions.
+    reaction: IReaction[];
+}
 
-    // si tengono tutti gli username di utenti che fanno fatto queste reactions su questo messaggio.
-    posReaction: string[];
-    negReaction: string[];
+export enum IReactionType {
+    ANGRY = -2,
+    DISLIKE = -1,
+    LIKE = 1,
+    LOVE = 2,
+    UNSET = 0,
+}
+
+export interface IReaction {
+    id: string;
+    type: IReactionType;
 }
 
 export interface MessageCreation {
@@ -42,20 +51,6 @@ export interface MessageCreation {
 }
 
 export const MessageModelName = 'Message';
-
-export const MessageSchema = new mongoose.Schema<IMessage>({
-    creator: { type: String, required: true },
-    channel: { type: String, required: true },
-    content: { type: Object, required: true },
-    date: { type: Date, required: true },
-    children: { type: [mongoose.Types.ObjectId], require: true, ref: MessageModelName },
-    views: { type: Number, required: true },
-    parent: { type: mongoose.Types.ObjectId, ref: MessageModelName },
-    posReaction: { type: [String], required: true, ref: UserModelName },
-    negReaction: { type: [String], required: true, ref: UserModelName },
-});
-
-export default mongoose.model<IMessage>(MessageModelName, MessageSchema);
 
 export interface MessageCreationRensponse {
     id: string;

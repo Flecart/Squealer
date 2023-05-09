@@ -1,3 +1,4 @@
+import { IMessage, MessageCreation, IReactionType,type MessageCreationRensponse  } from '@model/message';
 import {
     Get,
     Body,
@@ -11,10 +12,8 @@ import {
     FormField,
     UploadedFile,
 } from '@tsoa/runtime';
-import { IMessage, MessageCreation } from '@model/message';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
-import { type MessageCreationRensponse } from '../../model/message';
 import { HttpError } from '@model/error';
 /*
     MessageCreation is a type that is used to create a message.
@@ -68,15 +67,13 @@ export class MessageController {
         return 'todo';
     }
 
-    @Post('/{id}/like')
-    public async likeMessage(@Path('id') _id: string) {
-        // TODO: return new MessageService().likeMessage(id);
-        return {};
-    }
-
-    @Post('/{id}/dislike')
-    public async dislikeMessage(@Path('id') _id: string) {
-        // TODO: return new MessageService().dislikeMessage(id);
-        return {};
+    @Post('/{id}/reaction')
+    @Security('jwt')
+    public async reatMessage(
+        @Request() req: any,
+        @Path('id') id: string,
+        @Body() reaction: { type: IReactionType },
+    ): Promise<IReactionType> {
+        return new MessageService().reactMessage(id, reaction.type, getUserFromRequest(req));
     }
 }

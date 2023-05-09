@@ -1,8 +1,9 @@
 import { HttpError } from '@model/error';
 import { ChannelResponse } from './channelController';
-import ChannelModel, { IChannel } from '@model/channel';
-import AuthModel from '@model/auth';
+import { IChannel } from '@model/channel';
+import AuthModel from '@db/auth';
 import { HydratedDocument } from 'mongoose';
+import ChannelModel from '@db/channel';
 
 export class ChannelService {
     public async list(): Promise<IChannel[]> {
