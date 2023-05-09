@@ -106,6 +106,7 @@ function Post({ message }: PostProps): JSX.Element {
                     onClick={() => {
                         handleReaction(reaction === currentReaction.type ? IReactionType.UNSET : currentReaction.type);
                     }}
+                    className="me-2"
                 >
                     <span className="fw-light pe-2">
                         {reactions.filter((m) => m.type === currentReaction.type).length +
@@ -169,7 +170,7 @@ function Post({ message }: PostProps): JSX.Element {
                     >
                         {renderMessageContent()}
                     </Row>
-                    <Row>
+                    <Row xs="auto">
                         {authState !== null && (
                             <Link to={`/addpost/${message._id.toString()}`} className="me-3">
                                 Replay
