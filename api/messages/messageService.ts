@@ -4,6 +4,7 @@ import MessageModel, { IMessage } from '@model/message';
 import { HttpError } from '@model/error';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
 import mongoose from 'mongoose';
+import { UploadService } from '@api/upload/uploadService';
 
 export class MessageService {
     public async getOwnedMessages(username: string) {
@@ -22,34 +23,44 @@ export class MessageService {
         }
 
         let parent = null;
-        if (message.parent !== undefined) {
-            // FIXME: message parent non è un id
+        if (mongoose.isValidObjectId(message.parent)) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
         }
 
+        let lenChar = 0;
+        let messageContent: IMessage['content'];
         if (message.content.type === 'text') {
-            const lenChar = message.content.data.length;
-            if (haveEnoughtQuota(creator, lenChar)) {
-                console.log(creator);
-                creator.usedQuota.day += lenChar;
-                creator.usedQuota.week += lenChar;
-                creator.usedQuota.month += lenChar;
-                creator.markModified('usedQuota');
-                creator.save();
-
-                console.log(creator);
-            } else {
-                throw new HttpError(403, 'Quota exceeded');
-            }
+            const data: string = message.content.data as string;
+            lenChar = data.length;
+            messageContent = message.content;
+        } else if (message.content.type === 'image') {
+            const data: Express.Multer.File = message.content.data as Express.Multer.File;
+            const path = await new UploadService().uploadFile(data);
+            lenChar = 100; // TODO: sostituire con costante dalla config
+            messageContent = {
+                type: message.content.type,
+                data: path.path,
+            };
         } else {
             //TODO:implementare per gli latri tipi
-            throw new HttpError(501, 'Not implemented');
+            throw new HttpError(501, 'Message type is not implemented');
         }
 
-        let savedMessage = new MessageModel({
+        if (haveEnoughtQuota(creator, lenChar)) {
+            creator.usedQuota.day += lenChar;
+            creator.usedQuota.week += lenChar;
+            creator.usedQuota.month += lenChar;
+            creator.markModified('usedQuota');
+            creator.save();
+            console.log(`Daily quota updated to ${creator.usedQuota.day}`);
+        } else {
+            throw new HttpError(403, 'Quota exceeded');
+        }
+
+        const savedMessage = new MessageModel({
             channel: channel.name,
-            content: message.content,
+            content: messageContent,
             children: [],
             creator: username,
             date: new Date(),
@@ -58,15 +69,15 @@ export class MessageService {
             negReaction: [],
             parent: parent?._id,
         });
-        savedMessage.save();
+        await savedMessage.save();
 
         //TODO: aggiungere i messaggio da tutte le parti in cui serve
         if (parent === null) {
             channel.messages.push(savedMessage._id);
-            channel.save();
+            await channel.save();
         } else {
             parent.children.push(savedMessage._id);
-            parent.save();
+            await parent.save();
         }
 
         return {

@@ -1,6 +1,6 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { Form, Button, Alert, Row } from 'react-bootstrap';
-import { useContext, useEffect, useState } from 'react';
+import { Form, Button, Alert, Row, Image } from 'react-bootstrap';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import { type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
@@ -17,6 +17,8 @@ export default function AddPost(): JSX.Element {
 
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
     const [error, setError] = useState<string | null>(null);
 
     const [user, setUser] = useState<IUser | null>(null);
@@ -62,62 +64,105 @@ export default function AddPost(): JSX.Element {
         );
     }, [authState?.username]);
 
-    function sendMessage(event: React.FormEvent<HTMLButtonElement>): void {
-        event?.preventDefault();
-        if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
-            setError(() => 'Not enought quota');
-            return;
-        }
-
-        let channel = destination;
-        if (parent !== undefined) {
-            if (displayParent instanceof Object) channel = displayParent.channel;
-            else {
-              setError(() => 'Parent not found');
-              return;
+    const sendMessage = useCallback(
+        (event: React.FormEvent<HTMLButtonElement>) => {
+            event?.preventDefault();
+            if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
+                setError(() => 'Not enought quota');
+                return;
             }
-        }
-        const message: MessageCreation = {
-            content: {
-                data: messageText,
-                type: 'text',
-            },
-            channel,
-            parent,
-        };
-        fetchApi<MessageCreationRensponse>(
-            `${apiMessageBase}/`,
-            {
-                method: 'POST',
-                body: JSON.stringify(message),
-            },
-            authState,
-            (message) => {
-                navigate(`/message/${message.id}`);
-            },
-            (error) => {
-                setError(() => error.message);
-            },
-        );
-    }
-    let parentMessage = <> </>;
 
-    if (parent !== undefined) {
+            let channel = destination;
+            if (parent !== undefined) {
+                if (displayParent instanceof Object) channel = displayParent.channel;
+                else {
+                    setError(() => 'Parent not found');
+                    return;
+                }
+            }
+
+            const message: MessageCreation = {
+                content: {
+                    data: '',
+                    type: 'text',
+                },
+                channel,
+                parent,
+            };
+
+            const formData = new FormData();
+            if (selectedImage != null) {
+                formData.append('image', selectedImage);
+                message.content.type = 'image';
+            } else {
+                message.content.data = messageText;
+            }
+            formData.append('data', JSON.stringify(message));
+
+            fetchApi<MessageCreationRensponse>(
+                `${apiMessageBase}`,
+                {
+                    method: 'POST',
+                    headers: {}, // so that the browser can set the content type automatically
+                    body: formData,
+                },
+                authState,
+                (message) => {
+                    setError(() => null);
+                    navigate(`/message/${message.id}`);
+                },
+                (error) => {
+                    setError(() => error.message);
+                },
+            );
+        },
+        [messageText, destination, parent, displayParent, selectedImage, authState, user],
+    );
+
+    const renderParentMessage = useCallback((): JSX.Element => {
+        if (parent === undefined) return <> </>;
         if (displayParent == null) {
-            parentMessage = <> Loading Message </>;
+            return <> Loading Message </>;
         } else if (displayParent instanceof String) {
-            parentMessage = <Alert variant="danger">{displayParent}</Alert>;
+            return <Alert variant="danger">{displayParent}</Alert>;
         } else if (displayParent instanceof Object) {
-            parentMessage = <Post message={displayParent}></Post>;
+            return <Post message={displayParent}></Post>;
+        } else {
+            return <> </>;
         }
-    }
+    }, [parent, displayParent]);
+
+    const renderImagePreview = useCallback((): JSX.Element => {
+        // FIXME:, stranamente ogni volta che scrivo qualcosa, l'URL della src cambia, prova a
+        // tenere l'ispector aperto quando scrivi qualcosa e vedi cosa succede.
+
+        // TODO: effetti sconosciuti quando provo a caricare un file e non un immagine.
+        if (selectedImage == null) return <></>;
+
+        return (
+            <div>
+                {user !== null &&
+                    `day:${user.usedQuota.day + 100}/${user.maxQuota.day} week: ${user.usedQuota.week + 100}/${
+                        user.maxQuota.week
+                    } month:${user.usedQuota.month + 100}/${user.maxQuota.month}`}
+                <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} thumbnail />
+                <Button
+                    onClick={() => {
+                        setSelectedImage(null);
+                    }}
+                >
+                    Remove
+                </Button>
+            </div>
+        );
+    }, [user, selectedImage]);
 
     return (
         <SidebarSearchLayout>
-            {parentMessage}
+            {renderParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                    <Form.Group className="mb-3">
                         <Form.Label>Channel</Form.Label>
                         <Form.Control
                             onChange={(e) => {
@@ -126,30 +171,45 @@ export default function AddPost(): JSX.Element {
                         />
                     </Form.Group>
                 )}
-                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                    <Form.Label>
-                        Message textarea{' '}
-                        {user !== null &&
-                            `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
-                                user.usedQuota.week + messageText.length
-                            }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
-                                user.maxQuota.month
-                            }`}
-                    </Form.Label>
+                {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
+                {selectedImage == null ? (
+                    <Form.Group className="mb-3">
+                        <Form.Label>
+                            Message textarea{' '}
+                            {user !== null &&
+                                `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
+                                    user.usedQuota.week + messageText.length
+                                }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
+                                    user.maxQuota.month
+                                }`}
+                        </Form.Label>
 
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            onChange={(e) => {
+                                setMessageText(e.target.value);
+                            }}
+                        />
+                    </Form.Group>
+                ) : (
+                    renderImagePreview()
+                )}
+
+                <Form.Group>
+                    <Form.Label>Image: </Form.Label>
                     <Form.Control
-                        as="textarea"
-                        rows={3}
-                        onChange={(e) => {
-                            setMessageText(e.target.value);
+                        title="upload image"
+                        type="file"
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            console.log(event);
+                            if (event.target.files === null || event.target.files.length < 1) return;
+                            setSelectedImage(event.target.files[0] as File);
                         }}
                     />
                 </Form.Group>
-                <Form.Group>
-                    <Form.Label>Default file input example</Form.Label>
-                    <Form.Control type="file" />
-                </Form.Group>
-                <Button type="submit" onClick={sendMessage}>
+
+                <Button className="my-2" type="submit" onClick={sendMessage}>
                     Send
                 </Button>
                 {error !== null && (
