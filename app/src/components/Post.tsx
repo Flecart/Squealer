@@ -1,6 +1,6 @@
 import { IReactionType, type IMessage, type IReaction } from '@model/message';
 import { type IUser } from '@model/user';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from 'src/contexts';
@@ -118,6 +118,17 @@ function Post({ message }: PostProps): JSX.Element {
 
     const profiloUrl = user !== null ? `/user/${user.username}` : '/404';
 
+    const renderMessageContent = useCallback(() => {
+        if (message.content === undefined) return null;
+        // TODO: completare i tipi
+
+        if (message.content.type === 'image') {
+            return <Image src={`${imageBase}/${message.content.data as string}`} fluid />;
+        } else {
+            return <p>{message.content.data as string} </p>;
+        }
+    }, [message.content]);
+
     return (
         <Row className="g-4" as="article" role="article">
             <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
@@ -155,10 +166,7 @@ function Post({ message }: PostProps): JSX.Element {
                             navigator(`/message/${message._id.toString()}`);
                         }}
                     >
-                        <p>
-                            {message.content.data}{' '}
-                            {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
-                        </p>
+                        {renderMessageContent()}
                     </Row>
                     <Row>
                         {authState !== null && (
