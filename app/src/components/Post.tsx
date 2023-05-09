@@ -8,6 +8,7 @@ import { fetchApi } from '../api/fetch';
 import { apiMessageBase, apiUserBase } from '../api/routes';
 import { toHumanReadableDate } from 'src/utils';
 import * as Icon from 'react-bootstrap-icons';
+import { imageBase } from 'src/api/routes';
 
 interface PostProps {
     message: IMessage;
