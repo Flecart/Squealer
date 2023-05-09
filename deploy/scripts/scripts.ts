@@ -110,7 +110,6 @@ initConnection().then(async () => {
     await createChannels(loginToken[0] as string);
     console.log("Channels created")
 
-    const messages = await createMessages(loginToken);
+    await createMessages(loginToken);
     console.log("Messages created")
-    console.log(messages)
 })
