@@ -3,12 +3,16 @@ import mongoose from 'mongoose';
 /** 
 Commento per le api
 */
-export type Maps = string;
+export type Img = Express.Multer.File;
 
 /** 
 Commento per le api
 */
-export type Img = Express.Multer.File;
+
+export interface Maps {
+    latitude: number;
+    longitude: number;
+}
 
 type SupportedContent = 'text' | 'image' | 'video' | 'maps';
 
