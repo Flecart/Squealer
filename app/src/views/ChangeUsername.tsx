@@ -35,7 +35,6 @@ export default function ChangeUsername(): JSX.Element {
                     },
                     authState,
                     () => {
-                        setPendingRequest(true);
                         navigate(`/user/${newUsername}`);
                     },
                     (error) => {
