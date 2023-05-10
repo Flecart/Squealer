@@ -19,7 +19,13 @@ export interface MapProps {
 
 function Map({ lat, lng }: MapProps): JSX.Element {
     return (
-        <MapContainer style={{ height: '15rem' }} center={[lat, lng]} zoom={13} scrollWheelZoom={false}>
+        <MapContainer
+            style={{ height: '15rem' }}
+            center={[lat, lng]}
+            zoom={13}
+            scrollWheelZoom={false}
+            dragging={false}
+        >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Marker position={[lat, lng]}>
                 <Popup>gio is here</Popup>

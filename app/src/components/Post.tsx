@@ -1,4 +1,4 @@
-import { IReactionType, type IMessage, type IReaction } from '@model/message';
+import { IReactionType, type IMessage, type IReaction, type Maps } from '@model/message';
 import { type IUser } from '@model/user';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Col, Container, Image, Row } from 'react-bootstrap';
@@ -9,6 +9,7 @@ import { apiMessageBase, apiUserBase } from '../api/routes';
 import { toHumanReadableDate } from 'src/utils';
 import * as Icon from 'react-bootstrap-icons';
 import { imageBase } from 'src/api/routes';
+import Map from './Map';
 
 interface PostProps {
     message: IMessage;
@@ -134,6 +135,10 @@ function Post({ message }: PostProps): JSX.Element {
                     </video>
                 </Container>
             );
+        } else if (message.content.type === 'maps') {
+            const data: Maps = message.content.data as Maps;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            return <Map lat={data.latitude} lng={data.longitude} />;
         } else {
             return <p>{message.content.data as string} </p>;
         }

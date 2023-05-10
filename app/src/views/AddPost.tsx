@@ -28,9 +28,11 @@ export default function AddPost(): JSX.Element {
 
     const [user, setUser] = useState<IUser | null>(null);
 
-    if (authState === null) {
-        navigate('/login');
-    }
+    useEffect(() => {
+        if (authState === null) {
+            navigate('/login');
+        }
+    }, [authState, navigate]);
 
     const [displayParent, setDisplayParent] = useState<IMessage | null | string>(null);
 
@@ -38,9 +40,7 @@ export default function AddPost(): JSX.Element {
         if (parent == null) return;
         fetchApi<IMessage>(
             `${apiMessageBase}/${parent}/`,
-            {
-                method: 'GET',
-            },
+            { method: 'GET' },
             authState,
             (messaggio) => {
                 setDisplayParent(() => messaggio);
@@ -56,9 +56,7 @@ export default function AddPost(): JSX.Element {
         if (authState === null) return;
         fetchApi<IUser>(
             `${apiUserBase}/${authState.username}/`,
-            {
-                method: 'GET',
-            },
+            { method: 'GET' },
             authState,
             (user) => {
                 setUser(() => user);
@@ -104,6 +102,9 @@ export default function AddPost(): JSX.Element {
                     setError(() => 'File type not supported');
                     return;
                 }
+            } else if (geolocationCoord != null) {
+                message.content.data = geolocationCoord;
+                message.content.type = 'maps';
             } else {
                 message.content.data = messageText;
             }
@@ -198,25 +199,27 @@ export default function AddPost(): JSX.Element {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             return <Map lat={geolocationCoord.latitude} lng={geolocationCoord.longitude} />;
         } else {
-            <Form.Group className="mb-3">
-                <Form.Label>
-                    Message textarea{' '}
-                    {user !== null &&
-                        `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
-                            user.usedQuota.week + messageText.length
-                        }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
-                            user.maxQuota.month
-                        }`}
-                </Form.Label>
+            return (
+                <Form.Group className="mb-3">
+                    <Form.Label>
+                        Message textarea{' '}
+                        {user !== null &&
+                            `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
+                                user.usedQuota.week + messageText.length
+                            }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
+                                user.maxQuota.month
+                            }`}
+                    </Form.Label>
 
-                <Form.Control
-                    as="textarea"
-                    rows={3}
-                    onChange={(e) => {
-                        setMessageText(e.target.value);
-                    }}
-                />
-            </Form.Group>;
+                    <Form.Control
+                        as="textarea"
+                        rows={3}
+                        onChange={(e) => {
+                            setMessageText(e.target.value);
+                        }}
+                    />
+                </Form.Group>
+            );
         }
     }, [user, geolocationCoord, selectedImage]);
 

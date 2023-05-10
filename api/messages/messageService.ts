@@ -44,9 +44,11 @@ export class MessageService {
                 type: message.content.type,
                 data: path.path,
             };
+        } else if (message.content.type === 'maps') {
+            lenChar = 100; // TODO: sostituire con costante dalla config
+            messageContent = message.content;
         } else {
-            //TODO:implementare per gli latri tipi
-            throw new HttpError(501, `Message type ${message.content.type} is not implemented`);
+            throw new HttpError(400, `Message type ${message.content.type} is not supported`);
         }
 
         if (haveEnoughtQuota(creator, lenChar)) {
