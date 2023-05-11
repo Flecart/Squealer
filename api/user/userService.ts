@@ -1,5 +1,6 @@
-import UserModel, { IUser } from '@model/user';
-import AuthUserModel from '@model/auth';
+import { IUser } from '@model/user';
+import UserModel from '@db/user';
+import AuthUserModel from '@db/auth';
 import { IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
 

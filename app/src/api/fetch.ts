@@ -13,7 +13,8 @@ export async function fetchApi<T>(
         headers.append('Content-Type', 'application/json');
         headers.append('Accept', 'application/json');
     } else {
-        headers = init.headers as unknown as Headers;
+        if (init.headers instanceof Headers) headers = init.headers;
+        else headers = new Headers(init.headers);
     }
 
     if (auth !== null) {

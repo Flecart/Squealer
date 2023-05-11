@@ -32,7 +32,7 @@ export default function Message(): JSX.Element {
             );
     }, [id]);
 
-    function MianPost(): JSX.Element {
+    function MainPost(): JSX.Element {
         if (message === null && error === null) {
             return <Spinner animation="border" role="status" />;
         } else if (message === null) {
@@ -41,8 +41,8 @@ export default function Message(): JSX.Element {
             return <Post message={message} />;
         }
     }
-    // TODO: maybe this can be a component
 
+    // TODO: maybe this can be a component
     function Comments(): JSX.Element {
         if (message === null) return <></>;
         return (
@@ -54,6 +54,7 @@ export default function Message(): JSX.Element {
     }
 
     function Parent(): JSX.Element {
+        // TODO: refactor me
         if (message !== null)
             if (message.parent !== undefined && message.parent !== null)
                 return (
@@ -71,7 +72,7 @@ export default function Message(): JSX.Element {
     return (
         <SidebarSearchLayout>
             <Parent />
-            <MianPost />
+            <MainPost />
             <Comments />
         </SidebarSearchLayout>
     );

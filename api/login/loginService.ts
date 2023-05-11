@@ -1,12 +1,14 @@
 import { JWT_ALG, JWT_SECRET, JWT_ISSUER } from '@config/config';
-import AuthUserModel, { IUserAuth } from '@model/auth';
+import { IUserAuth } from '@model/auth';
 import { HttpError } from '@model/error';
-import UserModel, { IUser } from '@model/user';
+import { IUser } from '@model/user';
 import crypto from 'crypto';
 import * as jose from 'jose';
 import { HydratedDocument, Types } from 'mongoose';
 import { AuthResponse } from '@model/auth';
 import { DEFAULT_QUOTA } from '@config/api';
+import AuthUserModel from '@db/auth';
+import UserModel from '@db/user';
 
 export class LoginService {
     public async createUser(name: string, password: string): Promise<AuthResponse> {

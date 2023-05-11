@@ -1,9 +1,20 @@
-import { Get, Body, Query, Post, Route, Request, Response, Path, Security } from '@tsoa/runtime';
-import { IMessage, MessageCreation } from '@model/message';
+import { IMessage, MessageCreation, IReactionType, type MessageCreationRensponse } from '@model/message';
+import {
+    Get,
+    Body,
+    Query,
+    Post,
+    Route,
+    Request,
+    Response,
+    Path,
+    Security,
+    FormField,
+    UploadedFile,
+} from '@tsoa/runtime';
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
-import { type MessageCreationRensponse } from '../../model/message';
-
+import { HttpError } from '@model/error';
 /*
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
@@ -14,12 +25,21 @@ export class MessageController {
     @Post('')
     @Security('jwt')
     @Response<IMessage>(204, 'Message Created')
-    @Response<Error>(400, 'Bad request')
+    @Response<HttpError>(400, 'Bad request')
     public async createMessage(
-        @Body() bodyData: MessageCreation,
+        @FormField() data: string,
         @Request() request: any,
+        @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
-        console.info('MessageController.createMessage: ', bodyData, getUserFromRequest(request));
+        console.info(`MessageController.createMessage: ${data} from ${getUserFromRequest(request)}`);
+        // TODO: validate data
+        const bodyData: MessageCreation = JSON.parse(data);
+
+        if (bodyData.content.type == 'image' || bodyData.content.type == 'video') {
+            if (file == undefined) throw new HttpError(400, 'File attachment is undefined');
+            else bodyData.content.data = file;
+        }
+
         return await new MessageService().create(bodyData, getUserFromRequest(request));
     }
 
@@ -47,15 +67,13 @@ export class MessageController {
         return 'todo';
     }
 
-    @Post('/{id}/like')
-    public async likeMessage(@Path('id') _id: string) {
-        // TODO: return new MessageService().likeMessage(id);
-        return {};
-    }
-
-    @Post('/{id}/dislike')
-    public async dislikeMessage(@Path('id') _id: string) {
-        // TODO: return new MessageService().dislikeMessage(id);
-        return {};
+    @Post('/{id}/reaction')
+    @Security('jwt')
+    public async reatMessage(
+        @Request() req: any,
+        @Path('id') id: string,
+        @Body() reaction: { type: IReactionType },
+    ): Promise<IReactionType> {
+        return new MessageService().reactMessage(id, reaction.type, getUserFromRequest(req));
     }
 }

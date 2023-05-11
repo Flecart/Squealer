@@ -1,9 +1,9 @@
 import { IQuotas } from '@model/quota';
 
 export const DEFAULT_QUOTA: IQuotas = {
-    day: 200,
-    month: 1000,
-    week: 20000,
+    day: 2000,
+    week: 2000000,
+    month: 20000000,
 };
 
 const rootDir = require('path').resolve('./');
