@@ -1,0 +1,30 @@
+@import './Global.scss';
+@import './Mixins.scss';
+
+.reaction-button {
+    @extend .me-2;
+    @extend .py-0;
+    background-color: transparent;
+    // border: none;
+
+    &:hover {
+        background-color: transparent;
+        border: none;
+    }
+
+    .reaction-content {
+        @include center;
+    }
+
+    .icon-container {
+        transition-property: background-color, box-shadow;
+    }
+
+    // svg {
+    //     &:hover {
+    //         background-color: #fff;
+    //         border-radius: 50%;
+    //         padding: 0.25rem;
+    //     }
+    // }
+}

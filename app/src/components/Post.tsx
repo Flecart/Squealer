@@ -1,7 +1,7 @@
 import { IReactionType, type IMessage, type IReaction } from '@model/message';
 import { type IUser } from '@model/user';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Col, Container, Image, Row } from 'react-bootstrap';
+import { useCallback, useContext, useEffect, useState, useMemo } from 'react';
+import { Button, ButtonGroup, Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
@@ -9,6 +9,7 @@ import { apiMessageBase, apiUserBase } from '../api/routes';
 import { toHumanReadableDate } from 'src/utils';
 import * as Icon from 'react-bootstrap-icons';
 import { imageBase } from 'src/api/routes';
+import 'src/scss/Post.scss';
 
 interface PostProps {
     message: IMessage;
@@ -64,7 +65,7 @@ function Post({ message }: PostProps): JSX.Element {
         );
     }, [message.creator]);
 
-    function ReactionComponent(): JSX.Element[] {
+    function ReactionComponent(): JSX.Element {
         let initReaction: IReactionType = IReactionType.UNSET;
         let reactions: IReaction[] = [];
         if (authState !== null) {
@@ -98,24 +99,68 @@ function Post({ message }: PostProps): JSX.Element {
             );
             setActive(true);
         };
-        return reactionsAndButtons.map((currentReaction: IReactionButton) => {
-            return (
-                <Button
-                    key={currentReaction.type}
-                    disabled={!active}
-                    onClick={() => {
-                        handleReaction(reaction === currentReaction.type ? IReactionType.UNSET : currentReaction.type);
-                    }}
-                    className="me-2"
-                >
-                    <span className="fw-light pe-2">
-                        {reactions.filter((m) => m.type === currentReaction.type).length +
-                            (reaction === currentReaction.type ? 1 : 0)}
-                    </span>
-                    {reaction === currentReaction.type ? currentReaction.clicked : currentReaction.nonclicked}
-                </Button>
-            );
-        });
+
+        const computeButtonNumber = useCallback(
+            (type: IReactionType): number => {
+                return reactions.filter((m) => m.type === type).length + (reaction === type ? 1 : 0);
+            },
+            [reaction, reactions],
+        );
+
+        const accessibilityGroupLabel = useMemo(() => {
+            let reactionLabel = '';
+            reactionsAndButtons.forEach((reactionButton, i) => {
+                const type = reactionButton.type;
+                const number = computeButtonNumber(type);
+                switch (type) {
+                    case IReactionType.LOVE:
+                        reactionLabel += `${number} Hearth Likes`;
+                        break;
+                    case IReactionType.LIKE:
+                        reactionLabel += `${number} Likes`;
+                        break;
+                    case IReactionType.DISLIKE:
+                        reactionLabel += `${number} Dislikes`;
+                        break;
+                    case IReactionType.ANGRY:
+                        reactionLabel += `${number} Angry Dislikes`;
+                        break;
+                }
+
+                if (i !== reactionsAndButtons.length - 1) {
+                    reactionLabel += ', ';
+                }
+            });
+            return reactionLabel;
+        }, [computeButtonNumber]);
+
+        return (
+            <ButtonGroup aria-label={accessibilityGroupLabel}>
+                {reactionsAndButtons.map((currentReaction: IReactionButton) => {
+                    return (
+                        <Button
+                            key={currentReaction.type}
+                            disabled={!active}
+                            onClick={() => {
+                                handleReaction(
+                                    reaction === currentReaction.type ? IReactionType.UNSET : currentReaction.type,
+                                );
+                            }}
+                            className="reaction-button"
+                        >
+                            <div className="reaction-content">
+                                <span className="fw-light pe-2">{computeButtonNumber(currentReaction.type)}</span>
+                                <div className="icon-container">
+                                    {reaction === currentReaction.type
+                                        ? currentReaction.clicked
+                                        : currentReaction.nonclicked}
+                                </div>
+                            </div>
+                        </Button>
+                    );
+                })}
+            </ButtonGroup>
+        );
     }
 
     const profiloUrl = user !== null ? `/user/${user.username}` : '/404';
