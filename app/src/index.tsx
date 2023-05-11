@@ -7,6 +7,8 @@ import User from './views/User';
 import Logout from './views/Logout';
 import Register from './views/Register';
 import Delete from './views/Delete';
+import ChangePassword from './views/ChangePassword';
+import ChangeUsername from './views/ChangeUsername';
 import { AuthContext, ThemeContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -30,6 +32,8 @@ const router = createBrowserRouter(
             <Route path="/logout" element={<Logout />} />
             <Route path="/create" element={<Register />} />
             <Route path="/user/:username" element={<User />} />
+            <Route path="/user/change-password" element={<ChangePassword />} />
+            <Route path="/user/change-username" element={<ChangeUsername />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/user/delete" element={<Delete />} />
             <Route path="/addpost/" element={<AddPost />} />
