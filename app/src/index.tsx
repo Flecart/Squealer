@@ -28,8 +28,8 @@ const router = createBrowserRouter(
             <Route path="/logout" element={<Logout />} />
             <Route path="/create" element={<Register />} />
             <Route path="/user/:username" element={<User />} />
-            <Route path="/user/:username/change-password" element={<ChangePassword />} />
-            <Route path="/user/:username/change-username" element={<ChangeUsername />} />
+            <Route path="/user/change-password" element={<ChangePassword />} />
+            <Route path="/user/change-username" element={<ChangeUsername />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/user/delete" element={<Delete />} />
             <Route path="/addpost/" element={<AddPost />} />
