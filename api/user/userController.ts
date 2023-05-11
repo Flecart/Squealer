@@ -5,6 +5,17 @@ import { getUserFromRequest } from '@api/utils';
 
 @Route('/user')
 export class UserController extends Controller {
+    @Get('/notification')
+    @Security('jwt')
+    public async getNotifications(@Request() request: any) {
+        return new UserService().getNotifications(getUserFromRequest(request));
+    }
+    @Delete('/notification')
+    @Security('jwt')
+    public async deleteNotification(@Request() request: any) {
+        return new UserService().delNotification(getUserFromRequest(request));
+    }
+
     @Get()
     @Security('jwt')
     public async currentUser(@Request() request: any) {

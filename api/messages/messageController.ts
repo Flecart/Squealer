@@ -61,12 +61,6 @@ export class MessageController {
         return new MessageService().getMessagesWithId(id);
     }
 
-    @Post('/batch-view')
-    public async batchView(@Body() _messageIds: string[]) {
-        // TODO: return new MessageService().batchView(messageIds);
-        return 'todo';
-    }
-
     @Post('/{id}/reaction')
     @Security('jwt')
     public async reatMessage(
