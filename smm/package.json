@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@vue/compat": "^3.3.2",
-    "bootstrap": "^5.2.3",
+    "bootstrap": "^4.2.3",
     "bootstrap-vue": "^2.23.1",
     "sass": "^1.62.1",
     "vue": "^3.3.1"
