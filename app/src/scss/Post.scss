@@ -15,6 +15,10 @@
         border: solid 0px;
         cursor: pointer;
 
+        &:active {
+            border-style: outset;
+        }
+
         &:hover {
             background-color: transparent;
             border: none;
