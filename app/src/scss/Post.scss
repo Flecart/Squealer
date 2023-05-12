@@ -22,7 +22,7 @@
     }
 }
 
-@mixin reaction-content($color) {
+@mixin reaction-content($color, $active: false) {
     display: flex;
     // min-height: 0.5rem;
     flex-direction: row;
@@ -30,6 +30,10 @@
 
     transition-property: color;
     transition-duration: 0.3s;
+
+    @if $active {
+        color: $color;
+    }
 
     .reaction-background-effect {
         position: absolute;
@@ -74,6 +78,14 @@
     @include reaction-content(var(--bs-red));
 }
 
+.reaction-content-active-red {
+    @include reaction-content(var(--bs-red), true);
+}
+
 .reaction-content-yellow {
     @include reaction-content(var(--bs-yellow));
+}
+
+.reaction-content-active-yellow {
+    @include reaction-content(var(--bs-yellow), true);
 }
