@@ -11,11 +11,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      vue: '@vue/compat'
+      vue: '@vue/compat' // see https://bootstrap-vue.org/vue3
     }
   },
   base: `/${endpoints.SMM}`,
   build: {
-    outDir: `../build/${endpoints.SMM}`
+    outDir: `../build/${endpoints.SMM}`,
+    emptyOutDir: true
   }
 })
