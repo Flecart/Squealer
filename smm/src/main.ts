@@ -1,14 +1,12 @@
-import Vue, { createApp } from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
 import './assets/app.scss'
+const app = createApp(App)
 
 // Make BootstrapVue available throughout your project
-// @ts-ignore BootstrapVue is not compatible with Vue 3, see vite config for the workaround
-Vue.use(BootstrapVue)
+app.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
-// @ts-ignore BootstrapVue is not compatible with Vue 3, see vite config for the workaround
-Vue.use(IconsPlugin)
-
-createApp(App).mount('#app')
+app.use(IconsPlugin)
+app.mount('#app')

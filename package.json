@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node build/server/index.js",
-    "dev:smm": "yarn workspace smm dev",
+    "dev:smm": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace smm dev\"",
     "dev:app:noapi": "yarn workspace app start",
     "dev:app": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app start\"",
     "dev:server": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
