@@ -17,6 +17,7 @@ export interface IUser {
     maxQuota: IQuotas;
     clients?: string[];
     messages: IMessageInbox[];
+    channel: string[];
 }
 
 export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {

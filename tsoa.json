@@ -20,6 +20,11 @@
                 "type": "http",
                 "scheme": "bearer",
                 "description": "JWT token bearer security"
+            },
+            "maybeJWT": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "JWT token bearer security"
             }
         }
     },

@@ -3,12 +3,13 @@ import { HttpError } from '@model/error';
 import * as express from 'express';
 import * as jose from 'jose';
 
-function handleJWT(request: express.Request, _scopes?: string[]): Promise<jose.JWTVerifyResult> {
+function handleJWT(request: express.Request, rejectUnauthorized: boolean, _scopes?: string[]): Promise<any> {
     const tokenHeader = request.get('Authorization');
     const token = tokenHeader?.split(' ')[1]?.trim(); // format: "Bearer <token>"
 
     if (!token) {
-        return Promise.reject(new HttpError(401, 'No token provided'));
+        if (rejectUnauthorized) return Promise.reject(new HttpError(401, 'No token provided'));
+        else return Promise.resolve(null);
     }
 
     return jose.jwtVerify(token, JWT_SECRET, {
@@ -19,14 +20,12 @@ function handleJWT(request: express.Request, _scopes?: string[]): Promise<jose.J
     });
 }
 
-export function expressAuthentication(
-    request: express.Request,
-    securityName: string,
-    scopes?: string[],
-): Promise<jose.JWTVerifyResult> {
+export function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
     switch (securityName) {
         case 'jwt':
-            return handleJWT(request, scopes);
+            return handleJWT(request, true, scopes);
+        case 'maybeJWT':
+            return handleJWT(request, false, scopes);
     }
 
     return Promise.reject(new HttpError(404, `Security scheme ${securityName} is not supported`));

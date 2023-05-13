@@ -31,8 +31,6 @@ export class MessageController {
         @Request() request: any,
         @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
-        console.info(`MessageController.createMessage: ${data} from ${getUserFromRequest(request)}`);
-        // TODO: validate data
         const bodyData: MessageCreation = JSON.parse(data);
 
         if (bodyData.content.type == 'image' || bodyData.content.type == 'video') {
