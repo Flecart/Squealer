@@ -4,9 +4,17 @@ import SideBar from './components/SideBar.vue'
 
 <template>
   <SideBar />
-  <main></main>
+  <main>
+    <router-view></router-view>
+  </main>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped>
+@import 'bootstrap/scss/bootstrap.scss';
 
-<script lang="ts"></script>
+@media screen and (min-width: map-get($grid-breakpoints, md)) {
+  main {
+    margin-left: 20rem;
+  }
+}
+</style>
