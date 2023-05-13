@@ -11,7 +11,7 @@ import ChangePassword from './views/ChangePassword';
 import ChangeUsername from './views/ChangeUsername';
 import { AuthContext, ThemeContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
 import AddPost from './views/AddPost';
@@ -48,7 +48,7 @@ const router = createBrowserRouter(
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
 function App(): JSX.Element {
-    const [authState, setAuthState] = useState<AuthResponse | null>(null);
+    const [authState, setAuthState] = usePersistState<AuthResponse | null>('auth', null);
     const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
 
     useEffect((): (() => void) => {

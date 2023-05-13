@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { AuthContext } from '../contexts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
 import { apiLogin as loginEndpoint } from 'src/api/routes';
@@ -9,6 +9,8 @@ import SidebarSearchLayout from '../layout/SidebarSearchLayout';
 
 export default function Login(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);
+
+    const [searchParams] = useSearchParams();
 
     const [formName, setFormName] = useState('');
     const [formPassword, setFormPassword] = useState('');
@@ -45,7 +47,12 @@ export default function Login(): JSX.Element {
                     authState,
                     (auth) => {
                         setAuthState(() => auth);
-                        navigate('/');
+                        const redirect = searchParams.get('redirect');
+                        if (redirect !== null) {
+                            navigate(redirect);
+                        } else {
+                            navigate('/');
+                        }
                     },
                     (error) => {
                         setErrorMessage(() => error.message);
