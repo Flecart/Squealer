@@ -123,14 +123,13 @@ async function createMessagesPublic(): Promise<MessageCreate[]> {
             const req = await request(baseUrl)
                 .post(messageCreateRoute)
                 .set('Authorization', `Bearer ${token}`)
-                .field('data', JSON.stringify(message));//.expect(200);
-            if (req.status !== 200) console.log(req.text)
+                .field('data', JSON.stringify(message)).expect(200);
             messages.push({ id: req.body.id, token } as MessageCreate);
         }
         return messages;
     });
     const messageCreate = await Promise.all(message);
-    return messageCreate.filter((message) => message !== undefined).reduce((p, n) => p.concat(n)) as MessageCreate[];
+    return messageCreate.filter((message) => message !== undefined).flat() as MessageCreate[];
 }
 
 async function createRensponse(messages: MessageCreate[], loginTokens: string[]) {

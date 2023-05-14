@@ -24,7 +24,7 @@
             "maybeJWT": {
                 "type": "http",
                 "scheme": "bearer",
-                "description": "JWT token bearer security"
+                "description": "Accept both JWT token authorization and no authorization users"
             }
         }
     },

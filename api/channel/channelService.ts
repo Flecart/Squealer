@@ -131,12 +131,12 @@ export class ChannelService {
         if (fromApi && (channel.type === ChannelType.PRIVATE || channel?.type === ChannelType.USER)) {
             throw new HttpError(400, `Channel with name ${channelName} is private`);
         }
-        if (channel.users.filter((u) => u.user === username).length === 0) {
+        if (channel.users.find((u) => u.user === username) === undefined) {
             channel.users.push({ user: username, privilege: PermissionType.READWRITE, notification: true });
             channel.markModified('users');
             await channel.save();
         }
-        if (user.channel.filter((c: string) => c === channelName).length === 0) {
+        if (user.channel.find((c) => c === channelName) === undefined) {
             user.channel.push(channelName);
             user.markModified('channel');
             await user.save();
@@ -153,12 +153,12 @@ export class ChannelService {
         if (user === null) {
             throw new HttpError(400, `User with username ${username} does not exist`);
         }
-        if (channel.users.filter((u) => u.user === username).length !== 0) {
+        if (channel.users.find((u) => u.user === username) !== undefined) {
             channel.users = channel.users.filter((u) => u.user !== username);
             channel.markModified('users');
             await channel.save();
         }
-        if (user.channel.filter((c: string) => c === channelName).length !== 0) {
+        if (user.channel.find((c) => c === channelName) !== undefined) {
             user.channel = user.channel.filter((c: string) => c !== channelName);
             user.markModified('channel');
             await user.save();
@@ -171,11 +171,11 @@ export class ChannelService {
         if (channel === null) {
             throw new HttpError(400, `Channel with name ${channelName} does not exist`);
         }
-        const myrecord = channel.users.filter((u) => u.user === username);
-        if (myrecord.length === 0 || myrecord[0] === undefined) {
+        const myrecord = channel.users.find((u) => u.user === username);
+        if (myrecord === undefined) {
             throw new HttpError(400, `User with username ${username} is not in channel ${channelName}`);
         }
-        myrecord[0].notification = notification;
+        myrecord.notification = notification;
         channel.markModified('users');
         await channel.save();
         return {

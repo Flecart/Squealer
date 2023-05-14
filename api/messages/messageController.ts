@@ -24,7 +24,7 @@ import { HttpError } from '@model/error';
 export class MessageController {
     @Post('')
     @Security('jwt')
-    @Response<IMessage>(204, 'Message Created')
+    @Response<MessageCreationRensponse>(204, 'Message Created')
     @Response<HttpError>(400, 'Bad request')
     public async createMessage(
         @FormField() data: string,

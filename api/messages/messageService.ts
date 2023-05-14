@@ -10,19 +10,15 @@ import MessageModel from '@db/message';
 import { UploadService } from '@api/upload/uploadService';
 import { ChannelService } from '@api/channel/channelService';
 
-type ChannelModelType = mongoose.Document<unknown, {}, IChannel> &
-    Omit<IChannel & { _id: mongoose.Types.ObjectId }, never>;
-type MessageModelType = mongoose.Document<unknown, {}, IMessage> &
-    Omit<IMessage & { _id: mongoose.Types.ObjectId }, never>;
-type UserModelType = mongoose.Document<unknown, {}, IUser> & Omit<IUser & { _id: mongoose.Types.ObjectId }, never>;
+type ChannelModelType = mongoose.HydratedDocument<IChannel>;
+type MessageModelType = mongoose.HydratedDocument<IMessage>;
+type UserModelType = mongoose.HydratedDocument<IUser>;
 
 export class MessageService {
     public async getOwnedMessages(username: string) {
         const messages = (await MessageModel.find({ creator: username })).filter(async (message) => {
-            if (message.parent !== undefined) return false;
             const channel = await ChannelModel.findOne({ name: message.channel });
-            if (channel === null) return false;
-            if (isPublicChannel(channel)) return true;
+            if (channel !== null && isPublicChannel(channel)) return true;
             return false;
         });
         return messages;
