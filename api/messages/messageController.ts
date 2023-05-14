@@ -24,15 +24,13 @@ import { HttpError } from '@model/error';
 export class MessageController {
     @Post('')
     @Security('jwt')
-    @Response<IMessage>(204, 'Message Created')
+    @Response<MessageCreationRensponse>(204, 'Message Created')
     @Response<HttpError>(400, 'Bad request')
     public async createMessage(
         @FormField() data: string,
         @Request() request: any,
         @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
-        console.info(`MessageController.createMessage: ${data} from ${getUserFromRequest(request)}`);
-        // TODO: validate data
         const bodyData: MessageCreation = JSON.parse(data);
 
         if (bodyData.content.type == 'image' || bodyData.content.type == 'video') {
