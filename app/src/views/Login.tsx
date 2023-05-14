@@ -49,7 +49,8 @@ export default function Login(): JSX.Element {
                         setAuthState(() => auth);
                         const redirect = searchParams.get('redirect');
                         if (redirect !== null) {
-                            navigate(redirect);
+                            window.location.href = redirect;
+                            console.log('the redirect is: ' + redirect);
                         } else {
                             navigate('/');
                         }
