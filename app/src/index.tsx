@@ -12,12 +12,10 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import React, { useCallback, useEffect, useState } from 'react';
 import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
-import useTemporizer from './hooks/useTemporizer';
 import AddPost from './views/AddPost';
 import Message from './views/Message';
 import Settings from './views/Settings';
 import Channel from './views/Channel';
-import { TimerResult } from 'react-timer-hook';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -43,23 +41,6 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 function App(): JSX.Element {
     const [authState, setAuthState] = useState<AuthResponse | null>(null);
     const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
-
-    const [timerState, setTimerState] = useState<'restart' | 'run' | 'pause'>('stop');
-    var ownTimer: TimerResult = undefined;
-
-    const toggleTimer = useCallback(() => {
-        switch (timerState) {
-            case 'restart':
-                //ownTimer.restart();
-                break;
-            case 'pause':
-                ownTimer.pause();
-                break;
-            case 'run':
-                ownTimer.resume();
-                break;
-        }
-    }, [timerState]);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-bs-theme', themeState);

@@ -10,6 +10,7 @@ import swaggerUi from 'swagger-ui-express';
 import initMongo from './mongo';
 import initStorageDir from './storage';
 import { HttpError } from '@model/error';
+import { mkWorkerTest } from '@api/workers/makeWk';
 
 function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Function) {
     let httpError: HttpError;
@@ -62,5 +63,6 @@ initMongo()
 
         server.listen(PORT, () => {
             console.log(`> Ready on http://localhost:${PORT}`);
+            mkWorkerTest();
         });
     });
