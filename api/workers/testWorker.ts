@@ -1,20 +1,11 @@
 //importScripts("./model/message.ts", "./api/messages/messageService.ts");
-import { MessageService } from '@api/messages/messageService';
-import { MessageCreation } from '@model/message';
+import { parentPort } from 'worker_threads';
 
 var n = 0;
-
-onmessage = function () {
-    const message: MessageCreation = {
-        content: {
-            data: `messaggio ${n}`,
-            type: 'text',
-        },
-        channel: 'test',
-        parent: undefined,
-    };
-
-    n++;
-
-    new MessageService().create(message, 'squealer');
-};
+setInterval(function () {
+    createMessage();
+}, 10000);
+function createMessage() {
+    if (parentPort === null) console.log('parentPort is null');
+    else parentPort.postMessage(++n);
+}
