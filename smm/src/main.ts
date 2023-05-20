@@ -18,7 +18,10 @@ const router = VueRouter.createRouter({
   routes
 })
 
-const squealerBaseURL = 'http://localhost:3000'
+// TODO: mettere l'indirizzo del server di squealer se non dev
+const squealerBaseURL =
+  process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://localhost:3000'
+const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
 
 router.beforeEach((to, _) => {
   const targetPath = to.path
@@ -28,11 +31,12 @@ router.beforeEach((to, _) => {
   console.log(typeof authState)
 
   if (authState == null) {
-    console.log('trying to redirect')
-    window.location.replace(`${squealerBaseURL}/login?redirect=${targetPath}`)
+    // window.location.replace(`${squealerBaseURL}/login?redirect=${encodeURIComponent(baseUrl + targetPath)}`)
+  }
+
+  if (targetPath == '/logout') {
+    console.log('yes trying to logout')
   }
 })
-
-console.log('endpoints', endpoints.SMM)
 
 createApp(App).use(BootstrapVue).use(IconsPlugin).use(router).mount('#app')
