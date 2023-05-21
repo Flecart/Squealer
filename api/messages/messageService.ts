@@ -1,5 +1,5 @@
 import { IUser, haveEnoughtQuota } from '@model/user';
-import { IMessage, IReactionType } from '@model/message';
+import { IMessage, IReactionType, ICategory, CM, type ReactionResponse } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
@@ -53,6 +53,9 @@ export class MessageService {
             views: 0,
             reaction: [],
             parent: parent?._id,
+            category: ICategory.NORMAL,
+            posR: 0,
+            negR: 0,
         });
         await savedMessage.save();
 
@@ -85,24 +88,57 @@ export class MessageService {
         return rens;
     }
 
-    public async reactMessage(id: string, type: IReactionType, username: string): Promise<IReactionType> {
+    public async reactMessage(id: string, type: IReactionType, username: string): Promise<ReactionResponse> {
         // get message from mongo
         const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
         if (message == null) throw new HttpError(404, 'Message not found');
         const userReaction = message.reaction.find((reaction) => reaction.id === username);
+        const precR = userReaction ? userReaction.type : 0;
         if (userReaction) {
             if (type === IReactionType.UNSET) {
                 message.reaction = message.reaction.filter((reaction) => reaction.id !== username);
             } else {
                 userReaction.type = type;
             }
-        } else if (type !== IReactionType.UNSET) message.reaction.push({ id: username, type: type });
+
+            if (precR < 0) {
+                message.negR += precR;
+            } else {
+                message.posR -= precR;
+            }
+        } else if (type !== IReactionType.UNSET) {
+            message.reaction.push({ id: username, type: type });
+        }
+
+        if (type < 0) {
+            message.negR -= type;
+        } else {
+            message.posR += type;
+        }
+
+        message.category = ICategory.POPULAR;
+        if (message.negR > CM) {
+            if (message.posR > CM) {
+                message.category = ICategory.CONTROVERSIAL;
+            } else {
+                message.category = ICategory.UNPOPULAR;
+            }
+        } else {
+            if (message.posR > CM) {
+                message.category = ICategory.POPULAR;
+            } else {
+                message.category = ICategory.NORMAL;
+            }
+        }
 
         message.markModified('reaction');
+        message.markModified('posR');
+        message.markModified('posN');
+        message.markModified('category');
         message.save();
         console.info(message);
 
-        return type;
+        return { reaction: type, category: message.category };
     }
 
     private async getChannel(username: string, channelName: string): Promise<ChannelModelType> {
