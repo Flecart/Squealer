@@ -18,7 +18,7 @@ const router = VueRouter.createRouter({
   routes
 })
 
-// TODO: mettere l'indirizzo del server di squealer se non dev
+// TODO: mettere l'indirizzo del server di squealer se non dev, quando si saprà l'indirizzo di squealer
 const squealerBaseURL =
   process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://localhost:3000'
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
@@ -31,11 +31,15 @@ router.beforeEach((to, _) => {
   console.log(typeof authState)
 
   if (authState == null) {
-    // window.location.replace(`${squealerBaseURL}/login?redirect=${encodeURIComponent(baseUrl + targetPath)}`)
+    // in dev mode set the auth by hand, localstorage won't work with different ports
+    window.location.replace(
+      `${squealerBaseURL}/login?redirect=${encodeURIComponent(baseUrl + targetPath)}`
+    )
   }
 
   if (targetPath == '/logout') {
-    console.log('yes trying to logout')
+    // redirect to main after logout, ci sono cose brutte col localstorage :(
+    window.location.replace(`${squealerBaseURL}/logout?redirect=${encodeURIComponent(baseUrl)}`)
   }
 })
 
