@@ -1,3 +1,5 @@
+// @ts-nocheck , typescript è un casino, non scommentarmi a tuo rischio e pericolo
+
 import UserService from './userService';
 import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
@@ -10,6 +12,9 @@ describe('UserService', () => {
     beforeEach(() => {
         userService = new UserService();
         UserModel.findOne = jest.fn();
+        UserModel.deleteOne = jest.fn();
+        AuthUserModel.findOne = jest.fn();
+        AuthUserModel.deleteOne = jest.fn();
     });
 
     afterEach(() => {
@@ -30,10 +35,11 @@ describe('UserService', () => {
 
             await userService.delNotification('test');
 
-            expect(UserModel.messages[0].viewed).toBe(true);
-            expect(UserModel.messages[1].viewed).toBe(true);
-            expect(UserModel.markModified).toHaveBeenCalledWith('messages');
-            expect(UserModel.save).toHaveBeenCalled();
+            for (const message of userModel.messages) {
+                expect(message.viewed).toBe(true);
+            }
+            expect(userModel.markModified).toHaveBeenCalledWith('messages');
+            expect(userModel.save).toHaveBeenCalled();
         });
 
         it('should throw an error if the user is not found', async () => {
@@ -72,7 +78,7 @@ describe('UserService', () => {
 
             const result = await userService.getUser('test');
 
-            expect(result).toBe(UserModel);
+            expect(result).toBe(userModel);
         });
 
         it('should throw an error if the user is not found', async () => {
@@ -107,7 +113,7 @@ describe('UserService', () => {
 
             const result = await userService.getQuota('test');
 
-            expect(result).toBe(UserModel.usedQuota);
+            expect(result).toBe(userModel.usedQuota);
         });
 
         it('should throw an error if the user is not found', async () => {

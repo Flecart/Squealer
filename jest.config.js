@@ -4,11 +4,11 @@ const { pathsToModuleNameMapper } = require('ts-jest');
 // which contains the path mapping (ie the `compilerOptions.paths` option):
 
 const paths = {
-    '@api/*': ['api/*'],
-    '@config/*': ['config/*'],
-    '@server/*': ['server/*'],
-    '@model/*': ['model/*'],
-    '@db/*': ['db/*'],
+    '@api/*': ['<rootDir>/api/*'],
+    '@config/*': ['<rootDir>/config/*'],
+    '@server/*': ['<rootDir>/server/*'],
+    '@model/*': ['<rootDir>/model/*'],
+    '@db/*': ['<rootDir>/db/*'],
 };
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
@@ -17,4 +17,5 @@ module.exports = {
     testEnvironment: 'node',
     rootDir: __dirname,
     moduleNameMapper: pathsToModuleNameMapper(paths),
+    modulePathIgnorePatterns: ['<rootDir>/build/'],
 };
