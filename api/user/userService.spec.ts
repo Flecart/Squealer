@@ -1,68 +1,119 @@
-import { describe, expect } from '@jest/globals';
-import request from 'supertest';
-import dotenv from 'dotenv';
-import { baseUrl, apiUserCreate, apiUserLogin, apiUserGet, apiUserQuota } from '../utils';
 import UserService from './userService';
+import UserModel from '@db/user';
+import AuthUserModel from '@db/auth';
+import { HttpError } from '@model/error';
+import { jest } from '@jest/globals';
 
-dotenv.config({
-    path: './.env',
-});
+describe('UserService', () => {
+    let userService: UserService;
 
-let token: string;
-
-describe.skip('UserService api calls', () => {
-    beforeAll(async () => {
-        const user = {
-            username: 'test',
-            password: 'test',
-        };
-        await request(baseUrl).post(apiUserCreate).send(user);
-
-        const res = await request(baseUrl).post(apiUserLogin).send(user).expect(200);
-
-        token = res.body.token;
+    beforeEach(() => {
+        userService = new UserService();
+        UserModel.findOne = jest.fn();
     });
 
-    it('should be defined the user token', () => {
-        expect(token).toBeDefined();
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
-    it('should get current user', async () => {
-        const res = await request(baseUrl).get(apiUserGet).set('Authorization', `Bearer ${token}`).expect(200);
+    describe('delNotification', () => {
+        it('should mark all messages as viewed', async () => {
+            const userModel = {
+                messages: [
+                    { viewed: false, message: 'message 1' },
+                    { viewed: false, message: 'message 2' },
+                ],
+                markModified: jest.fn(),
+                save: jest.fn(),
+            };
+            UserModel.findOne.mockResolvedValueOnce(userModel);
 
-        expect(res.body.username).toBe('test');
-        expect(res.body.name).toBe('test');
+            await userService.delNotification('test');
+
+            expect(UserModel.messages[0].viewed).toBe(true);
+            expect(UserModel.messages[1].viewed).toBe(true);
+            expect(UserModel.markModified).toHaveBeenCalledWith('messages');
+            expect(UserModel.save).toHaveBeenCalled();
+        });
+
+        it('should throw an error if the user is not found', async () => {
+            UserModel.findOne.mockResolvedValueOnce(null);
+
+            await expect(userService.delNotification('test')).rejects.toThrow(HttpError);
+        });
     });
 
-    it('should user endpoint return error on no authorization header', async () => {
-        await request(baseUrl).get(apiUserGet).expect(401);
+    describe('getNotifications', () => {
+        it('should return an array of unread messages', async () => {
+            const userModel = {
+                messages: [
+                    { viewed: false, message: 'message 1' },
+                    { viewed: true, message: 'message 2' },
+                ],
+            };
+            UserModel.findOne.mockResolvedValueOnce(userModel);
+
+            const result = await userService.getNotifications('test');
+
+            expect(result).toEqual(['message 1']);
+        });
+
+        it('should throw an error if the user is not found', async () => {
+            UserModel.findOne.mockResolvedValueOnce(null);
+
+            await expect(userService.getNotifications('test')).rejects.toThrow(HttpError);
+        });
     });
 
-    it.skip('should get current user quota', async () => {
-        const res = await request(baseUrl).get(apiUserQuota).set('Authorization', `Bearer ${token}`).expect(200);
-        expect(res.body.day).toBe(0);
-        expect(res.body.month).toBe(0);
-        expect(res.body.year).toBe(0);
+    describe('getUser', () => {
+        it('should return the user', async () => {
+            const userModel = { username: 'test' };
+            UserModel.findOne.mockResolvedValueOnce(userModel);
+
+            const result = await userService.getUser('test');
+
+            expect(result).toBe(UserModel);
+        });
+
+        it('should throw an error if the user is not found', async () => {
+            UserModel.findOne.mockResolvedValueOnce(null);
+
+            await expect(userService.getUser('test')).rejects.toThrow(HttpError);
+        });
     });
 
-    it.skip('should user quota endpoint return error on no authorization header', async () => {
-        await request(baseUrl).get(apiUserQuota).expect(401);
+    describe('deleteUser', () => {
+        it('should delete the user and auth record', async () => {
+            const authModel = { userId: '123' };
+            AuthUserModel.findOne.mockResolvedValueOnce(authModel);
+
+            await userService.deleteUser('test');
+
+            expect(UserModel.deleteOne).toHaveBeenCalledWith({ _id: authModel.userId });
+            expect(AuthUserModel.deleteOne).toHaveBeenCalledWith({ username: 'test' });
+        });
+
+        it('should throw an error if the user is not found', async () => {
+            AuthUserModel.findOne.mockResolvedValueOnce(null);
+
+            await expect(userService.deleteUser('test')).rejects.toThrow(HttpError);
+        });
     });
-});
 
-describe.only('UserService', () => {
-    it('should return user if found', async () => {
-        // mock the db
-        const mockUser = {
-            username: 'test',
-            password: 'test',
-        };
+    describe('getQuota', () => {
+        it('should return the user quota', async () => {
+            const userModel = { usedQuota: { day: 0, month: 0, year: 0 } };
+            UserModel.findOne.mockResolvedValueOnce(userModel);
 
-        const mockDb = {
-            findOne: jest.fn().mockResolvedValue(mockUser),
-        };
+            const result = await userService.getQuota('test');
 
-        const userService = new UserService();
-        const user = await userService.getUser('test', mockDb as any);
+            expect(result).toBe(UserModel.usedQuota);
+        });
+
+        it('should throw an error if the user is not found', async () => {
+            UserModel.findOne.mockResolvedValueOnce(null);
+
+            await expect(userService.getQuota('test')).rejects.toThrow(HttpError);
+        });
     });
 });
