@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "start": "node build/server/index.js",
-    "dev": "yarn workspace moddash dev",
+    "dev:smm": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace smm dev\"",
     "dev:app:noapi": "yarn workspace app start",
     "dev:app": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app start\"",
     "dev:server": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
-    "build": "npm run build:server && npm run build:app && npm run build:moddash",
+    "build": "npm run build:server && npm run build:app && npm run build:smm",
     "build:server": "tsoa spec-and-routes && tsc && resolve-tspaths",
     "build:app": "yarn workspace app build",
-    "build:moddash": "yarn workspace moddash build",
+    "build:smm": "yarn workspace smm build",
     "prepare": "husky install",
     "commit": "cz",
     "deploy:flecs": "cd deploy && ansible-playbook playbook.yml --limit donbartolo",
@@ -30,12 +30,15 @@
     "express": "^4.18.2",
     "jose": "^4.14.1",
     "mongoose": "^7.0.4",
+    "react-bootstrap-icons": "^1.10.3",
+    "multer": "^1.4.5-lts.1",
     "resolve-tspaths": "^0.8.13",
     "swagger-ui-express": "^4.6.2",
     "tsoa": "^5.1.1",
     "typescript": "^5.0.4"
   },
   "devDependencies": {
+    "@types/multer": "^1.4.7",
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
     "@commitlint/cz-commitlint": "^17.5.0",
@@ -68,7 +71,7 @@
   },
   "workspaces": [
     "app",
-    "moddash"
+    "smm"
   ],
   "nodemonConfig": {
     "exec": "ts-node -r tsconfig-paths/register server/index.ts",

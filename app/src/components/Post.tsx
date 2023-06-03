@@ -1,11 +1,14 @@
 import { type IMessage } from '@model/message';
 import { type IUser } from '@model/user';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
 import { apiUserBase } from '../api/routes';
+import { toHumanReadableDate } from 'src/utils';
+import { imageBase } from 'src/api/routes';
+import PostButtons from './PostButtons';
 
 interface PostProps {
     message: IMessage;
@@ -13,8 +16,10 @@ interface PostProps {
 
 function Post({ message }: PostProps): JSX.Element {
     const [user, setUser] = useState<IUser | null>(null);
+
     const [authState] = useContext(AuthContext);
     const navigator = useNavigate();
+
     useEffect(() => {
         fetchApi<IUser>(
             `${apiUserBase}/${message.creator}`,
@@ -24,13 +29,32 @@ function Post({ message }: PostProps): JSX.Element {
                 setUser(() => user);
             },
             (error) => {
-                // TODO: rifare la richeista
+                // TODO: rifare la richiesta
                 console.log(error);
             },
         );
     }, [message.creator]);
 
     const profiloUrl = user !== null ? `/user/${user.username}` : '/404';
+
+    const renderMessageContent = useCallback(() => {
+        if (message.content === undefined) return null;
+        // TODO: completare i tipi
+
+        if (message.content.type === 'image') {
+            return <Image src={`${imageBase}/${message.content.data as string}`} fluid />;
+        } else if (message.content.type === 'video') {
+            return (
+                <Container>
+                    <video className="mb-3 w-100" controls>
+                        <source src={`${imageBase}/${message.content.data as string}`}></source>
+                    </video>
+                </Container>
+            );
+        } else {
+            return <p>{message.content.data as string} </p>;
+        }
+    }, [message.content]);
 
     return (
         <Row className="g-4" as="article" role="article">
@@ -55,7 +79,12 @@ function Post({ message }: PostProps): JSX.Element {
                             <a href={profiloUrl} className="text-decoration-none ">
                                 <span className="fw-light"> @{user?.username} </span>
                             </a>
-                            <span className="fw-light"> {message.date.toString()} </span>{' '}
+                            <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>{' '}
+                            {message.channel !== undefined && (
+                                <span className="fw-light">
+                                    <Link to={`/channel/${message.channel}`}>{message.channel}</Link>
+                                </span>
+                            )}
                             {/* TODO: transform in user good date. (like 1h or similiar */}
                         </div>
                     </Row>
@@ -64,17 +93,19 @@ function Post({ message }: PostProps): JSX.Element {
                             navigator(`/message/${message._id.toString()}`);
                         }}
                     >
-                        <p>
-                            {message.content.data}{' '}
-                            {/* TODO: mostrare in modo differente a seconda del tipo, esempio imamgine o simile, questo sta ancora un altro compontent */}
-                        </p>
+                        {renderMessageContent()}
                     </Row>
-                    {authState !== null && (
-                        <Row>
-                            {' '}
-                            <Link to={`/addpost/${message._id.toString()}`}>Replay</Link>{' '}
-                        </Row>
-                    )}
+                    <Row>
+                        <PostButtons messageId={message._id.toString()} reactions={message.reaction} />
+                    </Row>
+
+                    <Row>
+                        {authState !== null && (
+                            <Link to={`/addpost/${message._id.toString()}`} className="me-3">
+                                Replay
+                            </Link>
+                        )}
+                    </Row>
                 </Container>
             </Col>
         </Row>

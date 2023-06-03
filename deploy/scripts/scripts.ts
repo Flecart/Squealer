@@ -4,8 +4,10 @@
 import mongoose from 'mongoose';
 import request from 'supertest';
 import initConnection from '../../server/mongo';
+import { randomBattisti, randomGuccini } from './readscript'
 
 import dotenv from 'dotenv';
+import { ChannelInfo, ChannelType } from '../../model/channel';
 
 dotenv.config({
     path: './.env',
@@ -23,6 +25,21 @@ type Credentials = {
 }
 
 const allUsers = ['gio', 'angi', 'luchi']
+
+type MessageCreate = {
+    id: string,
+    token: string,
+}
+let publicChannel = [
+    {
+        nome: 'battisti', description: 'canale dedicato a lucio battisti',
+        gen: randomBattisti, members: []
+    },
+    {
+        nome: 'guccini', description: 'canale dedicato a francesco guccini',
+        gen: randomGuccini, members: []
+    },
+]
 
 function createCredentials(user: string) {
     return {
@@ -54,8 +71,8 @@ async function getLoginTokens() {
             .send(creds)
             .expect(200)
 
-        })
-        
+    })
+
     const res = await Promise.all(promises)
     res.forEach((res) => {
         loginTokens.push(res.body.token.trim())
@@ -67,34 +84,85 @@ async function getLoginTokens() {
     return loginTokens
 }
 
-async function createChannels(loginToken: string) {
-    return request(baseUrl)
+async function createChannels(loginToken: string[]) {
+    for (let channel of publicChannel) {
+        const channelInfo = {
+            channelName: channel.nome,
+            type: ChannelType.PUBLIC,
+            description: channel.description,
+        } as ChannelInfo
+
+
+        if (loginToken[0] === undefined) {
+            throw new Error("No login tokens")
+        } else {
+            await createChannel(loginToken[0], channelInfo);
+        }
+    }
+}
+
+async function createChannel(loginToken: string, channel: ChannelInfo) {
+    return await request(baseUrl)
         .post(channelCreateRoute)
         .set('Authorization', `Bearer ${loginToken}`)
-        .send({
-            channelName: 'test-channel',
-            description: 'test-description',
-        })
+        .send(channel)
         .expect(201)
 }
 
-async function createMessages(loginTokens: string[]) {
-    const promises = loginTokens.map((token) => {
-        return request(baseUrl)
-            .post(messageCreateRoute)
-            .set('Authorization', `Bearer ${token}`)
-            .send({
-                channel: 'test-channel',
+async function createMessagesPublic(): Promise<MessageCreate[]> {
+    const message = publicChannel.map(async (channel) => {
+        let messages: MessageCreate[] = [];
+        for (let token of channel.members) {
+            const message = {
+                channel: channel.nome,
                 content: {
-                    type: 'string',
-                    data: 'test-message',
+                    type: 'text',
+                    data: channel.gen(),
                 },
-            })
-            .expect(200)
+            }
+            const req = await request(baseUrl)
+                .post(messageCreateRoute)
+                .set('Authorization', `Bearer ${token}`)
+                .field('data', JSON.stringify(message)).expect(200);
+            messages.push({ id: req.body.id, token } as MessageCreate);
+        }
+        return messages;
     });
+    const messageCreate = await Promise.all(message);
+    return messageCreate.filter((message) => message !== undefined).flat() as MessageCreate[];
+}
 
-    return await Promise.all(promises)
-    console.log("Messages created")
+async function createRensponse(messages: MessageCreate[], loginTokens: string[]) {
+    const promises = messages.map(async (cmessage) => {
+        for (let token of loginTokens) {
+            if (cmessage.token === token) continue;
+            const message = {
+                parent: cmessage.id,
+                content: {
+                    type: 'text',
+                    data: randomBattisti(),
+                },
+            }
+            const rens = await request(baseUrl)
+                .post(messageCreateRoute)
+                .set('Authorization', `Bearer ${token}`)
+                .field('data', JSON.stringify(message)).expect(200);
+            if(rens.status !== 200) console.log(rens.text)
+
+        }
+    });
+    await Promise.all(promises);
+}
+
+async function joinChannel(){
+    for(let channel of publicChannel){
+        for(let token of channel.members){
+            await request(baseUrl)
+                .post(`/api/channel/${channel.nome}/join`)
+                .set('Authorization', `Bearer ${token}`)
+                .expect(200)
+        }
+    }
 }
 
 initConnection().then(async () => {
@@ -104,9 +172,22 @@ initConnection().then(async () => {
 
     await createDefaultUsers();
     const loginToken = await getLoginTokens();
-    await createChannels(loginToken[0] as string);
+
+
+
+    await createChannels(loginToken);
     console.log("Channels created")
 
-    await createMessages(loginToken);
+    // @ts-ignore
+    publicChannel[0].members = [loginToken[0], loginToken[1]];
+    // @ts-ignore
+    publicChannel[1].members = [loginToken[0], loginToken[1], loginToken[2]];
+
+    await joinChannel();
+    console.log("Users joined channels")
+
+    const message = await createMessagesPublic();
     console.log("Messages created")
+
+    await createRensponse(message, loginToken);
 })

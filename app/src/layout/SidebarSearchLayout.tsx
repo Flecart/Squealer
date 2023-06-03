@@ -8,13 +8,13 @@ interface Props {
 
 export default function SidebarSearchLayout({ children }: Props): JSX.Element {
     return (
-        <Row>
-            <Col lg={3}>
-                <Container className="d-none d-lg-block">
+        <Row className="vh-100">
+            <Col md={3}>
+                <Container className="d-none d-md-block">
                     <SideBar />
                 </Container>
             </Col>
-            <Col lg={6} className="border-start border-end border-light">
+            <Col md={6} className="border-start border-end border-light">
                 <Header />
                 {children instanceof Array ? children.map((child) => child) : children}
             </Col>

@@ -1,0 +1,95 @@
+@import 'src/scss/Global.scss';
+@import 'src/scss/Mixins.scss';
+
+.reaction-group {
+    @extend .w-100;
+    @include center;
+    justify-content: space-between;
+    max-width: 26rem; // change this
+    flex: 0 0 auto;
+
+    .reaction-button {
+        @include zeroall;
+        display: inline;
+        background-color: transparent;
+        border: solid 0px;
+        cursor: pointer;
+
+        &:active {
+            border-style: outset;
+        }
+
+        &:hover {
+            background-color: transparent;
+            border: none;
+        }
+    }
+}
+
+@mixin reaction-content($color, $active: false) {
+    display: flex;
+    // min-height: 0.5rem;
+    flex-direction: row;
+    align-items: center;
+
+    transition-property: color;
+    transition-duration: 0.3s;
+
+    @if $active {
+        color: $color;
+    }
+
+    .reaction-background-effect {
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        border-radius: 50%;
+        margin: -0.3rem;
+        border: 0px solid #fff;
+        transition: all 0.3s ease-in-out;
+        opacity: 0.1;
+    }
+
+    .icon-container {
+        position: relative;
+        @include center;
+        height: 100%;
+        aspect-ratio: 1;
+    }
+
+    .reaction-number {
+        @extend .fw-light;
+        @extend .ps-2;
+        display: inline-flex;
+        align-items: flex-start;
+        min-width: calc(1em + 24px);
+    }
+
+    &:hover {
+        // color variable boostrap red
+        color: $color;
+
+        .reaction-background-effect {
+            background-color: $color;
+            box-shadow: 0 0 0 0.25rem rgba($color, 0.25);
+        }
+    }
+}
+
+.reaction-content-red {
+    @include reaction-content(var(--bs-red));
+}
+
+.reaction-content-active-red {
+    @include reaction-content(var(--bs-red), true);
+}
+
+.reaction-content-yellow {
+    @include reaction-content(var(--bs-yellow));
+}
+
+.reaction-content-active-yellow {
+    @include reaction-content(var(--bs-yellow), true);
+}

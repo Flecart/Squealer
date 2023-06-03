@@ -1,9 +1,28 @@
-import UserModel, { IUser } from '@model/user';
-import AuthUserModel from '@model/auth';
+import { IUser } from '@model/user';
+import UserModel from '@db/user';
+import AuthUserModel from '@db/auth';
 import { IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
 
 export default class UserService {
+    public async delNotification(username: string): Promise<string> {
+        const userModel = await UserModel.findOne({ username: username }).exec();
+        if (userModel == null) throw new HttpError(404, 'User not found');
+        userModel.messages.filter((message) => !message.viewed).forEach((message) => (message.viewed = true));
+        userModel.markModified('messages');
+        userModel.save();
+        return 'success';
+    }
+
+    public async getNotifications(username: string): Promise<string[]> {
+        const userModel = await UserModel.findOne({ username: username }).exec();
+        if (userModel == null) throw new HttpError(404, 'User not found');
+        const unreadedMessage = userModel.messages
+            .filter((message) => !message.viewed)
+            .map((message) => message.message.toString());
+        return unreadedMessage;
+    }
+
     public async getUser(username: string): Promise<IUser> {
         const userModel = await UserModel.findOne({ username: username }).exec();
         if (userModel == null) throw new HttpError(404, 'User not found');
