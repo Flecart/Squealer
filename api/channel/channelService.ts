@@ -15,7 +15,7 @@ export class ChannelService {
         //TODO da testare
         const userChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.USER }, { type: ChannelType.PRIVATE }],
-            users: { $elemMatch: { name: user } },
+            users: { $elemMatch: { user: user } },
         });
         return publicChannel.concat(userChannel);
     }
