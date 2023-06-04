@@ -7,6 +7,7 @@ import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { Alert, Button, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import { AuthContext } from 'src/contexts';
 import MessageListLoader from 'src/components/MessageListLoader';
+import ChannelMembers from 'src/components/ChannelMembers';
 
 export default function Channel(): JSX.Element {
     const navigate = useNavigate();
@@ -84,9 +85,7 @@ export default function Channel(): JSX.Element {
                     </Tab>
                     <Tab eventKey="posts" title="Members">
                         {/* TODO: aggiungere la grafica */}
-                        {channel?.users.map((user) => (
-                            <p key={user.user}>{user.user}</p>
-                        ))}
+                        <ChannelMembers channel={channel} />
                     </Tab>
                 </Tabs>
             </Container>
