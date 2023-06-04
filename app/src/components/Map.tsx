@@ -1,10 +1,10 @@
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import { type MapPosition, type Maps } from '@model/message';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 // fixes: https://stackoverflow.com/questions/49441600/react-leaflet-marker-files-not-found
 const DefaultIcon = L.icon({
@@ -18,6 +18,32 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 export interface MapProps {
     positions: Maps['positions'];
+}
+
+export interface MapItemsProps {
+    positions: Array<[number, number]>;
+}
+
+function MapItems({ positions }: MapItemsProps): JSX.Element {
+    // NOTA: per cose di compatibilità di leaflet useMap puoi utilizzarlo
+    // solamente per componenti figli di MapContainer (setta il context del map)
+    const map: L.Map = useMap();
+    useEffect(() => {
+        if (map != null && positions.length > 0) {
+            const bounds = L.latLngBounds(positions);
+            map.fitBounds(bounds);
+        }
+    }, [map]);
+
+    return (
+        <>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Polyline pathOptions={{ color: 'blue' }} positions={positions} />
+            <Marker position={positions[positions.length - 1] as [number, number]}>
+                <Popup>angi is here</Popup>
+            </Marker>
+        </>
+    );
 }
 
 function Map({ positions }: MapProps): JSX.Element {
@@ -39,11 +65,7 @@ function Map({ positions }: MapProps): JSX.Element {
                         scrollWheelZoom={false}
                         dragging={false} // don't allow dragging will get -> https://github.com/Leaflet/Leaflet/issues/6859
                     >
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        <Polyline pathOptions={{ color: 'blue' }} positions={memoPositions} />
-                        <Marker position={memoPositions[memoPositions.length - 1] as [number, number]}>
-                            <Popup>angi is here</Popup>
-                        </Marker>
+                        <MapItems positions={memoPositions} />
                     </MapContainer>
                 ) : (
                     <div>no positions</div>

@@ -1,5 +1,5 @@
 import { IUser, haveEnoughtQuota } from '@model/user';
-import { IMessage, IReactionType } from '@model/message';
+import { IMessage, IReactionType, MapPosition, Maps } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
@@ -61,6 +61,25 @@ export class MessageService {
         return {
             id: savedMessage._id.toString(),
             channel: savedMessage.channel,
+        };
+    }
+
+    public async updatePosition(
+        id: string,
+        position: MapPosition,
+        username: string,
+    ): Promise<MessageCreationRensponse> {
+        const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (message == null) throw new HttpError(404, 'Message not found');
+        else if (message.creator !== username) throw new HttpError(401, 'Not authorized');
+        else if (message.content.type !== 'maps') throw new HttpError(400, 'Message is not a map');
+
+        (message.content.data as Maps).positions.push(position);
+        message.markModified('content');
+        await message.save();
+        return {
+            id: message._id.toString(),
+            channel: message.channel,
         };
     }
 
