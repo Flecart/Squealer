@@ -9,9 +9,12 @@ export type Img = Express.Multer.File;
 Commento per le api
 */
 
+export interface MapPosition {
+    lat: number;
+    lng: number;
+}
 export interface Maps {
-    latitude: number;
-    longitude: number;
+    positions: MapPosition[];
 }
 
 type SupportedContent = 'text' | 'image' | 'video' | 'maps';

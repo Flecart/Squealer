@@ -20,8 +20,6 @@ export default function AddPost(): JSX.Element {
     const [destination, setDestination] = useState<string>('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
-    // TODO: fix me
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
 
     const [error, setError] = useState<string | null>(null);
@@ -185,8 +183,7 @@ export default function AddPost(): JSX.Element {
         navigator.geolocation.getCurrentPosition(function (position) {
             console.log('setting geolocation');
             setGeolocationCoord({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
+                positions: [{ lat: position.coords.latitude, lng: position.coords.longitude }],
             });
         });
     };
@@ -197,7 +194,7 @@ export default function AddPost(): JSX.Element {
         } else if (geolocationCoord != null) {
             // TODO: fix me
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            return <Map lat={geolocationCoord.latitude} lng={geolocationCoord.longitude} />;
+            return <Map positions={geolocationCoord.positions} />;
         } else {
             return (
                 <Form.Group className="mb-3">

@@ -54,8 +54,7 @@ function Post({ message }: PostProps): JSX.Element {
             );
         } else if (message.content.type === 'maps') {
             const data: Maps = message.content.data as Maps;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return <Map lat={data.latitude} lng={data.longitude} />;
+            return <Map positions={data.positions} />;
         } else {
             return <p>{message.content.data as string} </p>;
         }
