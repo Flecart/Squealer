@@ -20,7 +20,7 @@ function Post({ message }: PostProps): JSX.Element {
     const [authState] = useContext(AuthContext);
     const navigator = useNavigate();
 
-    const getCategoryClass = (Category: ICategory): string => {
+    const getCategoryText = (Category: ICategory): string => {
         switch (Category) {
             case ICategory.NORMAL:
                 return '';
@@ -40,7 +40,7 @@ function Post({ message }: PostProps): JSX.Element {
         }
     };
 
-    const getCategoryText = (Category: ICategory): string => {
+    const getCategoryClass = (Category: ICategory): string => {
         switch (Category) {
             case ICategory.NORMAL:
                 return '';
@@ -128,8 +128,8 @@ function Post({ message }: PostProps): JSX.Element {
                                 </span>
                             )}
                             {categoryState !== 0 && (
-                                <span className={`container-fluid ${getCategoryText(categoryState) ?? ''}`}>
-                                    {getCategoryClass(categoryState)}
+                                <span className={`container-fluid ${getCategoryClass(categoryState) ?? ''}`}>
+                                    {getCategoryText(categoryState)}
                                 </span>
                             )}
                             {/* TODO: transform in user good date. (like 1h or similiar */}
