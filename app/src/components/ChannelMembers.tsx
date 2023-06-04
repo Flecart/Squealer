@@ -107,7 +107,7 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
             (user) => {
                 setUser(() => user);
             },
-            (_) => {},
+            (_) => { },
         );
     }, [member.user]);
 

@@ -63,7 +63,7 @@ export default function Channel(): JSX.Element {
                 (_) => {
                     setNotification(() => newStatus);
                 },
-                (_) => {},
+                (_) => { },
             );
         };
         const toggleJoin = (): void => {
@@ -76,7 +76,7 @@ export default function Channel(): JSX.Element {
                 (_) => {
                     navigate(0);
                 },
-                (_) => {},
+                (_) => { },
             );
         };
 
