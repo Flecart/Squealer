@@ -12,8 +12,7 @@ export type Img = Express.Multer.File;
 
 type SupportedContent = 'text' | 'image' | 'video' | 'maps';
 
-//Critic Mass
-export const CM = 1;
+export const CriticMass = 1;
 
 /** 
 Commento per le api
@@ -32,8 +31,8 @@ export interface IMessage {
     views: number; // impressions.
     reaction: IReaction[];
     category: ICategory;
-    posR: number;
-    negR: number;
+    positiveReactions: number;
+    negativeReactions: number;
 }
 
 export enum IReactionType {

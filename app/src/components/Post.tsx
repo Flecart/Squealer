@@ -1,4 +1,4 @@
-import { type IMessage } from '@model/message';
+import { ICategory, type IMessage } from '@model/message';
 import { type IUser } from '@model/user';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
@@ -20,8 +20,45 @@ function Post({ message }: PostProps): JSX.Element {
     const [authState] = useContext(AuthContext);
     const navigator = useNavigate();
 
-    const categories = ['', 'POPULAR!', 'CONTROVERSIAL!', 'UNPOPULAR!'];
-    const categorieStyles = ['', 'text-success', 'text-warning', 'text-danger'];
+    const getCategoryClass = (Category: ICategory): string => {
+        switch (Category) {
+            case ICategory.NORMAL:
+                return '';
+                break;
+
+            case ICategory.POPULAR:
+                return 'POPULAR!';
+                break;
+
+            case ICategory.UNPOPULAR:
+                return 'UNPOPULAR!';
+                break;
+
+            case ICategory.CONTROVERSIAL:
+                return 'CONTROVERSIAL!';
+                break;
+        }
+    };
+
+    const getCategoryText = (Category: ICategory): string => {
+        switch (Category) {
+            case ICategory.NORMAL:
+                return '';
+                break;
+
+            case ICategory.POPULAR:
+                return 'text-success';
+                break;
+
+            case ICategory.UNPOPULAR:
+                return 'text-danger';
+                break;
+
+            case ICategory.CONTROVERSIAL:
+                return 'text-warning';
+                break;
+        }
+    };
 
     const [categoryState, setCategoryState] = useState<number>(message.category);
 
@@ -91,8 +128,8 @@ function Post({ message }: PostProps): JSX.Element {
                                 </span>
                             )}
                             {categoryState !== 0 && (
-                                <span className={`container-fluid ${categorieStyles[categoryState] ?? ''}`}>
-                                    {categories[categoryState]}
+                                <span className={`container-fluid ${getCategoryText(categoryState) ?? ''}`}>
+                                    {getCategoryClass(categoryState)}
                                 </span>
                             )}
                             {/* TODO: transform in user good date. (like 1h or similiar */}
