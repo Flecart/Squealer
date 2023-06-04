@@ -1,14 +1,20 @@
 import { Alert, Button, Container } from 'react-bootstrap';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
+
 export default function Logout(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     function handleLogout(): void {
         setAuthState(null);
+        const redirect = searchParams.get('redirect');
+        if (redirect !== null) {
+            window.location.href = redirect;
+        }
     }
 
     return (
