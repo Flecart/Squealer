@@ -8,7 +8,7 @@ interface Props {
 
 export default function SidebarSearchLayout({ children }: Props): JSX.Element {
     return (
-        <Row>
+        <Row className="vh-100">
             <Col md={3}>
                 <Container className="d-none d-md-block">
                     <SideBar />

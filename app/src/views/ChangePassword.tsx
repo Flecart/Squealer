@@ -1,58 +1,43 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import React, { useCallback, useContext, useState } from 'react';
 import { AuthContext } from '../contexts';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchApi } from 'src/api/fetch';
-import { type AuthResponse } from '@model/auth';
-import { apiLogin as loginEndpoint } from 'src/api/routes';
+import { fetchApi } from '../api/fetch';
+import { apiAuthUserBase } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
 
-export default function Login(): JSX.Element {
-    const [authState, setAuthState] = useContext(AuthContext);
+export default function ChangePassword(): JSX.Element {
+    const [authState] = useContext(AuthContext);
 
-    const [searchParams] = useSearchParams();
-
-    const [formName, setFormName] = useState('');
-    const [formPassword, setFormPassword] = useState('');
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
 
     const [pendingRequest, setPendingRequest] = useState(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (authState !== null) {
-            navigate('/logout');
-        }
-    }, [authState]);
-
-    const handleLoginUser = useCallback(
+    const handleChangePassword = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             setErrorMessage(null);
-            setFormName('');
-            setFormPassword('');
+            setOldPassword('');
+            setNewPassword('');
 
             if (!pendingRequest) {
+                if (authState == null) return;
                 setPendingRequest(true);
-                fetchApi<AuthResponse>(
-                    loginEndpoint,
+                fetchApi<null>(
+                    `${apiAuthUserBase}/${authState?.username}/change-password`,
                     {
                         method: 'POST',
                         body: JSON.stringify({
-                            username: formName,
-                            password: formPassword,
+                            old_password: oldPassword,
+                            new_password: newPassword,
                         }),
                     },
                     authState,
-                    (auth) => {
-                        setAuthState(() => auth);
-                        const redirect = searchParams.get('redirect');
-                        if (redirect !== null) {
-                            navigate(redirect);
-                        } else {
-                            navigate('/');
-                        }
+                    () => {
+                        setSuccessMessage('Password Modificata Con Successo');
+                        setPendingRequest(false);
                     },
                     (error) => {
                         setErrorMessage(() => error.message);
@@ -61,38 +46,38 @@ export default function Login(): JSX.Element {
                 );
             }
         },
-        [formName, formPassword],
+        [oldPassword, newPassword],
     );
 
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center">
-                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleLoginUser}>
+                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleChangePassword}>
                     <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Username</Form.Label>
+                        <Form.Label className="text-light">Old Password</Form.Label>
                         <Form.Control
                             type="text"
-                            value={formName}
+                            value={oldPassword}
                             onChange={(e) => {
-                                setFormName(e.target.value);
+                                setOldPassword(e.target.value);
                             }}
-                            placeholder="Inserisci il tuo username"
+                            placeholder="Inserisci il la tua vecchia password"
                         />
                     </FormGroup>
                     <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Password</Form.Label>
+                        <Form.Label className="text-light">New Password</Form.Label>
                         <Form.Control
                             type="password"
-                            value={formPassword}
+                            value={newPassword}
                             onChange={(e) => {
-                                setFormPassword(e.target.value);
+                                setNewPassword(e.target.value);
                             }}
-                            placeholder="Inserisci la tua password"
+                            placeholder="Inserisci la tua nuova password"
                         />
                     </FormGroup>
                     <Container className="d-flex justify-content-center">
                         <Button className="col-6 me-1" variant="outline-success" type="submit">
-                            Login
+                            Cambia Password
                         </Button>
                     </Container>
                     <Container className="d-flex justify-content-center">
@@ -104,6 +89,7 @@ export default function Login(): JSX.Element {
                                 </Spinner>
                             </>
                         )}
+                        {successMessage !== null && <Alert variant="sucess">{successMessage}</Alert>}
                     </Container>
                 </Form>
             </Container>

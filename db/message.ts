@@ -22,7 +22,7 @@ export const MessageModelName = 'Message';
 
 export const MessageSchema = new mongoose.Schema<IMessage>({
     creator: { type: String, required: true },
-    channel: { type: String, required: true },
+    channel: { type: String, required: false },
     content: { type: Object, required: true },
     date: { type: Date, required: true },
     children: { type: [mongoose.Types.ObjectId], require: true },

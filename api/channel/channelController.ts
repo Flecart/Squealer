@@ -2,29 +2,17 @@ import { Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@
 import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
-import { getUserFromRequest } from '@api/utils';
-import { IChannel } from '@model/channel';
-
-export interface ChannelInfo {
-    channelName: string;
-    description?: string;
-}
-
-export interface ChannelDescription {
-    description: string;
-}
-
-export interface ChannelResponse {
-    message: string;
-}
+import { getMaybeUserFromRequest, getUserFromRequest } from '@api/utils';
+import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse } from '@model/channel';
 
 @Route('/channel/')
 export class ChannelController extends Controller {
     @Get()
     @Response<HttpError>(400, 'Bad Request')
+    @Security('maybeJWT')
     @SuccessResponse(200)
-    public async list(): Promise<IChannel[]> {
-        return new ChannelService().list();
+    public async list(@Request() request: any): Promise<IChannel[]> {
+        return new ChannelService().list(getMaybeUserFromRequest(request));
     }
 
     @Post('create')
@@ -37,6 +25,7 @@ export class ChannelController extends Controller {
         return new ChannelService().create(
             channelInfo.channelName,
             getUserFromRequest(request),
+            channelInfo.type,
             channelInfo.description as string,
         );
     }
@@ -58,10 +47,11 @@ export class ChannelController extends Controller {
     }
 
     @Get('{channelName}/')
+    @Security('maybeJWT')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200)
-    public async GetChannel(@Path('channelName') channelName: string): Promise<IChannel> {
-        return new ChannelService().getChannel(channelName);
+    public async GetChannel(@Path('channelName') channelName: string, @Request() request: any): Promise<IChannel> {
+        return new ChannelService().getChannel(channelName, getMaybeUserFromRequest(request));
     }
 
     @Post('{channelName}/join')
@@ -72,7 +62,19 @@ export class ChannelController extends Controller {
         @Path('channelName') channelName: string,
         @Request() request: any,
     ): Promise<ChannelResponse> {
-        return new ChannelService().joinChannel(channelName, getUserFromRequest(request));
+        return new ChannelService().joinChannel(channelName, getUserFromRequest(request), true);
+    }
+
+    @Post('{channelName}/notify')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200, 'Channel left')
+    public async setNotification(
+        @Path('channelName') channelName: string,
+        @Body() notify: boolean,
+        @Request() request: any,
+    ): Promise<ChannelResponse> {
+        return new ChannelService().setNotify(channelName, notify, getUserFromRequest(request));
     }
 
     @Post('{channelName}/leave')
