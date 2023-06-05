@@ -1,8 +1,11 @@
+import mongoose from 'mongoose';
 import { IUser } from '@model/user';
 import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
 import { IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
+
+type UserModelType = mongoose.HydratedDocument<IUser>;
 
 export default class UserService {
     public async delNotification(username: string): Promise<string> {
@@ -41,5 +44,51 @@ export default class UserService {
         const user = await UserModel.findOne({ username: username }, 'usedQuota').exec();
         if (user == null) throw new HttpError(404, 'User not Found');
         return user.usedQuota;
+    }
+
+    public async purchaseQuota(
+        username: string,
+        dailyQuota: number,
+        weeklyQuota: number,
+        monthlyQuota: number,
+    ): Promise<any> {
+        const creator = await UserModel.findOne({ username: username });
+        if (!creator) {
+            throw new HttpError(404, 'Username not found');
+        }
+        this.changeQuota(creator, dailyQuota, weeklyQuota, monthlyQuota);
+        return { message: 'Quota Purchased Successfully' };
+    }
+
+    private async changeQuota(
+        creator: UserModelType,
+        dailyQuota: number,
+        weeklyQuota: number,
+        monthlyQuota: number,
+    ): Promise<void> {
+        creator.usedQuota.day += dailyQuota;
+        if (creator.usedQuota.day < 0) {
+            creator.usedQuota.day = 0;
+        } else if (creator.usedQuota.day > creator.maxQuota.day) {
+            creator.usedQuota.day = creator.maxQuota.day;
+        }
+
+        creator.usedQuota.week += weeklyQuota;
+        if (creator.usedQuota.week < 0) {
+            creator.usedQuota.week = 0;
+        } else if (creator.usedQuota.week > creator.maxQuota.week) {
+            creator.usedQuota.week = creator.maxQuota.week;
+        }
+
+        creator.usedQuota.month += monthlyQuota;
+        if (creator.usedQuota.month < 0) {
+            creator.usedQuota.month = 0;
+        } else if (creator.usedQuota.month > creator.maxQuota.month) {
+            creator.usedQuota.month = creator.maxQuota.month;
+        }
+
+        creator.markModified('usedQuota');
+        await creator.save();
+        console.log(`Daily quota updated to ${creator.usedQuota.day}`);
     }
 }
