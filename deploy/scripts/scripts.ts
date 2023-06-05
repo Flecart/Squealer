@@ -8,6 +8,7 @@ import { randomBattisti, randomGuccini } from './readscript'
 
 import dotenv from 'dotenv';
 import { ChannelInfo, ChannelType } from '../../model/channel';
+import { MapPosition, Maps } from '@model/message';
 
 dotenv.config({
     path: './.env',
@@ -132,6 +133,52 @@ async function createMessagesPublic(): Promise<MessageCreate[]> {
     return messageCreate.filter((message) => message !== undefined).flat() as MessageCreate[];
 }
 
+async function createGeolocationMessagesPublic() {
+    const channel = "guccini"
+    // @ts-ignore
+    const tokenSender = publicChannel[1].members[0];
+
+    const firstPosition: Maps = {
+        positions: [{
+        lat: 44.498026,
+        lng: 11.355863,
+    }]}
+
+    const nextPositions: MapPosition[] = [
+        {
+            lat: 44.498206,
+            lng: 11.35593,
+        },
+        {
+            lat: 44.498369,
+            lng: 11.35546,
+        },
+    ]
+
+    const message = {
+        channel: channel,
+        content: {
+            type: 'maps',
+            data: firstPosition,
+        },
+    }
+
+    const req = await request(baseUrl)
+        .post(messageCreateRoute)
+        .set('Authorization', `Bearer ${tokenSender}`)
+        .field('data', JSON.stringify(message)).expect(200);
+
+    console.log(req.body)
+    for (let position of nextPositions) {
+        const req2 = await request(baseUrl)
+            .post(`${messageCreateRoute}/geo/${req.body.id}`)
+            .set('Authorization', `Bearer ${tokenSender}`)
+            .send(position).expect(200);
+        
+        console.log(req2.body)
+    }
+}
+
 async function createRensponse(messages: MessageCreate[], loginTokens: string[]) {
     const promises = messages.map(async (cmessage) => {
         for (let token of loginTokens) {
@@ -190,4 +237,6 @@ initConnection().then(async () => {
     console.log("Messages created")
 
     await createRensponse(message, loginToken);
+
+    await createGeolocationMessagesPublic();
 })
