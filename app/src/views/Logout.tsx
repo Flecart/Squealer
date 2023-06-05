@@ -1,4 +1,4 @@
-import { Alert, Button, Container } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts';
 import { useNavigate } from 'react-router-dom';
@@ -13,10 +13,10 @@ export default function Logout(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className="d-flex justify-content-center">
+            <Container className="d-flex text-center flex-column justify-content-center p-4">
                 {authState === null ? (
                     <Container>
-                        <Alert variant="danger">Non sei loggato</Alert>
+                        <h3>Non sei loggato</h3>
                         <Button
                             onClick={() => {
                                 navigate('/login');
@@ -26,8 +26,8 @@ export default function Logout(): JSX.Element {
                         </Button>
                     </Container>
                 ) : (
-                    <Container className="d-flex justify-content-center">
-                        <Alert variant="light">Attualmente sei loggato come {authState?.username}</Alert>
+                    <Container className="d-flex text-center flex-column justify-content-center p-4">
+                        <h3>Attualmente sei loggato come {authState?.username}</h3>
                         <Button onClick={handleLogout}>LogOut</Button>
                     </Container>
                 )}

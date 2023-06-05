@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { type IMessage, type Invitation } from '@model/message';
-import { Button, Container, Row, Stack } from 'react-bootstrap';
+import { Button, Card, Container, Stack } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 interface PostProps {
@@ -17,17 +17,19 @@ function InviteMessage({ message }: PostProps): JSX.Element {
     const channelUrl = 'channel/' + invitation.channel;
 
     return (
-        <Row className="g-4" as="article" role="article">
-            <Container className="d-flex justify-content-center flex-column pb-4">
-                <Row>
-                    {"L'utente "} <Link to={userUrl}>message.creator</Link> ti ha invitato in ad unirti al canale
-                    <Link to={channelUrl}> {invitation.channel} </Link>
-                </Row>
-                <Stack direction="horizontal" gap={3} className="justify-content-center">
-                    <Button></Button> <Button></Button>{' '}
+        <Card body>
+            <Stack className="" as="article" role="article" gap={3}>
+                <Container className="d-flex justify-content-center ">
+                    <span>
+                        {"L'utente "} <Link to={userUrl}>{message.creator}</Link> ti ha invitato in ad unirti al canale
+                        <Link to={channelUrl}> {invitation.channel} </Link>
+                    </span>
+                </Container>
+                <Stack direction="horizontal" gap={4} className="justify-content-center">
+                    <Button>Accetto</Button> <Button>Declino</Button>{' '}
                 </Stack>
-            </Container>
-        </Row>
+            </Stack>
+        </Card>
     );
 }
 

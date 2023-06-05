@@ -190,7 +190,12 @@ export class ChannelService {
         return { message: `TODO: User ${username} deleted channel ${channelName}`, channel: channelName };
     }
 
-    public async addMember(channel: string, userToAdd: string, userIssuer: string, permission: PermissionType) {
+    public async addMember(
+        channel: string,
+        userToAdd: string,
+        userIssuer: string,
+        permission: PermissionType,
+    ): Promise<string> {
         const toAdd = await UserModel.findOne({ username: userToAdd });
         const issuer = await UserModel.findOne({ username: userIssuer });
         if (toAdd == null || issuer == null) {
@@ -227,6 +232,8 @@ export class ChannelService {
 
         toAdd.messages.push({ message: message._id, viewed: false });
         await toAdd.save();
+        return userToAdd;
+        //TODO: aggiungere il controllo che non ci sia una pending request e che l'account sia già nel gruppo
     }
 
     async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {

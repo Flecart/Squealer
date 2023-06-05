@@ -1,11 +1,10 @@
 import type * as channel from '@model/channel';
 import { PermissionType } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
-import { apiChannelBase } from 'src/api/routes';
+import { apiChannelBase, apiUserBase } from 'src/api/routes';
 import { type IUser } from '@model/user';
 import { useContext, useEffect, useState } from 'react';
-import { apiUserBase } from 'src/api/routes';
-import { Button, Card, Form, Image, Modal, Stack } from 'react-bootstrap';
+import { Alert, Button, Card, Form, Image, Row, Stack } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext } from 'src/contexts';
 
@@ -23,19 +22,32 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
     const [auth] = useContext(AuthContext);
     const permission = channel.users.find((user) => user.user === auth?.username)?.privilege;
 
-    const [error, setError] = useState(null);
-    const [peinding, setPeinding] = useState(false);
+    const [error, setError] = useState<null | string>(null);
+    const [pending, setPending] = useState(false);
+    const [info, setInfo] = useState<null | string>(null);
 
-    const sendInvite = () => {
+    const sendInvite = (): void => {
+        setPending(true);
+        setError(null);
+        setInfo(null);
         fetchApi<string>(
             `${apiChannelBase}/${channel.name}/add-owner`,
-            {},
+            {
+                method: 'Post',
+                body: JSON.stringify({
+                    toUser: document.getElementById('userAdd').value as string,
+                    permission: PermissionType.READWRITE,
+                }),
+            },
             auth,
             (a) => {
-                console.log(a);
+                setInfo(`mandata la richiesta a ${a}`);
+                setError(null);
+                setPending(false);
             },
             (e) => {
-                console.log(e);
+                setError(e.message);
+                setPending(false);
             },
         );
     };
@@ -46,14 +58,27 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                 <Card body>
                     <Form.Group>
                         <Form.Label>Aggiungi una persona</Form.Label>
-                        <Form.Control type="text" disabled={pending} />
+                        <Form.Control id="userAdd" type="text" disabled={pending} />
 
-                        <Button onClick={}>
-                            {' '}
+                        <Button
+                            onClick={() => {
+                                sendInvite();
+                            }}
+                        >
                             Aggiungi{' '}
                             <Icon.PersonAdd style={{ marginRight: '1rem', height: '1.5rem', width: '1.5rem' }} />
                         </Button>
                     </Form.Group>
+                    {error !== null && (
+                        <Row>
+                            <p>{info}</p>
+                        </Row>
+                    )}
+                    {error !== null && (
+                        <Row>
+                            <Alert variant="danger">{error}</Alert>
+                        </Row>
+                    )}
                 </Card>
             )}
             <Stack>
