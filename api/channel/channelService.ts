@@ -1,5 +1,7 @@
 import { HttpError } from '@model/error';
+import MessageModel from '@db/message';
 import { IChannel, ChannelType, PermissionType, ChannelResponse } from '@model/channel';
+import { type Invitation } from '@model/message';
 import { HydratedDocument } from 'mongoose';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
@@ -188,8 +190,43 @@ export class ChannelService {
         return { message: `TODO: User ${username} deleted channel ${channelName}`, channel: channelName };
     }
 
-    public async addOwner(channelName: string, username: string, _issuer: string): Promise<ChannelResponse> {
-        return { message: `TODO: User ${username} added as owner of channel ${channelName}`, channel: channelName };
+    public async addMember(channel: string, userToAdd: string, userIssuer: string, permission: PermissionType) {
+        const toAdd = await UserModel.findOne({ username: userToAdd });
+        const issuer = await UserModel.findOne({ username: userIssuer });
+        if (toAdd == null || issuer == null) {
+            throw new HttpError(400, `User with username ${userToAdd} or ${userIssuer} does not exist`);
+        }
+        const channelObj = await ChannelModel.findOne({ name: channel });
+
+        if (channelObj == null) {
+            throw new HttpError(400, 'channel not found');
+        }
+        const permissionIssuer = channelObj.users.find((user) => user.user == userIssuer)?.privilege;
+        if (permissionIssuer === null || permissionIssuer !== PermissionType.ADMIN) {
+            throw new HttpError(403, "Don't have the right to do this operation");
+        }
+        const content: Invitation = {
+            to: userToAdd,
+            channel,
+            permission,
+        };
+        const message = new MessageModel({
+            content: {
+                type: 'invitation',
+                data: content,
+            },
+            channel: null,
+            children: [],
+            creator: userIssuer,
+            date: new Date(),
+            parent: null,
+            reaction: [],
+            views: 0,
+        });
+        await message.save();
+
+        toAdd.messages.push({ message: message._id, viewed: false });
+        await toAdd.save();
     }
 
     async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {

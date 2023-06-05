@@ -4,10 +4,11 @@ import { fetchApi } from 'src/api/fetch';
 import { ChannelType, type IChannel } from '@model/channel';
 import { apiChannelBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { Alert, Button, Container, Row, Tab, Tabs } from 'react-bootstrap';
+import { Alert, Container, Row, Stack, Tab, Tabs } from 'react-bootstrap';
 import { AuthContext } from 'src/contexts';
 import MessageListLoader from 'src/components/MessageListLoader';
 import ChannelMembers from 'src/components/ChannelMembers';
+import * as Icon from 'react-bootstrap-icons';
 
 export default function Channel(): JSX.Element {
     const navigate = useNavigate();
@@ -40,11 +41,18 @@ export default function Channel(): JSX.Element {
         }
         const current = channel.users.filter((user) => user.user === auth.username)[0];
 
-        if (current === undefined) return <Button> JOIN </Button>;
+        if (current === undefined)
+            return (
+                <span>
+                    Entra <Icon.BoxArrowInLeft />
+                </span>
+            );
         return (
             <>
-                <Button> LEAVE </Button>
-                {current.notification ? <Button> UNNOTIFY </Button> : <Button> NOTIFY </Button>}
+                <span>
+                    Esci <Icon.BoxArrowLeft />
+                </span>
+                {current.notification ? <Icon.Bell /> : <Icon.BellSlash />}
             </>
         );
     }
@@ -56,16 +64,16 @@ export default function Channel(): JSX.Element {
                     <h1 className="text-center">{channel?.name}</h1>
                 </Row>
                 <Row>
-                    <h2 className="text-center">{channel?.description}</h2>
+                    <h4 className="text-center">{channel?.description}</h4>
                 </Row>
                 {error !== null && (
                     <Row>
                         <Alert variant="danger">{error}</Alert>
                     </Row>
                 )}
-                <Row>
+                <Stack direction="horizontal" className="justify-content-center" gap={2}>
                     <JoinAndNotify />
-                </Row>
+                </Stack>
             </Container>
 
             <Container as="main">
@@ -85,7 +93,7 @@ export default function Channel(): JSX.Element {
                     </Tab>
                     <Tab eventKey="posts" title="Members">
                         {/* TODO: aggiungere la grafica */}
-                        <ChannelMembers channel={channel} />
+                        {channel !== null && <ChannelMembers channel={channel} />}
                     </Tab>
                 </Tabs>
             </Container>

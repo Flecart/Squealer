@@ -3,7 +3,7 @@ import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
 import { getMaybeUserFromRequest, getUserFromRequest } from '@api/utils';
-import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse } from '@model/channel';
+import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse, PermissionType } from '@model/channel';
 
 @Route('/channel/')
 export class ChannelController extends Controller {
@@ -105,9 +105,9 @@ export class ChannelController extends Controller {
     @SuccessResponse(200, 'Channel owner added')
     public async addOwner(
         @Path('channelName') channelName: string,
-        @Body() owner: string,
+        @Body() body: { invite: string; permission: PermissionType },
         @Request() request: any,
-    ): Promise<ChannelResponse> {
-        return new ChannelService().addOwner(channelName, owner, getUserFromRequest(request));
+    ) {
+        new ChannelService().addMember(channelName, body.invite, getUserFromRequest(request), body.permission);
     }
 }

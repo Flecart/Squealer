@@ -11,12 +11,15 @@ export class FeedService {
         const visibleChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.PUBLIC }, { type: ChannelType.SQUEALER }, { type: ChannelType.HASHTAG }],
         });
+
         const publicMessage = visibleChannel.map((channel) => {
             return channel.messages.map((message) => message.toString());
         });
-        let allMessage = (await Promise.all(publicMessage)).flat();
-        if (user === null) {
-            const userRecord = await UserModel.findOne({ username: user }).exec();
+
+        let allMessage = publicMessage.flat();
+
+        if (user !== null) {
+            const userRecord = await UserModel.findOne({ username: user });
             if (userRecord == null) throw new HttpError(401, `User is not logged in`);
             const a = userRecord.messages.filter((n) => n.viewed).map((n) => n.message.toString());
             allMessage = a.concat(allMessage);

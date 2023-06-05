@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { PermissionType } from './channel';
 
 /** 
 Commento per le api
@@ -10,7 +11,9 @@ Commento per le api
 */
 export type Img = Express.Multer.File;
 
-type SupportedContent = 'text' | 'image' | 'video' | 'maps';
+export type Invitation = { to: string; channel: string; permission: PermissionType };
+
+type SupportedContent = 'text' | 'image' | 'video' | 'maps' | 'invitation';
 
 /** 
 Commento per le api
@@ -21,7 +24,7 @@ export interface IMessage {
     parent?: mongoose.Types.ObjectId; // il messaggio a cui risponde
     content: {
         type: SupportedContent;
-        data: string | Img | Maps;
+        data: string | Img | Maps | Invitation;
     };
     children: mongoose.Types.ObjectId[];
     creator: string;
