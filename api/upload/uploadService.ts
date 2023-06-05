@@ -9,7 +9,6 @@ export class UploadService {
     }
 
     public async uploadBytes(buffer: Buffer, name: string): Promise<{ path: string }> {
-        // check if file exists
         if (fs.existsSync(path.join(DEFAULT_UPLOAD_DIR, name))) {
             name = await this._makeNameUnique(name);
         }
