@@ -2,6 +2,7 @@ import {
     IMessage,
     MessageCreation,
     IReactionType,
+    MapPosition,
     type MessageCreationRensponse,
     type ReactionResponse,
 } from '@model/message';
@@ -45,6 +46,18 @@ export class MessageController {
         }
 
         return await new MessageService().create(bodyData, getUserFromRequest(request));
+    }
+
+    @Post('/geo/{id}')
+    @Security('jwt')
+    @Response<MessageCreationRensponse>(200, 'Position updated')
+    @Response<HttpError>(400, 'Bad request')
+    public async updatePosition(
+        @Path('id') id: string,
+        @Request() request: any,
+        @Body() position: MapPosition,
+    ): Promise<MessageCreationRensponse> {
+        return new MessageService().updatePosition(id, position, getUserFromRequest(request));
     }
 
     @Get('/')

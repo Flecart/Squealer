@@ -3,12 +3,13 @@ import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
-import { type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
+import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import Post from 'src/components/Post';
 import { type IUser, haveEnoughtQuota } from '@model/user';
+import Map from 'src/components/Map';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -19,13 +20,17 @@ export default function AddPost(): JSX.Element {
     const [destination, setDestination] = useState<string>('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
+    const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
+
     const [error, setError] = useState<string | null>(null);
 
     const [user, setUser] = useState<IUser | null>(null);
 
-    if (authState === null) {
-        navigate('/login');
-    }
+    useEffect(() => {
+        if (authState === null) {
+            navigate('/login');
+        }
+    }, [authState, navigate]);
 
     const [displayParent, setDisplayParent] = useState<IMessage | null | string>(null);
 
@@ -33,9 +38,7 @@ export default function AddPost(): JSX.Element {
         if (parent == null) return;
         fetchApi<IMessage>(
             `${apiMessageBase}/${parent}/`,
-            {
-                method: 'GET',
-            },
+            { method: 'GET' },
             authState,
             (messaggio) => {
                 setDisplayParent(() => messaggio);
@@ -51,9 +54,7 @@ export default function AddPost(): JSX.Element {
         if (authState === null) return;
         fetchApi<IUser>(
             `${apiUserBase}/${authState.username}/`,
-            {
-                method: 'GET',
-            },
+            { method: 'GET' },
             authState,
             (user) => {
                 setUser(() => user);
@@ -99,6 +100,9 @@ export default function AddPost(): JSX.Element {
                     setError(() => 'File type not supported');
                     return;
                 }
+            } else if (geolocationCoord != null) {
+                message.content.data = geolocationCoord;
+                message.content.type = 'maps';
             } else {
                 message.content.data = messageText;
             }
@@ -121,7 +125,7 @@ export default function AddPost(): JSX.Element {
                 },
             );
         },
-        [messageText, destination, parent, displayParent, selectedImage, authState, user],
+        [messageText, destination, parent, displayParent, selectedImage, authState, user, geolocationCoord],
     );
 
     const renderParentMessage = useCallback((): JSX.Element => {
@@ -174,6 +178,48 @@ export default function AddPost(): JSX.Element {
         );
     }, [user, selectedImage]);
 
+    const setGeolocation = (): void => {
+        console.log('geoclicked');
+        navigator.geolocation.getCurrentPosition(function (position) {
+            console.log('setting geolocation');
+            setGeolocationCoord({
+                positions: [{ lat: position.coords.latitude, lng: position.coords.longitude }],
+            });
+        });
+    };
+
+    const renderMessagePayload = useCallback(() => {
+        if (selectedImage != null) {
+            return renderFilePreview();
+        } else if (geolocationCoord != null) {
+            // TODO: fix me
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            return <Map positions={geolocationCoord.positions} />;
+        } else {
+            return (
+                <Form.Group className="mb-3">
+                    <Form.Label>
+                        Message textarea{' '}
+                        {user !== null &&
+                            `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
+                                user.usedQuota.week + messageText.length
+                            }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
+                                user.maxQuota.month
+                            }`}
+                    </Form.Label>
+
+                    <Form.Control
+                        as="textarea"
+                        rows={3}
+                        onChange={(e) => {
+                            setMessageText(e.target.value);
+                        }}
+                    />
+                </Form.Group>
+            );
+        }
+    }, [user, geolocationCoord, selectedImage]);
+
     return (
         <SidebarSearchLayout>
             {renderParentMessage()}
@@ -189,29 +235,7 @@ export default function AddPost(): JSX.Element {
                     </Form.Group>
                 )}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
-                {selectedImage == null ? (
-                    <Form.Group className="mb-3">
-                        <Form.Label>
-                            Message textarea{' '}
-                            {user !== null &&
-                                `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
-                                    user.usedQuota.week + messageText.length
-                                }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
-                                    user.maxQuota.month
-                                }`}
-                        </Form.Label>
-
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            onChange={(e) => {
-                                setMessageText(e.target.value);
-                            }}
-                        />
-                    </Form.Group>
-                ) : (
-                    renderFilePreview()
-                )}
+                {renderMessagePayload()}
 
                 <Form.Group>
                     <Form.Label>File to upload: </Form.Label>
@@ -219,7 +243,6 @@ export default function AddPost(): JSX.Element {
                         title="upload image"
                         type="file"
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            console.log('got change');
                             if (event.target.files === null || event.target.files.length < 1) return;
                             const file: File = event.target.files[0] as File;
                             if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
@@ -232,6 +255,11 @@ export default function AddPost(): JSX.Element {
                         }}
                     />
                 </Form.Group>
+                {/* TODO: show geolocation button */}
+
+                <Button className="my-2" onClick={setGeolocation}>
+                    Geolocation
+                </Button>
 
                 <Button className="my-2" type="submit" onClick={sendMessage}>
                     Send

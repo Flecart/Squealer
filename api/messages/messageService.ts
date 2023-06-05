@@ -1,5 +1,13 @@
 import { IUser, haveEnoughtQuota } from '@model/user';
-import { IMessage, IReactionType, ICategory, CriticMass, type ReactionResponse } from '@model/message';
+import {
+    IMessage,
+    IReactionType,
+    ICategory,
+    CriticMass,
+    Maps,
+    MapPosition,
+    type ReactionResponse,
+} from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
@@ -32,7 +40,7 @@ export class MessageService {
 
         let channel = null;
         let parent = null;
-        if (message.channel !== undefined) channel = await this.getChannel(username, message.channel);
+        if (message.channel !== undefined) channel = await this._getChannel(username, message.channel);
         else if (message.parent !== undefined) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
@@ -40,9 +48,9 @@ export class MessageService {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
 
-        let [messageContent, lenChar] = await this.getMessageContent(message);
+        let [messageContent, lenChar] = await this._getMessageContent(message);
 
-        await this.updateQuota(creator, lenChar);
+        await this._updateQuota(creator, lenChar);
 
         const savedMessage = new MessageModel({
             channel: channel?.name,
@@ -60,10 +68,29 @@ export class MessageService {
         await savedMessage.save();
 
         console.log(savedMessage);
-        await this.sendNotification(savedMessage, channel, parent);
+        await this._sendNotification(savedMessage, channel, parent);
         return {
             id: savedMessage._id.toString(),
             channel: savedMessage.channel,
+        };
+    }
+
+    public async updatePosition(
+        id: string,
+        position: MapPosition,
+        username: string,
+    ): Promise<MessageCreationRensponse> {
+        const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (message == null) throw new HttpError(404, 'Message not found');
+        else if (message.creator !== username) throw new HttpError(401, 'Not authorized');
+        else if (message.content.type !== 'maps') throw new HttpError(400, 'Message is not a map');
+
+        (message.content.data as Maps).positions.push(position);
+        message.markModified('content');
+        await message.save();
+        return {
+            id: message._id.toString(),
+            channel: message.channel,
         };
     }
 
@@ -140,7 +167,7 @@ export class MessageService {
         return { reaction: type, category: message.category };
     }
 
-    private async getChannel(username: string, channelName: string): Promise<ChannelModelType> {
+    private async _getChannel(username: string, channelName: string): Promise<ChannelModelType> {
         let channel = null;
         if (channelName.startsWith('@')) {
             if (channelName === `@${username}`) {
@@ -192,7 +219,7 @@ export class MessageService {
         return channel;
     }
 
-    private async getMessageContent(message: MessageCreation): Promise<[IMessage['content'], number]> {
+    private async _getMessageContent(message: MessageCreation): Promise<[IMessage['content'], number]> {
         if (message.content.type === 'text') {
             const data: string = message.content.data as string;
             return [message.content, data.length];
@@ -206,13 +233,14 @@ export class MessageService {
                 },
                 100,
             ];
+        } else if (message.content.type === 'maps') {
+            return [message.content, 100];
         } else {
-            //TODO:implementare per gli latri tipi
-            throw new HttpError(501, `Message type ${message.content.type} is not implemented`);
+            throw new HttpError(400, `Message type ${message.content.type} is not supported`);
         }
     }
 
-    private async updateQuota(creator: UserModelType, lenChar: number): Promise<void> {
+    private async _updateQuota(creator: UserModelType, lenChar: number): Promise<void> {
         if (haveEnoughtQuota(creator, lenChar)) {
             creator.usedQuota.day += lenChar;
             creator.usedQuota.week += lenChar;
@@ -236,7 +264,7 @@ export class MessageService {
         user.save();
     }
 
-    private async sendNotification(
+    private async _sendNotification(
         savedMessage: MessageModelType,
         channel: ChannelModelType | null,
         parent: MessageModelType | null,

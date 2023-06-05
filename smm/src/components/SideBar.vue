@@ -66,7 +66,9 @@
           <b-dropdown-item><a class="dropdown-item" href="#">Settings</a></b-dropdown-item>
           <b-dropdown-item><a class="dropdown-item" href="#">Profile</a></b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item><a class="dropdown-item" href="#">Sign out</a></b-dropdown-item>
+          <b-dropdown-item
+            ><router-link class="dropdown-item" to="/logout">Sign out</router-link></b-dropdown-item
+          >
         </b-dropdown>
       </div>
     </template>

@@ -1,4 +1,4 @@
-import { ICategory, type IMessage } from '@model/message';
+import { ICategory, type Maps, type IMessage } from '@model/message';
 import { type IUser } from '@model/user';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
@@ -8,6 +8,7 @@ import { fetchApi } from '../api/fetch';
 import { apiUserBase } from '../api/routes';
 import { toHumanReadableDate } from 'src/utils';
 import { imageBase } from 'src/api/routes';
+import Map from './Map';
 import PostButtons from './PostButtons';
 
 interface PostProps {
@@ -93,6 +94,9 @@ function Post({ message }: PostProps): JSX.Element {
                     </video>
                 </Container>
             );
+        } else if (message.content.type === 'maps') {
+            const data: Maps = message.content.data as Maps;
+            return <Map positions={data.positions} />;
         } else {
             return <p>{message.content.data as string} </p>;
         }

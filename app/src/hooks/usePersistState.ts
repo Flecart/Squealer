@@ -12,12 +12,13 @@ export default <T>(storageKey: string, initialState: T): [T, (arg0: T) => void] 
             if (storageInBrowser !== null) {
                 const data: T = JSON.parse(storageInBrowser) as T;
                 setInternalState(data);
+            } else {
+                localStorage.setItem(storageKey, JSON.stringify(state));
             }
         } catch (e) {
             // probabilmente avrò qualche valore invalido di json, voglio tenere solo questo valore con questa key
             localStorage.removeItem(storageKey);
         }
-        localStorage.setItem(storageKey, JSON.stringify(state));
     }, []);
 
     const setState = (newState: T): void => {
