@@ -10,6 +10,7 @@ import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import Post from 'src/components/Post';
 import { type IUser, haveEnoughtQuota } from '@model/user';
 import Map from 'src/components/Map';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -66,7 +67,7 @@ export default function AddPost(): JSX.Element {
     }, [authState?.username]);
 
     const sendMessage = useCallback(
-        (event: React.FormEvent<HTMLButtonElement>) => {
+        (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
             if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
@@ -219,6 +220,25 @@ export default function AddPost(): JSX.Element {
             );
         }
     }, [user, geolocationCoord, selectedImage]);
+    const sendRandomImage = async (): void => {
+        await fetch('https://picsum.photos/1000')
+            .then(async (response) => {
+                return await response.arrayBuffer();
+            })
+            .then((buffer) => {
+                // eslint-disable-next-line
+                setSelectedImage(new File([buffer], uuidv4() as string, { type: 'image/jpeg' }));
+            })
+            .catch((_) => {
+                setError(() => "Couldn't fetch random image");
+            });
+
+        sendMessage();
+    };
+
+    const sendRandomText = (): void => {
+        console.log('sending random text');
+    };
 
     return (
         <SidebarSearchLayout>
@@ -250,7 +270,6 @@ export default function AddPost(): JSX.Element {
                                 return;
                             }
 
-                            console.log('type is ', file.type);
                             setSelectedImage(event.target.files[0] as File);
                         }}
                     />
@@ -260,6 +279,15 @@ export default function AddPost(): JSX.Element {
                 <Button className="my-2" onClick={setGeolocation}>
                     Geolocation
                 </Button>
+
+                <Container className="py-2 px-0">
+                    <Button className="me-2" onClick={sendRandomImage} value="send random image">
+                        Send random image
+                    </Button>
+                    <Button onClick={sendRandomText} value="send random text">
+                        Send random text
+                    </Button>
+                </Container>
 
                 <Button className="my-2" type="submit" onClick={sendMessage}>
                     Send
