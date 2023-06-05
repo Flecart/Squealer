@@ -105,9 +105,9 @@ export class ChannelController extends Controller {
     @SuccessResponse(200, 'Channel owner added')
     public async addOwner(
         @Path('channelName') channelName: string,
-        @Body() body: { invite: string; permission: PermissionType },
+        @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
-    ) {
-        new ChannelService().addMember(channelName, body.invite, getUserFromRequest(request), body.permission);
+    ): Promise<string> {
+        return new ChannelService().addMember(channelName, body.toUser, getUserFromRequest(request), body.permission);
     }
 }
