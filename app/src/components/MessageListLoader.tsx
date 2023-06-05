@@ -4,6 +4,7 @@ import { Alert, Spinner, Stack } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
+import InviteMessage from './InviteMessage';
 import Post from './Post';
 
 interface PropsMessageIds {
@@ -41,9 +42,12 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
         } else {
             return (
                 <Stack>
-                    {messages.map((message) => (
-                        <Post key={message._id.toString()} message={message} />
-                    ))}
+                    {messages.map((message) => {
+                        if (message.content.type === 'invitation') {
+                            return <InviteMessage key={message._id.toString()} message={message} />;
+                        }
+                        return <Post key={message._id.toString()} message={message} />;
+                    })}
                 </Stack>
             );
         }
