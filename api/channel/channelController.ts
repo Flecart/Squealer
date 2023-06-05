@@ -132,6 +132,7 @@ export class ChannelController extends Controller {
         @Path('channelName') channelName: string,
         @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
+<<<<<<< HEAD
     ): Promise<{ message: string }> {
         return {
             message: await new ChannelService().addMember(
@@ -141,5 +142,9 @@ export class ChannelController extends Controller {
                 body.permission,
             ),
         };
+=======
+    ): Promise<string> {
+        return new ChannelService().addMember(channelName, body.toUser, getUserFromRequest(request), body.permission);
+>>>>>>> 1199e19 (feat(app): prova)
     }
 }
