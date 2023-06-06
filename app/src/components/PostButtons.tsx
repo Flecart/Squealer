@@ -1,10 +1,10 @@
-import { IReactionType, type IReaction } from '@model/message';
+import { IReactionType, type IReaction, type ReactionResponse } from '@model/message';
 import { useState, useMemo, useContext, useCallback } from 'react';
 import { Button, ButtonGroup } from 'react-bootstrap';
 import { fetchApi } from '../api/fetch';
 import { apiMessageBase } from '../api/routes';
 import * as Icon from 'react-bootstrap-icons';
-import { AuthContext } from 'src/contexts';
+import { AuthContext, CategoryContext } from 'src/contexts';
 import 'src/scss/Post.scss';
 
 interface IReactionButton {
@@ -53,6 +53,7 @@ interface PostButtonProps {
 
 export default function PostButtons({ messageId, reactions }: PostButtonProps): JSX.Element {
     const [authState] = useContext(AuthContext);
+    const [, setCategoryState] = useContext(CategoryContext);
 
     const [currReaction, setReaction] = useState<IReactionType>(
         reactions.find((m: IReaction) => m.id === authState?.username)?.type ?? IReactionType.UNSET,
@@ -63,16 +64,17 @@ export default function PostButtons({ messageId, reactions }: PostButtonProps): 
         if (authState === null) return;
         setActive(false);
         setReaction(IReactionType.UNSET);
-        fetchApi<IReactionType>(
+        fetchApi<ReactionResponse>(
             `${apiMessageBase}/${messageId}/reaction`,
             {
                 method: 'POST',
                 body: JSON.stringify({ type }),
             },
             authState,
-            (reaction) => {
+            ({ reaction, category }) => {
                 setReaction(reaction);
                 setActive(true);
+                setCategoryState(category);
             },
             (_) => {
                 setActive(true);

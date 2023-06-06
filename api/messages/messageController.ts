@@ -1,4 +1,11 @@
-import { IMessage, MessageCreation, IReactionType, type MessageCreationRensponse, MapPosition } from '@model/message';
+import {
+    IMessage,
+    MessageCreation,
+    IReactionType,
+    MapPosition,
+    type MessageCreationRensponse,
+    type ReactionResponse,
+} from '@model/message';
 import {
     Get,
     Body,
@@ -77,7 +84,7 @@ export class MessageController {
         @Request() req: any,
         @Path('id') id: string,
         @Body() reaction: { type: IReactionType },
-    ): Promise<IReactionType> {
+    ): Promise<ReactionResponse> {
         return new MessageService().reactMessage(id, reaction.type, getUserFromRequest(req));
     }
 }

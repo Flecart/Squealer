@@ -39,8 +39,7 @@ function MapItems({ positions }: MapItemsProps): JSX.Element {
         <>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Polyline pathOptions={{ color: 'blue' }} positions={positions} />
-            <Marker position={positions[positions.length - 1] as [number, number]}>
-            </Marker>
+            <Marker position={positions[positions.length - 1] as [number, number]}></Marker>
         </>
     );
 }
