@@ -35,7 +35,8 @@
     "resolve-tspaths": "^0.8.13",
     "swagger-ui-express": "^4.6.2",
     "tsoa": "^5.1.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "winston": "^3.9.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.1",

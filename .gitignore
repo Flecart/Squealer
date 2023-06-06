@@ -40,3 +40,6 @@ stack.yml
 
 *.next*
 build/*
+
+debug.log
+logs.log
