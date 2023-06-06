@@ -7,3 +7,5 @@ export const AuthContext = createContext<[AuthResponse | null, Dispatch<SetState
 ]);
 
 export const ThemeContext = createContext<['light' | 'dark', () => void]>(['light', () => {}]);
+
+export const CategoryContext = createContext<[number | null, Dispatch<SetStateAction<number>>]>([null, () => null]);

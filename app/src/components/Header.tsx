@@ -1,6 +1,6 @@
 import { useContext, useState, useSyncExternalStore } from 'react';
 import { SideBar } from './SideBar';
-import { Navbar, Container, Offcanvas, Row } from 'react-bootstrap';
+import { Navbar, Container, Offcanvas, Stack } from 'react-bootstrap';
 // import { Nav, Form } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
@@ -14,10 +14,10 @@ function NotificationHeader(): JSX.Element {
         <>
             {' '}
             {notification.length > 0 ? (
-                <Row>
-                    <Icon.InboxFill className="d-flex" />
+                <Stack direction="horizontal" gap={1}>
                     <span className="badge bg-danger">{notification.length}</span>
-                </Row>
+                    <Icon.InboxFill className="d-flex" />
+                </Stack>
             ) : (
                 <Icon.Inbox className="d-flex" />
             )}

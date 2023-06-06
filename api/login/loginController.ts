@@ -4,6 +4,10 @@ import { type AuthResponse } from '@model/auth';
 import { HttpError } from '@model/error';
 import { getUserFromRequest } from '@api/utils';
 
+import logger from '@server/logger';
+
+const loginLogger = logger.child({ label: 'login' });
+
 export interface Credentials {
     username: string;
     password: string;
@@ -15,14 +19,16 @@ export class LoginController extends Controller {
     @Response<HttpError>(401, 'Unauthorized')
     @SuccessResponse(200, 'Login successful')
     public async login(@Body() credentials: Credentials): Promise<AuthResponse> {
-        return await new LoginService().login(credentials.username, credentials.password);
+        loginLogger.info(`[login] with username '${credentials.username}'`);
+        return new LoginService().login(credentials.username, credentials.password);
     }
 
     @Post('create')
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(201, 'Created')
     public async createUser(@Body() credentials: Credentials): Promise<AuthResponse> {
-        return await new LoginService().createUser(credentials.username, credentials.password);
+        loginLogger.info(`[createUser] with username '${credentials.username}'`);
+        return new LoginService().createUser(credentials.username, credentials.password);
     }
 
     @Post('user/{username}/change-password')
@@ -33,6 +39,7 @@ export class LoginController extends Controller {
         @Body() password_change: { old_password: string; new_password: string },
         @Request() request: any,
     ): Promise<{ message: string }> {
+        logger.info(`[changePassword] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changePassword(
             password_change.old_password,
             password_change.new_password,
@@ -48,6 +55,7 @@ export class LoginController extends Controller {
         @Body() new_username: { new_username: string },
         @Request() request: any,
     ): Promise<{ message: string }> {
+        logger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changeUsername(new_username.new_username, getUserFromRequest(request));
     }
 }

@@ -1,5 +1,13 @@
 import { IUser, haveEnoughtQuota } from '@model/user';
-import { IMessage, IReactionType, MapPosition, Maps } from '@model/message';
+import {
+    IMessage,
+    IReactionType,
+    ICategory,
+    CriticMass,
+    Maps,
+    MapPosition,
+    type ReactionResponse,
+} from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
@@ -9,19 +17,25 @@ import ChannelModel, { getUserChannelName } from '@db/channel';
 import MessageModel from '@db/message';
 import { UploadService } from '@api/upload/uploadService';
 import { ChannelService } from '@api/channel/channelService';
+import logger from '@server/logger';
+import UserService from '@api/user/userService';
+import { DEFAULT_QUOTA } from '@config/api';
 
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
 type UserModelType = mongoose.HydratedDocument<IUser>;
 
+const messageServiceLog = logger.child({ label: 'messageService' });
+
 export class MessageService {
-    public async getOwnedMessages(username: string) {
-        const messages = (await MessageModel.find({ creator: username })).filter(async (message) => {
+    public async getOwnedMessages(username: string): Promise<IMessage[]> {
+        const messages = (await MessageModel.find({ creator: username })).map(async (message) => {
+            if (message.channel === null) return null;
             const channel = await ChannelModel.findOne({ name: message.channel });
-            if (channel !== null && isPublicChannel(channel)) return true;
-            return false;
+            if (channel !== null && isPublicChannel(channel)) return message;
+            return null;
         });
-        return messages;
+        return (await Promise.all(messages)).filter((a) => a !== null) as IMessage[];
     }
 
     public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {
@@ -53,11 +67,14 @@ export class MessageService {
             views: 0,
             reaction: [],
             parent: parent?._id,
+            category: ICategory.NORMAL,
+            positiveReactions: 0,
+            negativeReactions: 0,
         });
         await savedMessage.save();
 
-        console.log(savedMessage);
         await this._sendNotification(savedMessage, channel, parent);
+        messageServiceLog.info(`Message created on ${savedMessage.channel}`);
         return {
             id: savedMessage._id.toString(),
             channel: savedMessage.channel,
@@ -104,24 +121,77 @@ export class MessageService {
         return rens;
     }
 
-    public async reactMessage(id: string, type: IReactionType, username: string): Promise<IReactionType> {
+    public async reactMessage(id: string, type: IReactionType, username: string): Promise<ReactionResponse> {
         // get message from mongo
         const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
         if (message == null) throw new HttpError(404, 'Message not found');
         const userReaction = message.reaction.find((reaction) => reaction.id === username);
+
+        const precCategory = message.category;
+
         if (userReaction) {
             if (type === IReactionType.UNSET) {
                 message.reaction = message.reaction.filter((reaction) => reaction.id !== username);
             } else {
                 userReaction.type = type;
             }
-        } else if (type !== IReactionType.UNSET) message.reaction.push({ id: username, type: type });
+        } else if (type !== IReactionType.UNSET) {
+            message.reaction.push({ id: username, type: type });
+        }
+
+        let negativeReactions = 0;
+        let positiveReactions = 0;
+
+        message.reaction.forEach((reaction) => {
+            switch (reaction.type) {
+                case IReactionType.ANGRY:
+                    negativeReactions += 2;
+                    break;
+
+                case IReactionType.DISLIKE:
+                    negativeReactions += 1;
+                    break;
+
+                case IReactionType.LIKE:
+                    positiveReactions += 1;
+                    break;
+
+                case IReactionType.LOVE:
+                    positiveReactions += 2;
+                    break;
+
+                default:
+                    break;
+            }
+        });
+
+        if (negativeReactions > CriticMass && positiveReactions > CriticMass) {
+            message.category = ICategory.CONTROVERSIAL;
+        } else if (negativeReactions > CriticMass) {
+            message.category = ICategory.UNPOPULAR;
+            if (precCategory != ICategory.UNPOPULAR) {
+                this._addMaxQuota(username, -1);
+            }
+        } else if (positiveReactions > CriticMass) {
+            message.category = ICategory.POPULAR;
+            if (precCategory != ICategory.POPULAR) {
+                this._addMaxQuota(username, +1);
+            }
+        } else {
+            if (precCategory === ICategory.POPULAR) {
+                this._addMaxQuota(username, -1);
+            }
+            if (precCategory === ICategory.UNPOPULAR) {
+                this._addMaxQuota(username, +1);
+            }
+            message.category = ICategory.NORMAL;
+        }
 
         message.markModified('reaction');
         message.save();
         console.info(message);
 
-        return type;
+        return { reaction: type, category: message.category };
     }
 
     private async _getChannel(username: string, channelName: string): Promise<ChannelModelType> {
@@ -204,10 +274,19 @@ export class MessageService {
             creator.usedQuota.month += lenChar;
             creator.markModified('usedQuota');
             await creator.save();
-            console.log(`Daily quota updated to ${creator.usedQuota.day}`);
+            messageServiceLog.info(`Daily quota updated to ${creator.usedQuota.day}`);
         } else {
             throw new HttpError(403, 'Quota exceeded');
         }
+    }
+
+    private async _addMaxQuota(username: string, quota: number): Promise<void> {
+        const user = await UserModel.findOne({ username: username }, 'maxQuota').exec();
+        if (user == null) throw new HttpError(404, 'User not Found');
+        let quotaDay = DEFAULT_QUOTA.day * (quota / 100);
+        let quotaWeek = DEFAULT_QUOTA.week * (quota / 100);
+        let quotaMonth = DEFAULT_QUOTA.month * (quota / 100);
+        new UserService().changeQuota(user, quotaDay, quotaWeek, quotaMonth);
     }
 
     private async _sendNotification(

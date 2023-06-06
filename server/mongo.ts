@@ -1,11 +1,14 @@
 import mongoose from 'mongoose';
+import logger from './logger';
+
+const mongoLogger = logger.child({ label: 'mongo' });
 
 export default function initConnection(): Promise<typeof mongoose> {
-    // TODO: cambia questo quando fai deploy sul pc di unibo
-    console.log('MONGO USER: ', process.env['MONGO_USER']);
+    mongoLogger.info('Connecting to mongo');
     if (process.env['MONGO_USER'] === 'flecart') {
-        console.log('Connecting to local mongo');
-        return mongoose.connect('mongodb://root:example@localhost:27017/');
+        const mongoStringLocal = 'mongodb://root:example@localhost:27017/';
+        mongoLogger.info(`detected local mongo setting by env-var, connecting to ${mongoStringLocal}`);
+        return mongoose.connect(mongoStringLocal);
     }
 
     return mongoose.connect(

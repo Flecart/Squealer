@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { PermissionType } from './channel';
 
 /** 
 Commento per le api
@@ -17,7 +18,11 @@ export interface Maps {
     positions: MapPosition[];
 }
 
-export type SupportedContent = 'text' | 'image' | 'video' | 'maps';
+export type Invitation = { to: string; channel: string; permission: PermissionType };
+
+type SupportedContent = 'text' | 'image' | 'video' | 'maps' | 'invitation';
+
+export const CriticMass = 1;
 
 /** 
 Commento per le api
@@ -28,13 +33,14 @@ export interface IMessage {
     parent?: mongoose.Types.ObjectId; // il messaggio a cui risponde
     content: {
         type: SupportedContent;
-        data: string | Img | Maps;
+        data: string | Img | Maps | Invitation;
     };
     children: mongoose.Types.ObjectId[];
     creator: string;
     date: Date;
     views: number; // impressions.
     reaction: IReaction[];
+    category: ICategory;
 }
 
 export enum IReactionType {
@@ -48,6 +54,13 @@ export enum IReactionType {
 export interface IReaction {
     id: string;
     type: IReactionType;
+}
+
+export enum ICategory {
+    NORMAL = 0,
+    POPULAR = 1,
+    CONTROVERSIAL = 2,
+    UNPOPULAR = 3,
 }
 
 export interface MessageCreation {
@@ -64,4 +77,9 @@ export const MessageModelName = 'Message';
 export interface MessageCreationRensponse {
     id: string;
     channel: string;
+}
+
+export interface ReactionResponse {
+    reaction: IReactionType;
+    category: number;
 }

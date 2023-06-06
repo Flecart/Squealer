@@ -1,4 +1,5 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
+import PurchaseQuota from 'src/components/PurchaseQuota';
 import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
@@ -20,6 +21,8 @@ export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
     const navigate = useNavigate();
     const { parent } = useParams();
+
+    const [modalShow, setModalShow] = useState(false);
 
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
@@ -383,6 +386,21 @@ export default function AddPost(): JSX.Element {
                         <Alert variant="danger">{error}</Alert>
                     </Row>
                 )}
+                <Button
+                    variant="warning"
+                    onClick={() => {
+                        setModalShow(true);
+                    }}
+                >
+                    Acquista Quota
+                </Button>
+
+                <PurchaseQuota
+                    show={modalShow}
+                    onHide={() => {
+                        setModalShow(false);
+                    }}
+                />
             </Form>
         </SidebarSearchLayout>
     );
