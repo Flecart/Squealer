@@ -26,7 +26,7 @@ export default function Channel(): JSX.Element {
         if (channelId === undefined) navigate('/404');
         else
             fetchApi<IChannel>(
-                `${apiChannelBase}/${channelId.replace('#', '%23')}`,
+                `${apiChannelBase}/${encodeURIComponent(channelId)}`,
                 { method: 'GET' },
                 auth,
                 (channel) => {
@@ -63,7 +63,7 @@ export default function Channel(): JSX.Element {
                 (_) => {
                     setNotification(() => newStatus);
                 },
-                (_) => { },
+                (_) => {},
             );
         };
         const toggleJoin = (): void => {
@@ -76,7 +76,7 @@ export default function Channel(): JSX.Element {
                 (_) => {
                     navigate(0);
                 },
-                (_) => { },
+                (_) => {},
             );
         };
 
