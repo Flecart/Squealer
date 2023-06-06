@@ -17,7 +17,7 @@ export interface Maps {
     positions: MapPosition[];
 }
 
-type SupportedContent = 'text' | 'image' | 'video' | 'maps';
+export type SupportedContent = 'text' | 'image' | 'video' | 'maps';
 
 /** 
 Commento per le api

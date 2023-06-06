@@ -15,6 +15,7 @@ import {
 import { MessageService } from './messageService';
 import { getUserFromRequest } from '@api/utils';
 import { HttpError } from '@model/error';
+import { Temporizzati } from '@model/temporizzati';
 /*
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
