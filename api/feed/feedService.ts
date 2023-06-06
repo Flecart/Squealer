@@ -12,6 +12,7 @@ export class FeedService {
             $or: [{ type: ChannelType.PUBLIC }, { type: ChannelType.SQUEALER }, { type: ChannelType.HASHTAG }],
         });
 
+        console.log(visibleChannel);
         const publicMessage = visibleChannel.map((channel) => {
             return channel.messages.map((message) => message.toString());
         });
