@@ -5,7 +5,14 @@ import { HttpError } from '@model/error';
 import TemporizzatiModel from '@db/temporizzati';
 import UserModel from '@db/user';
 
+type TimerCount = {
+    interval: NodeJS.Timeout;
+    numIter: number;
+};
+
 export class TemporizzatiService {
+    static jobs: Map<string, TimerCount> = new Map();
+
     public async getTemporizzati(username: string): Promise<ITemporizzati[]> {
         return await TemporizzatiModel.find({ creator: username });
     }
@@ -21,9 +28,11 @@ export class TemporizzatiService {
         return obj;
     }
 
-    static jobs: Map<string, [NodeJS.Timeout, number]> = new Map();
+    public async getUser(username: string): Promise<ITemporizzati[]> {
+        return await TemporizzatiModel.find({ creator: username });
+    }
 
-    private static fromITemporizztiToMessageCreation(temporizzati: ITemporizzati, iteration: number): MessageCreation {
+    private static fromITemporizzatiToMessageCreation(temporizzati: ITemporizzati, iteration: number): MessageCreation {
         let content = temporizzati.content;
         if (temporizzati.type === 'text') {
             content = temporizzati.content as string;
@@ -46,28 +55,32 @@ export class TemporizzatiService {
             throw new HttpError(400, 'Temporizzato già esistente');
         }
         const timer = setInterval(() => {
-            const current = this.jobs.get(id);
+            const current = this.jobs.get(id) as TimerCount;
             try {
-                const messageCreate = this.fromITemporizztiToMessageCreation(temporizzati, current[1]);
+                const messageCreate = this.fromITemporizzatiToMessageCreation(temporizzati, current.numIter);
                 new MessageService().create(messageCreate, temporizzati.creator);
             } catch (e) {
                 console.log(e);
                 TemporizzatiService.delete(id);
             }
             if (current !== undefined) {
-                this.jobs.set(id, [current[0], current[1] + 1]);
-                if (current[1] + 1 >= temporizzati.iterazioni) {
+                current.numIter++;
+                this.jobs.set(id, current);
+                if (current.numIter >= temporizzati.iterazioni) {
                     TemporizzatiService.delete(id);
                 }
             }
         }, temporizzati.periodo * 1000);
-        this.jobs.set(id, [timer, 0]);
+        this.jobs.set(id, {
+            interval: timer,
+            numIter: 0,
+        });
     }
 
     public static delete(id: string) {
         const current = this.jobs.get(id);
-        if (current !== undefined && current[0] !== undefined) {
-            clearInterval(current[0]);
+        if (current !== undefined && current.interval !== undefined) {
+            clearInterval(current.interval);
             this.jobs.delete(id);
         }
         TemporizzatiModel.findOne({ _id: id }).then((temporizzati) => {

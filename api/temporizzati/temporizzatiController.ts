@@ -2,7 +2,6 @@ import { Get, Body, Post, Route, Request, Response, Security } from '@tsoa/runti
 import { getUserFromRequest } from '@api/utils';
 import { HttpError } from '@model/error';
 import { type ITemporizzati } from '@model/temporizzati';
-import { MessageCreationRensponse } from '@model/message';
 import { TemporizzatiService } from '@api/temporizzati/temporizzatiService';
 /*
     MessageCreation is a type that is used to create a message.
@@ -15,7 +14,7 @@ export class MessageController {
     @Security('jwt')
     @Response<ITemporizzati[]>(200, 'Messages')
     @Response<HttpError>(400, 'Bad request')
-    public async getTermporizzati(@Request() request: any): Promise<ITemporizzati[]> {
+    public async getTemporizzati(@Request() request: any): Promise<ITemporizzati[]> {
         return await new TemporizzatiService().getUser(getUserFromRequest(request));
     }
 
