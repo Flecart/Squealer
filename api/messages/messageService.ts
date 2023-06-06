@@ -17,12 +17,16 @@ import ChannelModel, { getUserChannelName } from '@db/channel';
 import MessageModel from '@db/message';
 import { UploadService } from '@api/upload/uploadService';
 import { ChannelService } from '@api/channel/channelService';
+import logger from '@server/logger';
 import UserService from '@api/user/userService';
 import { DEFAULT_QUOTA } from '@config/api';
+
 
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
 type UserModelType = mongoose.HydratedDocument<IUser>;
+
+const messageServiceLog = logger.child({ label: 'messageService' });
 
 export class MessageService {
     public async getOwnedMessages(username: string): Promise<IMessage[]> {
@@ -70,8 +74,8 @@ export class MessageService {
         });
         await savedMessage.save();
 
-        console.log(savedMessage);
         await this._sendNotification(savedMessage, channel, parent);
+        messageServiceLog.info(`Message created on ${savedMessage.channel}`);
         return {
             id: savedMessage._id.toString(),
             channel: savedMessage.channel,
@@ -271,7 +275,7 @@ export class MessageService {
             creator.usedQuota.month += lenChar;
             creator.markModified('usedQuota');
             await creator.save();
-            console.log(`Daily quota updated to ${creator.usedQuota.day}`);
+            messageServiceLog.info(`Daily quota updated to ${creator.usedQuota.day}`);
         } else {
             throw new HttpError(403, 'Quota exceeded');
         }
