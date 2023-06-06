@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type ChannelResponse, ChannelType, type IChannel } from '@model/channel';
 import { apiChannelBase } from 'src/api/routes';
@@ -12,7 +12,12 @@ import * as Icon from 'react-bootstrap-icons';
 
 export default function Channel(): JSX.Element {
     const navigate = useNavigate();
-    const { channelId } = useParams();
+    let { channelId } = useParams();
+    const location = useLocation();
+
+    if (channelId === undefined) {
+        channelId = location.hash;
+    }
     const [channel, setChannel] = useState<IChannel | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [auth] = useContext(AuthContext);
@@ -21,7 +26,7 @@ export default function Channel(): JSX.Element {
         if (channelId === undefined) navigate('/404');
         else
             fetchApi<IChannel>(
-                `${apiChannelBase}/${channelId}`,
+                `${apiChannelBase}/${channelId.replace('#', '%23')}`,
                 { method: 'GET' },
                 auth,
                 (channel) => {
@@ -32,6 +37,7 @@ export default function Channel(): JSX.Element {
                 },
             );
     }, [channelId]);
+    console.log(channel);
 
     function JoinAndNotify(): JSX.Element {
         if (channel === null) return <></>;

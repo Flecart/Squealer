@@ -21,10 +21,12 @@ export class FeedService {
         if (user !== null) {
             const userRecord = await UserModel.findOne({ username: user });
             if (userRecord == null) throw new HttpError(401, `User is not logged in`);
-            const a = userRecord.messages.filter((n) => n.viewed).map((n) => n.message.toString());
-            allMessage = a.concat(allMessage);
+            const unseen = userRecord.messages.filter((n) => n.viewed).map((n) => n.message.toString());
+            allMessage = unseen.concat(allMessage);
         }
-        const messages = await new MessageService().getMessages(allMessage);
+        const unique = [...new Set(allMessage)];
+        const messages = await new MessageService().getMessages(unique);
+
         return user == null ? messages : messages.filter((message) => message.creator !== user);
     }
 }

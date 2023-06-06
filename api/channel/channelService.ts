@@ -201,6 +201,8 @@ export class ChannelService {
         userIssuer: string,
         permission: PermissionType,
     ): Promise<string> {
+        // Maybe si può fare un refacor e al posto di mettere le invitation nell'array dei messaggi
+        // si può mettere in un array a parte nello user
         const toAdd = await UserModel.findOne({ username: userToAdd });
         const issuer = await UserModel.findOne({ username: userIssuer });
         if (toAdd == null) {
@@ -257,13 +259,13 @@ export class ChannelService {
         return userToAdd;
     }
 
-    public async delteInviteMessage(messageId: string): Promise<Invitation> {
+    public async deleteInviteMessage(messageId: string): Promise<Invitation> {
         const message = await MessageModel.findById(messageId);
         if (message == null) {
             throw new HttpError(400, 'message not found');
         }
         const content = message.content.data as Invitation;
-        message.deleteOne();
+        await message.deleteOne();
         const user = await UserModel.findOne({ username: content.to });
         if (user == null) {
             throw new HttpError(400, 'user not found');

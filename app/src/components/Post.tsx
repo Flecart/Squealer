@@ -81,7 +81,7 @@ function Post({ message }: PostProps): JSX.Element {
     const profiloUrl = user !== null ? `/user/${user.username}` : '/404';
 
     const renderMessageContent = useCallback(() => {
-        if (message.content === undefined) return null;
+        if (message.content === undefined) return <></>;
         // TODO: completare i tipi
 
         if (message.content.type === 'image') {
@@ -94,26 +94,29 @@ function Post({ message }: PostProps): JSX.Element {
                     </video>
                 </Container>
             );
+<<<<<<< HEAD
         } else if (message.content.type === 'maps') {
             const data: Maps = message.content.data as Maps;
             return <Map positions={data.positions} />;
         } else {
+=======
+        } else if (message.content.type === 'text') {
+>>>>>>> c0e47be (feat(app): temp)
             return <p>{message.content.data as string} </p>;
         }
+        return <>{message.content.type}</>;
     }, [message.content]);
 
     return (
         <Row className="g-4" as="article" role="article">
             <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
-                {user != null && (
-                    <Image
-                        className="w-100 float-end"
-                        src={user.profile_pic}
-                        alt="profile image"
-                        style={{ minWidth: '3rem', maxWidth: '5rem' }}
-                        roundedCircle
-                    />
-                )}
+                <Image
+                    className="w-100 float-end"
+                    src={user?.profile_pic}
+                    alt="profile image"
+                    style={{ minWidth: '3rem', maxWidth: '5rem' }}
+                    roundedCircle
+                />
             </Col>
             <Col>
                 <Container className="d-flex justify-content-center flex-column pb-4">
@@ -145,6 +148,7 @@ function Post({ message }: PostProps): JSX.Element {
                         }}
                     >
                         {renderMessageContent()}
+                        {/* TODO: transform in user good date. (like 1h or similiar */}
                     </Row>
                     <Row>
                         <CategoryContext.Provider value={[null, setCategoryState]}>

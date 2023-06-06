@@ -22,6 +22,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
     const [auth] = useContext(AuthContext);
     const permission = channel.users.find((user) => user.user === auth?.username)?.privilege;
 
+    const [user, setUser] = useState<string>('');
     const [error, setError] = useState<null | string>(null);
     const [pending, setPending] = useState(false);
     const [info, setInfo] = useState<null | string>(null);
@@ -35,7 +36,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
             {
                 method: 'Post',
                 body: JSON.stringify({
-                    toUser: document.getElementById('userAdd').value as string,
+                    toUser: user,
                     permission: PermissionType.READWRITE,
                 }),
             },
@@ -57,7 +58,14 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                 <Card body>
                     <Form.Group>
                         <Form.Label>Aggiungi una persona</Form.Label>
-                        <Form.Control id="userAdd" type="text" disabled={pending} />
+                        <Form.Control
+                            id="userAdd"
+                            type="text"
+                            disabled={pending}
+                            onChange={(e) => {
+                                setUser(e.target.value);
+                            }}
+                        />
 
                         <Button
                             onClick={() => {
@@ -103,35 +111,43 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
         );
     }, [member.user]);
 
-    function PrivilageIcon({ privivilage }: { privivilage: PermissionType }): JSX.Element {
-        switch (privivilage) {
+    function PrivilageIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
+        switch (privilage) {
             case PermissionType.WRITE:
-                return <Icon.Pencil title={privivilage} />;
+                return <Icon.Pencil aria-label={privilage} title={privilage} />;
             case PermissionType.READ:
-                return <Icon.Eyeglasses title={privivilage} />;
+                return <Icon.Eyeglasses aria-label={privilage} title={privilage} />;
 
             case PermissionType.READWRITE:
-                return <Icon.Pencil title={privivilage} />;
+                return <Icon.Pencil aria-label={privilage} title={privilage} />;
             case PermissionType.ADMIN:
-                return <Icon.PersonCheck title={privivilage} />;
+                return <Icon.PersonCheck aria-label={privilage} title={privilage} />;
         }
         return <></>;
     }
 
+    // TODO:aggiungere la possibilità di modificare i permessi degli altri
+
     return (
         <>
-            <Stack style={{ minHeight: '4rem', maxHeight: '6rem' }} gat={3} direction="horizontal">
-                <Image
-                    className="w-100 float-end"
-                    src={user?.profile_pic}
-                    alt="profile image"
-                    style={{ minWidth: '2rem', maxWidth: '2rem' }}
-                    roundedCircle
-                />
+            <Stack style={{ minHeight: '4rem', maxHeight: '6rem' }} gap={3} direction="horizontal">
+                {user !== null && (
+                    <Image
+                        className="w-100 float-end"
+                        src={user.profile_pic}
+                        alt="profile image"
+                        style={{ minWidth: '2rem', maxWidth: '2rem' }}
+                        roundedCircle
+                    />
+                )}
                 <span>{member.user}</span>
                 <div className="ms-auto">
-                    {member.notification ? <Icon.Bell /> : <Icon.BellSlash />}
-                    <PrivilageIcon privivilage={member.privilege} />
+                    {member.notification ? (
+                        <Icon.Bell aria-label="notifica" />
+                    ) : (
+                        <Icon.BellSlash aria-label="notifica spenta" />
+                    )}
+                    <PrivilageIcon privilage={member.privilege} />
                 </div>
             </Stack>
             <hr style={{ margin: 0 }} />

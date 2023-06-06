@@ -73,9 +73,9 @@ export class ChannelController extends Controller {
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel declined')
-    public async decline(@Body() body: { messageID: string }, @Request() _: any): Promise<string> {
-        await new ChannelService().delteInviteMessage(body.messageID);
-        return 'declined';
+    public async decline(@Body() body: { messageID: string }): Promise<{ message: string }> {
+        await new ChannelService().deleteInviteMessage(body.messageID);
+        return { message: 'declined' };
     }
     @Post('accept')
     @Security('jwt')
@@ -83,7 +83,7 @@ export class ChannelController extends Controller {
     @SuccessResponse(200, 'Channel joined')
     public async acceptInvite(@Body() body: { messageID: string }, @Request() request: any): Promise<ChannelResponse> {
         console.log('acceptInvite', body);
-        const content = await new ChannelService().delteInviteMessage(body.messageID);
+        const content = await new ChannelService().deleteInviteMessage(body.messageID);
         if (content.to !== getUserFromRequest(request))
             throw new HttpError(403, 'You are not allowed to join this channel');
         console.log('acceptInvite', content);
@@ -132,7 +132,14 @@ export class ChannelController extends Controller {
         @Path('channelName') channelName: string,
         @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
-    ): Promise<string> {
-        return new ChannelService().addMember(channelName, body.toUser, getUserFromRequest(request), body.permission);
+    ): Promise<{ message: string }> {
+        return {
+            message: await new ChannelService().addMember(
+                channelName,
+                body.toUser,
+                getUserFromRequest(request),
+                body.permission,
+            ),
+        };
     }
 }

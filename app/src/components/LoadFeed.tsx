@@ -24,7 +24,7 @@ export function MakeFeed(): JSX.Element {
             },
         );
     }, []);
-    const Feed = contents?.map((content: IMessage) => {
+    const feed = contents?.map((content: IMessage) => {
         return <Post key={content._id.toString()} message={content} />;
     });
 
@@ -32,7 +32,7 @@ export function MakeFeed(): JSX.Element {
         // xs={6} -> className="... col-xs-6 ..."
         <Stack className="d-flex col-xs-6 flex-column-reverse p-1">
             {contents !== null ? (
-                Feed
+                feed
             ) : (
                 <Container className="justify-content-center">
                     <Spinner animation="border" role="status">
