@@ -1,5 +1,7 @@
 import { HttpError } from '@model/error';
+import MessageModel from '@db/message';
 import { IChannel, ChannelType, PermissionType, ChannelResponse } from '@model/channel';
+import { type Invitation } from '@model/message';
 import { HydratedDocument } from 'mongoose';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
@@ -119,7 +121,12 @@ export class ChannelService {
         return { message: `Channel description updated to ${description}`, channel: channelName };
     }
 
-    public async joinChannel(channelName: string, username: string, fromApi: boolean): Promise<ChannelResponse> {
+    public async joinChannel(
+        channelName: string,
+        username: string,
+        permission: PermissionType,
+        fromApi: boolean,
+    ): Promise<ChannelResponse> {
         const channel = await ChannelModel.findOne({ name: channelName });
         const user = await UserModel.findOne({ username: username });
         if (user === null) {
@@ -132,7 +139,7 @@ export class ChannelService {
             throw new HttpError(400, `Channel with name ${channelName} is private`);
         }
         if (channel.users.find((u) => u.user === username) === undefined) {
-            channel.users.push({ user: username, privilege: PermissionType.READWRITE, notification: true });
+            channel.users.push({ user: username, privilege: permission, notification: true });
             channel.markModified('users');
             await channel.save();
         }
@@ -188,8 +195,85 @@ export class ChannelService {
         return { message: `TODO: User ${username} deleted channel ${channelName}`, channel: channelName };
     }
 
-    public async addOwner(channelName: string, username: string, _issuer: string): Promise<ChannelResponse> {
-        return { message: `TODO: User ${username} added as owner of channel ${channelName}`, channel: channelName };
+    public async addMember(
+        channel: string,
+        userToAdd: string,
+        userIssuer: string,
+        permission: PermissionType,
+    ): Promise<string> {
+        // Maybe si può fare un refacor e al posto di mettere le invitation nell'array dei messaggi
+        // si può mettere in un array a parte nello user
+        const toAdd = await UserModel.findOne({ username: userToAdd });
+        const issuer = await UserModel.findOne({ username: userIssuer });
+        if (toAdd == null) {
+            throw new HttpError(400, `User with username ${userToAdd} not exist`);
+        }
+        if (issuer == null) {
+            throw new HttpError(400, `User with username ${userIssuer} not exist`);
+        }
+
+        const channelObj = await ChannelModel.findOne({ name: channel });
+
+        if (channelObj == null) {
+            throw new HttpError(400, 'channel not found');
+        }
+        const permissionIssuer = channelObj.users.find((user) => user.user == userIssuer)?.privilege;
+        if (permissionIssuer === null || permissionIssuer !== PermissionType.ADMIN) {
+            throw new HttpError(403, "Don't have the right to do this operation");
+        }
+        if (channelObj.users.find((user) => user.user == userToAdd) !== undefined) {
+            throw new HttpError(400, 'User already in the channel');
+        }
+        const messages = await Promise.all(toAdd.messages.map((m) => MessageModel.findById(m.message)));
+        const pendingRequest =
+            messages.filter(
+                (m) =>
+                    m !== null && m.content.type === 'invitation' && (m.content.data as Invitation).channel === channel,
+            ).length > 0;
+        if (pendingRequest) {
+            throw new HttpError(400, 'User already invited');
+        }
+
+        const content: Invitation = {
+            to: userToAdd,
+            channel,
+            permission,
+        };
+        const message = new MessageModel({
+            content: {
+                type: 'invitation',
+                data: content,
+            },
+            channel: null,
+            children: [],
+            creator: userIssuer,
+            date: new Date(),
+            parent: null,
+            reaction: [],
+            views: 0,
+        });
+        await message.save();
+
+        toAdd.messages.push({ message: message._id, viewed: false });
+        await toAdd.save();
+        return userToAdd;
+    }
+
+    public async deleteInviteMessage(messageId: string): Promise<Invitation> {
+        const message = await MessageModel.findById(messageId);
+        if (message == null) {
+            throw new HttpError(400, 'message not found');
+        }
+        const content = message.content.data as Invitation;
+        await message.deleteOne();
+        const user = await UserModel.findOne({ username: content.to });
+        if (user == null) {
+            throw new HttpError(400, 'user not found');
+        }
+        user.messages = user.messages.filter((m) => m.message._id.toString() !== messageId);
+        user.markModified('messages');
+        await user.save();
+        return content;
     }
 
     async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {

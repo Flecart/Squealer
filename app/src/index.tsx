@@ -39,6 +39,7 @@ const router = createBrowserRouter(
             <Route path="/addpost/" element={<AddPost />} />
             <Route path="/addpost/:parent" element={<AddPost />} />
             <Route path="/message/:id" element={<Message />} />
+            <Route path="/channel/" element={<Channel />} />
             <Route path="/channel/:channelId" element={<Channel />} />
             <Route path="/notification" element={<Notification />} />
         </>,

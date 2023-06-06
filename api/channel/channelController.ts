@@ -3,7 +3,7 @@ import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
 import { getMaybeUserFromRequest, getUserFromRequest } from '@api/utils';
-import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse } from '@model/channel';
+import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse, PermissionType } from '@model/channel';
 
 @Route('/channel/')
 export class ChannelController extends Controller {
@@ -62,7 +62,32 @@ export class ChannelController extends Controller {
         @Path('channelName') channelName: string,
         @Request() request: any,
     ): Promise<ChannelResponse> {
-        return new ChannelService().joinChannel(channelName, getUserFromRequest(request), true);
+        return new ChannelService().joinChannel(
+            channelName,
+            getUserFromRequest(request),
+            PermissionType.READWRITE,
+            true,
+        );
+    }
+    @Post('decline')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200, 'Channel declined')
+    public async decline(@Body() body: { messageID: string }): Promise<{ message: string }> {
+        await new ChannelService().deleteInviteMessage(body.messageID);
+        return { message: 'declined' };
+    }
+    @Post('accept')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200, 'Channel joined')
+    public async acceptInvite(@Body() body: { messageID: string }, @Request() request: any): Promise<ChannelResponse> {
+        console.log('acceptInvite', body);
+        const content = await new ChannelService().deleteInviteMessage(body.messageID);
+        if (content.to !== getUserFromRequest(request))
+            throw new HttpError(403, 'You are not allowed to join this channel');
+        console.log('acceptInvite', content);
+        return new ChannelService().joinChannel(content.channel, content.to, content.permission, false);
     }
 
     @Post('{channelName}/notify')
@@ -71,10 +96,10 @@ export class ChannelController extends Controller {
     @SuccessResponse(200, 'Channel left')
     public async setNotification(
         @Path('channelName') channelName: string,
-        @Body() notify: boolean,
+        @Body() body: { notify: boolean },
         @Request() request: any,
     ): Promise<ChannelResponse> {
-        return new ChannelService().setNotify(channelName, notify, getUserFromRequest(request));
+        return new ChannelService().setNotify(channelName, body.notify, getUserFromRequest(request));
     }
 
     @Post('{channelName}/leave')
@@ -105,9 +130,16 @@ export class ChannelController extends Controller {
     @SuccessResponse(200, 'Channel owner added')
     public async addOwner(
         @Path('channelName') channelName: string,
-        @Body() owner: string,
+        @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
-    ): Promise<ChannelResponse> {
-        return new ChannelService().addOwner(channelName, owner, getUserFromRequest(request));
+    ): Promise<{ message: string }> {
+        return {
+            message: await new ChannelService().addMember(
+                channelName,
+                body.toUser,
+                getUserFromRequest(request),
+                body.permission,
+            ),
+        };
     }
 }

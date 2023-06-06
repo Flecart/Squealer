@@ -29,13 +29,14 @@ type UserModelType = mongoose.HydratedDocument<IUser>;
 const messageServiceLog = logger.child({ label: 'messageService' });
 
 export class MessageService {
-    public async getOwnedMessages(username: string) {
-        const messages = (await MessageModel.find({ creator: username })).filter(async (message) => {
+    public async getOwnedMessages(username: string): Promise<IMessage[]> {
+        const messages = (await MessageModel.find({ creator: username })).map(async (message) => {
+            if (message.channel === null) return null;
             const channel = await ChannelModel.findOne({ name: message.channel });
-            if (channel !== null && isPublicChannel(channel)) return true;
-            return false;
+            if (channel !== null && isPublicChannel(channel)) return message;
+            return null;
         });
-        return messages;
+        return (await Promise.all(messages)).filter((a) => a !== null) as IMessage[];
     }
 
     public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {
