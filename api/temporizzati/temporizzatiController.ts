@@ -1,19 +1,8 @@
 import { Get, Body, Post, Route, Request, Response, Security } from '@tsoa/runtime';
 import { getUserFromRequest } from '@api/utils';
 import { HttpError } from '@model/error';
-import { type ITemporizzati } from '@model/temporizzati';
+import { ContentInput, type ITemporizzati } from '@model/temporizzati';
 import { TemporizzatiService } from '@api/temporizzati/temporizzatiService';
-import { SupportedContent } from '@model/message';
-
-export type ContentInput = {
-    channel: string;
-    content: {
-        type: SupportedContent | 'wikipedia';
-        data: string;
-    };
-    iterazioni: number;
-    periodo: number;
-};
 
 @Route('/temporizzati')
 export class TemporizzatiController {
