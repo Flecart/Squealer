@@ -257,7 +257,6 @@ export default function AddPost(): JSX.Element {
                     show={modalShow}
                     onHide={() => {
                         setModalShow(false);
-                        navigate(0);
                     }}
                 />
             </Form>
