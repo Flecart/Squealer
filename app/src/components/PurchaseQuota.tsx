@@ -6,16 +6,20 @@ import { apiQuotaBase } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
 
-// show: boolean, onHide: () => void
-export default function PurchaseQuota(props: any): JSX.Element {
+interface PurchaseQuotaProps {
+    show: boolean;
+    onHide: () => void;
+}
+
+export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX.Element {
     const [authState] = useContext(AuthContext);
 
-    const [dailyQuota, setDailyQuota] = useState(0);
-    const [weeklyQuota, setWeeklyQuota] = useState(0);
-    const [monthlyQuota, setMonthlyQuota] = useState(0);
+    const [dailyQuota, setDailyQuota] = useState<number>(0);
+    const [weeklyQuota, setWeeklyQuota] = useState<number>(0);
+    const [monthlyQuota, setMonthlyQuota] = useState<number>(0);
     const [price, setPrice] = useState('0');
 
-    const [pendingRequest, setPendingRequest] = useState(false);
+    const [pendingRequest, setPendingRequest] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -23,9 +27,9 @@ export default function PurchaseQuota(props: any): JSX.Element {
 
     useEffect(() => {
         let sPrice: number = 0;
-        if (!isNaN(dailyQuota)) sPrice += dailyQuota * quotaPriceDay;
-        if (!isNaN(weeklyQuota)) sPrice += weeklyQuota * quotaPriceWeek;
-        if (!isNaN(monthlyQuota)) sPrice += monthlyQuota * quotaPriceMonth;
+        sPrice += dailyQuota * quotaPriceDay;
+        sPrice += weeklyQuota * quotaPriceWeek;
+        sPrice += monthlyQuota * quotaPriceMonth;
         setPrice(sPrice.toFixed(2));
     }, [dailyQuota, weeklyQuota, monthlyQuota]);
 
@@ -68,14 +72,7 @@ export default function PurchaseQuota(props: any): JSX.Element {
     );
 
     return (
-        <Modal
-            /* show = {show}
-        onHide = {onHide} */
-            {...props}
-            size="lg"
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-        >
+        <Modal show={show} onHide={onHide} size="lg" aria-labelledby="contained-modal-title-vcenter" centered>
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">Acquisto Quota</Modal.Title>
             </Modal.Header>
@@ -92,6 +89,7 @@ export default function PurchaseQuota(props: any): JSX.Element {
                                 <Form.Control
                                     type="number"
                                     value={dailyQuota}
+                                    min={0}
                                     onChange={(e) => {
                                         setDailyQuota(parseInt(e.target.value));
                                     }}
@@ -103,6 +101,7 @@ export default function PurchaseQuota(props: any): JSX.Element {
                                 <Form.Control
                                     type="number"
                                     value={weeklyQuota}
+                                    min={0}
                                     onChange={(e) => {
                                         setWeeklyQuota(parseInt(e.target.value));
                                     }}
@@ -114,6 +113,7 @@ export default function PurchaseQuota(props: any): JSX.Element {
                                 <Form.Control
                                     type="number"
                                     value={monthlyQuota}
+                                    min={0}
                                     onChange={(e) => {
                                         setMonthlyQuota(parseInt(e.target.value));
                                     }}
