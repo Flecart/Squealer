@@ -94,14 +94,10 @@ function Post({ message }: PostProps): JSX.Element {
                     </video>
                 </Container>
             );
-<<<<<<< HEAD
         } else if (message.content.type === 'maps') {
             const data: Maps = message.content.data as Maps;
             return <Map positions={data.positions} />;
         } else {
-=======
-        } else if (message.content.type === 'text') {
->>>>>>> c0e47be (feat(app): temp)
             return <p>{message.content.data as string} </p>;
         }
         return <>{message.content.type}</>;
