@@ -73,38 +73,42 @@ export default function AddPost(): JSX.Element {
         );
     }, [authState?.username]);
 
-    const sendTemporizedMessage = useCallback((event?: React.FormEvent<HTMLButtonElement>) => {
-        event?.preventDefault();
-        const channel = destination;
+    const sendTemporizedMessage = useCallback(
+        (event?: React.FormEvent<HTMLButtonElement>) => {
+            event?.preventDefault();
+            const channel = destination;
 
-        const temporizedContent: TemporizedContentInput = {
-            channel,
-            content: {
-                type: selectedTempOption,
-                data: '',
-            },
-            periodo: tempPeriod,
-            iterazioni: tempTimes,
-        };
-        console.log(temporizedContent);
+            const temporizedContent: TemporizedContentInput = {
+                channel,
+                content: {
+                    type: selectedTempOption,
+                    data: '',
+                },
+                periodo: tempPeriod,
+                iterazioni: tempTimes,
+            };
 
-        fetchApi<ITemporizzati>(
-            apiTemporized,
-            {
-                method: 'POST',
-                body: JSON.stringify(temporizedContent),
-            },
-            authState,
-            (temporized) => {
-                setError(() => null);
-                console.log(temporized);
-                // TODO: cambiare il feedback dei messaggi temporizzati in un secondo momento.
-            },
-            (error) => {
-                setError(() => error.message);
-            },
-        );
-    }, []);
+            if (selectedTempOption === 'text') temporizedContent.content.data = messageText;
+
+            fetchApi<ITemporizzati>(
+                apiTemporized,
+                {
+                    method: 'POST',
+                    body: JSON.stringify(temporizedContent),
+                },
+                authState,
+                (temporized) => {
+                    setError(() => null);
+                    console.log(temporized);
+                    // TODO: cambiare il feedback dei messaggi temporizzati in un secondo momento.
+                },
+                (error) => {
+                    setError(() => error.message);
+                },
+            );
+        },
+        [destination, selectedTempOption, tempPeriod, tempTimes, messageText, authState],
+    );
 
     const sendMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
