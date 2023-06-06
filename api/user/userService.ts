@@ -66,29 +66,29 @@ export default class UserService {
         weeklyQuota: number,
         monthlyQuota: number,
     ): Promise<void> {
-        creator.usedQuota.day += dailyQuota;
-        if (creator.usedQuota.day < 0) {
-            creator.usedQuota.day = 0;
-        } else if (creator.usedQuota.day > creator.maxQuota.day) {
-            creator.usedQuota.day = creator.maxQuota.day;
+        creator.maxQuota.day += dailyQuota;
+        if (creator.maxQuota.day < 0) {
+            creator.maxQuota.day = 0;
+        } else if (creator.maxQuota.day > creator.maxQuota.day) {
+            creator.maxQuota.day = creator.maxQuota.day;
         }
 
-        creator.usedQuota.week += weeklyQuota;
-        if (creator.usedQuota.week < 0) {
-            creator.usedQuota.week = 0;
-        } else if (creator.usedQuota.week > creator.maxQuota.week) {
-            creator.usedQuota.week = creator.maxQuota.week;
+        creator.maxQuota.week += weeklyQuota;
+        if (creator.maxQuota.week < 0) {
+            creator.maxQuota.week = 0;
+        } else if (creator.maxQuota.week > creator.maxQuota.week) {
+            creator.maxQuota.week = creator.maxQuota.week;
         }
 
-        creator.usedQuota.month += monthlyQuota;
-        if (creator.usedQuota.month < 0) {
-            creator.usedQuota.month = 0;
-        } else if (creator.usedQuota.month > creator.maxQuota.month) {
-            creator.usedQuota.month = creator.maxQuota.month;
+        creator.maxQuota.month += monthlyQuota;
+        if (creator.maxQuota.month < 0) {
+            creator.maxQuota.month = 0;
+        } else if (creator.maxQuota.month > creator.maxQuota.month) {
+            creator.maxQuota.month = creator.maxQuota.month;
         }
 
-        creator.markModified('usedQuota');
+        creator.markModified('maxQuota');
         await creator.save();
-        console.log(`Daily quota updated to ${creator.usedQuota.day}`);
+        console.log(`Daily quota updated to ${creator.maxQuota.day}`);
     }
 }
