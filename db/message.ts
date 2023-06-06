@@ -30,8 +30,6 @@ export const MessageSchema = new mongoose.Schema<IMessage>({
     parent: { type: mongoose.Types.ObjectId, ref: MessageModelName },
     reaction: { type: [IReactionSchema], required: true },
     category: { type: Number, required: true },
-    positiveReactions: { type: Number, required: true },
-    negativeReactions: { type: Number, required: true },
 });
 
 export default mongoose.model<IMessage>(MessageModelName, MessageSchema);

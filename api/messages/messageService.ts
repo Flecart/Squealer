@@ -17,6 +17,8 @@ import ChannelModel, { getUserChannelName } from '@db/channel';
 import MessageModel from '@db/message';
 import { UploadService } from '@api/upload/uploadService';
 import { ChannelService } from '@api/channel/channelService';
+import UserService from '@api/user/userService';
+import { DEFAULT_QUOTA } from '@config/api';
 
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
@@ -120,43 +122,64 @@ export class MessageService {
         const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
         if (message == null) throw new HttpError(404, 'Message not found');
         const userReaction = message.reaction.find((reaction) => reaction.id === username);
-        const precReaction = userReaction ? userReaction.type : 0;
+
         const precCategory = message.category;
+
         if (userReaction) {
             if (type === IReactionType.UNSET) {
                 message.reaction = message.reaction.filter((reaction) => reaction.id !== username);
             } else {
                 userReaction.type = type;
             }
-
-            if (precReaction < 0) {
-                message.negativeReactions += precReaction;
-            } else {
-                message.positiveReactions -= precReaction;
-            }
         } else if (type !== IReactionType.UNSET) {
             message.reaction.push({ id: username, type: type });
         }
 
-        if (type < 0) {
-            message.negativeReactions -= type;
-        } else {
-            message.positiveReactions += type;
-        }
+        let negativeReactions = 0;
+        let positiveReactions = 0;
 
-        if (message.negativeReactions > CriticMass && message.positiveReactions > CriticMass) {
+        message.reaction.forEach((reaction) => {
+            switch (reaction.type) {
+                case IReactionType.ANGRY:
+                    negativeReactions += 2;
+                    break;
+
+                case IReactionType.DISLIKE:
+                    negativeReactions += 1;
+                    break;
+
+                case IReactionType.LIKE:
+                    positiveReactions += 1;
+                    break;
+
+                case IReactionType.LOVE:
+                    positiveReactions += 2;
+                    break;
+
+                default:
+                    break;
+            }
+        });
+
+        if (negativeReactions > CriticMass && positiveReactions > CriticMass) {
             message.category = ICategory.CONTROVERSIAL;
-        } else if (message.negativeReactions > CriticMass) {
+        } else if (negativeReactions > CriticMass) {
             message.category = ICategory.UNPOPULAR;
             if (precCategory != ICategory.UNPOPULAR) {
-                this.addMaxQuota(username, -1);
+                this._addMaxQuota(username, -1);
             }
-        } else if (message.positiveReactions > CriticMass) {
+        } else if (positiveReactions > CriticMass) {
             message.category = ICategory.POPULAR;
             if (precCategory != ICategory.POPULAR) {
-                this.addMaxQuota(username, +1);
+                this._addMaxQuota(username, +1);
             }
         } else {
+            if (precCategory === ICategory.POPULAR) {
+                this._addMaxQuota(username, -1);
+            }
+            if (precCategory === ICategory.UNPOPULAR) {
+                this._addMaxQuota(username, +1);
+            }
             message.category = ICategory.NORMAL;
         }
 
@@ -253,15 +276,13 @@ export class MessageService {
         }
     }
 
-    public async addMaxQuota(username: string, quota: number): Promise<void> {
+    private async _addMaxQuota(username: string, quota: number): Promise<void> {
         const user = await UserModel.findOne({ username: username }, 'maxQuota').exec();
         if (user == null) throw new HttpError(404, 'User not Found');
-        quota = quota / 100;
-        user.maxQuota.day += Math.floor(quota * user.maxQuota.day);
-        user.maxQuota.week += Math.floor(quota * user.maxQuota.week);
-        user.maxQuota.month += Math.floor(quota * user.maxQuota.month);
-        user.markModified('maxQuota');
-        user.save();
+        let quotaDay = DEFAULT_QUOTA.day * (quota / 100);
+        let quotaWeek = DEFAULT_QUOTA.week * (quota / 100);
+        let quotaMonth = DEFAULT_QUOTA.month * (quota / 100);
+        new UserService().changeQuota(user, quotaDay, quotaWeek, quotaMonth);
     }
 
     private async _sendNotification(

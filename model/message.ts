@@ -38,8 +38,6 @@ export interface IMessage {
     views: number; // impressions.
     reaction: IReaction[];
     category: ICategory;
-    positiveReactions: number;
-    negativeReactions: number;
 }
 
 export enum IReactionType {
