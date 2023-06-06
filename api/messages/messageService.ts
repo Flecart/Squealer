@@ -1,5 +1,13 @@
 import { IUser, haveEnoughtQuota } from '@model/user';
-import { IMessage, IReactionType } from '@model/message';
+import {
+    IMessage,
+    IReactionType,
+    ICategory,
+    CriticMass,
+    Maps,
+    MapPosition,
+    type ReactionResponse,
+} from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
 import { MessageCreation, MessageCreationRensponse } from '@model/message';
@@ -9,6 +17,8 @@ import ChannelModel, { getUserChannelName } from '@db/channel';
 import MessageModel from '@db/message';
 import { UploadService } from '@api/upload/uploadService';
 import { ChannelService } from '@api/channel/channelService';
+import UserService from '@api/user/userService';
+import { DEFAULT_QUOTA } from '@config/api';
 
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
@@ -32,7 +42,7 @@ export class MessageService {
 
         let channel = null;
         let parent = null;
-        if (message.channel !== undefined) channel = await this.getChannel(username, message.channel);
+        if (message.channel !== undefined) channel = await this._getChannel(username, message.channel);
         else if (message.parent !== undefined) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
@@ -40,9 +50,9 @@ export class MessageService {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
 
-        let [messageContent, lenChar] = await this.getMessageContent(message);
+        let [messageContent, lenChar] = await this._getMessageContent(message);
 
-        await this.updateQuota(creator, lenChar);
+        await this._updateQuota(creator, lenChar);
 
         const savedMessage = new MessageModel({
             channel: channel?.name,
@@ -53,14 +63,36 @@ export class MessageService {
             views: 0,
             reaction: [],
             parent: parent?._id,
+            category: ICategory.NORMAL,
+            positiveReactions: 0,
+            negativeReactions: 0,
         });
         await savedMessage.save();
 
         console.log(savedMessage);
-        await this.sendNotification(savedMessage, channel, parent);
+        await this._sendNotification(savedMessage, channel, parent);
         return {
             id: savedMessage._id.toString(),
             channel: savedMessage.channel,
+        };
+    }
+
+    public async updatePosition(
+        id: string,
+        position: MapPosition,
+        username: string,
+    ): Promise<MessageCreationRensponse> {
+        const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (message == null) throw new HttpError(404, 'Message not found');
+        else if (message.creator !== username) throw new HttpError(401, 'Not authorized');
+        else if (message.content.type !== 'maps') throw new HttpError(400, 'Message is not a map');
+
+        (message.content.data as Maps).positions.push(position);
+        message.markModified('content');
+        await message.save();
+        return {
+            id: message._id.toString(),
+            channel: message.channel,
         };
     }
 
@@ -85,27 +117,80 @@ export class MessageService {
         return rens;
     }
 
-    public async reactMessage(id: string, type: IReactionType, username: string): Promise<IReactionType> {
+    public async reactMessage(id: string, type: IReactionType, username: string): Promise<ReactionResponse> {
         // get message from mongo
         const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
         if (message == null) throw new HttpError(404, 'Message not found');
         const userReaction = message.reaction.find((reaction) => reaction.id === username);
+
+        const precCategory = message.category;
+
         if (userReaction) {
             if (type === IReactionType.UNSET) {
                 message.reaction = message.reaction.filter((reaction) => reaction.id !== username);
             } else {
                 userReaction.type = type;
             }
-        } else if (type !== IReactionType.UNSET) message.reaction.push({ id: username, type: type });
+        } else if (type !== IReactionType.UNSET) {
+            message.reaction.push({ id: username, type: type });
+        }
+
+        let negativeReactions = 0;
+        let positiveReactions = 0;
+
+        message.reaction.forEach((reaction) => {
+            switch (reaction.type) {
+                case IReactionType.ANGRY:
+                    negativeReactions += 2;
+                    break;
+
+                case IReactionType.DISLIKE:
+                    negativeReactions += 1;
+                    break;
+
+                case IReactionType.LIKE:
+                    positiveReactions += 1;
+                    break;
+
+                case IReactionType.LOVE:
+                    positiveReactions += 2;
+                    break;
+
+                default:
+                    break;
+            }
+        });
+
+        if (negativeReactions > CriticMass && positiveReactions > CriticMass) {
+            message.category = ICategory.CONTROVERSIAL;
+        } else if (negativeReactions > CriticMass) {
+            message.category = ICategory.UNPOPULAR;
+            if (precCategory != ICategory.UNPOPULAR) {
+                this._addMaxQuota(username, -1);
+            }
+        } else if (positiveReactions > CriticMass) {
+            message.category = ICategory.POPULAR;
+            if (precCategory != ICategory.POPULAR) {
+                this._addMaxQuota(username, +1);
+            }
+        } else {
+            if (precCategory === ICategory.POPULAR) {
+                this._addMaxQuota(username, -1);
+            }
+            if (precCategory === ICategory.UNPOPULAR) {
+                this._addMaxQuota(username, +1);
+            }
+            message.category = ICategory.NORMAL;
+        }
 
         message.markModified('reaction');
         message.save();
         console.info(message);
 
-        return type;
+        return { reaction: type, category: message.category };
     }
 
-    private async getChannel(username: string, channelName: string): Promise<ChannelModelType> {
+    private async _getChannel(username: string, channelName: string): Promise<ChannelModelType> {
         let channel = null;
         if (channelName.startsWith('@')) {
             if (channelName === `@${username}`) {
@@ -157,7 +242,7 @@ export class MessageService {
         return channel;
     }
 
-    private async getMessageContent(message: MessageCreation): Promise<[IMessage['content'], number]> {
+    private async _getMessageContent(message: MessageCreation): Promise<[IMessage['content'], number]> {
         if (message.content.type === 'text') {
             const data: string = message.content.data as string;
             return [message.content, data.length];
@@ -171,13 +256,14 @@ export class MessageService {
                 },
                 100,
             ];
+        } else if (message.content.type === 'maps') {
+            return [message.content, 100];
         } else {
-            //TODO:implementare per gli latri tipi
-            throw new HttpError(501, `Message type ${message.content.type} is not implemented`);
+            throw new HttpError(400, `Message type ${message.content.type} is not supported`);
         }
     }
 
-    private async updateQuota(creator: UserModelType, lenChar: number): Promise<void> {
+    private async _updateQuota(creator: UserModelType, lenChar: number): Promise<void> {
         if (haveEnoughtQuota(creator, lenChar)) {
             creator.usedQuota.day += lenChar;
             creator.usedQuota.week += lenChar;
@@ -190,7 +276,16 @@ export class MessageService {
         }
     }
 
-    private async sendNotification(
+    private async _addMaxQuota(username: string, quota: number): Promise<void> {
+        const user = await UserModel.findOne({ username: username }, 'maxQuota').exec();
+        if (user == null) throw new HttpError(404, 'User not Found');
+        let quotaDay = DEFAULT_QUOTA.day * (quota / 100);
+        let quotaWeek = DEFAULT_QUOTA.week * (quota / 100);
+        let quotaMonth = DEFAULT_QUOTA.month * (quota / 100);
+        new UserService().changeQuota(user, quotaDay, quotaWeek, quotaMonth);
+    }
+
+    private async _sendNotification(
         savedMessage: MessageModelType,
         channel: ChannelModelType | null,
         parent: MessageModelType | null,
