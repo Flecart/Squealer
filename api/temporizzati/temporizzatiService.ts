@@ -5,6 +5,8 @@ import { HttpError } from '@model/error';
 import TemporizzatiModel from '@db/temporizzati';
 import UserModel from '@db/user';
 import { type ContentInput } from '@api/temporizzati/temporizzatiController';
+import { v4 as uuidv4 } from 'uuid';
+import { Buffer } from 'buffer';
 
 type TimerCount = {
     interval: NodeJS.Timeout;
@@ -60,6 +62,11 @@ export class TemporizzatiService {
         } else if (temporizzati.content.type === 'wikipedia') {
             content.type = 'text';
             content.data = await TemporizzatiService._getWikipediaContent();
+        } else if (temporizzati.content.type === 'image') {
+            content.type = 'image';
+            content.data = await TemporizzatiService._getImageContent();
+        } else if (temporizzati.content.type === 'maps') {
+            throw new HttpError(400, 'Not implemented');
         }
 
         return {
@@ -146,5 +153,18 @@ export class TemporizzatiService {
         }
 
         return messageText;
+    }
+
+    private static async _getImageContent(): Promise<Express.Multer.File> {
+        const response = await fetch('https://picsum.photos/1000');
+        const buffer = Buffer.from(await response.arrayBuffer());
+
+        return {
+            fieldname: 'image',
+            originalname: uuidv4() as string,
+            mimetype: 'image/jpeg',
+            buffer: buffer,
+            size: buffer.byteLength,
+        } as Express.Multer.File;
     }
 }

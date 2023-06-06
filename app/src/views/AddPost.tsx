@@ -10,7 +10,6 @@ import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import Post from 'src/components/Post';
 import { type IUser, haveEnoughtQuota } from '@model/user';
 import Map from 'src/components/Map';
-import { v4 as uuidv4 } from 'uuid';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -223,25 +222,6 @@ export default function AddPost(): JSX.Element {
             );
         }
     }, [user, geolocationCoord, selectedImage]);
-    const sendRandomImage = async (): void => {
-        await fetch('https://picsum.photos/1000')
-            .then(async (response) => {
-                return await response.arrayBuffer();
-            })
-            .then((buffer) => {
-                // eslint-disable-next-line
-                setSelectedImage(new File([buffer], uuidv4() as string, { type: 'image/jpeg' }));
-            })
-            .catch((_) => {
-                setError(() => "Couldn't fetch random image");
-            });
-
-        sendMessage();
-    };
-
-    const sendRandomText = async (): void => {
-        sendMessage();
-    };
 
     return (
         <SidebarSearchLayout>

@@ -212,12 +212,12 @@ async function joinChannel(){
     }
 }
 
-async function createTemporalMessageText() {
+async function createTemporalMessage() {
     const channel = "guccini"
     // @ts-ignore
     const tokenSender = publicChannel[1].members[0];
 
-    const req = await request(baseUrl)
+    await request(baseUrl)
         .post("/api/temporizzati")
         .set('Authorization', `Bearer ${tokenSender}`)
         .send({
@@ -226,11 +226,36 @@ async function createTemporalMessageText() {
                 type: 'text',
                 data: "ciao, questo è un messaggio temporizzato! {TIME} {NUM} {DATE}",
             },
-            iterazioni: 10,
+            iterazioni: 2,
             periodo: 1000 * 60 * 5,
         }).expect(200);
 
-    console.log(req.body)
+
+    await request(baseUrl)
+        .post("/api/temporizzati")
+        .set('Authorization', `Bearer ${tokenSender}`)
+        .send({
+            channel: channel,
+            content: {
+                type: 'wikipedia',
+                data: "randomuseless text",
+            },
+            iterazioni: 3,
+            periodo: 1000 * 60 * 2,
+        }).expect(200);
+
+    await request(baseUrl)
+        .post("/api/temporizzati")
+        .set('Authorization', `Bearer ${tokenSender}`)
+        .send({
+            channel: channel,
+            content: {
+                type: 'image',
+                data: "uselesss",
+            },
+            iterazioni: 10,
+            periodo: 1000 * 60 * 7,
+        }).expect(200);
 }
 
 initConnection().then(async () => {

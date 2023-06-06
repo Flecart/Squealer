@@ -8,7 +8,7 @@ import { SupportedContent } from '@model/message';
 export type ContentInput = {
     channel: string;
     content: {
-        type: SupportedContent;
+        type: SupportedContent | 'wikipedia';
         data: string;
     };
     iterazioni: number;
