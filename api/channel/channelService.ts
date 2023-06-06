@@ -121,7 +121,12 @@ export class ChannelService {
         return { message: `Channel description updated to ${description}`, channel: channelName };
     }
 
-    public async joinChannel(channelName: string, username: string, fromApi: boolean): Promise<ChannelResponse> {
+    public async joinChannel(
+        channelName: string,
+        username: string,
+        permission: PermissionType,
+        fromApi: boolean,
+    ): Promise<ChannelResponse> {
         const channel = await ChannelModel.findOne({ name: channelName });
         const user = await UserModel.findOne({ username: username });
         if (user === null) {
@@ -134,7 +139,7 @@ export class ChannelService {
             throw new HttpError(400, `Channel with name ${channelName} is private`);
         }
         if (channel.users.find((u) => u.user === username) === undefined) {
-            channel.users.push({ user: username, privilege: PermissionType.READWRITE, notification: true });
+            channel.users.push({ user: username, privilege: permission, notification: true });
             channel.markModified('users');
             await channel.save();
         }
@@ -198,9 +203,13 @@ export class ChannelService {
     ): Promise<string> {
         const toAdd = await UserModel.findOne({ username: userToAdd });
         const issuer = await UserModel.findOne({ username: userIssuer });
-        if (toAdd == null || issuer == null) {
-            throw new HttpError(400, `User with username ${userToAdd} or ${userIssuer} does not exist`);
+        if (toAdd == null) {
+            throw new HttpError(400, `User with username ${userToAdd} not exist`);
         }
+        if (issuer == null) {
+            throw new HttpError(400, `User with username ${userIssuer} not exist`);
+        }
+
         const channelObj = await ChannelModel.findOne({ name: channel });
 
         if (channelObj == null) {
@@ -210,6 +219,19 @@ export class ChannelService {
         if (permissionIssuer === null || permissionIssuer !== PermissionType.ADMIN) {
             throw new HttpError(403, "Don't have the right to do this operation");
         }
+        if (channelObj.users.find((user) => user.user == userToAdd) !== undefined) {
+            throw new HttpError(400, 'User already in the channel');
+        }
+        const messages = await Promise.all(toAdd.messages.map((m) => MessageModel.findById(m.message)));
+        const pendingRequest =
+            messages.filter(
+                (m) =>
+                    m !== null && m.content.type === 'invitation' && (m.content.data as Invitation).channel === channel,
+            ).length > 0;
+        if (pendingRequest) {
+            throw new HttpError(400, 'User already invited');
+        }
+
         const content: Invitation = {
             to: userToAdd,
             channel,
@@ -233,7 +255,23 @@ export class ChannelService {
         toAdd.messages.push({ message: message._id, viewed: false });
         await toAdd.save();
         return userToAdd;
-        //TODO: aggiungere il controllo che non ci sia una pending request e che l'account sia già nel gruppo
+    }
+
+    public async delteInviteMessage(messageId: string): Promise<Invitation> {
+        const message = await MessageModel.findById(messageId);
+        if (message == null) {
+            throw new HttpError(400, 'message not found');
+        }
+        const content = message.content.data as Invitation;
+        message.deleteOne();
+        const user = await UserModel.findOne({ username: content.to });
+        if (user == null) {
+            throw new HttpError(400, 'user not found');
+        }
+        user.messages = user.messages.filter((m) => m.message._id.toString() !== messageId);
+        user.markModified('messages');
+        await user.save();
+        return content;
     }
 
     async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {

@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
-import { ChannelType, type IChannel } from '@model/channel';
+import { type ChannelResponse, ChannelType, type IChannel } from '@model/channel';
 import { apiChannelBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { Alert, Container, Row, Stack, Tab, Tabs } from 'react-bootstrap';
@@ -41,18 +41,54 @@ export default function Channel(): JSX.Element {
         }
         const current = channel.users.filter((user) => user.user === auth.username)[0];
 
-        if (current === undefined)
-            return (
-                <span>
-                    Entra <Icon.BoxArrowInLeft />
-                </span>
+        const [notification, setNotification] = useState<boolean>(current?.notification ?? false);
+        const join = current !== undefined;
+        const toggleNotification = (): void => {
+            const newStatus = !notification;
+            fetchApi<ChannelResponse>(
+                `${apiChannelBase}/${channel.name}/notify`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        notify: newStatus,
+                    }),
+                },
+                auth,
+                (_) => {
+                    setNotification(() => newStatus);
+                },
+                (_) => {},
             );
+        };
+        const toggleJoin = (): void => {
+            fetchApi<ChannelResponse>(
+                `${apiChannelBase}/${channel.name}/${!join ? 'join' : 'leave'}`,
+                {
+                    method: 'POST',
+                },
+                auth,
+                (_) => {
+                    navigate(0);
+                },
+                (_) => {},
+            );
+        };
+
         return (
             <>
-                <span>
-                    Esci <Icon.BoxArrowLeft />
-                </span>
-                {current.notification ? <Icon.Bell /> : <Icon.BellSlash />}
+                {!join ? (
+                    <span className="gap-2" onClick={toggleJoin}>
+                        Entra
+                        <Icon.BoxArrowInLeft />
+                    </span>
+                ) : (
+                    <>
+                        <span className="gap-2" onClick={toggleJoin}>
+                            Esci <Icon.BoxArrowLeft />
+                        </span>
+                        <span onClick={toggleNotification}>{notification ? <Icon.Bell /> : <Icon.BellSlash />}</span>
+                    </>
+                )}
             </>
         );
     }
@@ -71,7 +107,7 @@ export default function Channel(): JSX.Element {
                         <Alert variant="danger">{error}</Alert>
                     </Row>
                 )}
-                <Stack direction="horizontal" className="justify-content-center" gap={2}>
+                <Stack direction="horizontal" className="justify-content-center" gap={3}>
                     <JoinAndNotify />
                 </Stack>
             </Container>

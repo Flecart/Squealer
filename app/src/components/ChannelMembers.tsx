@@ -42,7 +42,6 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
             auth,
             (a) => {
                 setInfo(`mandata la richiesta a ${a}`);
-                setError(null);
                 setPending(false);
             },
             (e) => {
@@ -69,9 +68,9 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                             <Icon.PersonAdd style={{ marginRight: '1rem', height: '1.5rem', width: '1.5rem' }} />
                         </Button>
                     </Form.Group>
-                    {error !== null && (
+                    {info !== null && (
                         <Row>
-                            <p>{info}</p>
+                            <Alert variant="info">{info}</Alert>
                         </Row>
                     )}
                     {error !== null && (
