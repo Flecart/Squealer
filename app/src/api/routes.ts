@@ -9,5 +9,6 @@ export const apiMessageBase = `${apiBase}/message`;
 export const apiFeedBase = `${apiBase}/feed`;
 export const apiChannelBase = `${apiBase}/channel`;
 export const apiFileUpload = `${apiBase}/upload`;
+export const apiQuotaBase = `${apiBase}/user/quota`;
 
 export const imageBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';

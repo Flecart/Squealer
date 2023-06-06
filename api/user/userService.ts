@@ -45,7 +45,21 @@ export default class UserService {
         if (user == null) throw new HttpError(404, 'User not Found');
         return user.usedQuota;
     }
-
+  
+    public async purchaseQuota(
+        username: string,
+        dailyQuota: number,
+        weeklyQuota: number,
+        monthlyQuota: number,
+    ): Promise<any> {
+        const creator = await UserModel.findOne({ username: username });
+        if (!creator) {
+            throw new HttpError(404, 'Username not found');
+        }
+        this.changeQuota(creator, dailyQuota, weeklyQuota, monthlyQuota);
+        return { message: 'Quota Purchased Successfully' };
+    }
+    
     public async changeQuota(
         creator: UserModelType,
         dailyQuota: number,

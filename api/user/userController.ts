@@ -1,4 +1,4 @@
-import { Security, Request, Get, Post, Route, SuccessResponse, Controller, Path, Delete } from '@tsoa/runtime';
+import { Security, Request, Get, Put, Route, SuccessResponse, Controller, Path, Delete, Body } from '@tsoa/runtime';
 // import {IUser} from "../../model/user";
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
@@ -42,9 +42,19 @@ export class UserController extends Controller {
         return new UserService().getQuota(getUserFromRequest(request));
     }
 
-    @Post('/quota/buy')
-    buyQuota() {
-        return 'todo';
+    @Put('/quota/buy')
+    @Security('jwt')
+    @SuccessResponse(200, 'Quota Purchased Successfully')
+    public async buyQuota(
+        @Request() request: any,
+        @Body() q: { dailyQuote: number; weeklyQuote: number; monthlyQuote: number },
+    ): Promise<any> {
+        return new UserService().purchaseQuota(
+            getUserFromRequest(request),
+            q.dailyQuote,
+            q.weeklyQuote,
+            q.monthlyQuote,
+        );
     }
 
     @Get('/quota/day')
