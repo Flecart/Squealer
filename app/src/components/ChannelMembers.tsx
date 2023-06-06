@@ -107,21 +107,22 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
             (user) => {
                 setUser(() => user);
             },
-            (_) => { },
+            (_) => {},
         );
     }, [member.user]);
 
-    function PrivilageIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
-        switch (privilage) {
+    function PrivilegeIcon({ privilege }: { privilege: PermissionType }): JSX.Element {
+        switch (privilege) {
             case PermissionType.WRITE:
-                return <Icon.Pencil aria-label={privilage} title={privilage} />;
+                return <Icon.Pencil aria-label={privilege} title={privilege} />;
             case PermissionType.READ:
-                return <Icon.Eyeglasses aria-label={privilage} title={privilage} />;
+                return <Icon.Eyeglasses aria-label={privilege} title={privilege} />;
 
             case PermissionType.READWRITE:
-                return <Icon.Pencil aria-label={privilage} title={privilage} />;
+                return <Icon.Pencil aria-label={privilege} title={privilege} />;
             case PermissionType.ADMIN:
-                return <Icon.PersonCheck aria-label={privilage} title={privilage} />;
+                return <Icon.PersonCheck aria-label={privilege} title={privilege} />;
+
         }
         return <></>;
     }
@@ -147,7 +148,7 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
                     ) : (
                         <Icon.BellSlash aria-label="notifica spenta" />
                     )}
-                    <PrivilageIcon privilage={member.privilege} />
+                    <PrivilegeIcon privilege={member.privilege} />
                 </div>
             </Stack>
             <hr style={{ margin: 0 }} />
