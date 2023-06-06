@@ -240,44 +240,6 @@ export default function AddPost(): JSX.Element {
     };
 
     const sendRandomText = async (): void => {
-        const randomElements = ['births', 'deaths', 'events', 'holidays']; // from https://en.wikipedia.org/api/rest_v1/#/Feed/onThisDay
-        const randomElement: string = randomElements[Math.floor(Math.random() * randomElements.length)] as string;
-
-        // format MM-DD
-        const date = new Date();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-
-        const endpointUrl = `https://en.wikipedia.org/api/rest_v1/feed/onthisday/${randomElement}/${month}/${day}`;
-        await fetch(endpointUrl)
-            .then(async (response) => {
-                // eslint-disable-next-line
-                return await response.json();
-            })
-            .then((json) => {
-                const data = json[randomElement]; // eslint-disable-line
-                const event = data[Math.floor(Math.random() * data.length)]; // eslint-disable-line
-
-                let messageText = `Did you know that on this day (${month}/${day}): `;
-                switch (randomElement) {
-                    case 'births':
-                        messageText += ` was born in ${event.year} ${event.text}?`; // eslint-disable-line
-                        break;
-                    case 'deaths':
-                        messageText += ` died in ${event.year} ${event.text}?`; // eslint-disable-line
-                        break;
-                    case 'events':
-                        messageText += ` in ${event.year} ${event.text}?`; // eslint-disable-line
-                        break;
-                    case 'holidays':
-                        messageText += ` is ${event.text}?`; // eslint-disable-line
-                        break;
-                }
-                setMessageText(messageText);
-            })
-            .catch((_) => {
-                setError(() => "Couldn't fetch random text");
-            });
         sendMessage();
     };
 
@@ -320,15 +282,6 @@ export default function AddPost(): JSX.Element {
                 <Button className="my-2" onClick={setGeolocation}>
                     Geolocation
                 </Button>
-
-                <Container className="py-2 px-0">
-                    <Button className="me-2" onClick={sendRandomImage} value="send random image">
-                        Send random image
-                    </Button>
-                    <Button onClick={sendRandomText} value="send random text">
-                        Send random text
-                    </Button>
-                </Container>
 
                 <Button className="my-2" type="submit" onClick={sendMessage}>
                     Send

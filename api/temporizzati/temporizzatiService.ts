@@ -4,10 +4,16 @@ import { type ITemporizzati } from '@model/temporizzati';
 import { HttpError } from '@model/error';
 import TemporizzatiModel from '@db/temporizzati';
 import UserModel from '@db/user';
+import { type ContentInput } from '@api/temporizzati/temporizzatiController';
 
 type TimerCount = {
     interval: NodeJS.Timeout;
     numIter: number;
+};
+
+type WikiReponse = {
+    year: string;
+    text: string;
 };
 
 export class TemporizzatiService {
@@ -17,14 +23,21 @@ export class TemporizzatiService {
         return await TemporizzatiModel.find({ creator: username });
     }
 
-    public async create(temporizzati: ITemporizzati): Promise<ITemporizzati> {
-        const creator = await UserModel.findOne({ username: temporizzati.creator });
+    public async create(temporizzati: ContentInput, username: string): Promise<ITemporizzati> {
+        const creator = await UserModel.findOne({ username: username });
         if (!creator) {
             throw new HttpError(404, 'Username not found');
         }
-        const obj = await TemporizzatiModel.create(temporizzati);
+        const obj = await new TemporizzatiModel({
+            creator: username,
+            channel: temporizzati.channel,
+            content: temporizzati.content,
+            iterazioni: temporizzati.iterazioni,
+            periodo: temporizzati.periodo,
+            running: true,
+        });
         await obj.save();
-        TemporizzatiService.create(obj._id.toString(), temporizzati);
+        TemporizzatiService.create(obj._id.toString(), obj);
         return obj;
     }
 
@@ -32,21 +45,27 @@ export class TemporizzatiService {
         return await TemporizzatiModel.find({ creator: username });
     }
 
-    private static fromITemporizzatiToMessageCreation(temporizzati: ITemporizzati, iteration: number): MessageCreation {
-        let content = temporizzati.content;
-        if (temporizzati.type === 'text') {
-            content = temporizzati.content as string;
-            content.replace('{TIME}', new Date().toLocaleTimeString());
-            content.replace('{DATE}', new Date().toLocaleDateString());
-            content.replace('{NUM}', iteration.toString());
+    private static async fromITemporizzatiToMessageCreation(
+        temporizzati: ITemporizzati,
+        iteration: number,
+    ): Promise<MessageCreation> {
+        let content: MessageCreation['content'] = {
+            type: 'text',
+            data: '',
+        };
+        if (temporizzati.content.type === 'text') {
+            content.data = (temporizzati.content.data as string).replace('{TIME}', new Date().toLocaleTimeString());
+            content.data = (temporizzati.content.data as string).replace('{DATE}', new Date().toLocaleDateString());
+            content.data = (temporizzati.content.data as string).replace('{NUM}', iteration.toString());
+        } else if (temporizzati.content.type === 'wikipedia') {
+            content.type = 'text';
+            content.data = await TemporizzatiService._getWikipediaContent();
         }
+
         return {
             channel: temporizzati.channel,
             parent: undefined,
-            content: {
-                type: temporizzati.type,
-                data: content,
-            },
+            content: content,
         };
     }
 
@@ -54,10 +73,13 @@ export class TemporizzatiService {
         if (this.jobs.has(id)) {
             throw new HttpError(400, 'Temporizzato già esistente');
         }
-        const timer = setInterval(() => {
+        const timer = setInterval(async () => {
             const current = this.jobs.get(id) as TimerCount;
             try {
-                const messageCreate = this.fromITemporizzatiToMessageCreation(temporizzati, current.numIter);
+                const messageCreate = await TemporizzatiService.fromITemporizzatiToMessageCreation(
+                    temporizzati,
+                    current.numIter,
+                );
                 new MessageService().create(messageCreate, temporizzati.creator);
             } catch (e) {
                 console.log(e);
@@ -70,7 +92,7 @@ export class TemporizzatiService {
                     TemporizzatiService.delete(id);
                 }
             }
-        }, temporizzati.periodo * 1000);
+        }, temporizzati.periodo);
         this.jobs.set(id, {
             interval: timer,
             numIter: 0,
@@ -88,5 +110,41 @@ export class TemporizzatiService {
             temporizzati.running = false;
             temporizzati.save();
         });
+    }
+
+    private static async _getWikipediaContent(): Promise<string> {
+        const randomElements = ['births', 'deaths', 'events', 'holidays']; // from https://en.wikipedia.org/api/rest_v1/#/Feed/onThisDay
+        const randomElement: string = randomElements[Math.floor(Math.random() * randomElements.length)] as string;
+
+        // format MM-DD
+        const date = new Date();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+
+        const endpointUrl = `https://en.wikipedia.org/api/rest_v1/feed/onthisday/${randomElement}/${month}/${day}`;
+
+        const response = await fetch(endpointUrl);
+        const json = await response.json();
+
+        const data = json[randomElement];
+        const event = data[Math.floor(Math.random() * data.length)] as WikiReponse;
+
+        let messageText = `Did you know that on this day (${month}/${day}): `;
+        switch (randomElement) {
+            case 'births':
+                messageText += ` was born in ${event.year} ${event.text}?`;
+                break;
+            case 'deaths':
+                messageText += ` died in ${event.year} ${event.text}?`;
+                break;
+            case 'events':
+                messageText += ` in ${event.year} ${event.text}?`;
+                break;
+            case 'holidays':
+                messageText += ` is ${event.text}?`;
+                break;
+        }
+
+        return messageText;
     }
 }

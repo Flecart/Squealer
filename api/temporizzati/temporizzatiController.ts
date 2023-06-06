@@ -3,13 +3,20 @@ import { getUserFromRequest } from '@api/utils';
 import { HttpError } from '@model/error';
 import { type ITemporizzati } from '@model/temporizzati';
 import { TemporizzatiService } from '@api/temporizzati/temporizzatiService';
-/*
-    MessageCreation is a type that is used to create a message.
-    it has three fields: destination, creator and content.
-*/
+import { SupportedContent } from '@model/message';
+
+export type ContentInput = {
+    channel: string;
+    content: {
+        type: SupportedContent;
+        data: string;
+    };
+    iterazioni: number;
+    periodo: number;
+};
 
 @Route('/temporizzati')
-export class MessageController {
+export class TemporizzatiController {
     @Get('')
     @Security('jwt')
     @Response<ITemporizzati[]>(200, 'Messages')
@@ -24,9 +31,8 @@ export class MessageController {
     @Response<HttpError>(400, 'Bad request')
     public async createTemporizzati(
         @Request() request: any,
-        @Body() temporizzati: ITemporizzati,
+        @Body() contentInput: ContentInput,
     ): Promise<ITemporizzati> {
-        temporizzati.creator = getUserFromRequest(request);
-        return await new TemporizzatiService().create(temporizzati);
+        return await new TemporizzatiService().create(contentInput, getUserFromRequest(request));
     }
 }

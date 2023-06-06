@@ -5,9 +5,10 @@ export interface ITemporizzati {
     _id: mongoose.Types.ObjectId;
     creator: string;
     channel: string;
-    data: string;
-    content: string | Img | Maps;
-    type: SupportedContent;
+    content: {
+        type: SupportedContent | 'wikipedia';
+        data: string | Img | Maps;
+    };
     iterazioni: number;
     periodo: number;
     running: boolean;

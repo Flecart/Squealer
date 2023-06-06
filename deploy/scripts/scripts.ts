@@ -212,6 +212,27 @@ async function joinChannel(){
     }
 }
 
+async function createTemporalMessageText() {
+    const channel = "guccini"
+    // @ts-ignore
+    const tokenSender = publicChannel[1].members[0];
+
+    const req = await request(baseUrl)
+        .post("/api/temporizzati")
+        .set('Authorization', `Bearer ${tokenSender}`)
+        .send({
+            channel: channel,
+            content: {
+                type: 'text',
+                data: "ciao, questo è un messaggio temporizzato! {TIME} {NUM} {DATE}",
+            },
+            iterazioni: 10,
+            periodo: 1000 * 60 * 5,
+        }).expect(200);
+
+    console.log(req.body)
+}
+
 initConnection().then(async () => {
     await mongoose.connection.db.dropDatabase() // tanto nessuna informazione importante è presente, è sicuro droppare così
     console.log("Database dropped")
@@ -239,4 +260,5 @@ initConnection().then(async () => {
     await createRensponse(message, loginToken);
 
     await createGeolocationMessagesPublic();
+    await createTemporalMessage();
 })
