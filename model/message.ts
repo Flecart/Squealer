@@ -19,6 +19,8 @@ export interface Maps {
 
 type SupportedContent = 'text' | 'image' | 'video' | 'maps';
 
+export const CriticMass = 1;
+
 /** 
 Commento per le api
 */
@@ -35,6 +37,7 @@ export interface IMessage {
     date: Date;
     views: number; // impressions.
     reaction: IReaction[];
+    category: ICategory;
 }
 
 export enum IReactionType {
@@ -48,6 +51,13 @@ export enum IReactionType {
 export interface IReaction {
     id: string;
     type: IReactionType;
+}
+
+export enum ICategory {
+    NORMAL = 0,
+    POPULAR = 1,
+    CONTROVERSIAL = 2,
+    UNPOPULAR = 3,
 }
 
 export interface MessageCreation {
@@ -64,4 +74,9 @@ export const MessageModelName = 'Message';
 export interface MessageCreationRensponse {
     id: string;
     channel: string;
+}
+
+export interface ReactionResponse {
+    reaction: IReactionType;
+    category: number;
 }

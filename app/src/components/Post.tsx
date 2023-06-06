@@ -1,9 +1,9 @@
-import { type IMessage, type Maps } from '@model/message';
+import { ICategory, type Maps, type IMessage } from '@model/message';
 import { type IUser } from '@model/user';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from 'src/contexts';
+import { AuthContext, CategoryContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
 import { apiUserBase } from '../api/routes';
 import { toHumanReadableDate } from 'src/utils';
@@ -20,6 +20,48 @@ function Post({ message }: PostProps): JSX.Element {
 
     const [authState] = useContext(AuthContext);
     const navigator = useNavigate();
+
+    const getCategoryText = (Category: ICategory): string => {
+        switch (Category) {
+            case ICategory.NORMAL:
+                return '';
+                break;
+
+            case ICategory.POPULAR:
+                return 'POPULAR!';
+                break;
+
+            case ICategory.UNPOPULAR:
+                return 'UNPOPULAR!';
+                break;
+
+            case ICategory.CONTROVERSIAL:
+                return 'CONTROVERSIAL!';
+                break;
+        }
+    };
+
+    const getCategoryClass = (Category: ICategory): string => {
+        switch (Category) {
+            case ICategory.NORMAL:
+                return '';
+                break;
+
+            case ICategory.POPULAR:
+                return 'text-success';
+                break;
+
+            case ICategory.UNPOPULAR:
+                return 'text-danger';
+                break;
+
+            case ICategory.CONTROVERSIAL:
+                return 'text-warning';
+                break;
+        }
+    };
+
+    const [categoryState, setCategoryState] = useState<number>(message.category);
 
     useEffect(() => {
         fetchApi<IUser>(
@@ -89,6 +131,11 @@ function Post({ message }: PostProps): JSX.Element {
                                     <Link to={`/channel/${message.channel}`}>{message.channel}</Link>
                                 </span>
                             )}
+                            {categoryState !== 0 && (
+                                <span className={`container-fluid ${getCategoryClass(categoryState) ?? ''}`}>
+                                    {getCategoryText(categoryState)}
+                                </span>
+                            )}
                             {/* TODO: transform in user good date. (like 1h or similiar */}
                         </div>
                     </Row>
@@ -100,7 +147,9 @@ function Post({ message }: PostProps): JSX.Element {
                         {renderMessageContent()}
                     </Row>
                     <Row>
-                        <PostButtons messageId={message._id.toString()} reactions={message.reaction} />
+                        <CategoryContext.Provider value={[null, setCategoryState]}>
+                            <PostButtons messageId={message._id.toString()} reactions={message.reaction} />
+                        </CategoryContext.Provider>
                     </Row>
 
                     <Row>

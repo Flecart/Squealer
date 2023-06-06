@@ -1,8 +1,11 @@
+import mongoose from 'mongoose';
 import { IUser } from '@model/user';
 import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
 import { IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
+
+type UserModelType = mongoose.HydratedDocument<IUser>;
 
 export default class UserService {
     public async delNotification(username: string): Promise<string> {
@@ -41,5 +44,37 @@ export default class UserService {
         const user = await UserModel.findOne({ username: username }, 'usedQuota');
         if (user == null) throw new HttpError(404, 'User not Found');
         return user.usedQuota;
+    }
+
+    public async changeQuota(
+        creator: UserModelType,
+        dailyQuota: number,
+        weeklyQuota: number,
+        monthlyQuota: number,
+    ): Promise<void> {
+        creator.maxQuota.day += dailyQuota;
+        if (creator.maxQuota.day < 0) {
+            creator.maxQuota.day = 0;
+        } else if (creator.maxQuota.day > creator.maxQuota.day) {
+            creator.maxQuota.day = creator.maxQuota.day;
+        }
+
+        creator.maxQuota.week += weeklyQuota;
+        if (creator.maxQuota.week < 0) {
+            creator.maxQuota.week = 0;
+        } else if (creator.maxQuota.week > creator.maxQuota.week) {
+            creator.maxQuota.week = creator.maxQuota.week;
+        }
+
+        creator.maxQuota.month += monthlyQuota;
+        if (creator.maxQuota.month < 0) {
+            creator.maxQuota.month = 0;
+        } else if (creator.maxQuota.month > creator.maxQuota.month) {
+            creator.maxQuota.month = creator.maxQuota.month;
+        }
+
+        creator.markModified('maxQuota');
+        await creator.save();
+        console.log(`Daily quota updated to ${creator.maxQuota.day}`);
     }
 }
