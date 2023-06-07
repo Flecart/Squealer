@@ -4,7 +4,6 @@ import { AuthContext } from '../contexts';
 import { fetchApi } from '../api/fetch';
 import { apiAuthUserBase } from 'src/api/routes';
 import { useNavigate } from 'react-router-dom';
-import SidebarSearchLayout from '../layout/SidebarSearchLayout';
 
 export default function ChangeUsername(): JSX.Element {
     const navigate = useNavigate();
@@ -48,37 +47,33 @@ export default function ChangeUsername(): JSX.Element {
     );
 
     return (
-        <SidebarSearchLayout>
+        <Form className="m-0 me-4 py-3 px-3" onSubmit={handleChangeUsername}>
+            <FormGroup className="mb-3">
+                <Form.Label className="text-light">New Username</Form.Label>
+                <Form.Control
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => {
+                        setNewUsername(e.target.value);
+                    }}
+                    placeholder="Inserisci la tuo nuovo username"
+                />
+            </FormGroup>
             <Container className="d-flex justify-content-center">
-                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleChangeUsername}>
-                    <FormGroup className="mb-3">
-                        <Form.Label className="text-light">New Username</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newUsername}
-                            onChange={(e) => {
-                                setNewUsername(e.target.value);
-                            }}
-                            placeholder="Inserisci la tuo nuovo username"
-                        />
-                    </FormGroup>
-                    <Container className="d-flex justify-content-center">
-                        <Button className="col-6 me-1" variant="outline-success" type="submit">
-                            Modifica Username
-                        </Button>
-                    </Container>
-                    <Container className="d-flex justify-content-center">
-                        {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
-                        {pendingRequest && (
-                            <>
-                                <Spinner animation="border" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                            </>
-                        )}
-                    </Container>
-                </Form>
+                <Button className="col-6 me-1" variant="outline-success" type="submit">
+                    Modifica Username
+                </Button>
             </Container>
-        </SidebarSearchLayout>
+            <Container className="d-flex justify-content-center">
+                {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
+                {pendingRequest && (
+                    <>
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    </>
+                )}
+            </Container>
+        </Form>
     );
 }

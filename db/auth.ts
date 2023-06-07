@@ -15,10 +15,6 @@ const UserAuthSchema = new mongoose.Schema<IUserAuth>({
         type: String,
         required: true,
     },
-    role: {
-        type: String,
-        required: true,
-    },
 });
 
 export const UserAuthModelName = 'UserAuth';

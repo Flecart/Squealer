@@ -13,6 +13,7 @@ import {
 } from '@tsoa/runtime';
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
+import { type IUser, type UserRoles } from '@model/user';
 
 @Route('/user')
 export class UserController extends Controller {
@@ -77,18 +78,10 @@ export class UserController extends Controller {
         );
     }
 
-    @Get('/quota/day')
-    getDayQuota() {
-        return 'todo';
-    }
-
-    @Get('/quota/week')
-    getWeekQuota() {
-        return 'todo';
-    }
-
-    @Get('/quota/month')
-    getMonthQuota() {
-        return 'todo';
+    @Post('/role')
+    @Security('jwt')
+    @SuccessResponse(200, 'Role Updated')
+    public async updateRole(@Request() request: any, @Body() role: { role: UserRoles }): Promise<IUser> {
+        return await new UserService().updateRole(getUserFromRequest(request), role.role);
     }
 }

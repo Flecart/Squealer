@@ -1,52 +1,40 @@
 import { Request, Route, Get, Post, Body, Path, Security, UploadedFile, FormField } from '@tsoa/runtime';
 import { SmmService } from './smmService';
 import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
-import { IUser } from '@model/user';
+import { type IUser, type ISuccessMessage } from '@model/user';
 import { IQuotas } from '@model/quota';
-
-export type SmmBuyQuotaInput = {
-    clientUsername: string;
-    dayAmount: number;
-    weekAmount: number;
-    monthAmount: number;
-};
+import { MessageCreationRensponse } from '@model/message';
 
 @Route('/smm')
 export class SmmController {
     @Get('/clients')
     @Security('jwt')
-    // TODO: set success and failure response, non credo sia la cosa più giusta ritornare il singolo utente
-    // si potrebbe decidere di tenere solo Nome, username, profile pic?? Non lo so ancora...
     public async getClients(@Request() request: any): Promise<IUser[]> {
         return new SmmService().getClients(getUserFromRequest(request));
     }
 
-    @Post('/add-client/{smmusername}')
+    @Post('/add-client/{user}')
     @Security('jwt')
     // TODO: set success and failure response move any to different value
-    public async addClient(@Request() request: any, @Path() smmusername: string): Promise<any> {
-        return new SmmService().addClient(getUserFromRequest(request), smmusername);
+    public async addClient(@Request() request: any, @Path() user: string): Promise<ISuccessMessage> {
+        return new SmmService().addClient(user, getUserFromRequest(request));
+    }
+    @Get('/clients/{user}')
+    @Security('jwt')
+    // TODO: set success and failure response move any to different value
+    public async getClient(@Request() request: any, @Path() user: string): Promise<IUser> {
+        return new SmmService().getClient(getUserFromRequest(request), user);
     }
 
-    @Post('/buy-quota/')
+    @Post('/buy-quota/{user}')
     @Security('jwt')
     // TODO: set success and failure response, move any to different value
-    public async buyQuota(@Request() request: any, @Body() body: SmmBuyQuotaInput): Promise<any> {
-        return new SmmService().buyQuota(body, getUserFromRequest(request));
-    }
-
-    @Get('/quota/{clientUsername}')
-    @Security('jwt')
-    // TODO: set success and failure response
-    public async getQuota(@Request() request: any, @Path() clientUsername: string): Promise<IQuotas> {
-        return new SmmService().getQuota(getUserFromRequest(request), clientUsername);
-    }
-
-    @Get('/max-quota/{clientUsername}')
-    @Security('jwt')
-    // TODO: set success and failure response
-    public async getMaxQuota(@Request() request: any, @Path() clientUsername: string): Promise<IQuotas> {
-        return new SmmService().getMaxQuota(getUserFromRequest(request), clientUsername);
+    public async buyQuota(
+        @Request() request: any,
+        @Path() user: string,
+        @Body() body: IQuotas,
+    ): Promise<ISuccessMessage> {
+        return new SmmService().buyQuota(getUserFromRequest(request), user, body);
     }
 
     @Post('/message/{clientUsername}')
@@ -57,7 +45,7 @@ export class SmmController {
         @Path() clientUsername: string,
         @FormField() data: string,
         @UploadedFile('file') file?: Express.Multer.File,
-    ): Promise<any> {
+    ): Promise<MessageCreationRensponse> {
         return new SmmService().sendMessage(
             getUserFromRequest(request),
             clientUsername,

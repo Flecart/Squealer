@@ -2,11 +2,11 @@ import type * as channel from '@model/channel';
 import { PermissionType } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
 import { apiChannelBase, apiUserBase } from 'src/api/routes';
-import { type IUser } from '@model/user';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Button, Card, Form, Image, Row, Stack } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext } from 'src/contexts';
+import { type ISuccessMessage, type IUser } from '@model/user';
 
 interface PrompsChannelMembers {
     channel: channel.IChannel;
@@ -31,7 +31,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
         setPending(true);
         setError(null);
         setInfo(null);
-        fetchApi<string>(
+        fetchApi<ISuccessMessage>(
             `${apiChannelBase}/${channel.name}/add-owner`,
             {
                 method: 'Post',
@@ -42,7 +42,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
             },
             auth,
             (a) => {
-                setInfo(`mandata la richiesta a ${a}`);
+                setInfo(`mandata la richiesta a ${a.message}`);
                 setPending(false);
             },
             (e) => {
@@ -122,7 +122,6 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
                 return <Icon.Pencil aria-label={privilege} title={privilege} />;
             case PermissionType.ADMIN:
                 return <Icon.PersonCheck aria-label={privilege} title={privilege} />;
-
         }
         return <></>;
     }

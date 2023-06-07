@@ -8,6 +8,13 @@ export interface IMessageInbox {
     viewed: boolean;
 }
 
+export enum UserRoles {
+    NORMAL = 'normal',
+    SMM = 'smm',
+    VIP = 'vip',
+    MODERATOR = 'moderator',
+}
+
 export interface IUser {
     name: string;
     username: string;
@@ -18,6 +25,7 @@ export interface IUser {
     clients?: string[];
     messages: IMessageInbox[];
     channel: string[];
+    role: UserRoles;
 }
 
 export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
@@ -26,4 +34,8 @@ export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
         user.usedQuota.week + lenChar < user.maxQuota.week &&
         user.usedQuota.month + lenChar < user.maxQuota.month
     );
+}
+
+export interface ISuccessMessage {
+    message: string;
 }

@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema<IUser>({
     clients: { type: [String], required: false },
     messages: { type: [MessageInboxSchema], required: true },
     channel: { type: [String], required: true },
+    role: { type: String, required: true },
 });
 
 export default mongoose.model<IUser>(UserModelName, UserSchema);

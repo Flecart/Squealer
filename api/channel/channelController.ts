@@ -4,6 +4,7 @@ import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
 import { getMaybeUserFromRequest, getUserFromRequest } from '@api/utils';
 import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse, PermissionType } from '@model/channel';
+import { type ISuccessMessage } from '@model/user';
 
 @Route('/channel/')
 export class ChannelController extends Controller {
@@ -73,7 +74,7 @@ export class ChannelController extends Controller {
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel declined')
-    public async decline(@Body() body: { messageID: string }): Promise<{ message: string }> {
+    public async decline(@Body() body: { messageID: string }): Promise<ISuccessMessage> {
         await new ChannelService().deleteInviteMessage(body.messageID);
         return { message: 'declined' };
     }
@@ -82,11 +83,9 @@ export class ChannelController extends Controller {
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel joined')
     public async acceptInvite(@Body() body: { messageID: string }, @Request() request: any): Promise<ChannelResponse> {
-        console.log('acceptInvite', body);
         const content = await new ChannelService().deleteInviteMessage(body.messageID);
         if (content.to !== getUserFromRequest(request))
             throw new HttpError(403, 'You are not allowed to join this channel');
-        console.log('acceptInvite', content);
         return new ChannelService().joinChannel(content.channel, content.to, content.permission, false);
     }
 
@@ -132,7 +131,7 @@ export class ChannelController extends Controller {
         @Path('channelName') channelName: string,
         @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
-    ): Promise<{ message: string }> {
+    ): Promise<ISuccessMessage> {
         return {
             message: await new ChannelService().addMember(
                 channelName,
