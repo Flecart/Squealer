@@ -122,6 +122,7 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
                 return <Icon.Pencil aria-label={privilege} title={privilege} />;
             case PermissionType.ADMIN:
                 return <Icon.PersonCheck aria-label={privilege} title={privilege} />;
+
         }
         return <></>;
     }

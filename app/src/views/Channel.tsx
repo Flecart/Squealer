@@ -9,6 +9,7 @@ import { AuthContext } from 'src/contexts';
 import MessageListLoader from 'src/components/MessageListLoader';
 import ChannelMembers from 'src/components/ChannelMembers';
 import * as Icon from 'react-bootstrap-icons';
+import { type IMessage } from '@model/message';
 
 export default function Channel(): JSX.Element {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function Channel(): JSX.Element {
     const location = useLocation();
 
     if (channelId === undefined) {
+        if (location.hash === '') navigate('/404');
         channelId = location.hash;
     }
     const [channel, setChannel] = useState<IChannel | null>(null);
@@ -26,7 +28,7 @@ export default function Channel(): JSX.Element {
         if (channelId === undefined) navigate('/404');
         else
             fetchApi<IChannel>(
-                `${apiChannelBase}/${encodeURIComponent(channelId)}`,
+                `${apiChannelBase}/${channelId.replace('#', '%23')}`,
                 { method: 'GET' },
                 auth,
                 (channel) => {
@@ -99,6 +101,12 @@ export default function Channel(): JSX.Element {
         );
     }
 
+    const sortLatest = (a: IMessage, b: IMessage): number => {
+        if (a.date > b.date) return -1;
+        if (a.date < b.date) return 1;
+        return 0;
+    };
+
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center flex-column pb-4">
@@ -133,10 +141,22 @@ export default function Channel(): JSX.Element {
                             <MessageListLoader childrens={channel.messages.map((a) => a.toString())} />
                         )}
                     </Tab>
-                    <Tab eventKey="posts" title="Members">
-                        {/* TODO: aggiungere la grafica */}
-                        {channel !== null && <ChannelMembers channel={channel} />}
+                    <Tab eventKey="new" title="Latest">
+                        {/* Display posts in for loop if they exists */}
+
+                        {channel !== null && (
+                            <MessageListLoader
+                                childrens={channel.messages.map((a) => a.toString())}
+                                compare={sortLatest}
+                            />
+                        )}
                     </Tab>
+                    {channel !== null && !channel.name.startsWith('#') && (
+                        <Tab eventKey="posts" title="Members">
+                            {/* TODO: aggiungere la grafica */}
+                            <ChannelMembers channel={channel} />
+                        </Tab>
+                    )}
                 </Tabs>
             </Container>
         </SidebarSearchLayout>
