@@ -1,3 +1,5 @@
+/* @typescript-eslint/no-unsafe-assignment @typescript-eslint/no-unsafe-return @typescript-eslint/no-unsafe-member-access @typescript-eslint/no-unsafe-call */
+
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
 
 import L from 'leaflet';

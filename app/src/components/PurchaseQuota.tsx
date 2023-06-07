@@ -1,6 +1,6 @@
 import { Alert, Button, Container, Form, FormGroup, Modal, Spinner } from 'react-bootstrap';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota';
 import { apiQuotaBase } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
@@ -31,8 +31,6 @@ export default function PurchaseQuota({ show, refresh, onHide }: PurchaseQuotaPr
     const [pendingRequest, setPendingRequest] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         let sPrice: number = 0;
@@ -68,7 +66,6 @@ export default function PurchaseQuota({ show, refresh, onHide }: PurchaseQuotaPr
                         setSuccessMessage('Acquisto Avvenuto con Successo');
                         setInterval(() => {
                             refresh();
-                            navigate(0);
                         }, 1000);
                     },
                     (error) => {
