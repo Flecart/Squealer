@@ -1,10 +1,30 @@
-import { Security, Request, Get, Put, Route, SuccessResponse, Controller, Path, Delete, Body } from '@tsoa/runtime';
-// import {IUser} from "../../model/user";
+import {
+    Security,
+    Request,
+    Get,
+    Put,
+    Post,
+    Route,
+    SuccessResponse,
+    Controller,
+    Path,
+    Delete,
+    Body,
+} from '@tsoa/runtime';
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
 
 @Route('/user')
 export class UserController extends Controller {
+    @Post('/upgrade')
+    @Security('jwt')
+    public async upgradeAccount(@Request() _request: any) {
+        // Bisogna decidere chi può fare l'upgrade
+        // e se ha senso fare un endpoint per upgrade.
+        return false;
+        // return new UserService().upgradeAccount(getUserFromRequest(request));
+    }
+
     @Get('/notification')
     @Security('jwt')
     public async getNotifications(@Request() request: any) {

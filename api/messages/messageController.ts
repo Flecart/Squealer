@@ -20,7 +20,7 @@ import {
     UploadedFile,
 } from '@tsoa/runtime';
 import { MessageService } from './messageService';
-import { getUserFromRequest } from '@api/utils';
+import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
 import { HttpError } from '@model/error';
 /*
     MessageCreation is a type that is used to create a message.
@@ -38,14 +38,7 @@ export class MessageController {
         @Request() request: any,
         @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
-        const bodyData: MessageCreation = JSON.parse(data);
-
-        if (bodyData.content.type == 'image' || bodyData.content.type == 'video') {
-            if (file == undefined) throw new HttpError(400, 'File attachment is undefined');
-            else bodyData.content.data = file;
-        }
-
-        return await new MessageService().create(bodyData, getUserFromRequest(request));
+        return await new MessageService().create(parseMessageCreationWithFile(data, file), getUserFromRequest(request));
     }
 
     @Post('/geo/{id}')
@@ -80,7 +73,7 @@ export class MessageController {
 
     @Post('/{id}/reaction')
     @Security('jwt')
-    public async reatMessage(
+    public async reactMessage(
         @Request() req: any,
         @Path('id') id: string,
         @Body() reaction: { type: IReactionType },
