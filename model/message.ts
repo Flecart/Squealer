@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { PermissionType } from './channel';
+import { type PermissionType } from './channel';
 
 /** 
 Commento per le api

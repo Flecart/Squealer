@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { inject } from 'vue'
-import { IUser } from '@model/user'
+import type { IUser } from '@model/user'
 
 defineProps<{
   msg: string

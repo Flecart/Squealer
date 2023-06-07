@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { IQuotas } from './quota';
+import type mongoose from 'mongoose';
+import type { IQuotas } from './quota';
 
 export const UserModelName = 'User';
 
