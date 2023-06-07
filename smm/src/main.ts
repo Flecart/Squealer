@@ -5,6 +5,7 @@ import * as VueRouter from 'vue-router'
 import HelloWorldVue from './components/HelloWorld.vue'
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
+import { authModule } from './authModule'
 
 import './assets/app.scss'
 
@@ -26,9 +27,6 @@ const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173'
 router.beforeEach((to, _) => {
   const targetPath = to.path
   const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
-  console.log(targetPath)
-  console.log(authState)
-  console.log(typeof authState)
 
   if (authState == null) {
     // in dev mode set the auth by hand, localstorage won't work with different ports

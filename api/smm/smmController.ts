@@ -1,4 +1,4 @@
-import { Request, Route, Get, Post, Body, Path, Security, UploadedFile, FormField } from 'tsoa';
+import { Request, Route, Get, Post, Body, Path, Security, UploadedFile, FormField } from '@tsoa/runtime';
 import { SmmService } from './smmService';
 import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
 import { IUser } from '@model/user';
@@ -15,7 +15,8 @@ export type SmmBuyQuotaInput = {
 export class SmmController {
     @Get('/clients')
     @Security('jwt')
-    // TODO: set success and failure response
+    // TODO: set success and failure response, non credo sia la cosa più giusta ritornare il singolo utente
+    // si potrebbe decidere di tenere solo Nome, username, profile pic?? Non lo so ancora...
     public async getClients(@Request() request: any): Promise<IUser[]> {
         return new SmmService().getClients(getUserFromRequest(request));
     }
