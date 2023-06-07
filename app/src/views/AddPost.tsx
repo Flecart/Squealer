@@ -22,7 +22,7 @@ export default function AddPost(): JSX.Element {
     const navigate = useNavigate();
     const { parent } = useParams();
 
-    const [modalShow, setModalShow] = useState(false);
+    const [modalShow, setModalShow] = useState<boolean>(false);
 
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
