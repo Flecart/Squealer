@@ -29,8 +29,11 @@ export default function AddPost(): JSX.Element {
 
     const [user, setUser] = useState<IUser | null>(null);
 
+    const [temp, setTemp] = useState<number>(1);
     useEffect(() => {
+        console.log('quiqui');
         if (authState === null) {
+            console.log('qui');
             navigate('/login');
         }
     }, [authState, navigate]);
@@ -66,7 +69,7 @@ export default function AddPost(): JSX.Element {
                 setDisplayParent(() => error.message);
             },
         );
-    }, [authState?.username]);
+    }, [authState?.username, temp]);
 
     const sendMessage = useCallback(
         (event: React.FormEvent<HTMLButtonElement>) => {
@@ -283,6 +286,9 @@ export default function AddPost(): JSX.Element {
 
                 <PurchaseQuota
                     show={modalShow}
+                    refresh={() => {
+                        setTemp(temp + 1);
+                    }}
                     onHide={() => {
                         setModalShow(false);
                     }}

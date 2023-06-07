@@ -8,10 +8,19 @@ import { fetchApi } from '../api/fetch';
 
 interface PurchaseQuotaProps {
     show: boolean;
+    refresh: () => void;
     onHide: () => void;
 }
 
-export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX.Element {
+const zeroSet = (value: number): number => {
+    if (isNaN(value)) {
+        return 0;
+    } else {
+        return value;
+    }
+};
+
+export default function PurchaseQuota({ show, refresh, onHide }: PurchaseQuotaProps): JSX.Element {
     const [authState] = useContext(AuthContext);
 
     const [dailyQuota, setDailyQuota] = useState<number>(0);
@@ -27,9 +36,9 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
 
     useEffect(() => {
         let sPrice: number = 0;
-        sPrice += dailyQuota * quotaPriceDay;
-        sPrice += weeklyQuota * quotaPriceWeek;
-        sPrice += monthlyQuota * quotaPriceMonth;
+        sPrice += zeroSet(dailyQuota) * quotaPriceDay;
+        sPrice += zeroSet(weeklyQuota) * quotaPriceWeek;
+        sPrice += zeroSet(monthlyQuota) * quotaPriceMonth;
         setPrice(sPrice.toFixed(2));
     }, [dailyQuota, weeklyQuota, monthlyQuota]);
 
@@ -58,6 +67,7 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                     () => {
                         setSuccessMessage('Acquisto Avvenuto con Successo');
                         setInterval(() => {
+                            refresh();
                             navigate(0);
                         }, 1000);
                     },
