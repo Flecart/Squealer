@@ -1,11 +1,12 @@
 import { useContext, useState, useSyncExternalStore } from 'react';
 import { SideBar } from './SideBar';
-import { Navbar, Container, Offcanvas, Stack } from 'react-bootstrap';
+import { Navbar, Container, Offcanvas, Stack, Col } from 'react-bootstrap';
 // import { Nav, Form } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { NotificationStore } from 'src/notification';
 import { AuthContext } from 'src/contexts';
+import { LogoLight, LogoSize } from 'app/public/LogosInfo';
 
 function NotificationHeader(): JSX.Element {
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -37,36 +38,50 @@ export function Header(): JSX.Element {
     };
 
     return (
-        <Navbar className="container-fluid" expand="lg" sticky="top">
-            <Container className="d-flex flex-row justify-content-evenly px-3">
-                <Navbar.Toggle onClick={handleShow} className="d-md-none bg-primary" />
+        <Navbar variant="dark" className="container-fluid text-white" expand="lg" sticky="top">
+            <Offcanvas show={show} onHide={handleClose}>
+                <Offcanvas.Header closeButton>
+                    <Offcanvas.Title>Menu</Offcanvas.Title>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <SideBar />
+                </Offcanvas.Body>
+            </Offcanvas>
 
-                <Offcanvas show={show} onHide={handleClose}>
-                    <Offcanvas.Header closeButton>
-                        <Offcanvas.Title>Menu</Offcanvas.Title>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                        <SideBar />
-                    </Offcanvas.Body>
-                </Offcanvas>
+            <Container fluid>
+                <Col sx={3} className="d-flex justify-content-center">
+                    <Navbar.Toggle onClick={handleShow} className="d-md-none bg-light" />
+                </Col>
 
-                <Navbar.Brand
-                    className="text-white flex-grow-1 ps-3 text-center"
-                    onClick={() => {
-                        navigator('/');
-                    }}
-                >
-                    Squealer
-                </Navbar.Brand>
-                {authState !== null && (
-                    <span
+                <Col sx={6}>
+                    <Navbar.Brand
+                        className="d-flex justify-content-center align-items-center mr-0"
                         onClick={() => {
-                            navigator('/notification');
+                            navigator('/');
                         }}
                     >
-                        <NotificationHeader />
-                    </span>
-                )}
+                        <img
+                            src={LogoLight}
+                            width={LogoSize}
+                            height={LogoSize}
+                            className="d-inline-block align-top"
+                            alt="Squealer logo"
+                        />
+                        <span className="fs-3">Squealer</span>
+                    </Navbar.Brand>
+                </Col>
+
+                <Col sx={3} className="d-flex justify-content-center">
+                    {authState !== null && (
+                        <span
+                            onClick={() => {
+                                navigator('/notification');
+                            }}
+                        >
+                            <NotificationHeader />
+                        </span>
+                    )}
+                </Col>
             </Container>
         </Navbar>
     );
