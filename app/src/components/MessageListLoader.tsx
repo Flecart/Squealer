@@ -9,9 +9,10 @@ import Post from './Post';
 
 interface PropsMessageIds {
     childrens: string[];
+    compare?: (a: IMessage, b: IMessage) => number;
 }
 
-export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.Element {
+export default function MessageListLoader({ childrens, compare }: PropsMessageIds): JSX.Element {
     if (childrens.length === 0) return <></>;
 
     const [authState] = useContext(AuthContext);
@@ -26,6 +27,7 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
             },
             authState,
             (messages) => {
+                if (compare !== null) messages.sort(compare);
                 setMessages(messages);
             },
             (error) => {
