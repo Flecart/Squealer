@@ -1,7 +1,7 @@
 import { HttpError } from '@model/error';
 import MessageModel from '@db/message';
 import { IChannel, ChannelType, PermissionType, ChannelResponse } from '@model/channel';
-import { type Invitation } from '@model/message';
+import { ICategory, type Invitation } from '@model/message';
 import { HydratedDocument } from 'mongoose';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
@@ -248,6 +248,7 @@ export class ChannelService {
             children: [],
             creator: userIssuer,
             date: new Date(),
+            category: ICategory.NORMAL,
             parent: null,
             reaction: [],
             views: 0,
