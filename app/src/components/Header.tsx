@@ -65,7 +65,7 @@ export function Header(): JSX.Element {
                             width={LogoSize}
                             height={LogoSize}
                             className="d-inline-block align-top"
-                            alt="Squealer logo"
+                            alt="Logo Squealer"
                         />
                         <span className="fs-3">Squealer</span>
                     </Navbar.Brand>
