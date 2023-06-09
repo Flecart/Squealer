@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { inject } from 'vue'
+import { ref, inject } from 'vue'
 import type { IUser } from '@model/user'
 
 defineProps<{

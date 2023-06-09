@@ -2,16 +2,16 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import * as VueRouter from 'vue-router'
-import HelloWorldVue from './components/HelloWorld.vue'
+import Dashboard from './components/Dashboard.vue'
+import { squealerBaseURL } from './routes'
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
-import { authModule } from './authModule'
 
 import './assets/app.scss'
 
 const routes = [
-  { path: `/${endpoints.SMM}`, name: 'main', component: HelloWorldVue },
-  { path: `/${endpoints.SMM}/about`, name: 'about', component: HelloWorldVue }
+  { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
+  { path: `/${endpoints.SMM}/about`, name: 'about', component: Dashboard }
 ]
 
 const router = VueRouter.createRouter({
@@ -19,9 +19,6 @@ const router = VueRouter.createRouter({
   routes
 })
 
-// TODO: mettere l'indirizzo del server di squealer se non dev, quando si saprà l'indirizzo di squealer
-const squealerBaseURL =
-  process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://localhost:3000'
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
 
 router.beforeEach((to, _) => {
