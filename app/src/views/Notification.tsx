@@ -30,7 +30,7 @@ export default function Notification(): JSX.Element {
     };
     return (
         <SidebarSearchLayout>
-            <Row xs="auto" className="d-flex justify-content-cente">
+            <Row xs="auto" className="d-flex justify-content-center">
                 <Button onClick={clearAll}>Clear All</Button>
             </Row>
             {clear ? <p>Deleating Notification</p> : <MessageListLoader childrens={notification} />}

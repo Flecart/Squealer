@@ -7,6 +7,10 @@ import { useNavigate } from 'react-router-dom';
 import { NotificationStore } from 'src/notification';
 import { AuthContext } from 'src/contexts';
 import { LogoLight, LogoSize } from 'app/public/LogosInfo';
+import 'src/scss/SideButton.scss';
+
+const notifSize = (parseInt(LogoSize) - 25).toString();
+const menuSize = (parseInt(LogoSize) - 10).toString();
 
 function NotificationHeader(): JSX.Element {
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -17,10 +21,10 @@ function NotificationHeader(): JSX.Element {
             {notification.length > 0 ? (
                 <Stack direction="horizontal" gap={1}>
                     <span className="badge bg-danger">{notification.length}</span>
-                    <Icon.InboxFill className="d-flex" />
+                    <Icon.InboxFill width={notifSize} height={notifSize} className="d-flex" />
                 </Stack>
             ) : (
-                <Icon.Inbox className="d-flex" />
+                <Icon.Inbox width={notifSize} height={notifSize} className="d-flex" />
             )}
         </>
     );
@@ -50,7 +54,9 @@ export function Header(): JSX.Element {
 
             <Container fluid>
                 <Col sx={3} className="d-flex justify-content-center">
-                    <Navbar.Toggle onClick={handleShow} className="d-md-none bg-light" />
+                    <button className="btn sideButton rounded-3">
+                        <Icon.List width={menuSize} height={menuSize} onClick={handleShow} className="d-md-none" />
+                    </button>
                 </Col>
 
                 <Col sx={6}>
@@ -64,7 +70,7 @@ export function Header(): JSX.Element {
                             src={LogoLight}
                             width={LogoSize}
                             height={LogoSize}
-                            className="d-inline-block align-top"
+                            className="d-inline-block align-top pe-1"
                             alt="Logo Squealer"
                         />
                         <span className="fs-3">Squealer</span>
@@ -74,6 +80,7 @@ export function Header(): JSX.Element {
                 <Col sx={3} className="d-flex justify-content-center">
                     {authState !== null && (
                         <span
+                            className="btn sideButton rounded-3"
                             onClick={() => {
                                 navigator('/notification');
                             }}
