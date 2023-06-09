@@ -44,13 +44,14 @@ export class ChannelService {
         type: ChannelType,
         description?: string,
         isFromApi?: boolean,
-    ): Promise<any> {
+    ): Promise<ChannelResponse> {
         let fromApi = isFromApi ?? false;
         const ownerUser = await UserModel.findOne({ username: owner });
 
         if (fromApi && !(type === ChannelType.PUBLIC || type === ChannelType.PRIVATE)) {
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
+        console.log(channelName);
         if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@'))) {
             throw new HttpError(400, `Channel name ${channelName} is not valid name`);
         }
@@ -94,10 +95,6 @@ export class ChannelService {
                 });
         }
         channel.save();
-        if (fromApi) {
-            return channel;
-        }
-
         return { message: 'Channel created', channel: channelName };
     }
 
@@ -245,6 +242,7 @@ export class ChannelService {
                 data: content,
             },
             channel: null,
+            category: ICategory.NORMAL,
             children: [],
             creator: userIssuer,
             date: new Date(),
@@ -275,6 +273,30 @@ export class ChannelService {
         user.markModified('messages');
         await user.save();
         return content;
+    }
+
+    public async getPermission(
+        _admin: string,
+        channelName: string,
+        user: string,
+        newPermission: PermissionType,
+    ): Promise<PermissionType> {
+        const channel = await ChannelModel.findOne({ name: channelName });
+        if (channel == null) {
+            throw new HttpError(400, 'channel not found');
+        }
+        const userRecord = await UserModel.findOne({ username: user });
+        if (userRecord == null) {
+            throw new HttpError(400, 'user not found');
+        }
+        let permission = channel.users.find((u) => u.user == userRecord.name)?.privilege;
+        if (permission == null) {
+            throw new HttpError(400, 'user not found');
+        }
+        permission = newPermission;
+        channel.markModified('users');
+        await channel.save();
+        return newPermission;
     }
 
     async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {

@@ -8,11 +8,11 @@ export enum PermissionType {
 }
 
 export enum ChannelType {
-    USER = 1,
-    PUBLIC = 2,
-    HASHTAG = 3,
-    PRIVATE = 4,
-    SQUEALER = 5,
+    USER = 'user',
+    PUBLIC = 'public',
+    HASHTAG = 'hashtag',
+    PRIVATE = 'private',
+    SQUEALER = 'squealer',
 }
 
 export function isPublicChannel(channel: IChannel): boolean {
