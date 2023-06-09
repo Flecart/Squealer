@@ -7,9 +7,14 @@ import { useNavigate } from 'react-router-dom';
 import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase, apiUserBase } from 'src/api/routes';
+import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
 import Post from 'src/components/Post';
 import { type IUser, haveEnoughtQuota } from '@model/user';
+import {
+    type ITemporizzati,
+    type ContentInput as TemporizedContentInput,
+    type TempSupportedContent,
+} from '@model/temporizzati';
 import Map from 'src/components/Map';
 
 export default function AddPost(): JSX.Element {
@@ -17,7 +22,7 @@ export default function AddPost(): JSX.Element {
     const navigate = useNavigate();
     const { parent } = useParams();
 
-    const [modalShow, setModalShow] = useState(false);
+    const [modalShow, setModalShow] = useState<boolean>(false);
 
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
@@ -26,8 +31,11 @@ export default function AddPost(): JSX.Element {
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
 
     const [error, setError] = useState<string | null>(null);
-
     const [user, setUser] = useState<IUser | null>(null);
+
+    const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
+    const [tempPeriod, setTempPeriod] = useState<number>(1);
+    const [tempTimes, setTempTimes] = useState<number>(1);
 
     useEffect(() => {
         if (authState === null) {
@@ -68,15 +76,55 @@ export default function AddPost(): JSX.Element {
         );
     }, [authState?.username]);
 
-    const sendMessage = useCallback(
-        (event: React.FormEvent<HTMLButtonElement>) => {
+    const sendTemporizedMessage = useCallback(
+        (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
+            const channel = destination;
+
+            const temporizedContent: TemporizedContentInput = {
+                channel,
+                content: {
+                    type: selectedTempOption,
+                    data: '',
+                },
+                periodo: tempPeriod,
+                iterazioni: tempTimes,
+            };
+
+            if (selectedTempOption === 'text') temporizedContent.content.data = messageText;
+
+            fetchApi<ITemporizzati>(
+                apiTemporized,
+                {
+                    method: 'POST',
+                    body: JSON.stringify(temporizedContent),
+                },
+                authState,
+                (temporized) => {
+                    setError(() => null);
+                    console.log(temporized);
+                    // TODO: cambiare il feedback dei messaggi temporizzati in un secondo momento.
+                },
+                (error) => {
+                    setError(() => error.message);
+                },
+            );
+        },
+        [destination, selectedTempOption, tempPeriod, tempTimes, messageText, authState],
+    );
+
+    const sendMessage = useCallback(
+        (event?: React.FormEvent<HTMLButtonElement>) => {
+            event?.preventDefault();
+            let channel = destination;
             if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
+            } else if (channel === '') {
+                setError(() => 'Destination not specified');
+                return;
             }
 
-            let channel = destination;
             if (parent !== undefined) {
                 if (displayParent instanceof Object) channel = displayParent.channel;
                 else {
@@ -253,7 +301,6 @@ export default function AddPost(): JSX.Element {
                                 return;
                             }
 
-                            console.log('type is ', file.type);
                             setSelectedImage(event.target.files[0] as File);
                         }}
                     />
@@ -266,6 +313,73 @@ export default function AddPost(): JSX.Element {
 
                 <Button className="my-2" type="submit" onClick={sendMessage}>
                     Send
+                </Button>
+
+                {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
+
+                <Form.Group className="mb-3">
+                    <Form.Label> Period: </Form.Label>
+                    <Form.Control
+                        type="number"
+                        onChange={(e) => {
+                            let value = parseInt(e.target.value);
+                            if (isNaN(value)) {
+                                value = 0;
+                            }
+                            setTempPeriod(value);
+                        }}
+                    />
+
+                    <Form.Label> Times: </Form.Label>
+                    <Form.Control
+                        type="number"
+                        onChange={(e) => {
+                            let value = parseInt(e.target.value);
+                            if (isNaN(value)) {
+                                value = 0;
+                            }
+                            setTempTimes(value);
+                        }}
+                    />
+
+                    <Form.Label> Type: </Form.Label>
+
+                    <div>
+                        <Form.Check
+                            type="radio"
+                            label="Wikipedia"
+                            name="option"
+                            value="wikipedia"
+                            checked={selectedTempOption === 'wikipedia'}
+                            onChange={(e) => {
+                                setSelectedTempOption(e.target.value as TempSupportedContent);
+                            }}
+                        />
+                        <Form.Check
+                            type="radio"
+                            label="Image"
+                            name="option"
+                            value="image"
+                            checked={selectedTempOption === 'image'}
+                            onChange={(e) => {
+                                setSelectedTempOption(e.target.value as TempSupportedContent);
+                            }}
+                        />
+                        <Form.Check
+                            type="radio"
+                            label="Text"
+                            name="option"
+                            value="text"
+                            checked={selectedTempOption === 'text'}
+                            onChange={(e) => {
+                                setSelectedTempOption(e.target.value as TempSupportedContent);
+                            }}
+                        />
+                    </div>
+                </Form.Group>
+
+                <Button className="my-2" type="submit" onClick={sendTemporizedMessage}>
+                    Send Temporizzato
                 </Button>
                 {error !== null && (
                     <Row>

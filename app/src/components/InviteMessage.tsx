@@ -36,7 +36,7 @@ function InviteMessage({ message }: PostProps): JSX.Element {
                 setHide(true);
                 // maybe we can navigate to that channel
             },
-            (_) => { },
+            (_) => {},
         );
     };
     const decline = (): void => {
@@ -53,7 +53,7 @@ function InviteMessage({ message }: PostProps): JSX.Element {
                 setHide(true);
                 // maybe we can navigate to that channel
             },
-            (_) => { },
+            (_) => {},
         );
     };
 

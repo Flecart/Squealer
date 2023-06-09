@@ -21,7 +21,6 @@ import logger from '@server/logger';
 import UserService from '@api/user/userService';
 import { DEFAULT_QUOTA } from '@config/api';
 
-
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
 type UserModelType = mongoose.HydratedDocument<IUser>;

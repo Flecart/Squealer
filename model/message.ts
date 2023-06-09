@@ -20,7 +20,7 @@ export interface Maps {
 
 export type Invitation = { to: string; channel: string; permission: PermissionType };
 
-type SupportedContent = 'text' | 'image' | 'video' | 'maps' | 'invitation';
+export type SupportedContent = 'text' | 'image' | 'video' | 'maps' | 'invitation';
 
 export const CriticMass = 1;
 

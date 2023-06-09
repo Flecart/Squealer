@@ -45,7 +45,7 @@ export default class UserService {
         if (user == null) throw new HttpError(404, 'User not Found');
         return user.usedQuota;
     }
-  
+
     public async purchaseQuota(
         username: string,
         dailyQuota: number,
@@ -59,7 +59,7 @@ export default class UserService {
         this.changeQuota(creator, dailyQuota, weeklyQuota, monthlyQuota);
         return { message: 'Quota Purchased Successfully' };
     }
-    
+
     public async changeQuota(
         creator: UserModelType,
         dailyQuota: number,
