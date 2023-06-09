@@ -21,7 +21,6 @@ import logger from '@server/logger';
 import UserService from '@api/user/userService';
 import { DEFAULT_QUOTA } from '@config/api';
 
-
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
 type UserModelType = mongoose.HydratedDocument<IUser>;
@@ -207,13 +206,15 @@ export class MessageService {
 
             channel = await ChannelModel.findOne({ name: getUserChannelName(username, channelName.substring(1)) });
             if (!channel) {
-                channel = new ChannelService().create(
+                await new ChannelService().create(
                     getUserChannelName(username, channelName.substring(1)),
                     username,
                     ChannelType.USER,
                     '',
                     false,
                 );
+                channel = await ChannelModel.findOne({ name: getUserChannelName(username, channelName.substring(1)) });
+                if (!channel) throw new HttpError(500, 'Internal server error');
             }
         } else if (channelName.startsWith('#')) {
             channel = await ChannelModel.findOne({ name: channelName });

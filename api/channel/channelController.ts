@@ -21,12 +21,12 @@ export class ChannelController extends Controller {
     @SuccessResponse(201, 'Channel created')
     public async create(@Body() channelInfo: ChannelInfo, @Request() request: any): Promise<ChannelResponse> {
         console.info('ChannelController.create: ', channelInfo, getUserFromRequest(request));
-
         return new ChannelService().create(
             channelInfo.channelName,
             getUserFromRequest(request),
             channelInfo.type,
             channelInfo.description as string,
+            true,
         );
     }
 
@@ -122,6 +122,23 @@ export class ChannelController extends Controller {
         @Request() request: any,
     ): Promise<ChannelResponse> {
         return new ChannelService().deleteChannel(channelName, getUserFromRequest(request));
+    }
+
+    @Post('{channelName}/change-permission')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200, 'Channel owner added')
+    public async changePermission(
+        @Path('channelName') channelName: string,
+        @Body() body: { toUser: string; permission: PermissionType },
+        @Request() request: any,
+    ): Promise<PermissionType> {
+        return await new ChannelService().getPermission(
+            getUserFromRequest(request),
+            channelName,
+            body.toUser,
+            body.permission,
+        );
     }
 
     @Post('{channelName}/add-owner')

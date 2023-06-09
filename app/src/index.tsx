@@ -22,6 +22,7 @@ import Notification from './views/Notification';
 import { fetchApi } from './api/fetch';
 import { apiUserBase } from './api/routes';
 import { NotificationStore } from './notification';
+import { CreateChannel } from './views/CreateChannel';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/create" element={<Register />} />
+            <Route path="/createChannel" element={<CreateChannel />} />
             <Route path="/user/:username" element={<User />} />
             <Route path="/user/change-password" element={<ChangePassword />} />
             <Route path="/user/change-username" element={<ChangeUsername />} />

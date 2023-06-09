@@ -10,7 +10,7 @@ const ChannelSchema = new mongoose.Schema<IChannel>({
     name: { type: String, required: true },
     description: { type: String, required: false },
     messages: { type: [mongoose.Types.ObjectId], required: true, ref: MessageModelName },
-    type: { type: Number, required: true },
+    type: { type: String, required: true },
     users: [
         {
             user: { type: String, required: true },

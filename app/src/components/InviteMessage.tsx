@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { type IMessage, type Invitation } from '@model/message';
 import { Button, Card, Container, Stack } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../contexts';
 import { fetchApi } from '../api/fetch';
@@ -19,9 +19,11 @@ function InviteMessage({ message }: PostProps): JSX.Element {
     }
     const [hide, setHide] = useState(false);
     const [auth] = useContext(AuthContext);
-    const userUrl = `user/${message.creator}`;
+    const userUrl = `/user/${message.creator}`;
     const invitation: Invitation = message.content.data as Invitation;
-    const channelUrl = `channel/${invitation.channel}`;
+    const channelUrl = `/channel/${invitation.channel}`;
+    const navigate = useNavigate();
+
     const accept = (): void => {
         fetchApi<ChannelResponse>(
             `${apiChannelBase}/accept`,
@@ -34,7 +36,7 @@ function InviteMessage({ message }: PostProps): JSX.Element {
             auth,
             () => {
                 setHide(true);
-                // maybe we can navigate to that channel
+                navigate(channelUrl);
             },
             (_) => { },
         );

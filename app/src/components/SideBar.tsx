@@ -27,6 +27,9 @@ export function SideBar(): JSX.Element {
                     <Link to={`/addpost`}>
                         <Button className="rounded">Post</Button>
                     </Link>
+                    <Link to={`/createChannel`}>
+                        <Button className="rounded">Create Channel</Button>
+                    </Link>
                 </>
             ) : (
                 <>
