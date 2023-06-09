@@ -72,7 +72,7 @@ function App(): JSX.Element {
                 clearInterval(interval);
             };
         }
-        return () => {};
+        return () => { };
     }, [authState]);
 
     useEffect(() => {
