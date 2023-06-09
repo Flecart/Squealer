@@ -1,87 +1,87 @@
 <script lang="ts" setup>
-import { ref, getCurrentInstance, nextTick } from 'vue'
-import type { BvModal } from 'bootstrap-vue'
-
 defineProps<{
   username: string
 }>()
-
-const form = ref<HTMLFormElement | null>(null)
-let name = ''
-let nameState: boolean | null = null
-const submittedNames: string[] = []
-
-// https://github.com/bootstrap-vue/bootstrap-vue/issues/7111
-const bvModal = (getCurrentInstance() as any).ctx._bv__modal as BvModal
-console.log((getCurrentInstance() as any).ctx)
-console.log(Object.keys((getCurrentInstance() as any).ctx))
-console.log((getCurrentInstance() as any).ctx._bv__modal)
-console.log((getCurrentInstance() as any).ctx.username)
-console.log((getCurrentInstance() as any).ctx.$data)
-console.log(bvModal)
-
-function checkFormValidity(): boolean {
-  if (form.value) {
-    const valid = form.value.checkValidity()
-    nameState = valid
-    return valid
-  } else {
-    return false
-  }
-}
-
-function resetModal() {
-  name = ''
-  nameState = null
-}
-
-function handleOk(bvModalEvent) {
-  bvModalEvent.preventDefault()
-  handleSubmit()
-}
-
-function handleSubmit() {
-  if (!checkFormValidity()) {
-    return
-  }
-  submittedNames.push(name)
-  nextTick(() => {
-    console.log('nextTick', bvModal)
-    bvModal.hide('modal-prevent-closing')
-  })
-}
 </script>
 
 <template>
   <div>
-    <b-button v-b-modal.modal-prevent-closing>Open Modal</b-button>
+    <b-button id="show-btn" variant="warning" @click="showModal">buy quota</b-button>
 
-    <div class="mt-3">
-      Submitted Names:
-      <div v-if="submittedNames.length === 0">--</div>
-      <ul v-else class="mb-0 pl-3">
-        <li v-for="name in submittedNames" v-bind:key="name">{{ name }}</li>
-      </ul>
-    </div>
+    <b-modal ref="my-modal" hide-footer title="Using Component Methods">
+      <div class="d-block text-center">
+        <h3>
+          Buy quota for <span class="client-name">{{ username }} </span>
+        </h3>
+      </div>
 
-    <b-modal
-      id="modal-prevent-closing"
-      ref="modal"
-      title="Submit Your Name"
-      @show="resetModal"
-      @hidden="resetModal"
-      @ok="handleOk"
-    >
       <form ref="form" @submit.stop.prevent="handleSubmit">
-        <b-form-group
-          label="Name"
-          label-for="name-input"
-          invalid-feedback="Name is required"
-          :state="nameState"
-        >
-          <b-form-input id="name-input" v-model="name" :state="nameState" required></b-form-input>
+        <b-form-group label="Montly Quota" label-for="montly-quota">
+          <b-form-input
+            id="montly-quota"
+            type="number"
+            v-model="monthQuota"
+            @change="handleChange"
+          ></b-form-input>
         </b-form-group>
+
+        <b-form-group label="Weekly Quota" label-for="weekly-quota">
+          <b-form-input id="weekly-quota" type="number" v-model="weekQuota"></b-form-input>
+        </b-form-group>
+
+        <b-form-group label="Daily Quota" label-for="daily-quota">
+          <b-form-input id="daily-quota" type="number" v-model="dayQuota"></b-form-input>
+        </b-form-group>
+
+        <div>
+          <h3>Total Cost: {{ totalCost }}</h3>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </b-modal>
   </div>
 </template>
+
+<script lang="ts">
+// import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota';
+// import { type } from 'os';
+
+export default {
+  data() {
+    return {
+      name: '',
+      nameState: null,
+      dayQuota: 0,
+      weekQuota: 0,
+      monthQuota: 0,
+      totalCost: 0
+    }
+  },
+  methods: {
+    showModal() {
+      this.$refs['my-modal'].show()
+    },
+    hideModal() {
+      this.$refs['my-modal'].hide()
+    },
+    handleChange() {
+      console.log('changed')
+      // console.log(typeof event)
+      // console.log(event.target.value)
+    },
+    handleSubmit() {
+      console.log('submitted')
+      console.log(this.dayQuota, this.weekQuota, this.monthQuota)
+      this.hideModal()
+    }
+  }
+}
+</script>
+
+<style scoped>
+.client-name {
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+</style>
