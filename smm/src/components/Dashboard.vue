@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, inject } from 'vue'
+import { getClientsRoute } from '@/routes'
 import type { IUser } from '@model/user'
-
+import BuyModal from './BuyModal.vue'
 defineProps<{
   msg: string
 }>()
@@ -9,14 +10,15 @@ defineProps<{
 const authState: { token: string } = inject('auth')!
 
 const clients = ref<IUser[]>([])
-const selectedClient = ref<string>('Loading')
+const selectedClient = ref<string>('loading...')
+const hasFetchedClients = ref<boolean>(false)
 
 const selectClient = (client: string) => {
   selectedClient.value = client
 }
 
-// TODO: this is just an example, you need to fix this!
-fetch('http://localhost:3000/api/smm/clients', {
+// TODO: use similar to fetch api!
+fetch(getClientsRoute, {
   headers: {
     'Content-Type': 'application/json',
     Authorization: 'Bearer ' + authState.token
@@ -26,6 +28,7 @@ fetch('http://localhost:3000/api/smm/clients', {
   .then((data) => {
     clients.value = data
     selectedClient.value = data[0].username
+    hasFetchedClients.value = true
   })
 </script>
 
@@ -34,7 +37,6 @@ fetch('http://localhost:3000/api/smm/clients', {
   <div class="client-name">
     <span> Current client: </span>
     <b-dropdown :text="selectedClient" class="m-md-2">
-      <!-- TODO: the client should be fetched from the backend -->
       <b-dropdown-item
         v-for="client in clients"
         :key="client.username"
@@ -44,6 +46,10 @@ fetch('http://localhost:3000/api/smm/clients', {
       </b-dropdown-item>
     </b-dropdown>
   </div>
+  <div v-if="hasFetchedClients">
+    <BuyModal :username="selectedClient" />
+  </div>
+  <!-- TODO: put a spinner if not fetched -->
 </template>
 
 <style scoped>
@@ -62,8 +68,5 @@ h1 {
 
   display: flex;
   align-items: center;
-}
-
-.client-name span {
 }
 </style>
