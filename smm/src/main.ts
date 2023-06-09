@@ -21,6 +21,8 @@ const router = VueRouter.createRouter({
 
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
 
+const app = createApp(App)
+
 router.beforeEach((to, _) => {
   const targetPath = to.path
   const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
@@ -30,6 +32,8 @@ router.beforeEach((to, _) => {
     window.location.replace(
       `${squealerBaseURL}/login?redirect=${encodeURIComponent(baseUrl + targetPath)}`
     )
+  } else {
+    app.provide('auth', authState)
   }
 
   if (targetPath == '/logout') {
@@ -38,4 +42,4 @@ router.beforeEach((to, _) => {
   }
 })
 
-createApp(App).use(BootstrapVue).use(IconsPlugin).use(router).mount('#app')
+app.use(BootstrapVue).use(IconsPlugin).use(router).mount('#app')

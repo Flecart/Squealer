@@ -3,3 +3,4 @@ export const squealerBaseURL =
   process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://localhost:3000'
 
 export const getClientsRoute = `${squealerBaseURL}/api/smm/clients`
+export const buyQuotaBaseRoute = `${squealerBaseURL}/api/smm/buy-quota`

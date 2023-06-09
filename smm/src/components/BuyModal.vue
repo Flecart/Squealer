@@ -1,14 +1,96 @@
 <script lang="ts" setup>
-defineProps<{
+import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota'
+import { inject, ref } from 'vue'
+import { buyQuotaBaseRoute } from '@/routes'
+
+const props = defineProps<{
   username: string
 }>()
+
+const dayQuota = ref<number>(0)
+const weekQuota = ref<number>(0)
+const monthQuota = ref<number>(0)
+const totalCost = ref<number>(0)
+const loading = ref<boolean>(false)
+const alertShow = ref<boolean>(false)
+const alertVariant = ref<string>('success')
+const alertText = ref<string>('')
+
+const authState: { token: string } = inject('auth')!
+
+function handleSubmit() {
+  if (totalCost.value === 0) {
+    alertVariant.value = 'danger'
+    alertShow.value = true
+    alertText.value = 'Please select at least one quota to buy'
+    return
+  }
+
+  loading.value = true
+  fetch(buyQuotaBaseRoute + props.username, {
+    method: 'POST',
+    headers: {
+      contentType: 'application/json',
+      Authorization: 'Bearer ' + authState.token
+    }
+  }).then((response) => {
+    loading.value = false
+    if (response.ok) {
+      alertVariant.value = 'success'
+      alertShow.value = true
+      alertText.value = 'Quota bought successfully'
+      setTimeout(() => {
+        hideModal()
+      }, 3000)
+    } else {
+      alertVariant.value = 'danger'
+      alertShow.value = true
+      alertText.value = 'Error buying quota'
+    }
+  })
+}
+
+const myModalRef = ref<HTMLElement>()
+
+function showModal() {
+  // @ts-ignore
+  myModalRef.value.show()
+}
+function hideModal() {
+  dayQuota.value = 0
+  weekQuota.value = 0
+  monthQuota.value = 0
+  // @ts-ignore
+  myModalRef.value.hide()
+}
+
+function handleMonthChange(value: number) {
+  monthQuota.value = value
+  updateCost()
+}
+
+function handleWeekChange(value: number) {
+  weekQuota.value = value
+  updateCost()
+}
+
+function handleDayChange(value: number) {
+  dayQuota.value = value
+  updateCost()
+}
+function updateCost() {
+  totalCost.value =
+    dayQuota.value * quotaPriceDay +
+    weekQuota.value * quotaPriceWeek +
+    monthQuota.value * quotaPriceMonth
+}
 </script>
 
 <template>
   <div>
-    <b-button id="show-btn" variant="warning" @click="showModal">buy quota</b-button>
+    <b-button id="show-btn" variant="warning" @click="showModal">Buy Quota</b-button>
 
-    <b-modal ref="my-modal" hide-footer title="Using Component Methods">
+    <b-modal ref="myModalRef" hide-footer title="Quota Purchase Form">
       <div class="d-block text-center">
         <h3>
           Buy quota for <span class="client-name">{{ username }} </span>
@@ -16,68 +98,51 @@ defineProps<{
       </div>
 
       <form ref="form" @submit.stop.prevent="handleSubmit">
-        <b-form-group label="Montly Quota" label-for="montly-quota">
+        <b-form-group label="Daily Quota" label-for="daily-quota">
           <b-form-input
-            id="montly-quota"
+            id="daily-quota"
             type="number"
-            v-model="monthQuota"
-            @change="handleChange"
+            v-model="dayQuota"
+            @update="handleDayChange"
           ></b-form-input>
         </b-form-group>
 
         <b-form-group label="Weekly Quota" label-for="weekly-quota">
-          <b-form-input id="weekly-quota" type="number" v-model="weekQuota"></b-form-input>
+          <b-form-input
+            id="weekly-quota"
+            number="true"
+            type="number"
+            v-model="weekQuota"
+            @update="handleWeekChange"
+          ></b-form-input>
         </b-form-group>
 
-        <b-form-group label="Daily Quota" label-for="daily-quota">
-          <b-form-input id="daily-quota" type="number" v-model="dayQuota"></b-form-input>
+        <b-form-group label="Montly Quota" label-for="montly-quota">
+          <b-form-input
+            id="montly-quota"
+            type="number"
+            number="true"
+            v-model="monthQuota"
+            @update="handleMonthChange"
+          ></b-form-input>
         </b-form-group>
 
         <div>
-          <h3>Total Cost: {{ totalCost }}</h3>
+          <h3>Total Cost: {{ totalCost.toFixed(2) }} &euro;</h3>
         </div>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">
+          <template v-if="loading">
+            <b-spinner label="Spinning"></b-spinner>
+          </template>
+          <template v-else> Submit </template>
+        </button>
       </form>
+
+      <b-alert class="mt-3" :variant="alertVariant" :show="alertShow">{{ alertText }}</b-alert>
     </b-modal>
   </div>
 </template>
-
-<script lang="ts">
-// import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota';
-// import { type } from 'os';
-
-export default {
-  data() {
-    return {
-      name: '',
-      nameState: null,
-      dayQuota: 0,
-      weekQuota: 0,
-      monthQuota: 0,
-      totalCost: 0
-    }
-  },
-  methods: {
-    showModal() {
-      this.$refs['my-modal'].show()
-    },
-    hideModal() {
-      this.$refs['my-modal'].hide()
-    },
-    handleChange() {
-      console.log('changed')
-      // console.log(typeof event)
-      // console.log(event.target.value)
-    },
-    handleSubmit() {
-      console.log('submitted')
-      console.log(this.dayQuota, this.weekQuota, this.monthQuota)
-      this.hideModal()
-    }
-  }
-}
-</script>
 
 <style scoped>
 .client-name {

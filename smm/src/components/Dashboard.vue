@@ -8,7 +8,6 @@ defineProps<{
 }>()
 
 const authState: { token: string } = inject('auth')!
-
 const clients = ref<IUser[]>([])
 const selectedClient = ref<string>('loading...')
 const hasFetchedClients = ref<boolean>(false)
@@ -17,7 +16,6 @@ const selectClient = (client: string) => {
   selectedClient.value = client
 }
 
-// TODO: use similar to fetch api!
 fetch(getClientsRoute, {
   headers: {
     'Content-Type': 'application/json',
@@ -46,25 +44,23 @@ fetch(getClientsRoute, {
       </b-dropdown-item>
     </b-dropdown>
   </div>
-  <div v-if="hasFetchedClients">
+  <template v-if="hasFetchedClients">
     <BuyModal :username="selectedClient" />
-  </div>
-  <!-- TODO: put a spinner if not fetched -->
+  </template>
+  <template v-else>
+    <b-spinner label="Loading..."></b-spinner>
+  </template>
 </template>
 
 <style scoped>
 h1 {
   font-weight: 500;
   font-size: 2.4rem;
-  padding-left: 2rem;
-  padding-top: 1rem;
 }
 
 .client-name {
   font-weight: 400;
   font-size: 1.8rem;
-  padding-left: 2rem;
-  padding-top: 1rem;
 
   display: flex;
   align-items: center;
