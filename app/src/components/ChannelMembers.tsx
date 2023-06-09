@@ -117,7 +117,7 @@ function ChannelMember({
             (user) => {
                 setUser(() => user);
             },
-            (_) => { },
+            (_) => {},
         );
     }, [member.user]);
 
@@ -134,13 +134,17 @@ function ChannelMember({
                     method: 'POST',
                     body: JSON.stringify({
                         permission: priv,
+                        toUser: member.user,
                     }),
                 },
                 auth,
                 (priv) => {
                     setPriv(priv);
+                    setPending(false);
                 },
-                (_) => {
+                (e) => {
+                    console.log(e);
+                    document.getElementById(`${member.user}-privilege`)?.setAttribute('value', privilege);
                     setPending(false);
                 },
             );
@@ -149,10 +153,12 @@ function ChannelMember({
         return (
             <>
                 <Form.Select
+                    id={`${member.user}-privilege`}
                     defaultValue={privilege}
                     onChange={(e) => {
                         setPriv(e.target.value as PermissionType);
                     }}
+                    disabled={pending}
                 >
                     {Object.values(PermissionType).map((value: PermissionType) => (
                         <option key={value} value={value}>

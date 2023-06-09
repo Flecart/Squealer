@@ -20,12 +20,14 @@ import { fetchApi } from './api/fetch';
 import { apiUserBase } from './api/routes';
 import { NotificationStore } from './notification';
 import { CreateChannel } from './views/CreateChannel';
+import Channels from './views/Channels';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Home />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/channels" element={<Channels />} />
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/create" element={<Register />} />

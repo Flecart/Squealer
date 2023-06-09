@@ -9,7 +9,7 @@ export function SideBar(): JSX.Element {
 
     return (
         <Navbar className="d-flex flex-column align-items-start ps-3" sticky="top">
-            <Link to="#">
+            <Link to="/channels">
                 <Button className="rounded">Esplora</Button>
             </Link>
 

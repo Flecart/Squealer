@@ -1,25 +1,24 @@
 import { HttpError } from '@model/error';
 import MessageModel from '@db/message';
-import { IChannel, ChannelType, PermissionType, ChannelResponse } from '@model/channel';
+import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel } from '@model/channel';
 import { ICategory, type Invitation } from '@model/message';
-import { HydratedDocument } from 'mongoose';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
 
 export class ChannelService {
     public async list(user: string | null): Promise<IChannel[]> {
-        const publicChannel = await ChannelModel.find({
+        let publicChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.SQUEALER }, { type: ChannelType.PUBLIC }],
         });
-        if (user === null) {
-            return publicChannel;
+
+        if (user !== null) {
+            const userChannel = await ChannelModel.find({
+                $or: [{ type: ChannelType.USER }, { type: ChannelType.PRIVATE }],
+                users: { $elemMatch: { user: user } },
+            });
+            publicChannel = publicChannel.concat(userChannel);
         }
-        //TODO da testare
-        const userChannel = await ChannelModel.find({
-            $or: [{ type: ChannelType.USER }, { type: ChannelType.PRIVATE }],
-            users: { $elemMatch: { user: user } },
-        });
-        return publicChannel.concat(userChannel);
+        return publicChannel.sort(sortChannel);
     }
 
     public async getChannel(channelName: string, user: string | null): Promise<IChannel> {
@@ -246,7 +245,6 @@ export class ChannelService {
             children: [],
             creator: userIssuer,
             date: new Date(),
-            category: ICategory.NORMAL,
             parent: null,
             reaction: [],
             views: 0,
@@ -289,27 +287,13 @@ export class ChannelService {
         if (userRecord == null) {
             throw new HttpError(400, 'user not found');
         }
-        let permission = channel.users.find((u) => u.user == userRecord.name)?.privilege;
-        if (permission == null) {
+        const userRow = channel.users.find((u) => u.user == userRecord.name);
+        if (userRow == null) {
             throw new HttpError(400, 'user not found');
         }
-        permission = newPermission;
+        userRow.privilege = newPermission;
         channel.markModified('users');
         await channel.save();
         return newPermission;
-    }
-
-    async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {
-        // if (isMultiOwnerChannel(channel)) {
-        //     const owners = await AuthModel.find({ userId: { $in: channel.members.ownerRef } });
-        //     return owners.map((owner: IUserAuth) => owner.username);
-        // } else {
-        //     const owner = await AuthModel.findOne({ userId: channel.ownerRef });
-        //     if (owner === null) {
-        //         throw new HttpError(500, `User with id ${channel.ownerRef} does not exist`);
-        //     }
-        //     return [owner.username];
-        // }
-        return [];
     }
 }

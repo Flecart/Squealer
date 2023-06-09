@@ -123,7 +123,7 @@ export class ChannelController extends Controller {
         return new ChannelService().deleteChannel(channelName, getUserFromRequest(request));
     }
 
-    @Post('{channelName}/change-permission')
+    @Post('{channelName}/set-permission')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel owner added')
