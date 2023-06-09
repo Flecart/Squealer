@@ -7,6 +7,7 @@ import { AuthContext } from '../contexts';
 import { fetchApi } from '../api/fetch';
 import { apiChannelBase } from 'src/api/routes';
 import { type ChannelResponse } from '@model/channel';
+import { type ISuccessMessage } from '@model/user';
 
 interface PostProps {
     message: IMessage;
@@ -40,7 +41,7 @@ function InviteMessage({ message }: PostProps): JSX.Element {
         );
     };
     const decline = (): void => {
-        fetchApi<ChannelResponse>(
+        fetchApi<ISuccessMessage>(
             `${apiChannelBase}/decline`,
             {
                 method: 'POST',

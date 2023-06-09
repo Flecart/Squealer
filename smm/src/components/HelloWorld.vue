@@ -1,40 +1,70 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { inject } from 'vue'
+import type { IUser } from '@model/user'
+
 defineProps<{
   msg: string
 }>()
+
+const authState: { token: string } = inject('auth')!
+
+const clients = ref<IUser[]>([])
+const selectedClient = ref<string>('Loading')
+
+const selectClient = (client: string) => {
+  selectedClient.value = client
+}
+
+// TODO: this is just an example, you need to fix this!
+fetch('http://localhost:3000/api/smm/clients', {
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer ' + authState.token
+  }
+})
+  .then((response) => response.json())
+  .then((data) => {
+    clients.value = data
+    selectedClient.value = data[0].username
+  })
 </script>
 
 <template>
-  <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
-    <h3>
-      You’ve successfully created a project with
-      <a href="https://vitejs.dev/" target="_blank" rel="noopener">Vite</a> +
-      <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
-    </h3>
+  <h1>SMM Dashboard</h1>
+  <div class="client-name">
+    <span> Current client: </span>
+    <b-dropdown :text="selectedClient" class="m-md-2">
+      <!-- TODO: the client should be fetched from the backend -->
+      <b-dropdown-item
+        v-for="client in clients"
+        :key="client.username"
+        @click="selectClient(client.username)"
+      >
+        {{ client.username }}
+      </b-dropdown-item>
+    </b-dropdown>
   </div>
 </template>
 
 <style scoped>
 h1 {
   font-weight: 500;
-  font-size: 2.6rem;
-  top: -10px;
+  font-size: 2.4rem;
+  padding-left: 2rem;
+  padding-top: 1rem;
 }
 
-h3 {
-  font-size: 1.2rem;
+.client-name {
+  font-weight: 400;
+  font-size: 1.8rem;
+  padding-left: 2rem;
+  padding-top: 1rem;
+
+  display: flex;
+  align-items: center;
 }
 
-.greetings h1,
-.greetings h3 {
-  text-align: center;
-}
-
-@media (min-width: 1024px) {
-  .greetings h1,
-  .greetings h3 {
-    text-align: left;
-  }
+.client-name span {
 }
 </style>

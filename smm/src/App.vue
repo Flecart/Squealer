@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { provide } from 'vue'
 import SideBar from './components/SideBar.vue'
+
+const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
+provide('auth', authState)
 </script>
 
 <template>

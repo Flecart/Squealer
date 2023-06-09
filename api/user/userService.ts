@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { IUser } from '@model/user';
+import { type IUser, type UserRoles } from '@model/user';
 import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
-import { IQuotas } from '@model/quota';
+import { type IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
 
 type UserModelType = mongoose.HydratedDocument<IUser>;
@@ -90,5 +90,15 @@ export default class UserService {
         creator.markModified('maxQuota');
         await creator.save();
         console.log(`Daily quota updated to ${creator.maxQuota.day}`);
+    }
+
+    public async updateRole(username: string, role: UserRoles): Promise<IUser> {
+        const user = await UserModel.findOne({ username: username });
+        if (!user) {
+            throw new HttpError(404, 'User not found');
+        }
+        user.role = role;
+        await user.save();
+        return user;
     }
 }

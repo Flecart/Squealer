@@ -1,7 +1,7 @@
 import { JWT_ALG, JWT_SECRET, JWT_ISSUER } from '@config/config';
 import { IUserAuth } from '@model/auth';
 import { HttpError } from '@model/error';
-import { IUser } from '@model/user';
+import { IUser, UserRoles } from '@model/user';
 import crypto from 'crypto';
 import * as jose from 'jose';
 import { HydratedDocument, Types } from 'mongoose';
@@ -28,10 +28,14 @@ export class LoginService {
 
     public async login(username: string, password: string): Promise<AuthResponse> {
         const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
+        const user = await UserModel.findOne({ username: username });
+        if (user === null) {
+            throw new HttpError(400, 'User not found');
+        }
         if (model && model.password == this._hashPassword(model.salt, password)) {
             return {
                 username: username,
-                token: await this._createJWTSession(model.username, model.role),
+                token: await this._createJWTSession(model.username, user.role),
             } as AuthResponse;
         }
 
@@ -67,9 +71,12 @@ export class LoginService {
         authUser.username = new_username;
         await authUser.save();
 
-        // TODO: può succedere che salvi da uno ma non salvi dall'altro?
         user.username = new_username;
         await user.save();
+        // TODO: non vengono aggiornati i canali
+        // TODO: non vengono aggiornati i messaggi (con creator)
+        // TODO: non vengono aggiornati le richiestste di amicizia
+        // TODO: non vengono aggiornati i client
 
         return { message: 'Username changed' };
     }
@@ -115,6 +122,7 @@ export class LoginService {
             maxQuota: DEFAULT_QUOTA,
             usedQuota: { day: 0, week: 0, month: 0 },
             channel: [],
+            role: UserRoles.NORMAL,
         });
     }
 
@@ -128,7 +136,6 @@ export class LoginService {
             username: username,
             password: this._hashPassword(salt, password),
             salt: salt,
-            role: 'normal',
             userId: userId,
         });
     }

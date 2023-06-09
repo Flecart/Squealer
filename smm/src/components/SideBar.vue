@@ -1,4 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const show = ref(true)
+</script>
 
 <template>
   <b-button
@@ -74,16 +78,6 @@
     </template>
   </b-sidebar>
 </template>
-
-<script lang="ts">
-export default {
-  data() {
-    return {
-      show: false
-    }
-  }
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap.scss';

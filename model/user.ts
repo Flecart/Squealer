@@ -1,11 +1,18 @@
-import mongoose from 'mongoose';
-import { IQuotas } from './quota';
+import type mongoose from 'mongoose';
+import type { IQuotas } from './quota';
 
 export const UserModelName = 'User';
 
 export interface IMessageInbox {
     message: mongoose.Types.ObjectId;
     viewed: boolean;
+}
+
+export enum UserRoles {
+    NORMAL = 'normal',
+    SMM = 'smm',
+    VIP = 'vip',
+    MODERATOR = 'moderator',
 }
 
 export interface IUser {
@@ -18,6 +25,7 @@ export interface IUser {
     clients?: string[];
     messages: IMessageInbox[];
     channel: string[];
+    role: UserRoles;
 }
 
 export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
@@ -26,4 +34,8 @@ export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
         user.usedQuota.week + lenChar < user.maxQuota.week &&
         user.usedQuota.month + lenChar < user.maxQuota.month
     );
+}
+
+export interface ISuccessMessage {
+    message: string;
 }

@@ -1,10 +1,31 @@
-import { Security, Request, Get, Put, Route, SuccessResponse, Controller, Path, Delete, Body } from '@tsoa/runtime';
-// import {IUser} from "../../model/user";
+import {
+    Security,
+    Request,
+    Get,
+    Put,
+    Post,
+    Route,
+    SuccessResponse,
+    Controller,
+    Path,
+    Delete,
+    Body,
+} from '@tsoa/runtime';
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
+import { type IUser, type UserRoles } from '@model/user';
 
 @Route('/user')
 export class UserController extends Controller {
+    @Post('/upgrade')
+    @Security('jwt')
+    public async upgradeAccount(@Request() _request: any) {
+        // Bisogna decidere chi può fare l'upgrade
+        // e se ha senso fare un endpoint per upgrade.
+        return false;
+        // return new UserService().upgradeAccount(getUserFromRequest(request));
+    }
+
     @Get('/notification')
     @Security('jwt')
     public async getNotifications(@Request() request: any) {
@@ -57,18 +78,10 @@ export class UserController extends Controller {
         );
     }
 
-    @Get('/quota/day')
-    getDayQuota() {
-        return 'todo';
-    }
-
-    @Get('/quota/week')
-    getWeekQuota() {
-        return 'todo';
-    }
-
-    @Get('/quota/month')
-    getMonthQuota() {
-        return 'todo';
+    @Post('/role')
+    @Security('jwt')
+    @SuccessResponse(200, 'Role Updated')
+    public async updateRole(@Request() request: any, @Body() role: { role: UserRoles }): Promise<IUser> {
+        return await new UserService().updateRole(getUserFromRequest(request), role.role);
     }
 }
