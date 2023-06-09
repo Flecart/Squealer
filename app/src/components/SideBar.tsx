@@ -5,31 +5,31 @@ import { SideButton } from 'src/components/SideButton';
 import * as Icon from 'react-bootstrap-icons';
 
 export function SideBar(): JSX.Element {
-  const [authState] = useContext(AuthContext);
+    const [authState] = useContext(AuthContext);
 
-  return (
-    <Navbar className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
-      <SideButton to="/" name="Home" SideIcon={Icon.HouseFill} />
+    return (
+        <Navbar className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
+            <SideButton to="/" name="Home" SideIcon={Icon.HouseFill} />
 
-      {authState !== null ? (
-        <>
-          <SideButton to="/settings" name="Impostazioni" SideIcon={Icon.GearFill} />
+            {authState !== null ? (
+                <>
+                    <SideButton to="/settings" name="Impostazioni" SideIcon={Icon.GearFill} />
 
-          <SideButton to="/logout" name="Logout" SideIcon={Icon.BoxArrowLeft} />
+                    <SideButton to="/logout" name="Logout" SideIcon={Icon.BoxArrowLeft} />
 
-          <SideButton to={`/user/${authState.username}`} name="Profilo" SideIcon={Icon.PersonFill} />
+                    <SideButton to={`/user/${authState.username}`} name="Profilo" SideIcon={Icon.PersonFill} />
 
-          <SideButton to="/addpost" name="Nuovo Post" SideIcon={Icon.PencilSquare} />
+                    <SideButton to="/addpost" name="Nuovo Post" SideIcon={Icon.PencilSquare} />
 
-          <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
-        </>
-      ) : (
-        <>
-          <SideButton to="/login" name="Login" SideIcon={Icon.BoxArrowInLeft} />
+                    <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
+                </>
+            ) : (
+                <>
+                    <SideButton to="/login" name="Login" SideIcon={Icon.BoxArrowInLeft} />
 
-          <SideButton to="/create" name="Registrati" SideIcon={Icon.FileTextFill} />
-        </>
-      )}
-    </Navbar>
-  );
+                    <SideButton to="/create" name="Registrati" SideIcon={Icon.FileTextFill} />
+                </>
+            )}
+        </Navbar>
+    );
 }

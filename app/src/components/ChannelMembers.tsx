@@ -117,7 +117,7 @@ function ChannelMember({
             (user) => {
                 setUser(() => user);
             },
-            (_) => { },
+            (_) => {},
         );
     }, [member.user]);
 
