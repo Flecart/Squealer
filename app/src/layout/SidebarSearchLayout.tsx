@@ -9,7 +9,7 @@ interface Props {
 
 export default function SidebarSearchLayout({ children }: Props): JSX.Element {
     return (
-        <div className="d-flex justify-content-center container" style={{ background: 'var(--bs-body-bg);' }}>
+        <div className="d-flex justify-content-center container-fluid m-0">
             <Col md={3} className="d-none d-md-block">
                 <SideBar />
             </Col>

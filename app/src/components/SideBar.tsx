@@ -1,14 +1,14 @@
 import { Navbar } from 'react-bootstrap';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts';
-import { SideButton } from 'src/layout/SideButtonLayout';
+import { SideButton } from 'src/components/SideButton';
 import * as Icon from 'react-bootstrap-icons';
 
 export function SideBar(): JSX.Element {
     const [authState] = useContext(AuthContext);
 
     return (
-        <Navbar className="d-flex flex-column align-items-start ps-3 align-content-evenly" sticky="top">
+        <Navbar className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
             <SideButton to="/" name="Home" SideIcon={Icon.HouseFill} />
 
             {authState !== null ? (

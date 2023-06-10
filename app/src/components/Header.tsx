@@ -6,7 +6,7 @@ import * as Icon from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { NotificationStore } from 'src/notification';
 import { AuthContext } from 'src/contexts';
-import { LogoLight, LogoSize } from 'app/public/LogosInfo';
+import { LogoLight, LogoSize } from 'app/logos/LogosInfo';
 import 'src/scss/SideButton.scss';
 
 const notifSize = (parseInt(LogoSize) - 25).toString();
@@ -42,7 +42,13 @@ export function Header(): JSX.Element {
     };
 
     return (
-        <Navbar variant="dark" className="container-fluid text-white" expand="lg" sticky="top">
+        <Navbar
+            variant="dark"
+            className="container-fluid text-white"
+            style={{ background: 'var(--bs-body-bg)' }}
+            expand="lg"
+            sticky="top"
+        >
             <Offcanvas show={show} onHide={handleClose}>
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title>Menu</Offcanvas.Title>
@@ -54,8 +60,8 @@ export function Header(): JSX.Element {
 
             <Container fluid>
                 <Col sx={3} className="d-flex justify-content-center">
-                    <button className="btn sideButton rounded-3">
-                        <Icon.List width={menuSize} height={menuSize} onClick={handleShow} className="d-md-none" />
+                    <button className="btn sideButton rounded-3 d-md-none">
+                        <Icon.List width={menuSize} height={menuSize} onClick={handleShow} />
                     </button>
                 </Col>
 
