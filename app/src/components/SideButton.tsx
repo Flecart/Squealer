@@ -15,7 +15,7 @@ export function SideButton({ to, name, SideIcon }: SideButtonProps): JSX.Element
             aria-label={name}
             className="btn btn-lg rounded-pill sideButton d-flex d-row align-items-center justify-content-evenly"
         >
-            <SideIcon className="pe-2" height={25} width={30} />
+            <SideIcon aria-hidden={true} className="pe-2" height={25} width={30} />
             {name}
         </Link>
     );
