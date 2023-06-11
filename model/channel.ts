@@ -8,11 +8,11 @@ export enum PermissionType {
 }
 
 export enum ChannelType {
-    USER = 1,
-    PUBLIC = 2,
-    HASHTAG = 3,
-    PRIVATE = 4,
-    SQUEALER = 5,
+    USER = 'user',
+    PUBLIC = 'public',
+    HASHTAG = 'hashtag',
+    PRIVATE = 'private',
+    SQUEALER = 'squealer',
 }
 
 export function isPublicChannel(channel: IChannel): boolean {
@@ -49,4 +49,22 @@ export interface ChannelDescription {
 export interface ChannelResponse {
     message: string;
     channel: string;
+}
+
+export function sortChannel(a: IChannel, b: IChannel): number {
+    if (a.type === b.type) {
+        return a.name.localeCompare(b.name);
+    }
+    const order: Map<ChannelType, number> = new Map([
+        [ChannelType.USER, 0],
+        [ChannelType.PRIVATE, 1],
+        [ChannelType.PUBLIC, 2],
+        [ChannelType.SQUEALER, 3],
+    ]);
+    const an = order.get(a.type);
+    const bn = order.get(b.type);
+
+    if (an === undefined) return 1;
+    if (bn === undefined) return -1;
+    return an - bn;
 }
