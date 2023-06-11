@@ -1,41 +1,31 @@
-import { Navbar, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Navbar } from 'react-bootstrap';
 import { useContext } from 'react';
-
 import { AuthContext } from '../contexts';
+import { SideButton } from 'src/components/SideButton';
+import * as Icon from 'react-bootstrap-icons';
 
 export function SideBar(): JSX.Element {
     const [authState] = useContext(AuthContext);
 
     return (
-        <Navbar className="d-flex flex-column align-items-start ps-3" sticky="top">
-            <Link to="#">
-                <Button className="rounded">Esplora</Button>
-            </Link>
+        <Navbar className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
+            <SideButton to="/" name="Home" SideIcon={Icon.HouseFill} />
 
             {authState !== null ? (
                 <>
-                    <Link to="/settings">
-                        <Button className="rounded">Impostazioni</Button>
-                    </Link>
-                    <Link to="/logout">
-                        <Button className="rounded">Logout</Button>
-                    </Link>
-                    <Link to={`/user/${authState.username}`}>
-                        <Button className="rounded">Me</Button>
-                    </Link>
-                    <Link to={`/addpost`}>
-                        <Button className="rounded">Post</Button>
-                    </Link>
+                    <SideButton to="/settings" name="Impostazioni" SideIcon={Icon.GearFill} />
+
+                    <SideButton to="/logout" name="Logout" SideIcon={Icon.BoxArrowLeft} />
+
+                    <SideButton to={`/user/${authState.username}`} name="Profilo" SideIcon={Icon.PersonFill} />
+
+                    <SideButton to="/addpost" name="Nuovo Post" SideIcon={Icon.PencilSquare} />
                 </>
             ) : (
                 <>
-                    <Link to="/login">
-                        <Button className="rounded">Login</Button>
-                    </Link>
-                    <Link to="/create">
-                        <Button className="rounded">Registrati</Button>
-                    </Link>
+                    <SideButton to="/login" name="Login" SideIcon={Icon.BoxArrowInLeft} />
+
+                    <SideButton to="/create" name="Registrati" SideIcon={Icon.FileTextFill} />
                 </>
             )}
         </Navbar>
