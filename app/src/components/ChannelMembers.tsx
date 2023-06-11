@@ -117,12 +117,12 @@ function ChannelMember({
             (user) => {
                 setUser(() => user);
             },
-            (_) => { },
+            (_) => {},
         );
     }, [member.user]);
 
     function PrivilegeIcon({ privilege }: { privilege: PermissionType }): JSX.Element {
-        if (!admin) return <PrivilageToIcon privilage={privilege} />;
+        if (!admin) return <PrivilegeToIcon privilage={privilege} />;
 
         const [priv, setPriv] = useState(privilege);
         const [pending, setPending] = useState(false);
@@ -204,7 +204,7 @@ function ChannelMember({
     );
 }
 
-function PrivilageToIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
+function PrivilegeToIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
     switch (privilage) {
         case PermissionType.WRITE:
             return <Icon.Pencil aria-label={privilage} title={privilage} />;

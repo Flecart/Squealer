@@ -25,8 +25,8 @@ export default function Channels(): JSX.Element {
                 `${apiUserBase}/${auth.username}`,
                 { method: 'Get' },
                 auth,
-                (a) => {
-                    setUser(a);
+                (user) => {
+                    setUser(user);
                     setPendingUser(false);
                 },
                 (e) => {
@@ -39,8 +39,8 @@ export default function Channels(): JSX.Element {
             `${apiChannelBase}`,
             { method: 'Get' },
             auth,
-            (a) => {
-                setChannels(a);
+            (channel) => {
+                setChannels(channel);
                 setPendingChannel(false);
             },
             (e) => {

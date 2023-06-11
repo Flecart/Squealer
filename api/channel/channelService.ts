@@ -273,8 +273,8 @@ export class ChannelService {
         return content;
     }
 
-    public async getPermission(
-        _admin: string,
+    public async setPermission(
+        admin: string,
         channelName: string,
         user: string,
         newPermission: PermissionType,
@@ -287,6 +287,11 @@ export class ChannelService {
         if (userRecord == null) {
             throw new HttpError(400, 'user not found');
         }
+        const adminRow = channel.users.find((u) => u.user == admin);
+        if (adminRow == null || adminRow.privilege !== PermissionType.ADMIN) {
+            throw new HttpError(403, "Don't have the right to do this operation");
+        }
+
         const userRow = channel.users.find((u) => u.user == userRecord.name);
         if (userRow == null) {
             throw new HttpError(400, 'user not found');

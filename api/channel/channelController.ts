@@ -132,7 +132,7 @@ export class ChannelController extends Controller {
         @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
     ): Promise<PermissionType> {
-        return await new ChannelService().getPermission(
+        return await new ChannelService().setPermission(
             getUserFromRequest(request),
             channelName,
             body.toUser,
