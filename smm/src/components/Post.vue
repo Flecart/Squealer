@@ -2,6 +2,7 @@
 import type { IMessage } from '@model/message'
 import type { IUser } from '@model/user'
 import { squealerBaseURL } from '@/routes'
+import MapLeaflet from './MapLeaflet.vue'
 
 defineProps<{
   author: IUser
@@ -14,7 +15,8 @@ function redirectToMessage(messageId: string) {
 </script>
 
 <template>
-  <div class="post" @click="redirectToMessage(message._id)">
+  <!-- TODO: questo redirect in questo modo dovrebbe essree un problema di accessiblità -->
+  <div class="post" @click="redirectToMessage(message._id.toString())">
     <div class="post-header">
       <b-avatar :src="author.profile_pic" size="2rem" variant="secondary"></b-avatar>
       <div class="post-author">{{ author.name }}</div>
@@ -42,7 +44,7 @@ function redirectToMessage(messageId: string) {
         </video>
       </template>
       <template v-else-if="message.content.type === 'maps'">
-        {{ JSON.stringify(message.content) }}
+        <!-- <MapLeaflet :positions="message.content.data" /> -->
       </template>
     </div>
   </div>

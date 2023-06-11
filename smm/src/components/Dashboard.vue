@@ -39,13 +39,17 @@ function fetchMessages(currentClient: string) {
   return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
 }
 
-watch(selectedClient, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    fetchMessages(newValue).then((data) => {
-      messages.value = data
-    })
-  }
-})
+watch(
+  selectedClient,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      fetchMessages(newValue).then((data) => {
+        messages.value = data
+      })
+    }
+  },
+  { deep: true }
+)
 </script>
 
 <template>
