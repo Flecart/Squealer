@@ -1,6 +1,7 @@
 import { SideBar } from '../components/SideBar';
 import { Header } from '../components/Header';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Col } from 'react-bootstrap';
+import 'src/scss/SidebarSearchLayout.scss';
 
 interface Props {
     children: JSX.Element | JSX.Element[];
@@ -8,16 +9,15 @@ interface Props {
 
 export default function SidebarSearchLayout({ children }: Props): JSX.Element {
     return (
-        <Row className="vh-100">
-            <Col md={3}>
-                <Container className="d-none d-md-block">
-                    <SideBar />
-                </Container>
+        <div className="d-flex justify-content-center container-fluid m-0">
+            <Col md={3} className="d-none d-md-block">
+                <SideBar />
             </Col>
-            <Col md={6} className="border-start border-end border-light">
+            <Col md={6} id="mainCol" className="container-fluid p-0">
                 <Header />
                 {children instanceof Array ? children.map((child) => child) : children}
             </Col>
-        </Row>
+            <Col md={3} className="d-none d-md-block"></Col>
+        </div>
     );
 }

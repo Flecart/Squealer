@@ -1,0 +1,15 @@
+.sideButton {
+    color: var(--bs-light-color);
+    text-decoration: none;
+    border: none;
+}
+
+.sideButton:hover {
+    background-color: rgba($color: gray, $alpha: 0.3);
+    border: none;
+}
+
+.sideButton:active {
+    background-color: rgba($color: gray, $alpha: 0.5) !important;
+    border: none;
+}

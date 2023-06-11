@@ -1,0 +1,7 @@
+@media (min-width: 768px) {
+    #mainCol {
+        border-color: rgba(var(--bs-light-rgb), var(--bs-border-opacity)) !important;
+        border-left: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+        border-right: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+    }
+}
