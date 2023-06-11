@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, watch } from 'vue'
 import { getClientsRoute, getClientMessageBaseRoute } from '@/routes'
 import type { IUser } from '@model/user'
 import type { IMessage } from '@model/message'
@@ -33,11 +33,18 @@ onMounted(async () => {
   clients.value = jsonResponse
   selectedClient.value = jsonResponse[0].username
   hasFetchedClients.value = true
+})
 
-  const messagesResponse = await fetch(`${getClientMessageBaseRoute}/${selectedClient.value}`)
-  const messagesJsonResponse = await messagesResponse.json()
-  messages.value = messagesJsonResponse
-  console.log(messages.value)
+function fetchMessages(currentClient: string) {
+  return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
+}
+
+watch(selectedClient, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    fetchMessages(newValue).then((data) => {
+      messages.value = data
+    })
+  }
 })
 </script>
 
@@ -62,12 +69,17 @@ onMounted(async () => {
     <b-spinner label="Loading..."></b-spinner>
   </template>
 
-  <Post
-    v-for="message in messages"
-    :key="message._id"
-    :message="message"
-    :author="clients.find((c) => c.username === selectedClient)"
-  />
+  <div class="posts">
+    <template v-if="messages.length === 0">
+      <b-alert variant="info" show> No posts found for this client. </b-alert>
+    </template>
+    <Post
+      v-for="message in messages"
+      :key="message._id"
+      :message="message"
+      :author="clients.find((c) => c.username === selectedClient)"
+    />
+  </div>
 </template>
 
 <style scoped>
@@ -82,5 +94,13 @@ h1 {
 
   display: flex;
   align-items: center;
+}
+
+.posts {
+  margin-top: 2rem;
+  margin-right: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
 }
 </style>

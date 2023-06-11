@@ -1,23 +1,20 @@
 <script setup lang="ts">
 import type { IMessage } from '@model/message'
 import type { IUser } from '@model/user'
+import { squealerBaseURL } from '@/routes'
 
 defineProps<{
   author: IUser
   message: IMessage
 }>()
 
-function renderContent(content: IMessage['content']) {
-  if (content.type === 'text') {
-    return content.data
-  } else if (content.type === 'image') {
-    return `<a href="${content.data}" target="_blank"><img src="${content.data}" alt="Post image"></a>`
-  } else return content
+function redirectToMessage(messageId: string) {
+  window.location.href = `${squealerBaseURL}/message/${messageId}`
 }
 </script>
 
 <template>
-  <div class="post">
+  <div class="post" @click="redirectToMessage(message._id)">
     <div class="post-header">
       <b-avatar :src="author.profile_pic" size="2rem" variant="secondary"></b-avatar>
       <div class="post-author">{{ author.name }}</div>
@@ -26,12 +23,28 @@ function renderContent(content: IMessage['content']) {
       <div class="post-time">{{ new Date(message.date).toISOString().substring(0, 10) }}</div>
     </div>
     <hr />
-    <!-- <div class="post-image">
-      <a :href="message.image_url" target="_blank">
-        <img :src="message.image_url" alt="Post image">
-      </a>
-    </div> -->
-    <div class="post-content">{{ renderContent(message.content) }}</div>
+    <div class="post-content">
+      <template v-if="message.content.type === 'image'">
+        <a :href="`${squealerBaseURL}/${message.content.data}`" target="_blank">
+          <img
+            class="post-image"
+            :src="`${squealerBaseURL}/${message.content.data}`"
+            alt="Post image"
+          />
+        </a>
+      </template>
+      <template v-else-if="message.content.type === 'text'">
+        {{ message.content.data }}
+      </template>
+      <template v-else-if="message.content.type === 'video'">
+        <video controls>
+          <source :src="`${squealerBaseURL}/${message.content.data}`" />
+        </video>
+      </template>
+      <template v-else-if="message.content.type === 'maps'">
+        {{ JSON.stringify(message.content) }}
+      </template>
+    </div>
   </div>
 </template>
 
@@ -40,7 +53,17 @@ function renderContent(content: IMessage['content']) {
   border: 1px solid #ccc;
   border-radius: 0.25rem;
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 1rem 1rem 0;
+  width: 20rem;
+}
+
+.post:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.post:active {
+  background-color: #e0e0e0;
 }
 
 .post-header {
@@ -58,6 +81,12 @@ function renderContent(content: IMessage['content']) {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
   color: #6c757d;
+}
+
+.post-image {
+  margin-bottom: 0.5rem;
+  max-width: 15rem;
+  height: auto;
 }
 
 .post-content {
