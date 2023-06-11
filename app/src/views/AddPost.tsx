@@ -9,7 +9,8 @@ import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
 import Post from 'src/components/Post';
-import { type IUser, haveEnoughtQuota } from '@model/user';
+import { type IUser, haveEnoughtQuota, UserRoles } from '@model/user';
+import { Lock } from 'react-bootstrap-icons';
 import {
     type ITemporizzati,
     type ContentInput as TemporizedContentInput,
@@ -32,6 +33,7 @@ export default function AddPost(): JSX.Element {
 
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<IUser | null>(null);
+    const [role, setRole] = useState<UserRoles | null>(null);
 
     const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
     const [tempPeriod, setTempPeriod] = useState<number>(1);
@@ -69,6 +71,7 @@ export default function AddPost(): JSX.Element {
             authState,
             (user) => {
                 setUser(() => user);
+                setRole(() => user.role);
             },
             (error) => {
                 setDisplayParent(() => error.message);
@@ -307,13 +310,32 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
                 {/* TODO: show geolocation button */}
 
-                <Button className="my-2" onClick={setGeolocation}>
-                    Geolocation
-                </Button>
+                <span className="d-flex flex-row no-wrap">
+                    <Button className="my-2" onClick={setGeolocation}>
+                        Geolocation
+                    </Button>
 
-                <Button className="my-2" type="submit" onClick={sendMessage}>
-                    Send
-                </Button>
+                    <Button className="my-2" type="submit" onClick={sendMessage}>
+                        Send
+                    </Button>
+
+                    <Button
+                        variant="warning"
+                        onClick={() => {
+                            setModalShow(true);
+                        }}
+                        disabled={role === UserRoles.NORMAL}
+                        className="d-flex align-items-center my-2"
+                    >
+                        <span hidden={role !== UserRoles.NORMAL}>
+                            <Lock size={19.2} className="pe-1" />
+                        </span>
+                        Acquista Quota
+                    </Button>
+                </span>
+                <span hidden={role !== UserRoles.NORMAL} style={{ color: 'var(--bs-yellow)' }} className="mb-2">
+                    L&apos;Acquisto Quota è riservato agli utenti verificati o pro
+                </span>
 
                 {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
@@ -386,14 +408,6 @@ export default function AddPost(): JSX.Element {
                         <Alert variant="danger">{error}</Alert>
                     </Row>
                 )}
-                <Button
-                    variant="warning"
-                    onClick={() => {
-                        setModalShow(true);
-                    }}
-                >
-                    Acquista Quota
-                </Button>
 
                 <PurchaseQuota
                     show={modalShow}

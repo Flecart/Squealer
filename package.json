@@ -36,6 +36,7 @@
     "swagger-ui-express": "^4.6.2",
     "tsoa": "^5.1.1",
     "typescript": "^5.0.4",
+    "uuid": "^9.0.0",
     "winston": "^3.9.0"
   },
   "devDependencies": {
