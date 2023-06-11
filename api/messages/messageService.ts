@@ -74,7 +74,12 @@ export class MessageService {
         await savedMessage.save();
 
         await this._sendNotification(savedMessage, channel, parent);
-        messageServiceLog.info(`Message created on ${savedMessage.channel}`);
+
+        if (savedMessage.channel !== null) {
+            messageServiceLog.info(`Message created on ${savedMessage.channel}`);
+        } else {
+            messageServiceLog.info(`Reply Message created on ${savedMessage.parent}`);
+        }
         return {
             id: savedMessage._id.toString(),
             channel: savedMessage.channel,
