@@ -4,6 +4,7 @@ import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel } f
 import { ICategory, type Invitation } from '@model/message';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
+import { UserRoles } from '@model/user';
 
 export class ChannelService {
     public async list(user: string | null): Promise<IChannel[]> {
@@ -47,6 +48,10 @@ export class ChannelService {
         let fromApi = isFromApi ?? false;
         const ownerUser = await UserModel.findOne({ username: owner });
 
+        if (ownerUser === null) {
+            throw new HttpError(400, `User with username ${owner} does not exist`);
+        }
+
         if (fromApi && !(type === ChannelType.PUBLIC || type === ChannelType.PRIVATE)) {
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
@@ -54,15 +59,17 @@ export class ChannelService {
         if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@'))) {
             throw new HttpError(400, `Channel name ${channelName} is not valid name`);
         }
+        if (ChannelType.SQUEALER == type && ownerUser.role !== UserRoles.MODERATOR) {
+            throw new HttpError(400, `User ${owner} is not authorized to create a squealer channel`);
+        }
 
         if (type === ChannelType.SQUEALER) {
             channelName = channelName.toUpperCase();
         } else {
             channelName = channelName.toLowerCase();
         }
-        if (ownerUser === null) {
-            throw new HttpError(400, `Owner with username ${owner} does not exist`);
-        } else if ((await ChannelModel.findOne({ name: channelName })) !== null) {
+
+        if ((await ChannelModel.findOne({ name: channelName })) !== null) {
             throw new HttpError(400, 'Channel name already exists');
         }
 

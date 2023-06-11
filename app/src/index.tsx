@@ -61,7 +61,9 @@ function App(): JSX.Element {
                         NotificationStore.setNotification(messages);
                     },
                     (error) => {
-                        console.log(error);
+                        if (error.status === 500) {
+                            setAuthState(null);
+                        }
                     },
                 );
             };
@@ -72,7 +74,7 @@ function App(): JSX.Element {
                 clearInterval(interval);
             };
         }
-        return () => { };
+        return () => {};
     }, [authState]);
 
     useEffect(() => {

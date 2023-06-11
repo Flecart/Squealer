@@ -151,6 +151,7 @@ export default function Channel(): JSX.Element {
                             />
                         )}
                     </Tab>
+                    {/* TODO replace this */}
                     {channel !== null && !channel.name.startsWith('#') && (
                         <Tab eventKey="posts" title="Members">
                             {/* TODO: aggiungere la grafica */}
