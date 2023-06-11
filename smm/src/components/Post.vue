@@ -14,7 +14,7 @@ function redirectToMessage(messageId: string) {
 </script>
 
 <template>
-  <div class="post" @click="redirectToMessage(message._id)">
+  <div class="post" @click="redirectToMessage(message._id.toString())">
     <div class="post-header">
       <b-avatar :src="author.profile_pic" size="2rem" variant="secondary"></b-avatar>
       <div class="post-author">{{ author.name }}</div>
