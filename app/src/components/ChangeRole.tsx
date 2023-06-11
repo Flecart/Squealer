@@ -59,7 +59,7 @@ export default function DeleteAccount(): JSX.Element {
             );
         }
     }
-    const roles: string[] = [UserRoles.MODERATOR, UserRoles.SMM, UserRoles.NORMAL, UserRoles.VIP];
+    const roles: string[] = [UserRoles.MODERATOR, UserRoles.SMM, UserRoles.NORMAL, UserRoles.VIP, UserRoles.VERIFIED];
 
     return (
         <Container className="d-flex justify-content-center text-center p-3">
