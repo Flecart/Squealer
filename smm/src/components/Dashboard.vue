@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
-import { getClientsRoute } from '@/routes'
+import { ref, inject, onMounted } from 'vue'
+import { getClientsRoute, getClientMessageBaseRoute } from '@/routes'
 import type { IUser } from '@model/user'
+import type { IMessage } from '@model/message'
 import BuyModal from './BuyModal.vue'
+import Post from './Post.vue'
 defineProps<{
   msg: string
 }>()
@@ -12,22 +14,31 @@ const clients = ref<IUser[]>([])
 const selectedClient = ref<string>('loading...')
 const hasFetchedClients = ref<boolean>(false)
 
+const messages = ref<IMessage[]>([])
+// const hasFetchedMessages = ref<boolean>(false)
+
 const selectClient = (client: string) => {
   selectedClient.value = client
 }
 
-fetch(getClientsRoute, {
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: 'Bearer ' + authState.token
-  }
-})
-  .then((response) => response.json())
-  .then((data) => {
-    clients.value = data
-    selectedClient.value = data[0].username
-    hasFetchedClients.value = true
+onMounted(async () => {
+  const response = await fetch(getClientsRoute, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + authState.token
+    }
   })
+  const jsonResponse = await response.json()
+
+  clients.value = jsonResponse
+  selectedClient.value = jsonResponse[0].username
+  hasFetchedClients.value = true
+
+  const messagesResponse = await fetch(`${getClientMessageBaseRoute}/${selectedClient.value}`)
+  const messagesJsonResponse = await messagesResponse.json()
+  messages.value = messagesJsonResponse
+  console.log(messages.value)
+})
 </script>
 
 <template>
@@ -50,6 +61,13 @@ fetch(getClientsRoute, {
   <template v-else>
     <b-spinner label="Loading..."></b-spinner>
   </template>
+
+  <Post
+    v-for="message in messages"
+    :key="message._id"
+    :message="message"
+    :author="clients.find((c) => c.username === selectedClient)"
+  />
 </template>
 
 <style scoped>
