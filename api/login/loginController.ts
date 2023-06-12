@@ -13,6 +13,11 @@ export interface Credentials {
     password: string;
 }
 
+export interface ResetCredentials {
+    resetQuestion: string;
+    resetPassword: string;
+}
+
 @Route('/auth/')
 export class LoginController extends Controller {
     @Post('login')
@@ -29,6 +34,22 @@ export class LoginController extends Controller {
     public async createUser(@Body() credentials: Credentials): Promise<AuthResponse> {
         loginLogger.info(`[createUser] with username '${credentials.username}'`);
         return new LoginService().createUser(credentials.username, credentials.password);
+    }
+
+    @Post('setting-reset')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(201, 'Reset Activeted')
+    public async settingReset(
+        @Body() credentials: ResetCredentials,
+        @Request() request: any,
+    ): Promise<{ message: string }> {
+        loginLogger.info(`[setdReset] for username '${request}'`);
+        return new LoginService().setReset(
+            credentials.resetQuestion,
+            credentials.resetPassword,
+            getUserFromRequest(request),
+        );
     }
 
     @Post('user/{username}/change-password')
@@ -57,5 +78,17 @@ export class LoginController extends Controller {
     ): Promise<{ message: string }> {
         logger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changeUsername(new_username.new_username, getUserFromRequest(request));
+    }
+
+    @Post('user/{username}/reset-password')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(200, 'Password Resetted')
+    public async resetPassword(
+        @Body() reset_password: { reset_password: string },
+        @Request() request: any,
+    ): Promise<{ newPassword: string }> {
+        logger.info(`[resetPassword] from username '${getUserFromRequest(request)}'`);
+        return new LoginService().resetPassword(reset_password.reset_password, getUserFromRequest(request));
     }
 }

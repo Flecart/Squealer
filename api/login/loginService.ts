@@ -81,6 +81,42 @@ export class LoginService {
         return { message: 'Username changed' };
     }
 
+    public async setReset(
+        reset_question: string,
+        reset_password: string,
+        username: string,
+    ): Promise<{ message: string }> {
+        const authUser = await AuthUserModel.findOne({ username: username }, 'username role salt');
+        const user = await UserModel.findOne({ username: username });
+
+        if (authUser === null || user === null) {
+            throw new HttpError(400, 'User not found');
+        }
+
+        authUser.resetQuestion = reset_question;
+        authUser.resetPassword = this._hashPassword(authUser.salt, reset_password);
+        authUser.save();
+
+        return { message: 'Reset Activated' };
+    }
+
+    public async resetPassword(reset_password: string, username: string): Promise<{ newPassword: string }> {
+        const authUser = await AuthUserModel.findOne({ username: username }, 'username salt resetPassword');
+        if (authUser === null) {
+            throw new HttpError(400, 'User not found');
+        }
+
+        if (authUser.resetPassword !== this._hashPassword(authUser.salt, reset_password)) {
+            throw new HttpError(400, 'Invalid password');
+        }
+
+        const newPassword = crypto.randomBytes(4).toString('hex');
+        authUser.password = this._hashPassword(authUser.salt, newPassword);
+        authUser.save();
+
+        return { newPassword: newPassword };
+    }
+
     private async _createUserName(name: string): Promise<string> {
         // TODO: simplify me
         const usernamePref = name.toLowerCase().split(' ').join('');

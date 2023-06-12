@@ -15,6 +15,14 @@ const UserAuthSchema = new mongoose.Schema<IUserAuth>({
         type: String,
         required: true,
     },
+    resetQuestion: {
+        type: String,
+        required: false,
+    },
+    resetPassword: {
+        type: String,
+        required: false,
+    },
 });
 
 export const UserAuthModelName = 'UserAuth';
