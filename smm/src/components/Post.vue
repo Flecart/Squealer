@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { IMessage } from '@model/message'
+import type { IMessage, Maps } from '@model/message'
 import type { IUser } from '@model/user'
 import { squealerBaseURL } from '@/routes'
+import MapLeaflet from './MapLeaflet.vue'
 
 defineProps<{
   author: IUser
@@ -43,8 +44,10 @@ function redirectToMessage(messageId: string) {
         </video>
       </template>
       <template v-else-if="message.content.type === 'maps'">
+        <MapLeaflet :positions="(message.content.data as Maps).positions" />
+
         <!-- TODO -->
-        {{ JSON.stringify(message.content) }}
+        <!-- {{ JSON.stringify(message.content) }} -->
       </template>
     </div>
   </div>
