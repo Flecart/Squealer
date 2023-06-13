@@ -22,10 +22,6 @@ const lastPosition = computed(() => {
 
 let mapInstance: L.Map
 onMounted(() => {
-  console.log('mounted')
-  console.log(map.value)
-  console.log('values', memoPositions)
-  console.log('lastPosition', lastPosition)
   mapInstance = L.map(map.value as HTMLElement, { zoomControl: false }).setView(
     lastPosition.value as L.LatLngTuple,
     13
@@ -39,7 +35,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  console.log('unmounted')
   mapInstance.remove()
 })
 </script>

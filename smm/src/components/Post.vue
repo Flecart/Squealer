@@ -45,9 +45,6 @@ function redirectToMessage(messageId: string) {
       </template>
       <template v-else-if="message.content.type === 'maps'">
         <MapLeaflet :positions="(message.content.data as Maps).positions" />
-
-        <!-- TODO -->
-        <!-- {{ JSON.stringify(message.content) }} -->
       </template>
     </div>
   </div>
