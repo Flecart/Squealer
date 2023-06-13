@@ -100,6 +100,14 @@ export class LoginService {
         return { message: 'Reset Activated' };
     }
 
+    public async getResetQuestion(username: string): Promise<string> {
+        const authUser = await AuthUserModel.findOne({ username: username }, 'username resetQuestion');
+        if (authUser === null) {
+            throw new HttpError(400, 'User not found');
+        }
+        return authUser.resetQuestion;
+    }
+
     public async resetPassword(reset_password: string, username: string): Promise<{ newPassword: string }> {
         const authUser = await AuthUserModel.findOne({ username: username }, 'username salt resetPassword');
         if (authUser === null) {

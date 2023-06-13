@@ -5,8 +5,12 @@ export interface IUserAuth {
     password: string;
     salt: string;
     userId: mongoose.Types.ObjectId;
-    resetQuestion?: string;
-    resetPassword?: string;
+    resetQuestion: string;
+    resetPassword: string;
+}
+
+export interface ResetQuestionResponse {
+    resetQuestion: string;
 }
 
 export interface AuthResponse {

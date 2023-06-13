@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Collapse, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import { Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { AuthContext } from '../contexts';
 import { useNavigate } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
@@ -14,7 +14,6 @@ export default function Register(): JSX.Element {
     const [formName, setFormName] = useState('');
     const [formPassword, setFormPassword] = useState('');
 
-    const [enableReset, setEnableReset] = useState<boolean>(false);
     const [questionForm, setQuestionForm] = useState('');
     const [answerForm, setAnswerForm] = useState('');
 
@@ -50,7 +49,6 @@ export default function Register(): JSX.Element {
                     authState,
                     (auth) => {
                         setAuthState(() => auth);
-                        if (!enableReset) navigate('/');
                     },
                     (error) => {
                         setErrorMessage(() => error.message);
@@ -58,7 +56,7 @@ export default function Register(): JSX.Element {
                     },
                 );
 
-                if (enableReset && errorMessage !== null) {
+                if (errorMessage !== null) {
                     fetchApi<AuthResponse>(
                         apiSettingReset,
                         {
@@ -112,59 +110,38 @@ export default function Register(): JSX.Element {
                             placeholder="Inserisci la tua password"
                         />
                     </FormGroup>
-                    <FormGroup className="mb-1">
-                        <Form.Check
-                            type="checkbox"
-                            checked={enableReset}
-                            onChange={() => {
-                                setEnableReset(!enableReset);
+
+                    <FormGroup className="my-3">
+                        <Form.Label className="text-light">Domanda di Recupero</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={questionForm}
+                            onChange={(e) => {
+                                setQuestionForm(e.target.value);
                             }}
-                            label={'Impostare il Reset Password'}
+                            placeholder="Inserisci la tua domanda di recupero"
+                        />
+                    </FormGroup>
+                    <FormGroup className="mb-1">
+                        <Form.Label className="text-light">Risposta di Recupero</Form.Label>
+                        <Form.Control
+                            type="password"
+                            value={answerForm}
+                            onChange={(e) => {
+                                setAnswerForm(e.target.value);
+                            }}
+                            placeholder="Inserisci la risposta alla tua domanda"
                         />
                     </FormGroup>
 
-                    <Form.Text className="mb-3">
-                        Nota: Puoi attivare questa funzione anche in futuro, basta andare nelle impostazioni.
+                    <Form.Text>
+                        Il reset della password è una funzione che ti permette di recuperare il tuo account in caso di
+                        dimenticanza delle credenziali.
+                        <br />
+                        Puoi scegliere una domanda e la sua risposta a tua discrezione di cui solo tu sei a conoscenza.
+                        <br />
+                        <b>Non inserire dati sensibili!</b>
                     </Form.Text>
-
-                    <Collapse in={enableReset}>
-                        <span>
-                            <FormGroup className="my-3">
-                                <Form.Label className="text-light">Domanda di Recupero</Form.Label>
-                                <Form.Control
-                                    disabled={!enableReset}
-                                    type="text"
-                                    value={questionForm}
-                                    onChange={(e) => {
-                                        setQuestionForm(e.target.value);
-                                    }}
-                                    placeholder="Inserisci la tua domanda di recupero"
-                                />
-                            </FormGroup>
-                            <FormGroup className="mb-1">
-                                <Form.Label className="text-light">Risposta di Recupero</Form.Label>
-                                <Form.Control
-                                    disabled={!enableReset}
-                                    type="password"
-                                    value={answerForm}
-                                    onChange={(e) => {
-                                        setAnswerForm(e.target.value);
-                                    }}
-                                    placeholder="Inserisci la risposta alla tua domanda"
-                                />
-                            </FormGroup>
-
-                            <Form.Text>
-                                Il reset della password è una funzione che ti permette di recuperare il tuo account in
-                                caso di dimenticanza delle credenziali.
-                                <br />
-                                Puoi scegliere una domanda e la sua risposta a tua discrezione di cui solo tu sei a
-                                conoscenza.
-                                <br />
-                                <b>Non inserire dati sensibili!</b>
-                            </Form.Text>
-                        </span>
-                    </Collapse>
 
                     <Container className="d-flex justify-content-center mt-1">
                         <Button className="col-6 me-1" variant="outline-success" type="submit">

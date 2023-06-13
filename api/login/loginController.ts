@@ -1,4 +1,4 @@
-import { Body, Post, Route, Request, Response, SuccessResponse, Controller, Security } from '@tsoa/runtime';
+import { Body, Get, Post, Route, Request, Response, SuccessResponse, Controller, Security } from '@tsoa/runtime';
 import { LoginService } from './loginService';
 import { type AuthResponse } from '@model/auth';
 import { HttpError } from '@model/error';
@@ -78,6 +78,13 @@ export class LoginController extends Controller {
     ): Promise<{ message: string }> {
         logger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changeUsername(new_username.new_username, getUserFromRequest(request));
+    }
+
+    @Get('user/reset-question')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(200, 'OK')
+    public async getResetQuestion(@Body() username: { username: string }): Promise<string> {
+        return new LoginService().getResetQuestion(username.username);
     }
 
     @Post('user/{username}/reset-password')
