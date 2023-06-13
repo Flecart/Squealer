@@ -75,9 +75,9 @@ watch(selectedClient, (newValue, oldValue) => {
     </template>
     <Post
       v-for="message in messages"
-      :key="message._id"
+      :key="message._id.toString()"
       :message="message"
-      :author="clients.find((c) => c.username === selectedClient)"
+      :author="(clients.find((c) => c.username === selectedClient) as IUser)"
     />
   </div>
 </template>

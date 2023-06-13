@@ -14,6 +14,7 @@ function redirectToMessage(messageId: string) {
 </script>
 
 <template>
+  <!-- TODO: questo redirect in questo modo dovrebbe esseree un problema di accessiblità -->
   <div class="post" @click="redirectToMessage(message._id.toString())">
     <div class="post-header">
       <b-avatar :src="author.profile_pic" size="2rem" variant="secondary"></b-avatar>
@@ -42,6 +43,7 @@ function redirectToMessage(messageId: string) {
         </video>
       </template>
       <template v-else-if="message.content.type === 'maps'">
+        <!-- TODO -->
         {{ JSON.stringify(message.content) }}
       </template>
     </div>
