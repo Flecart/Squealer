@@ -20,5 +20,6 @@ export default defineConfig({
   build: {
     outDir: `../build/${endpoints.SMM}`,
     emptyOutDir: true
-  }
+  },
+  cacheDir: '../node_modules/.vite'
 })

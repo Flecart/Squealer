@@ -5,6 +5,7 @@ import type { IUser } from '@model/user'
 import type { IMessage } from '@model/message'
 import BuyModal from './BuyModal.vue'
 import Post from './Post.vue'
+
 defineProps<{
   msg: string
 }>()
