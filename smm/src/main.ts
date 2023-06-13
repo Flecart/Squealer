@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import Vue, { createApp } from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import * as VueRouter from 'vue-router'
@@ -42,4 +42,7 @@ router.beforeEach((to, _) => {
   }
 })
 
-app.use(BootstrapVue).use(IconsPlugin).use(router).mount('#app')
+// @ts-ignore
+Vue.use(BootstrapVue).use(IconsPlugin)
+
+app.use(router).mount('#app')
