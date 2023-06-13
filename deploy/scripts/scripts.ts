@@ -254,7 +254,7 @@ async function createTemporalMessage() {
                 data: "uselesss",
             },
             iterazioni: 10,
-            periodo: 1000,
+            periodo: 1000 * 60 * 3,
         }).expect(200);
 }
 
