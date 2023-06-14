@@ -120,7 +120,8 @@
         "api/**/*.ts",
         "config/*.ts",
         "config/endpoints.json",
-        "models/**/*.ts", "deploy/scripts/scripts.ts",
+        "model/**/*.ts", 
+        "deploy/scripts/scripts.ts",
         "db/**/*.ts"
     ],
     "exclude": [

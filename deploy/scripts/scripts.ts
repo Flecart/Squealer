@@ -9,6 +9,7 @@ import { randomBattisti, randomGuccini } from './readscript'
 import dotenv from 'dotenv';
 import { ChannelInfo, ChannelType } from '../../model/channel';
 import { MapPosition, Maps } from '@model/message';
+import assert from 'node:assert'
 
 dotenv.config({
     path: './.env',
@@ -24,6 +25,8 @@ type Credentials = {
     username: string
     password: string
 }
+
+type LoginToken = {name: string, token: string}
 
 const allUsers = ['gio', 'angi', 'luchi']
 
@@ -61,28 +64,27 @@ async function createDefaultUsers() {
     console.log("Users created")
 }
 
-async function getLoginTokens() {
-    const loginTokens: string[] = []
+async function getLoginTokens(): Promise<LoginToken[]> {
+    const loginTokens: LoginToken[] = []
 
     const promises = allUsers.map((user) => {
         const creds = createCredentials(user);
-
         return request(baseUrl)
             .post(loginRoute)
             .send(creds)
             .expect(200)
-
     })
 
     const res = await Promise.all(promises)
-    res.forEach((res) => {
-        loginTokens.push(res.body.token.trim())
+    res.forEach((res, i) => {
+        loginTokens.push({
+            name: allUsers[i] as string,
+            token: res.body.token.trim()
+        });
     })
 
-    console.log(`Login tokens: \n${loginTokens.map((token, i) => {
-        return `${allUsers[i]}: ${token}\n`
-    }).join('')}`)
-    return loginTokens
+    console.log(`Login tokens: \n ${JSON.stringify(loginTokens)}`)
+    return loginTokens;
 }
 
 async function createChannels(loginToken: string[]) {
@@ -254,8 +256,39 @@ async function createTemporalMessage() {
                 data: "uselesss",
             },
             iterazioni: 10,
-            periodo: 1000 * 60 * 7,
+            periodo: 1000 * 60 * 3,
         }).expect(200);
+}
+
+async function createRolesAndClients(loginTokens: LoginToken[]) {
+    assert(loginTokens.length > 1, "No login tokens")
+
+    const smmToken = loginTokens[0] as LoginToken;
+    const clientToken = loginTokens[1] as LoginToken;
+
+    await request(baseUrl)
+        .post("/api/user/role")
+        .set('Authorization', `Bearer ${smmToken.token}`)
+        .send({
+            role: "smm",
+        }).expect(200);
+
+
+    await request(baseUrl)
+        .post("/api/user/role")
+        .set('Authorization', `Bearer ${clientToken.token}`)
+        .send({
+            role: "vip",
+        }).expect(200);
+
+    console.log("SMM and VIP role created")
+
+    await request(baseUrl)
+        .post(`/api/smm/add-client/${clientToken.name}`)
+        .set('Authorization', `Bearer ${smmToken.token}`)
+        .expect(200);
+
+    console.log("Client added")
 }
 
 initConnection().then(async () => {
@@ -265,16 +298,15 @@ initConnection().then(async () => {
 
     await createDefaultUsers();
     const loginToken = await getLoginTokens();
+    const listOfToken = loginToken.map((token) => token.token);
 
-
-
-    await createChannels(loginToken);
+    await createChannels(listOfToken);
     console.log("Channels created")
 
     // @ts-ignore
-    publicChannel[0].members = [loginToken[0], loginToken[1]];
+    publicChannel[0].members = [listOfToken[0], listOfToken[1]];
     // @ts-ignore
-    publicChannel[1].members = [loginToken[0], loginToken[1], loginToken[2]];
+    publicChannel[1].members = [listOfToken[0], listOfToken[1], listOfToken[2]];
 
     await joinChannel();
     console.log("Users joined channels")
@@ -282,8 +314,9 @@ initConnection().then(async () => {
     const message = await createMessagesPublic();
     console.log("Messages created")
 
-    await createRensponse(message, loginToken);
+    await createRensponse(message, listOfToken);
 
     await createGeolocationMessagesPublic();
     await createTemporalMessage();
+    await createRolesAndClients(loginToken);
 })
