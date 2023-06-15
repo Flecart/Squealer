@@ -1,31 +1,9 @@
 <script setup lang="ts">
-import { inject, provide, ref, onMounted } from 'vue'
 import SideBar from './components/SideBar.vue'
-import type { IUser } from '@model/user'
-import { getClientsRoute } from '@/routes'
-
-const clients = ref<IUser[]>([])
-
-onMounted(async () => {
-  const authState: { token: string } = inject('auth')!
-  console.log(authState)
-  const response = await fetch(getClientsRoute, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + authState.token
-    }
-  })
-  console.log('response', response)
-  const jsonResponse = await response.json()
-
-  clients.value = jsonResponse
-  provide('clients', clients)
-  console.log(clients.value)
-})
 </script>
 
 <template>
-  <SideBar />
+  <SideBar> </SideBar>
   <main>
     <router-view></router-view>
   </main>

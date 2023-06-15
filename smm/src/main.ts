@@ -3,11 +3,13 @@ import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import * as VueRouter from 'vue-router'
 import Dashboard from './components/Dashboard.vue'
-import { squealerBaseURL } from './routes'
+import { getClientsRoute, squealerBaseURL } from './routes'
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
+import { authInject, clientInject } from './keys'
 
 import './assets/app.scss'
+import type { IUser } from '@model/user'
 
 const routes = [
   { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
@@ -25,7 +27,15 @@ const app = createApp(App)
 
 const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
 if (authState != null) {
-  app.provide('auth', authState)
+  app.provide(authInject, authState)
+  const response = await fetch(getClientsRoute, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + authState.token
+    }
+  })
+  const jsonResponse = await response.json()
+  app.provide(clientInject, jsonResponse as IUser[])
 }
 
 router.beforeEach((to, _) => {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, inject, onMounted, watch } from 'vue'
+import { ref, inject, watch } from 'vue'
 import { getClientMessageBaseRoute } from '@/routes'
+import { clientInject } from '@/keys'
 import type { IUser } from '@model/user'
 import type { IMessage } from '@model/message'
 import BuyModal from './BuyModal.vue'
@@ -10,8 +11,14 @@ defineProps<{
   msg: string
 }>()
 
-const clients = inject<IUser[]>('clients')!
 const selectedClient = ref<string>('loading...')
+watch(selectedClient, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    fetchMessages(newValue).then((data) => {
+      messages.value = data
+    })
+  }
+})
 const hasFetchedClients = ref<boolean>(false)
 
 const messages = ref<IMessage[]>([])
@@ -20,23 +27,13 @@ const selectClient = (client: string) => {
   selectedClient.value = client
 }
 
-watch(clients, (newValue) => {
-  if (newValue.length === 0) return
-  selectedClient.value = clients[0].username
-  hasFetchedClients.value = true
-})
+const clients = inject<IUser[]>(clientInject)!
+selectedClient.value = clients[0].username
+hasFetchedClients.value = true
 
 function fetchMessages(currentClient: string) {
   return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
 }
-
-watch(selectedClient, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    fetchMessages(newValue).then((data) => {
-      messages.value = data
-    })
-  }
-})
 </script>
 
 <template>
