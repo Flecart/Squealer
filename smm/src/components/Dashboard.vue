@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, inject, onMounted, watch } from 'vue'
-import { getClientsRoute, getClientMessageBaseRoute } from '@/routes'
+import { getClientMessageBaseRoute } from '@/routes'
 import type { IUser } from '@model/user'
 import type { IMessage } from '@model/message'
 import BuyModal from './BuyModal.vue'
@@ -10,29 +10,19 @@ defineProps<{
   msg: string
 }>()
 
-const authState: { token: string } = inject('auth')!
-const clients = ref<IUser[]>([])
+const clients = inject<IUser[]>('clients')!
 const selectedClient = ref<string>('loading...')
 const hasFetchedClients = ref<boolean>(false)
 
 const messages = ref<IMessage[]>([])
-// const hasFetchedMessages = ref<boolean>(false)
 
 const selectClient = (client: string) => {
   selectedClient.value = client
 }
 
-onMounted(async () => {
-  const response = await fetch(getClientsRoute, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + authState.token
-    }
-  })
-  const jsonResponse = await response.json()
-
-  clients.value = jsonResponse
-  selectedClient.value = jsonResponse[0].username
+watch(clients, (newValue) => {
+  if (newValue.length === 0) return
+  selectedClient.value = clients[0].username
   hasFetchedClients.value = true
 })
 
