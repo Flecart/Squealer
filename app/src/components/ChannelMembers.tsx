@@ -1,5 +1,4 @@
-import type * as channel from '@model/channel';
-import { PermissionType } from '@model/channel';
+import { PermissionType, type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
 import { apiChannelBase, apiUserBase } from 'src/api/routes';
 import { useContext, useEffect, useState } from 'react';
@@ -9,7 +8,7 @@ import { AuthContext } from 'src/contexts';
 import { type ISuccessMessage, type IUser } from '@model/user';
 
 interface PrompsChannelMembers {
-    channel: channel.IChannel;
+    channel: IChannel;
 }
 
 interface ChannelUser {
@@ -52,9 +51,10 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
         );
     };
 
+    const isAdmin = permission !== undefined && permission === PermissionType.ADMIN;
     return (
         <>
-            {permission !== undefined && permission === PermissionType.ADMIN && (
+            {isAdmin && (
                 <Card body>
                     <Form.Group>
                         <Form.Label>Aggiungi una persona</Form.Label>
@@ -90,15 +90,25 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
             )}
             <Stack>
                 {channel.users.map((member) => (
-                    <ChannelMember key={member.user} member={member} />
+                    <ChannelMember key={member.user} member={member} admin={isAdmin} channel={channel.name} />
                 ))}
             </Stack>
         </>
     );
 }
 
-function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
+function ChannelMember({
+    member,
+    admin,
+    channel,
+}: {
+    member: ChannelUser;
+    admin: boolean;
+    channel: string;
+}): JSX.Element {
     const [user, setUser] = useState<IUser | null>(null);
+    const [auth] = useContext(AuthContext);
+
     useEffect(() => {
         fetchApi<IUser>(
             `${apiUserBase}/${member.user}`,
@@ -112,18 +122,55 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
     }, [member.user]);
 
     function PrivilegeIcon({ privilege }: { privilege: PermissionType }): JSX.Element {
-        switch (privilege) {
-            case PermissionType.WRITE:
-                return <Icon.Pencil aria-label={privilege} title={privilege} />;
-            case PermissionType.READ:
-                return <Icon.Eyeglasses aria-label={privilege} title={privilege} />;
+        if (!admin) return <PrivilegeToIcon privilage={privilege} />;
 
-            case PermissionType.READWRITE:
-                return <Icon.Pencil aria-label={privilege} title={privilege} />;
-            case PermissionType.ADMIN:
-                return <Icon.PersonCheck aria-label={privilege} title={privilege} />;
-        }
-        return <></>;
+        const [priv, setPriv] = useState(privilege);
+        const [pending, setPending] = useState(false);
+        const onClick = (): void => {
+            setPending(true);
+            fetchApi<PermissionType>(
+                `${apiChannelBase}/${channel}/set-permission`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        permission: priv,
+                        toUser: member.user,
+                    }),
+                },
+                auth,
+                (priv) => {
+                    setPriv(priv);
+                    setPending(false);
+                },
+                (e) => {
+                    console.log(e);
+                    document.getElementById(`${member.user}-privilege`)?.setAttribute('value', privilege);
+                    setPending(false);
+                },
+            );
+        };
+
+        return (
+            <>
+                <Form.Select
+                    id={`${member.user}-privilege`}
+                    defaultValue={privilege}
+                    onChange={(e) => {
+                        setPriv(e.target.value as PermissionType);
+                    }}
+                    disabled={pending}
+                >
+                    {Object.values(PermissionType).map((value: PermissionType) => (
+                        <option key={value} value={value}>
+                            {value}
+                        </option>
+                    ))}
+                </Form.Select>
+                <Button onClick={onClick} disabled={pending}>
+                    Update
+                </Button>
+            </>
+        );
     }
 
     // TODO:aggiungere la possibilità di modificare i permessi degli altri
@@ -142,15 +189,31 @@ function ChannelMember({ member }: { member: ChannelUser }): JSX.Element {
                 )}
                 <span>{member.user}</span>
                 <div className="ms-auto">
-                    {member.notification ? (
-                        <Icon.Bell aria-label="notifica" />
-                    ) : (
-                        <Icon.BellSlash aria-label="notifica spenta" />
-                    )}
-                    <PrivilegeIcon privilege={member.privilege} />
+                    <Stack gap={1} direction="horizontal">
+                        {member.notification ? (
+                            <Icon.Bell aria-label="notifica" />
+                        ) : (
+                            <Icon.BellSlash aria-label="notifica spenta" />
+                        )}
+                        <PrivilegeIcon privilege={member.privilege} />
+                    </Stack>
                 </div>
             </Stack>
             <hr style={{ margin: 0 }} />
         </>
     );
+}
+
+function PrivilegeToIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
+    switch (privilage) {
+        case PermissionType.WRITE:
+            return <Icon.Pencil aria-label={privilage} title={privilage} />;
+        case PermissionType.READ:
+            return <Icon.Eyeglasses aria-label={privilage} title={privilage} />;
+        case PermissionType.READWRITE:
+            return <Icon.Pencil aria-label={privilage} title={privilage} />;
+        case PermissionType.ADMIN:
+            return <Icon.PersonCheck aria-label={privilage} title={privilage} />;
+    }
+    return <></>;
 }
