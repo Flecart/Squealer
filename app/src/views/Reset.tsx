@@ -1,8 +1,7 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import React, { useCallback, useContext, useState } from 'react';
+import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { AuthContext } from '../contexts';
-import { apiAuthUserBase as authUserEndpoint } from 'src/api/routes';
-import { useNavigate } from 'react-router-dom';
+import { apiResetPassword as resetPasswordEndpoint } from 'src/api/routes';
 import { fetchApi } from 'src/api/fetch';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 
@@ -11,71 +10,98 @@ export default function Reset(): JSX.Element {
 
     const [formName, setFormName] = useState('');
 
-    const [resetQuestion, setResetQuestion] = useState<string | null>(null);
+    const [otp, setOtp] = useState('');
+
+    const [resetPassword, setResetPassword] = useState<string | null>(null);
 
     const [pendingRequest, setPendingRequest] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    function handleResetPassword(): void {
-        setErrorMessage(null);
-        if (!pendingRequest) {
-            setPendingRequest(true);
-            fetchApi<string>(
-                `${authUserEndpoint}/reset-question`,
-                {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        username: formName,
-                    }),
-                },
-                authState,
-                (resetquestion) => {
-                    setResetQuestion(resetquestion);
-                },
-                (error) => {
-                    setErrorMessage(() => error.message);
-                    setPendingRequest(false);
-                },
-            );
-        }
-    }
-
-    const onSubmit = useCallback(
+    const showResetPassword = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             setFormName('');
-            handleResetPassword();
+            setOtp('');
+            setErrorMessage(null);
+            if (!pendingRequest) {
+                setPendingRequest(true);
+                fetchApi<{ otp: string }>(
+                    `${resetPasswordEndpoint}`,
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            reset_password: otp,
+                            username: formName,
+                        }),
+                    },
+                    authState,
+                    (resetpassword) => {
+                        setResetPassword(resetpassword.otp);
+                        setPendingRequest(false);
+                    },
+                    (error) => {
+                        setErrorMessage(() => error.message);
+                        setPendingRequest(false);
+                    },
+                );
+            }
         },
-        [formName],
+        [otp],
     );
-
-    const onClick = useCallback(() => {
-        if (authState !== null) {
-            setFormName(authState.username);
-            handleResetPassword();
-        }
-    }, [formName]);
 
     return (
         <SidebarSearchLayout>
-            {authState === null ? (
-                <Form className="container-fluid m-0 p-3" onSubmit={onSubmit}>
-                    <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Username</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={formName}
-                            onChange={(e) => {
-                                setFormName(e.target.value);
-                            }}
-                            placeholder="Inserisci il tuo username"
-                        />
-                    </FormGroup>
-                </Form>
-            ) : (
-                <Button onClick={onClick}>Avvia il Reset della Password</Button>
-            )}
-            {/* SECONDA PARTE IMPORTNATE */}
+            <div>
+                {resetPassword === null ? (
+                    <Form className="container-fluid m-0 p-3" onSubmit={showResetPassword}>
+                        <FormGroup className="mb-3">
+                            <Form.Label className="text-light">Username</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={formName}
+                                onChange={(e) => {
+                                    setFormName(e.target.value);
+                                }}
+                                placeholder="Inserisci il tuo username"
+                            />
+                        </FormGroup>
+                        <FormGroup className="mb-3">
+                            <Form.Label className="text-light">Password di Recupero</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={otp}
+                                onChange={(e) => {
+                                    setOtp(e.target.value);
+                                }}
+                                placeholder="Inserisci la tua Password di Recupero"
+                            />
+                        </FormGroup>
+                        <Button className="" variant="outline-success" type="submit">
+                            Conferma
+                        </Button>
+                    </Form>
+                ) : (
+                    <Alert variant="success">
+                        La tua password è stata resettata con successo. <br />
+                        La tua nuova password è:
+                        <b>{resetPassword}</b>
+                    </Alert>
+                )}
+                {errorMessage !== null && (
+                    <>
+                        <br />
+                        <p className="text-danger">{errorMessage}</p>
+                    </>
+                )}
+                {pendingRequest && (
+                    <>
+                        <br />
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    </>
+                )}
+            </div>
         </SidebarSearchLayout>
     );
 }

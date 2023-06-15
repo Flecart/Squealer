@@ -20,15 +20,16 @@ export function SideBar(): JSX.Element {
                     <SideButton to={`/user/${authState.username}`} name="Profilo" SideIcon={Icon.PersonFill} />
 
                     <SideButton to="/addpost" name="Nuovo Post" SideIcon={Icon.PencilSquare} />
-                    
-                    <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
 
+                    <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
                 </>
             ) : (
                 <>
                     <SideButton to="/login" name="Login" SideIcon={Icon.BoxArrowInLeft} />
 
                     <SideButton to="/create" name="Registrati" SideIcon={Icon.FileTextFill} />
+
+                    <SideButton to="/recover" name="Reset" SideIcon={Icon.ShieldLockFill} />
                 </>
             )}
         </Navbar>

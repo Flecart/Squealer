@@ -15,11 +15,11 @@ const UserAuthSchema = new mongoose.Schema<IUserAuth>({
         type: String,
         required: true,
     },
-    resetQuestion: {
-        type: String,
-        required: false,
+    enableReset: {
+        type: Boolean,
+        required: true,
     },
-    resetPassword: {
+    otp: {
         type: String,
         required: false,
     },

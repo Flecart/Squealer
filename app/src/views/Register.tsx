@@ -4,7 +4,7 @@ import { AuthContext } from '../contexts';
 import { useNavigate } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
-import { apiCreate as createEndpoint, apiSettingReset } from 'src/api/routes';
+import { apiCreate as createEndpoint } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
 import { LogoLight } from 'app/logos/LogosInfo';
 
@@ -13,9 +13,6 @@ export default function Register(): JSX.Element {
 
     const [formName, setFormName] = useState('');
     const [formPassword, setFormPassword] = useState('');
-
-    const [questionForm, setQuestionForm] = useState('');
-    const [answerForm, setAnswerForm] = useState('');
 
     const [pendingRequest, setPendingRequest] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -55,27 +52,6 @@ export default function Register(): JSX.Element {
                         setPendingRequest(false);
                     },
                 );
-
-                if (errorMessage !== null) {
-                    fetchApi<AuthResponse>(
-                        apiSettingReset,
-                        {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                resetQuestion: questionForm,
-                                resetPassword: answerForm,
-                            }),
-                        },
-                        authState,
-                        (_) => {
-                            navigate('/');
-                        },
-                        (error) => {
-                            setErrorMessage(() => error.message);
-                            setPendingRequest(false);
-                        },
-                    );
-                }
             }
         },
         [formName, formPassword],
@@ -110,38 +86,6 @@ export default function Register(): JSX.Element {
                             placeholder="Inserisci la tua password"
                         />
                     </FormGroup>
-
-                    <FormGroup className="my-3">
-                        <Form.Label className="text-light">Domanda di Recupero</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={questionForm}
-                            onChange={(e) => {
-                                setQuestionForm(e.target.value);
-                            }}
-                            placeholder="Inserisci la tua domanda di recupero"
-                        />
-                    </FormGroup>
-                    <FormGroup className="mb-1">
-                        <Form.Label className="text-light">Risposta di Recupero</Form.Label>
-                        <Form.Control
-                            type="password"
-                            value={answerForm}
-                            onChange={(e) => {
-                                setAnswerForm(e.target.value);
-                            }}
-                            placeholder="Inserisci la risposta alla tua domanda"
-                        />
-                    </FormGroup>
-
-                    <Form.Text>
-                        Il reset della password è una funzione che ti permette di recuperare il tuo account in caso di
-                        dimenticanza delle credenziali.
-                        <br />
-                        Puoi scegliere una domanda e la sua risposta a tua discrezione di cui solo tu sei a conoscenza.
-                        <br />
-                        <b>Non inserire dati sensibili!</b>
-                    </Form.Text>
 
                     <Container className="d-flex justify-content-center mt-1">
                         <Button className="col-6 me-1" variant="outline-success" type="submit">

@@ -13,9 +13,8 @@ export interface Credentials {
     password: string;
 }
 
-export interface ResetCredentials {
-    resetQuestion: string;
-    resetPassword: string;
+export interface Otp {
+    otp: string;
 }
 
 @Route('/auth/')
@@ -40,16 +39,18 @@ export class LoginController extends Controller {
     @Security('jwt')
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(201, 'Reset Activeted')
-    public async settingReset(
-        @Body() credentials: ResetCredentials,
-        @Request() request: any,
-    ): Promise<{ message: string }> {
-        loginLogger.info(`[setdReset] for username '${request}'`);
-        return new LoginService().setReset(
-            credentials.resetQuestion,
-            credentials.resetPassword,
-            getUserFromRequest(request),
-        );
+    public async settingReset(@Body() password: { Password: string }, @Request() request: any): Promise<Otp> {
+        loginLogger.info(`[settedReset] for username '${request}'`);
+        return new LoginService().settingReset(password.Password, getUserFromRequest(request));
+    }
+
+    @Get('setting-reset')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(201, 'OK')
+    public async getEnableReset(@Request() request: any): Promise<{ enableReset: boolean }> {
+        loginLogger.info(`[enable requested] for username '${request}'`);
+        return new LoginService().getEnableReset(getUserFromRequest(request));
     }
 
     @Post('user/{username}/change-password')
@@ -80,22 +81,11 @@ export class LoginController extends Controller {
         return new LoginService().changeUsername(new_username.new_username, getUserFromRequest(request));
     }
 
-    @Get('user/reset-question')
-    @Response<HttpError>(400, 'Bad request')
-    @SuccessResponse<AuthResponse>(200, 'OK')
-    public async getResetQuestion(@Body() username: { username: string }): Promise<string> {
-        return new LoginService().getResetQuestion(username.username);
-    }
-
-    @Post('user/{username}/reset-password')
-    @Security('jwt')
+    @Post('reset-password')
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(200, 'Password Resetted')
-    public async resetPassword(
-        @Body() reset_password: { reset_password: string },
-        @Request() request: any,
-    ): Promise<{ newPassword: string }> {
-        logger.info(`[resetPassword] from username '${getUserFromRequest(request)}'`);
-        return new LoginService().resetPassword(reset_password.reset_password, getUserFromRequest(request));
+    public async resetPassword(@Body() c: { reset_password: string; username: string }): Promise<Otp> {
+        logger.info(`[resetPassword] from username '${c.username}'`);
+        return new LoginService().resetPassword(c.reset_password, c.username);
     }
 }
