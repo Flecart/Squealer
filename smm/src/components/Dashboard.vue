@@ -20,6 +20,7 @@ watch(selectedClient, (newValue, oldValue) => {
   }
 })
 const hasFetchedClients = ref<boolean>(false)
+const buyModalShow = ref<boolean>(false)
 
 const messages = ref<IMessage[]>([])
 
@@ -31,8 +32,13 @@ const clients = inject<IUser[]>(clientInject)!
 selectedClient.value = clients[0].username
 hasFetchedClients.value = true
 
-function fetchMessages(currentClient: string) {
+const fetchMessages = (currentClient: string) => {
   return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
+}
+
+const setBuyModalShow = () => {
+  buyModalShow.value = true
+  console.log(buyModalShow.value)
 }
 </script>
 
@@ -51,7 +57,9 @@ function fetchMessages(currentClient: string) {
     </b-dropdown>
   </div>
   <template v-if="hasFetchedClients">
-    <BuyModal :username="selectedClient" />
+    <b-button id="show-btn" variant="warning" @click="setBuyModalShow">Buy Quota</b-button>
+
+    <BuyModal :username="selectedClient" :show="buyModalShow" />
   </template>
   <template v-else>
     <b-spinner label="Loading..."></b-spinner>
