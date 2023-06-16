@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota'
-import { inject, ref, onMounted } from 'vue'
+import { inject, ref } from 'vue'
 import { buyQuotaBaseRoute } from '@/routes'
 
 const props = defineProps<{
   username: string
-  show: boolean
 }>()
 
 const dayQuota = ref<number>(0)
@@ -18,17 +17,6 @@ const alertVariant = ref<string>('success')
 const alertText = ref<string>('')
 
 const authState: { token: string } = inject('auth')!
-const myModalRef = ref<HTMLElement>()
-
-onMounted(() => {
-  console.log('mounted')
-  console.log(props.show)
-  if (props.show) {
-    showModal()
-  } else {
-    hideModal()
-  }
-})
 
 function handleSubmit() {
   if (totalCost.value === 0) {
@@ -61,6 +49,8 @@ function handleSubmit() {
     }
   })
 }
+
+const myModalRef = ref<HTMLElement>()
 
 function showModal() {
   // @ts-ignore
@@ -97,57 +87,61 @@ function updateCost() {
 </script>
 
 <template>
-  <b-modal ref="myModalRef" hide-footer title="Quota Purchase Form">
-    <div class="d-block text-center">
-      <h3>
-        Buy quota for <span class="client-name">{{ username }} </span>
-      </h3>
-    </div>
+  <div>
+    <b-button id="show-btn" variant="warning" @click="showModal">Buy Quota</b-button>
 
-    <form ref="form" @submit.stop.prevent="handleSubmit">
-      <b-form-group label="Daily Quota" label-for="daily-quota">
-        <b-form-input
-          id="daily-quota"
-          type="number"
-          v-model="dayQuota"
-          @update="handleDayChange"
-        ></b-form-input>
-      </b-form-group>
-
-      <b-form-group label="Weekly Quota" label-for="weekly-quota">
-        <b-form-input
-          id="weekly-quota"
-          number="true"
-          type="number"
-          v-model="weekQuota"
-          @update="handleWeekChange"
-        ></b-form-input>
-      </b-form-group>
-
-      <b-form-group label="Montly Quota" label-for="montly-quota">
-        <b-form-input
-          id="montly-quota"
-          type="number"
-          number="true"
-          v-model="monthQuota"
-          @update="handleMonthChange"
-        ></b-form-input>
-      </b-form-group>
-
-      <div>
-        <h3>Total Cost: {{ totalCost.toFixed(2) }} &euro;</h3>
+    <b-modal ref="myModalRef" hide-footer title="Quota Purchase Form">
+      <div class="d-block text-center">
+        <h3>
+          Buy quota for <span class="client-name">{{ username }} </span>
+        </h3>
       </div>
 
-      <button type="submit" class="btn btn-primary">
-        <template v-if="loading">
-          <b-spinner label="Spinning"></b-spinner>
-        </template>
-        <template v-else> Submit </template>
-      </button>
-    </form>
+      <form ref="form" @submit.stop.prevent="handleSubmit">
+        <b-form-group label="Daily Quota" label-for="daily-quota">
+          <b-form-input
+            id="daily-quota"
+            type="number"
+            v-model="dayQuota"
+            @update="handleDayChange"
+          ></b-form-input>
+        </b-form-group>
 
-    <b-alert class="mt-3" :variant="alertVariant" :show="alertShow">{{ alertText }}</b-alert>
-  </b-modal>
+        <b-form-group label="Weekly Quota" label-for="weekly-quota">
+          <b-form-input
+            id="weekly-quota"
+            number="true"
+            type="number"
+            v-model="weekQuota"
+            @update="handleWeekChange"
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group label="Montly Quota" label-for="montly-quota">
+          <b-form-input
+            id="montly-quota"
+            type="number"
+            number="true"
+            v-model="monthQuota"
+            @update="handleMonthChange"
+          ></b-form-input>
+        </b-form-group>
+
+        <div>
+          <h3>Total Cost: {{ totalCost.toFixed(2) }} &euro;</h3>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <template v-if="loading">
+            <b-spinner label="Spinning"></b-spinner>
+          </template>
+          <template v-else> Submit </template>
+        </button>
+      </form>
+
+      <b-alert class="mt-3" :variant="alertVariant" :show="alertShow">{{ alertText }}</b-alert>
+    </b-modal>
+  </div>
 </template>
 
 <style scoped>
