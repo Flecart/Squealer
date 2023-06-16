@@ -40,7 +40,7 @@ export class LoginController extends Controller {
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(201, 'Reset Activeted')
     public async settingReset(@Body() password: { Password: string }, @Request() request: any): Promise<Otp> {
-        logger.info(`[settedReset] for username '${getUserFromRequest(request)}'`);
+        loginLogger.info(`[settedReset] for username '${getUserFromRequest(request)}'`);
         return new LoginService().settingReset(password.Password, getUserFromRequest(request));
     }
 
@@ -49,7 +49,7 @@ export class LoginController extends Controller {
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(201, 'OK')
     public async getEnableReset(@Request() request: any): Promise<{ enableReset: boolean }> {
-        logger.info(`[enable requested] for username '${getUserFromRequest(request)}'`);
+        loginLogger.info(`[enable requested] for username '${getUserFromRequest(request)}'`);
         return new LoginService().getEnableReset(getUserFromRequest(request));
     }
 
@@ -61,7 +61,7 @@ export class LoginController extends Controller {
         @Body() password_change: { old_password: string; new_password: string },
         @Request() request: any,
     ): Promise<{ message: string }> {
-        logger.info(`[changePassword] with username '${getUserFromRequest(request)}'`);
+        loginLogger.info(`[changePassword] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changePassword(
             password_change.old_password,
             password_change.new_password,
@@ -77,7 +77,7 @@ export class LoginController extends Controller {
         @Body() new_username: { new_username: string },
         @Request() request: any,
     ): Promise<{ message: string }> {
-        logger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
+        loginLogger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changeUsername(new_username.new_username, getUserFromRequest(request));
     }
 
@@ -85,7 +85,7 @@ export class LoginController extends Controller {
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(200, 'Password Resetted')
     public async resetPassword(@Body() c: { reset_password: string; username: string }): Promise<Otp> {
-        logger.info(`[resetPassword] from username '${c.username}'`);
+        loginLogger.info(`[resetPassword] from username '${c.username}'`);
         return new LoginService().resetPassword(c.reset_password, c.username);
     }
 }
