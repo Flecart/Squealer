@@ -11,6 +11,7 @@ import initMongo from './mongo';
 import initStorageDir from './storage';
 import { HttpError } from '@model/error';
 import logger from './logger';
+import { errors as joseErrors } from 'jose';
 
 const indexLogger = logger.child({ label: 'index' });
 
@@ -18,6 +19,8 @@ function errorHandler(err: Error, _req: ExRequest, res: ExResponse, _next: Funct
     let httpError: HttpError;
     if (err instanceof HttpError) {
         httpError = err;
+    } else if (err instanceof joseErrors.JWTExpired) {
+        httpError = new HttpError(401, 'Token expired');
     } else {
         console.error('at errorHandler ', err);
         httpError = new HttpError(500, `Error: ${err.message}`);
