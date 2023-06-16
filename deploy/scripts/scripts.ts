@@ -7,7 +7,7 @@ import initConnection from '../../server/mongo';
 import { randomBattisti, randomGuccini } from './readscript'
 
 import dotenv from 'dotenv';
-import { ChannelInfo, ChannelType } from '../../model/channel';
+import { ChannelInfo, ChannelType, PermissionType } from '../../model/channel';
 import { MapPosition, Maps } from '@model/message';
 import assert from 'node:assert'
 
@@ -26,7 +26,9 @@ type Credentials = {
     password: string
 }
 
-type LoginToken = {name: string, token: string}
+type LoginToken = { name: string, token: string }
+
+let loginTockenMap: Map<string, string> = new Map();
 
 const allUsers = ['gio', 'angi', 'luchi']
 
@@ -44,7 +46,16 @@ let publicChannel = [
         gen: randomGuccini, members: []
     },
 ]
-
+let privateChannel = [
+    {
+        nome: 'battistiQuote', description: 'canale dedicato a lucio battisti',
+        gen: randomBattisti, members: []
+    },
+    {
+        nome: 'gucciniQuote', description: 'canale dedicato a francesco guccini',
+        gen: randomGuccini, members: []
+    },
+]
 function createCredentials(user: string) {
     return {
         username: user,
@@ -142,9 +153,10 @@ async function createGeolocationMessagesPublic() {
 
     const firstPosition: Maps = {
         positions: [{
-        lat: 44.498026,
-        lng: 11.355863,
-    }]}
+            lat: 44.498026,
+            lng: 11.355863,
+        }]
+    }
 
     const nextPositions: MapPosition[] = [
         {
@@ -176,7 +188,7 @@ async function createGeolocationMessagesPublic() {
             .post(`${messageCreateRoute}/geo/${req.body.id}`)
             .set('Authorization', `Bearer ${tokenSender}`)
             .send(position).expect(200);
-        
+
         console.log(req2.body)
     }
 }
@@ -196,16 +208,16 @@ async function createRensponse(messages: MessageCreate[], loginTokens: string[])
                 .post(messageCreateRoute)
                 .set('Authorization', `Bearer ${token}`)
                 .field('data', JSON.stringify(message)).expect(200);
-            if(rens.status !== 200) console.log(rens.text)
+            if (rens.status !== 200) console.log(rens.text)
 
         }
     });
     await Promise.all(promises);
 }
 
-async function joinChannel(){
-    for(let channel of publicChannel){
-        for(let token of channel.members){
+async function joinChannel() {
+    for (let channel of publicChannel) {
+        for (let token of channel.members) {
             await request(baseUrl)
                 .post(`/api/channel/${channel.nome}/join`)
                 .set('Authorization', `Bearer ${token}`)
@@ -229,7 +241,7 @@ async function createTemporalMessage() {
                 data: "ciao, questo è un messaggio temporizzato! {TIME} {NUM} {DATE}",
             },
             iterazioni: 2,
-            periodo: 1000 * 60 * 5,
+            periodo: 1000 * 5,
         }).expect(200);
 
 
@@ -243,7 +255,7 @@ async function createTemporalMessage() {
                 data: "randomuseless text",
             },
             iterazioni: 3,
-            periodo: 1000 * 60 * 2,
+            periodo: 1000 * 2,
         }).expect(200);
 
     await request(baseUrl)
@@ -291,6 +303,70 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
     console.log("Client added")
 }
 
+async function createPrivateMessage() {
+    for (let from of allUsers) {
+        for (let to of allUsers) {
+            if (from === to) continue;
+            const message = {
+                channel: `@${to}`,
+                content: {
+                    type: 'text',
+                    data: `Ciao ${to}, sono ${from}`,
+                },
+            };
+            const token = loginTockenMap.get(from);
+            if (!token) continue;
+
+            await request(baseUrl)
+                .post(messageCreateRoute)
+                .set('Authorization', `Bearer ${token}`)
+                .field('data', JSON.stringify(message)).expect(200);
+        }
+    }
+}
+
+function setChannelMember(listOfToken: string[]) {
+    // @ts-ignore
+    publicChannel[0].members = [listOfToken[0], listOfToken[1]];
+    // @ts-ignore
+    publicChannel[1].members = [listOfToken[0], listOfToken[1], listOfToken[2]];
+    // @ts-ignore
+
+    privateChannel[0].members = [listOfToken[0], listOfToken[1]];
+    // @ts-ignore
+    privateChannel[1].members = [listOfToken[0], listOfToken[1], listOfToken[2]];
+}
+
+async function createPrivateChannel() {
+    for (let channel of privateChannel) {
+        const channelInfo = {
+            channelName: channel.nome,
+            type: ChannelType.PRIVATE,
+            description: channel.description,
+        } as ChannelInfo
+        if (channel.members[0] !== undefined) {
+            await createChannel(channel.members[0], channelInfo);
+        }
+    }
+}
+
+async function addUsersToPrivateChannel() {
+    for (let channel of privateChannel) {
+        for (let token of channel.members) {
+            if (token === channel.members[0]) continue;
+            const tokenToUser = new Map();
+            loginTockenMap.forEach((value, key) => tokenToUser.set(value, key));
+            const user = tokenToUser.get(token);
+            if (!token) continue;
+            request(baseUrl).post(`/api/channel/${channel.nome}/add-owner`)
+                .set('Authorization', `Bearer ${token}`).send({
+                    toUser: user, permission: PermissionType.READWRITE
+
+                }).expect(200);
+        }
+    }
+}
+
 initConnection().then(async () => {
     await mongoose.connection.db.dropDatabase() // tanto nessuna informazione importante è presente, è sicuro droppare così
     console.log("Database dropped")
@@ -298,21 +374,29 @@ initConnection().then(async () => {
 
     await createDefaultUsers();
     const loginToken = await getLoginTokens();
+
     const listOfToken = loginToken.map((token) => token.token);
+
+    loginToken.forEach((token) => loginTockenMap.set(token.name, token.token));
+
+    setChannelMember(listOfToken);
 
     await createChannels(listOfToken);
     console.log("Channels created")
 
-    // @ts-ignore
-    publicChannel[0].members = [listOfToken[0], listOfToken[1]];
-    // @ts-ignore
-    publicChannel[1].members = [listOfToken[0], listOfToken[1], listOfToken[2]];
-
     await joinChannel();
     console.log("Users joined channels")
 
+    await createPrivateChannel();
+    console.log("Private channels created")
+
+    await addUsersToPrivateChannel();
+
     const message = await createMessagesPublic();
     console.log("Messages created")
+
+    await createPrivateMessage();
+    console.log('Private messages created')
 
     await createRensponse(message, listOfToken);
 

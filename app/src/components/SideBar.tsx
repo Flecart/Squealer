@@ -20,9 +20,8 @@ export function SideBar(): JSX.Element {
                     <SideButton to={`/user/${authState.username}`} name="Profilo" SideIcon={Icon.PersonFill} />
 
                     <SideButton to="/addpost" name="Nuovo Post" SideIcon={Icon.PencilSquare} />
-                    
-                    <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
 
+                    <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
                 </>
             ) : (
                 <>

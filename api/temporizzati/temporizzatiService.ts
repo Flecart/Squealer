@@ -30,7 +30,7 @@ export class TemporizzatiService {
         if (!creator) {
             throw new HttpError(404, 'Username not found');
         }
-        const obj = await new TemporizzatiModel({
+        const obj = new TemporizzatiModel({
             creator: username,
             channel: temporizzati.channel,
             content: temporizzati.content,
@@ -56,9 +56,11 @@ export class TemporizzatiService {
             data: '',
         };
         if (temporizzati.content.type === 'text') {
-            content.data = (temporizzati.content.data as string).replace('{TIME}', new Date().toLocaleTimeString());
-            content.data = (temporizzati.content.data as string).replace('{DATE}', new Date().toLocaleDateString());
-            content.data = (temporizzati.content.data as string).replace('{NUM}', iteration.toString());
+            let data = temporizzati.content.data as string;
+            data = data.replace('{TIME}', new Date().toLocaleTimeString());
+            data = data.replace('{DATE}', new Date().toLocaleDateString());
+            data = data.replace('{NUM}', iteration.toString());
+            content.data = data;
         } else if (temporizzati.content.type === 'wikipedia') {
             content.type = 'text';
             content.data = await TemporizzatiService._getWikipediaContent();
