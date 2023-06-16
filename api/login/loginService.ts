@@ -83,7 +83,7 @@ export class LoginService {
     }
 
     public async settingReset(user_password: string, username: string): Promise<Otp> {
-        const authUser = await AuthUserModel.findOne({ username: username }, 'nableReset otp password salt');
+        const authUser = await AuthUserModel.findOne({ username: username }, 'password salt');
 
         if (authUser === null) {
             throw new HttpError(400, 'User not found');
@@ -95,7 +95,7 @@ export class LoginService {
 
         authUser.enableReset = true;
 
-        const newOtp = crypto.randomBytes(4).toString('hex');
+        const newOtp = crypto.randomBytes(10).toString('hex');
         authUser.otp = this._hashPassword(authUser.salt, newOtp);
         authUser.save();
 

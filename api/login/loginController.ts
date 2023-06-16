@@ -40,7 +40,7 @@ export class LoginController extends Controller {
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(201, 'Reset Activeted')
     public async settingReset(@Body() password: { Password: string }, @Request() request: any): Promise<Otp> {
-        loginLogger.info(`[settedReset] for username '${request}'`);
+        logger.info(`[settedReset] for username '${getUserFromRequest(request)}'`);
         return new LoginService().settingReset(password.Password, getUserFromRequest(request));
     }
 
@@ -49,7 +49,7 @@ export class LoginController extends Controller {
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(201, 'OK')
     public async getEnableReset(@Request() request: any): Promise<{ enableReset: boolean }> {
-        loginLogger.info(`[enable requested] for username '${request}'`);
+        logger.info(`[enable requested] for username '${getUserFromRequest(request)}'`);
         return new LoginService().getEnableReset(getUserFromRequest(request));
     }
 
