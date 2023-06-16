@@ -1,6 +1,5 @@
 import { Container, Row, Tab, Tabs } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
-import Post from '../components/Post';
 import { type IUser } from '@model/user';
 import { type HttpError } from '@model/error';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,7 +7,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
 import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { type IMessage } from '@model/message';
+import { sortHighliths, sortRecently, type IMessage } from '@model/message';
+import MessageListLoader from 'src/components/MessageListLoader';
 
 function User(): JSX.Element {
     const { username } = useParams();
@@ -71,18 +71,6 @@ function User(): JSX.Element {
                     <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
                 </Row>
 
-                <Row>
-                    <div className="d-flex justify-content-around">
-                        <span>
-                            {' '}
-                            <b>1Mil</b> Followers{' '}
-                        </span>
-                        <span>
-                            {' '}
-                            <b>1Mil</b> Following{' '}
-                        </span>
-                    </div>
-                </Row>
                 {/* TODO: edit profile button if the user is him self */}
             </Container>
 
@@ -98,12 +86,20 @@ function User(): JSX.Element {
                     <Tab eventKey="hightlight" title="Highlight">
                         {/* Display posts in for loop if they exists */}
 
-                        {messages?.map((message) => (
-                            <Post key={message._id as unknown as string} message={message} />
-                        ))}
+                        {messages !== null && (
+                            <MessageListLoader
+                                childrens={messages.map((a) => a._id.toString())}
+                                compare={sortRecently}
+                            />
+                        )}
                     </Tab>
                     <Tab eventKey="posts" title="Last Posts">
-                        hello
+                        {messages !== null && (
+                            <MessageListLoader
+                                childrens={messages.map((a) => a._id.toString())}
+                                compare={sortHighliths}
+                            />
+                        )}
                     </Tab>
                 </Tabs>
             </Container>

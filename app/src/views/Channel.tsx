@@ -9,7 +9,7 @@ import { AuthContext } from 'src/contexts';
 import MessageListLoader from 'src/components/MessageListLoader';
 import ChannelMembers from 'src/components/ChannelMembers';
 import * as Icon from 'react-bootstrap-icons';
-import { type IReaction, IReactionType, type IMessage } from '@model/message';
+import { sortHighliths, sortRecently } from '@model/message';
 import { type AuthResponse } from '@model/auth';
 
 interface HeaderChannelProps {
@@ -48,12 +48,6 @@ export default function Channel(): JSX.Element {
     }, [channelId]);
     console.log(channel);
 
-    const sortLatest = (a: IMessage, b: IMessage): number => {
-        if (a.date > b.date) return -1;
-        if (a.date < b.date) return 1;
-        return 0;
-    };
-
     return (
         <SidebarSearchLayout>
             <Header channel={channel} auth={auth} error={error} />
@@ -61,7 +55,7 @@ export default function Channel(): JSX.Element {
             <Container as="main">
                 {/* TODO: refactor tab element to have li childs as elements?? */}
                 {channel !== null && channel.type === ChannelType.USER ? (
-                    <MessageListLoader childrens={channel.messages.map((a) => a.toString())} compare={sortLatest} />
+                    <MessageListLoader childrens={channel.messages.map((a) => a.toString())} compare={sortRecently} />
                 ) : (
                     <Tabs
                         defaultActiveKey="hightlight" // TODO: decidere il default a seconda della route?, sarebbe bono, poi renderizzare solo tramite quello.
@@ -83,7 +77,7 @@ export default function Channel(): JSX.Element {
                             {channel !== null && (
                                 <MessageListLoader
                                     childrens={channel.messages.map((a) => a.toString())}
-                                    compare={sortLatest}
+                                    compare={sortRecently}
                                 />
                             )}
                         </Tab>
@@ -188,19 +182,6 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
             )}
         </>
     );
-}
-
-function sortHighliths(a: IMessage, b: IMessage): number {
-    const mapReactionToNumber = new Map<IReactionType, number>();
-    mapReactionToNumber.set(IReactionType.ANGRY, -2);
-    mapReactionToNumber.set(IReactionType.DISLIKE, -1);
-    mapReactionToNumber.set(IReactionType.UNSET, 0);
-    mapReactionToNumber.set(IReactionType.LIKE, 1);
-    mapReactionToNumber.set(IReactionType.LOVE, 3);
-    const toNumber = (reaction: IReaction): number => mapReactionToNumber.get(reaction.type) ?? 0;
-    const na = a.reaction.map(toNumber).reduce((a, b) => a + b, 0);
-    const nb = b.reaction.map(toNumber).reduce((a, b) => a + b, 0);
-    return na - nb;
 }
 
 function getUserName(channelname: string, myname: string): string {
