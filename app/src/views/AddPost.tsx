@@ -1,7 +1,7 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/PurchaseQuota';
 import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
@@ -33,11 +33,16 @@ export default function AddPost(): JSX.Element {
 
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<IUser | null>(null);
-    const [role, setRole] = useState<UserRoles | null>(null);
+    // const [role, setRole] = useState<UserRoles | null>(null);
 
     const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
     const [tempPeriod, setTempPeriod] = useState<number>(1);
     const [tempTimes, setTempTimes] = useState<number>(1);
+
+    const userHasPermition = (role: UserRoles | null): boolean => {
+        console.log(role);
+        return role === UserRoles.SMM || role === UserRoles.VIP;
+    };
 
     useEffect(() => {
         if (authState === null) {
@@ -71,13 +76,19 @@ export default function AddPost(): JSX.Element {
             authState,
             (user) => {
                 setUser(() => user);
-                setRole(() => user.role);
             },
             (error) => {
                 setDisplayParent(() => error.message);
             },
         );
     }, [authState?.username]);
+
+    const role = useMemo<UserRoles | null>(() => {
+        if (user === null) {
+            return null;
+        }
+        return user.role;
+    }, [user]);
 
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
@@ -310,7 +321,7 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
                 {/* TODO: show geolocation button */}
 
-                <span className="d-flex flex-row no-wrap">
+                <div className="d-flex flex-row no-wrap">
                     <Button className="my-2" onClick={setGeolocation}>
                         Geolocation
                     </Button>
@@ -324,16 +335,16 @@ export default function AddPost(): JSX.Element {
                         onClick={() => {
                             setModalShow(true);
                         }}
-                        disabled={role === UserRoles.NORMAL}
+                        disabled={!userHasPermition(role)}
                         className="d-flex align-items-center my-2"
                     >
-                        <span hidden={role !== UserRoles.NORMAL}>
+                        <span hidden={userHasPermition(role)}>
                             <Lock size={19.2} className="pe-1" />
                         </span>
                         Acquista Quota
                     </Button>
-                </span>
-                <span hidden={role !== UserRoles.NORMAL} style={{ color: 'var(--bs-yellow)' }} className="mb-2">
+                </div>
+                <span hidden={userHasPermition(role)} style={{ color: 'var(--bs-yellow)' }} className="mb-2">
                     L&apos;Acquisto Quota è riservato agli utenti verificati o pro
                 </span>
 
