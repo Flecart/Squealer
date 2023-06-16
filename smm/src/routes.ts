@@ -4,3 +4,4 @@ export const squealerBaseURL = process.env.NODE_ENV === 'development' ? 'http://
 export const getClientsRoute = `${squealerBaseURL}/api/smm/clients`
 export const buyQuotaBaseRoute = `${squealerBaseURL}/api/smm/buy-quota`
 export const getClientMessageBaseRoute = `${squealerBaseURL}/api/message/user`
+export const getUserBaseRoute = `${squealerBaseURL}/api/user`

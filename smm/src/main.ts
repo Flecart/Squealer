@@ -10,10 +10,11 @@ import { authInject, clientInject } from './keys'
 
 import './assets/app.scss'
 import type { IUser } from '@model/user'
+import BuyQuotaVue from './views/BuyQuotaView.vue'
 
 const routes = [
   { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
-  { path: `/${endpoints.SMM}/about`, name: 'about', component: Dashboard }
+  { path: `/${endpoints.SMM}/buy-quota`, name: 'about', component: BuyQuotaVue }
 ]
 
 const router = VueRouter.createRouter({
@@ -28,6 +29,7 @@ const app = createApp(App)
 const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
 if (authState != null) {
   app.provide(authInject, authState)
+  // IIFE so that i can use await in top level
   const response = await fetch(getClientsRoute, {
     headers: {
       'Content-Type': 'application/json',
