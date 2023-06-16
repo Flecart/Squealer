@@ -22,13 +22,18 @@ export class ChannelController extends Controller {
     @SuccessResponse(201, 'Channel created')
     public async create(@Body() channelInfo: ChannelInfo, @Request() request: any): Promise<ChannelResponse> {
         console.info('ChannelController.create: ', channelInfo, getUserFromRequest(request));
-        return new ChannelService().create(
-            channelInfo.channelName,
-            getUserFromRequest(request),
-            channelInfo.type,
-            channelInfo.description as string,
-            true,
-        );
+        return {
+            message: 'Channel created',
+            channel: (
+                await new ChannelService().create(
+                    channelInfo.channelName,
+                    getUserFromRequest(request),
+                    channelInfo.type,
+                    channelInfo.description as string,
+                    true,
+                )
+            ).name,
+        };
     }
 
     @Put('{channelName}/descrition')
