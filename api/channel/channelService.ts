@@ -5,6 +5,7 @@ import { ICategory, type Invitation } from '@model/message';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
 import { UserRoles } from '@model/user';
+import { HydratedDocument } from 'mongoose';
 
 export class ChannelService {
     public async list(user: string | null): Promise<IChannel[]> {
@@ -44,7 +45,7 @@ export class ChannelService {
         type: ChannelType,
         description?: string,
         isFromApi?: boolean,
-    ): Promise<ChannelResponse> {
+    ): Promise<HydratedDocument<IChannel>> {
         let fromApi = isFromApi ?? false;
         const ownerUser = await UserModel.findOne({ username: owner });
 
@@ -101,7 +102,7 @@ export class ChannelService {
                 });
         }
         channel.save();
-        return { message: 'Channel created', channel: channelName };
+        return channel;
     }
 
     public async updateDescription(
