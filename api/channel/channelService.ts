@@ -26,7 +26,7 @@ export class ChannelService {
     public async getChannel(channelName: string, user: string | null): Promise<IChannel> {
         const channel = await ChannelModel.findOne({ name: channelName });
         if (channel === null) {
-            throw new HttpError(400, `Channel with name ${channelName} does not exist`);
+            throw new HttpError(404, `Channel with name ${channelName} does not exist`);
         }
         if (channel.type === ChannelType.PRIVATE || channel?.type === ChannelType.USER) {
             if (user === null) {

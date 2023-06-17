@@ -27,7 +27,7 @@ export class LoginService {
     }
 
     public async login(username: string, password: string): Promise<AuthResponse> {
-        const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
+        const model = await AuthUserModel.findOne({ username: username });
         const user = await UserModel.findOne({ username: username });
         if (user === null) {
             throw new HttpError(400, 'User not found');
