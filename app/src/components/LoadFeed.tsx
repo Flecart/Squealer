@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Spinner, Stack, Container } from 'react-bootstrap';
-import Post from './Post';
+import Post from './posts/Post';
 import { type IMessage } from '@model/message';
 import { fetchApi } from '../api/fetch';
 import { apiFeedBase } from '../api/routes';

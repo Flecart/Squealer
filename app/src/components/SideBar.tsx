@@ -1,7 +1,7 @@
 import { Navbar } from 'react-bootstrap';
 import { useContext } from 'react';
-import { AuthContext } from '../contexts';
-import { SideButton } from 'src/components/SideButton';
+import { AuthContext } from 'src/contexts';
+import { SideButton } from 'src/components/posts/SideButton';
 import * as Icon from 'react-bootstrap-icons';
 
 export function SideBar(): JSX.Element {
