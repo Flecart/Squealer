@@ -16,7 +16,6 @@ import {
     type TempSupportedContent,
 } from '@model/temporizzati';
 import Map from 'src/components/Map';
-import { MentionsInput, Mention } from 'react-mentions';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -244,42 +243,33 @@ export default function AddPost(): JSX.Element {
         if (selectedImage != null) {
             return renderFilePreview();
         } else if (geolocationCoord != null) {
+            // TODO: fix me
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             return <Map positions={geolocationCoord.positions} />;
         } else {
             return (
                 <Form.Group className="mb-3">
                     <Form.Label>
-                        Message textarea
+                        Message textarea{' '}
                         {user !== null &&
-                            ` day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
+                            `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
                                 user.usedQuota.week + messageText.length
                             }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
                                 user.maxQuota.month
                             }`}
-                        <MentionsInput
-                            value={messageText}
-                            onChange={(e) => {
-                                setMessageText(e.target.value);
-                            }}
-                        >
-                            <Mention
-                                trigger="@"
-                                data={[
-                                    {
-                                        id: 'pippo',
-                                    },
-                                    { id: 'pluto' },
-                                ]}
-                            />
-                            {/* <Mention
-                        trigger="#"
-                    /> */}
-                        </MentionsInput>
                     </Form.Label>
+
+                    <Form.Control
+                        as="textarea"
+                        rows={3}
+                        onChange={(e) => {
+                            setMessageText(e.target.value);
+                        }}
+                    />
                 </Form.Group>
             );
         }
-    }, [user, geolocationCoord, selectedImage, messageText]);
+    }, [user, geolocationCoord, selectedImage]);
 
     return (
         <SidebarSearchLayout>
@@ -292,7 +282,6 @@ export default function AddPost(): JSX.Element {
                             onChange={(e) => {
                                 setDestination(e.target.value);
                             }}
-                            autoFocus={true}
                         />
                     </Form.Group>
                 )}
