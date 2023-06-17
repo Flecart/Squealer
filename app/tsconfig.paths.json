@@ -4,7 +4,8 @@
         "baseUrl": ".",
         "paths": {
             "@model/*": ["../model/*"],
-            "@config/*": ["../config/*"]
+            "@config/*": ["../config/*"],
+            "@scss/*": ["./scss/*"]
         }
     }
 }
