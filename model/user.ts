@@ -1,6 +1,6 @@
 import type mongoose from 'mongoose';
 import type { IQuotas } from './quota';
-// import { IUserAuth } from './auth';
+import { IUserAuth } from './auth';
 
 export const UserModelName = 'User';
 
@@ -42,4 +42,4 @@ export interface ISuccessMessage {
     message: string;
 }
 
-// type UserModRensponse = IUser & Pick<IUserAuth, 'suspended'>;
+export type UserModRensponse = IUser & Pick<IUserAuth, 'suspended'>;

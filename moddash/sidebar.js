@@ -10,7 +10,6 @@
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
 
     if (authState == null) {
-        // in dev mode set the auth by hand, localstorage won't work with different ports
         window.location.replace(`/login?redirect=${encodeURIComponent(window.location)}`);
     }
 

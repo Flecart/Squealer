@@ -48,11 +48,84 @@
         ></script>
         <script src="/moddash/dashboard.js" defer></script>
         <script src="/moddash/sidebar.js" defer></script>
+        <script src="/moddash/user.js" defer></script>
 
         <title>Social media manager</title>
     </head>
 
     <body>
+        <!-- User Page -->
+        <script id="users-page-template" type="text/x-handlebars-template">
+            {{#if loading}}
+            <div class="d-flex justify-content-center mt-6">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            {{/if}}
+            {{#if error}}
+                <div class="alert alert-danger" role="alert">
+                    {{error}}
+                </div>
+            {{/if}}
+
+            {{#if users}}
+                <input type="text" id="search-user"  placeholder="Search User" class="form-control m-2"/>
+                <div class="container" style="display:flex;flex-wrap:wrap; gap:1rem;align-content:center;">
+
+
+                    {{#each users}}
+                        {{> user-card}}
+                    {{/each}}
+                </div>
+            {{/if}}
+        </script>
+        <script id="user-card-template" type="text/x-handlebars-template">
+            <div class='card text-center' style='width: 18rem;'>
+
+                <div class='card-body'>
+                    <img src='{{profile_pic}}' alt='' width='64' height='64' class='rounded-circle me-2' />
+                    <strong>{{name}}</strong>
+                    <br />
+                    {{#if suspended}}
+                        <span class='badge bg-danger'>Disabled</span>
+                    {{/if}}
+                    <span class='badge bg-primary'>{{role}}</span>
+
+                    <br />
+
+                    <button type='button' onclick="suspendUser('{{name}}',{{suspended}})" class='btn btn-primary'>
+                        Troggle Disable
+                    </button>
+
+                </div>
+            </div>
+        </script>
+
+        <!-- sidebar user conponent -->
+        <script id="user-sidebar-template" type="text/x-handlebars-template">
+            <div class='pb-3'>
+                <hr />
+                <div class='dropdown px-3'>
+                    <a
+                        href='#'
+                        class='d-flex align-items-center link-dark text-decoration-none dropdown-toggle'
+                        id='dropdownUser2'
+                        data-bs-toggle='dropdown'
+                        aria-expanded='false'
+                    >
+                        <img src='{{img}}' alt='' width='32' height='32' class='rounded-circle me-2' />
+                        <strong>{{name}}</strong>
+                    </a>
+                    <ul class='dropdown-menu text-small shadow' aria-labelledby='User Action'>
+                        <li><a class='dropdown-item' href='/user/{{name}}'> Me</a></li>
+                        <li><a class='dropdown-item' href='/logout'> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </script>
+
+        <!-- sidebar component -->
         <header class="navbar sticky-top bg-light flex-md-nowrap d-md-none d-flex justify-content-between p-0 shadow">
             <a href="/" class="navbar-brand align-items-center d-flex ms-3 link-dark text-decoration-none">
                 <svg aria-hidden="true" focusable="false" class="bi me-2" width="40" height="32">
@@ -85,47 +158,19 @@
                             <hr class="d-none d-md-block" />
                             <ul class="nav flex-column mb-auto">
                                 <li>
-                                    <a href="#" class="nav-link active" aria-current="page">
-                                        <svg
-                                            aria-hidden="true"
-                                            focusable="false"
-                                            class="bi me-2"
-                                            width="16"
-                                            height="16"
-                                        >
-                                            <use href="#speedometer2" />
-                                        </svg>
-                                        Dashboard
-                                    </a>
+                                    <a href="#" class="nav-link active" aria-current="Manage User"> Manage User </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="nav-link active" aria-current="Manage User"> Manage User </a>
                                 </li>
                             </ul>
                         </div>
-                        <script id="user-sidebar-template" type="text/x-handlebars-template">
-                            <div class='pb-3'>
-                                <hr />
-                                <div class='dropdown px-3'>
-                                    <a
-                                        href='#'
-                                        class='d-flex align-items-center link-dark text-decoration-none dropdown-toggle'
-                                        id='dropdownUser2'
-                                        data-bs-toggle='dropdown'
-                                        aria-expanded='false'
-                                    >
-                                        <!-- TODO: fetch image from backend! -->
-                                        <img src='{{img}}' alt='' width='32' height='32' class='rounded-circle me-2' />
-                                        <strong>{{name}}</strong>
-                                    </a>
-                                    <ul class='dropdown-menu text-small shadow' aria-labelledby='User Action'>
-                                        <li><a class='dropdown-item' href='/user/{{name}}'> Me</a></li>
-                                        <li><a class='dropdown-item' href='/logout'> Logout</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </script>
                         <div id="user-sidebar"></div>
                     </div>
                 </nav>
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"></main>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <div id="main-content" class="mt-2"></div>
+                </main>
             </div>
         </div>
     </body>
