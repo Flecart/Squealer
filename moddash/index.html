@@ -93,10 +93,98 @@
                     <span class='badge bg-primary'>{{role}}</span>
 
                     <br />
-
-                    <button type='button' onclick="suspendUser('{{name}}',{{suspended}})" class='btn btn-primary'>
-                        Troggle Disable
+                    <button
+                        type='button'
+                        class='btn btn-primary'
+                        data-bs-toggle='modal'
+                        data-bs-target='#modal-{{name}}'
+                    >
+                        Show More
                     </button>
+
+                    <div
+                        class='modal fade'
+                        id='modal-{{name}}'
+                        tabindex='-1'
+                        aria-labelledby='modal information about {{name}}'
+                        aria-hidden='true'
+                    >
+                        <div class='modal-dialog'>
+                            <div class='modal-content'>
+                                <div class='modal-header'>
+                                    <strong>{{name}}</strong>
+                                    <button
+                                        type='button'
+                                        class='btn-close'
+                                        data-bs-dismiss='modal'
+                                        aria-label='Close'
+                                    ></button>
+
+                                </div>
+                                <div class='modal-content'>
+                                    <div class='container-fluid text-center'>
+
+                                        <img
+                                            src='{{profile_pic}}'
+                                            alt=''
+                                            width='64'
+                                            height='64'
+                                            class='rounded-circle me-2'
+                                        />
+                                        <br />
+                                        {{#if suspended}}
+                                            <span class='badge bg-danger'>Disabled</span>
+                                        {{/if}}
+                                        <span class='badge bg-primary'>{{role}}</span>
+                                        <br />
+                                        <button
+                                            type='button'
+                                            onclick="suspendUser('{{name}}',{{suspended}})"
+                                            class='btn btn-primary'
+                                        >
+                                            Troggle Disable
+                                        </button>
+                                        <br />
+                                        <strong> change quota</strong>
+                                        <br />
+                                        <form class='mb-1'>
+                                            <label for='dayquota'>Day</label>
+                                            <input
+                                                type='number'
+                                                name='dayquota'
+                                                value='{{maxQuota.day}}'
+                                                id='dayquota-{{name}}'
+                                            />
+                                            <br />
+                                            <label for='weekquota'>Week</label>
+                                            <input
+                                                type='number'
+                                                name='weekquota'
+                                                value='{{maxQuota.week}}'
+                                                id='weekquota-{{name}}'
+                                            />
+
+                                            <br />
+                                            <label for='monthquota'>Month</label>
+                                            <input
+                                                type='number'
+                                                name='monthquota'
+                                                value='{{maxQuota.month}}'
+                                                id='monthquota-{{name}}'
+                                            />
+                                            <br />
+                                            <button
+                                                type='button'
+                                                class='btn btn-primary'
+                                                onclick="changeQuota('{{name}}')"
+                                            >Change</button>
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>

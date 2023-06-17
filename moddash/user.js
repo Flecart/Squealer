@@ -51,6 +51,26 @@
     });
 })();
 
+function changeQuota(username) {
+    const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
+    const dayquota = document.getElementById(`dayquota-${username}`).value;
+    const weekquota = document.getElementById(`weekquota-${username}`).value;
+    const monthquota = document.getElementById(`monthquota-${username}`).value;
+    fetch(`/api/moddash/changeQuota/${username}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + authState.token,
+        },
+        body: JSON.stringify({ quota: { day: dayquota, week: weekquota, month: monthquota } }),
+    })
+        .then(async () => {
+            window.location.reload();
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+}
 function suspendUser(username, suspended) {
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
     suspended = !suspended;

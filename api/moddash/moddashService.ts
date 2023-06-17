@@ -3,8 +3,18 @@ import UserModel from '@db/user';
 import AuthModel from '@db/auth';
 import { HttpError } from '@model/error';
 import { UserModRensponse } from '@model/user';
+import { IQuotas } from '@model/quota';
 
 export class ModdashService {
+    public async changeQuota(admin: string, user: string, quota: IQuotas): Promise<void> {
+        const current = await UserModel.findOne({ name: admin });
+        if (!current) throw new HttpError(404, 'Admin not found');
+        if (current.role !== UserRoles.MODERATOR) throw new HttpError(403, 'You are not a moderator');
+        const target = await UserModel.findOne({ name: user });
+        if (!target) throw new HttpError(404, 'User not found');
+        target.maxQuota = quota;
+        await target.save();
+    }
     public async suspendUser(admin: string, user: string, suspended: boolean): Promise<void> {
         const current = await UserModel.findOne({ name: admin });
         if (!current) throw new HttpError(404, 'Admin not found');
@@ -13,7 +23,6 @@ export class ModdashService {
         if (!target) throw new HttpError(404, 'User not found');
         target.set('suspended', suspended);
         await target.save();
-        console.log(`User ${user} suspended: ${suspended}`);
     }
 
     public async listUsers(userId: string): Promise<UserModRensponse[]> {

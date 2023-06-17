@@ -32,6 +32,9 @@ export class LoginService {
         if (user === null) {
             throw new HttpError(400, 'User not found');
         }
+        if (model && model.suspended) {
+            throw new HttpError(400, 'User suspended');
+        }
         if (model && model.password == this._hashPassword(model.salt, password)) {
             return {
                 username: username,
