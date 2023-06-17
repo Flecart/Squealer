@@ -1,5 +1,5 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import PurchaseQuota from 'src/components/PurchaseQuota';
+import PurchaseQuota from 'src/components/posts/PurchaseQuota';
 import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/contexts';
@@ -8,7 +8,7 @@ import { type Maps, type MessageCreation, type IMessage, type MessageCreationRen
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
-import Post from 'src/components/Post';
+import Post from 'src/components/posts/Post';
 import { type IUser, haveEnoughtQuota } from '@model/user';
 import {
     type ITemporizzati,

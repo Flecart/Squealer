@@ -1,8 +1,8 @@
 import { IReactionType, type IReaction, type ReactionResponse } from '@model/message';
 import { useState, useMemo, useContext, useCallback } from 'react';
 import { Button, ButtonGroup } from 'react-bootstrap';
-import { fetchApi } from '../api/fetch';
-import { apiMessageBase } from '../api/routes';
+import { fetchApi } from '../../api/fetch';
+import { apiMessageBase } from '../../api/routes';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext, CategoryContext } from 'src/contexts';
 import 'src/scss/Post.scss';

@@ -16,7 +16,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "include": ["./src/**/*.ts", "./src/**/*.tsx", ".eslintrc.cjs", "craco.config.js"]
 }

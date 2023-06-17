@@ -4,13 +4,12 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext, CategoryContext } from 'src/contexts';
-import { fetchApi } from '../api/fetch';
-import { apiUserBase } from '../api/routes';
+import { fetchApi } from 'src/api/fetch';
 import { toHumanReadableDate } from 'src/utils';
-import { imageBase } from 'src/api/routes';
-import Map from './Map';
+import { imageBase, apiUserBase } from 'src/api/routes';
+import Map from 'src/components/Map';
 import PostButtons from './PostButtons';
-import '../scss/Post.scss';
+import 'src/scss/Post.scss';
 
 interface PostProps {
     message: IMessage;
