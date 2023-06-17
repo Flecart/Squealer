@@ -1,4 +1,4 @@
-import { Body, Post, Route, Request, Response, SuccessResponse, Controller, Security } from '@tsoa/runtime';
+import { Body, Get, Post, Route, Request, Response, SuccessResponse, Controller, Security } from '@tsoa/runtime';
 import { LoginService } from './loginService';
 import { type AuthResponse } from '@model/auth';
 import { HttpError } from '@model/error';
@@ -11,6 +11,10 @@ const loginLogger = logger.child({ label: 'login' });
 export interface Credentials {
     username: string;
     password: string;
+}
+
+export interface Otp {
+    otp: string;
 }
 
 @Route('/auth/')
@@ -31,6 +35,24 @@ export class LoginController extends Controller {
         return new LoginService().createUser(credentials.username, credentials.password);
     }
 
+    @Post('setting-reset')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(201, 'Reset Activeted')
+    public async settingReset(@Body() password: { Password: string }, @Request() request: any): Promise<Otp> {
+        loginLogger.info(`[settedReset] for username '${getUserFromRequest(request)}'`);
+        return new LoginService().settingReset(password.Password, getUserFromRequest(request));
+    }
+
+    @Get('setting-reset')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(201, 'OK')
+    public async getEnableReset(@Request() request: any): Promise<{ enableReset: boolean }> {
+        loginLogger.info(`[enable requested] for username '${getUserFromRequest(request)}'`);
+        return new LoginService().getEnableReset(getUserFromRequest(request));
+    }
+
     @Post('user/{username}/change-password')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad request')
@@ -39,7 +61,7 @@ export class LoginController extends Controller {
         @Body() password_change: { old_password: string; new_password: string },
         @Request() request: any,
     ): Promise<{ message: string }> {
-        logger.info(`[changePassword] with username '${getUserFromRequest(request)}'`);
+        loginLogger.info(`[changePassword] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changePassword(
             password_change.old_password,
             password_change.new_password,
@@ -55,7 +77,15 @@ export class LoginController extends Controller {
         @Body() new_username: { new_username: string },
         @Request() request: any,
     ): Promise<{ message: string }> {
-        logger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
+        loginLogger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
         return new LoginService().changeUsername(new_username.new_username, getUserFromRequest(request));
+    }
+
+    @Post('reset-password')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(200, 'Password Resetted')
+    public async resetPassword(@Body() c: { reset_password: string; username: string }): Promise<Otp> {
+        loginLogger.info(`[resetPassword] from username '${c.username}'`);
+        return new LoginService().resetPassword(c.reset_password, c.username);
     }
 }

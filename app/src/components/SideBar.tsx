@@ -52,6 +52,8 @@ export function SideBar(): JSX.Element {
                     <SideButton to="/login" name="Login" SideIcon={Icon.BoxArrowInLeft} />
 
                     <SideButton to="/create" name="Registrati" SideIcon={Icon.FileTextFill} />
+
+                    <SideButton to="/recover" name="Reset" SideIcon={Icon.ShieldLockFill} />
                 </>
             )}
         </Navbar>

@@ -21,6 +21,7 @@ import { apiUserBase } from './api/routes';
 import { NotificationStore } from './notification';
 import { CreateChannel } from './views/CreateChannel';
 import Channels from './views/Channels';
+import Reset from './views/Reset';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
             <Route path="/create" element={<Register />} />
             <Route path="/createChannel" element={<CreateChannel />} />
             <Route path="/user/:username" element={<User />} />
+            <Route path="/recover" element={<Reset />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/addpost/" element={<AddPost />} />
             <Route path="/addpost/:parent" element={<AddPost />} />

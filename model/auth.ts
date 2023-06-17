@@ -6,6 +6,8 @@ export interface IUserAuth {
     salt: string;
     userId: mongoose.Types.ObjectId;
     suspended: boolean;
+    enableReset: boolean;
+    otp?: string;
 }
 
 export interface AuthResponse {

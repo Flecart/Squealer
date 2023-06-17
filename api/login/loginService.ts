@@ -9,6 +9,7 @@ import { AuthResponse } from '@model/auth';
 import { DEFAULT_QUOTA } from '@config/api';
 import AuthUserModel from '@db/auth';
 import UserModel from '@db/user';
+import { type Otp } from './loginController';
 
 export class LoginService {
     public async createUser(name: string, password: string): Promise<AuthResponse> {
@@ -84,6 +85,55 @@ export class LoginService {
         return { message: 'Username changed' };
     }
 
+    public async settingReset(user_password: string, username: string): Promise<Otp> {
+        const authUser = await AuthUserModel.findOne({ username: username }, 'password salt');
+
+        if (authUser === null) {
+            throw new HttpError(400, 'User not found');
+        }
+
+        if (authUser.password !== this._hashPassword(authUser.salt, user_password)) {
+            throw new HttpError(400, 'Invalid password');
+        }
+
+        authUser.enableReset = true;
+
+        const newOtp = crypto.randomBytes(10).toString('hex');
+        authUser.otp = this._hashPassword(authUser.salt, newOtp);
+        authUser.save();
+
+        return { otp: newOtp } as Otp;
+    }
+
+    public async getEnableReset(username: string): Promise<{ enableReset: boolean }> {
+        const authUser = await AuthUserModel.findOne({ username: username }, 'enableReset');
+        if (authUser === null) {
+            throw new HttpError(400, 'User not found');
+        }
+        return { enableReset: authUser.enableReset };
+    }
+
+    public async resetPassword(reset_password: string, username: string): Promise<Otp> {
+        const authUser = await AuthUserModel.findOne({ username: username }, 'enableReset salt otp');
+        if (authUser === null) {
+            throw new HttpError(400, 'User not found');
+        }
+
+        if (!authUser.enableReset) {
+            throw new HttpError(400, 'Recupero Password non Abilitato');
+        }
+
+        if (authUser.otp !== this._hashPassword(authUser.salt, reset_password)) {
+            throw new HttpError(400, 'Invalid password');
+        }
+
+        const newPassword = crypto.randomBytes(5).toString('hex');
+        authUser.password = this._hashPassword(authUser.salt, newPassword);
+        authUser.save();
+
+        return { otp: newPassword } as Otp;
+    }
+
     private async _createUserName(name: string): Promise<string> {
         // TODO: simplify me
         const usernamePref = name.toLowerCase().split(' ').join('');
@@ -140,6 +190,7 @@ export class LoginService {
             password: this._hashPassword(salt, password),
             salt: salt,
             userId: userId,
+            enableReset: false,
         });
     }
 

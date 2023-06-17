@@ -18,6 +18,13 @@ const UserAuthSchema = new mongoose.Schema<IUserAuth>({
     suspended: {
         type: Boolean,
         default: false,
+    enableReset: {
+        type: Boolean,
+        required: true,
+    },
+    otp: {
+        type: String,
+        required: false,
     },
 });
 

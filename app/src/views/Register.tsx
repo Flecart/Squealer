@@ -6,6 +6,7 @@ import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
 import { apiCreate as createEndpoint } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
+import { LogoLight } from 'app/logos/LogosInfo';
 
 export default function Register(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);
@@ -45,7 +46,6 @@ export default function Register(): JSX.Element {
                     authState,
                     (auth) => {
                         setAuthState(() => auth);
-                        navigate('/');
                     },
                     (error) => {
                         setErrorMessage(() => error.message);
@@ -59,8 +59,11 @@ export default function Register(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className="d-flex justify-content-center">
-                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleCreateUser}>
+            <Container className="d-flex flex-column align-items-center">
+                <h1 className="m-0 text-center">Benvenuto su Squealer!</h1>
+                <img src={LogoLight} width={100} height={100} className="d-inline-block" alt="Logo Squealer" />
+
+                <Form className="container-fluid m-0 p-3 border rounded-3" onSubmit={handleCreateUser}>
                     <FormGroup className="mb-3">
                         <Form.Label className="text-light">Username</Form.Label>
                         <Form.Control
@@ -83,7 +86,8 @@ export default function Register(): JSX.Element {
                             placeholder="Inserisci la tua password"
                         />
                     </FormGroup>
-                    <Container className="d-flex justify-content-center">
+
+                    <Container className="d-flex justify-content-center mt-1">
                         <Button className="col-6 me-1" variant="outline-success" type="submit">
                             Registrati
                         </Button>
