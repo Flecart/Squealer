@@ -9,7 +9,6 @@ import UserService from '@api/user/userService';
 
 export class SmmService {
     public async getClients(smmUsername: string): Promise<IUser[]> {
-        return UserModel.find({}).limit(3);
         const user = await this._getSmm(smmUsername);
         if (user.clients) {
             user.clients;
