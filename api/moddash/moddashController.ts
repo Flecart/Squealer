@@ -3,7 +3,7 @@ import { ModdashService } from './moddashService';
 import { getUserFromRequest } from '@api/utils';
 import logger from '@server/logger';
 
-const moddashLog = logger.child({ label: 'login' });
+const moddashLog = logger.child({ label: 'moddash' });
 
 @Route('/moddash')
 export class ModdashController {

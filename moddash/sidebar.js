@@ -1,3 +1,4 @@
+/* globals Handlebars */
 (function () {
     const USER_SIDEBAR_ID = 'user-sidebar-template';
 

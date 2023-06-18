@@ -41,10 +41,20 @@ export function SideBar(): JSX.Element {
 
                     <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
                     {role === UserRoles.SMM && (
-                        <SideButton to={`${squealerBaseUrl}/smm`} name="Smm page" SideIcon={Icon.ClipboardData} />
+                        <SideButton
+                            to={`${squealerBaseUrl}/smm`}
+                            name="Smm page"
+                            SideIcon={Icon.ClipboardData}
+                            isExternal={true}
+                        />
                     )}
                     {role === UserRoles.MODERATOR && (
-                        <SideButton to={`${squealerBaseUrl}/moddash`} name="Moddash" SideIcon={Icon.ClipboardData} />
+                        <SideButton
+                            to={`${squealerBaseUrl}/moddash`}
+                            name="Moddash"
+                            SideIcon={Icon.ClipboardData}
+                            isExternal={true}
+                        />
                     )}
                 </>
             ) : (

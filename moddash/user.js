@@ -1,3 +1,4 @@
+/* globals Handlebars */
 (function () {
     const USERS_TEMPLATE_ID = 'users-page-template';
     const USERS_CARD_ID = 'user-card-template';
