@@ -1,6 +1,6 @@
 import type mongoose from 'mongoose';
 import type { IQuotas } from './quota';
-import { IUserAuth } from './auth';
+import type { IUserAuth } from './auth';
 
 export const UserModelName = 'User';
 
