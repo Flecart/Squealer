@@ -46,7 +46,6 @@
     const userCardTemplate = Handlebars.compile(userCardSource);
 
     Handlebars.registerPartial('user-card', (a) => {
-        console.log(a);
         return userCardTemplate(a);
     });
 })();

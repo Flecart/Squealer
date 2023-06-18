@@ -23,5 +23,8 @@
         context.name = jsonResponse.username;
         context.img = jsonResponse.profile_pic;
         document.getElementById('user-sidebar').innerHTML = template(context);
+        if (jsonResponse.role !== 'moderator') {
+            window.location.replace('/logout');
+        }
     });
 })();
