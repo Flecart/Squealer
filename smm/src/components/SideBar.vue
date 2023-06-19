@@ -1,17 +1,9 @@
 <script setup lang="ts">
 import { ref, inject } from 'vue'
 import type { IUser } from '@model/user'
-import { authInject } from '@/keys'
-import { getUserBaseRoute } from '@/routes'
+import { smmUserInject } from '@/keys'
 
-const smmUser = ref<IUser>()
-const authState = inject<{ username: string }>(authInject)!
-
-fetch(`${getUserBaseRoute}/${authState.username}`)
-  .then((response) => response.json())
-  .then((data) => {
-    smmUser.value = data
-  })
+const smmUser = inject<IUser>(smmUserInject)!
 
 const show = ref(true)
 </script>

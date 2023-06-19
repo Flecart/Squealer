@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, inject, watch } from 'vue'
+import { ref, inject, watch, computed } from 'vue'
 import { getClientMessageBaseRoute } from '@/routes'
 import { clientInject } from '@/keys'
 import type { IUser } from '@model/user'
 import type { IMessage } from '@model/message'
+import { urgentThreshold } from '@model/quota'
 import BuyModal from './BuyModal.vue'
 import Post from './Post.vue'
+import { toEnglishString } from '@/utils'
 
 defineProps<{
   msg: string
@@ -34,6 +36,22 @@ hasFetchedClients.value = true
 function fetchMessages(currentClient: string) {
   return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
 }
+
+const currentClient = computed<IUser>(() => {
+  return clients.find((c) => c.username === selectedClient.value) as IUser
+})
+
+const quotaDay = computed<number>(() => {
+  return currentClient.value.maxQuota.day - currentClient.value.usedQuota.day
+})
+
+const quotaWeek = computed<number>(() => {
+  return currentClient.value.maxQuota.week - currentClient.value.usedQuota.week
+})
+
+const quotaMonth = computed<number>(() => {
+  return currentClient.value.maxQuota.month - currentClient.value.usedQuota.month
+})
 </script>
 
 <template>
@@ -51,11 +69,27 @@ function fetchMessages(currentClient: string) {
     </b-dropdown>
   </div>
   <template v-if="hasFetchedClients">
-    <BuyModal :username="selectedClient" />
+    <BuyModal :username="selectedClient" :urgent="quotaDay > urgentThreshold" />
   </template>
   <template v-else>
     <b-spinner label="Loading..."></b-spinner>
   </template>
+
+  <div class="mt-2">
+    Current client quota:
+    <b-badge class="mx-1" variant="primary"
+      >Daily
+      <span :aria-label="toEnglishString(quotaDay)"> {{ quotaDay }} </span> characters</b-badge
+    >
+    <b-badge class="mx-1" variant="primary"
+      >Weekly
+      <span :aria-label="toEnglishString(quotaWeek)"> {{ quotaWeek }} </span> characters</b-badge
+    >
+    <b-badge class="mx-1" variant="primary"
+      >Monthly
+      <span :aria-label="toEnglishString(quotaMonth)"> {{ quotaMonth }} </span> characters</b-badge
+    >
+  </div>
 
   <div class="posts">
     <template v-if="messages.length === 0">

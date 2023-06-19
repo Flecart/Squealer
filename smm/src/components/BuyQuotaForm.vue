@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota'
-import { inject, ref } from 'vue'
+import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek, urgentPriceIncrease } from '@model/quota'
+import { inject, ref, computed } from 'vue'
 import { buyQuotaBaseRoute } from '@/routes'
 import { authInject } from '@/keys'
+import { toEnglishString } from '@/utils'
 
 const props = defineProps<{
   username: string
+  urgent: boolean
 }>()
 
 const dayQuota = ref<number>(0)
@@ -16,6 +18,24 @@ const loading = ref<boolean>(false)
 const alertShow = ref<boolean>(false)
 const alertVariant = ref<string>('success')
 const alertText = ref<string>('')
+
+const currentPriceDay = computed<number>(() => {
+  return parseFloat(
+    (quotaPriceDay + (props.urgent ? quotaPriceDay * urgentPriceIncrease : 0)).toFixed(2)
+  )
+})
+
+const currentPriceWeek = computed<number>(() => {
+  return parseFloat(
+    (quotaPriceWeek + (props.urgent ? quotaPriceWeek * urgentPriceIncrease : 0)).toFixed(2)
+  )
+})
+
+const currentPriceMonth = computed<number>(() => {
+  return parseFloat(
+    (quotaPriceMonth + (props.urgent ? quotaPriceMonth * urgentPriceIncrease : 0)).toFixed(2)
+  )
+})
 
 const authState: { token: string } = inject(authInject)!
 function handleSubmit() {
@@ -61,11 +81,12 @@ function handleDayChange(value: number) {
   dayQuota.value = value
   updateCost()
 }
+
 function updateCost() {
   totalCost.value =
-    dayQuota.value * quotaPriceDay +
-    weekQuota.value * quotaPriceWeek +
-    monthQuota.value * quotaPriceMonth
+    dayQuota.value * currentPriceDay.value +
+    weekQuota.value * currentPriceWeek.value +
+    monthQuota.value * currentPriceMonth.value
 }
 </script>
 <template>
@@ -73,6 +94,27 @@ function updateCost() {
     <h3>
       Buy quota for <span class="client-name">{{ username }} </span>
     </h3>
+  </div>
+
+  <div class="price-groups">
+    <b-badge class="mx-1" variant="primary"
+      >Daily price
+      <span :aria-label="toEnglishString(currentPriceDay) + 'Euros'">
+        {{ currentPriceDay }}€
+      </span></b-badge
+    >
+    <b-badge class="mx-1" variant="primary"
+      >Weekly price
+      <span :aria-label="toEnglishString(currentPriceWeek) + 'Euros'">
+        {{ currentPriceWeek }}€
+      </span></b-badge
+    >
+    <b-badge class="mx-1" variant="primary"
+      >Monthly price
+      <span :aria-label="toEnglishString(currentPriceMonth) + 'Euros'">
+        {{ currentPriceMonth }}€
+      </span></b-badge
+    >
   </div>
 
   <form ref="form" @submit.stop.prevent="handleSubmit">
@@ -124,5 +166,12 @@ function updateCost() {
 .client-name {
   font-weight: 700;
   font-size: 1.8rem;
+}
+
+.price-groups {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
 }
 </style>
