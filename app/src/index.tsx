@@ -7,8 +7,8 @@ import User from './views/User';
 import Logout from './views/Logout';
 import Register from './views/Register';
 import { AuthContext, ThemeContext } from './contexts';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
-import React, { useCallback, useEffect } from 'react';
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from 'react-router-dom';
+import React, { useCallback, useEffect, useContext } from 'react';
 import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
 import AddPost from './views/AddPost';
@@ -23,25 +23,92 @@ import { CreateChannel } from './views/CreateChannel';
 import Channels from './views/Channels';
 import Reset from './views/Reset';
 
+interface Props {
+    children: JSX.Element;
+}
+
+const ProtectedRoute = ({ children }: Props): JSX.Element => {
+    const [authState] = useContext(AuthContext);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const isTokenExpired = (token: string): boolean =>
+        Date.now() >= JSON.parse(window.atob(token.split('.')[1] as string)).exp * 1000;
+
+    if (authState === null || isTokenExpired(authState.token)) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return children;
+};
+
 const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Home />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route
+                path="/settings"
+                element={
+                    <ProtectedRoute>
+                        <Settings />
+                    </ProtectedRoute>
+                }
+            />
             <Route path="/channels" element={<Channels />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/logout" element={<Logout />} />
+            <Route
+                path="/logout"
+                element={
+                    <ProtectedRoute>
+                        <Logout />
+                    </ProtectedRoute>
+                }
+            />
             <Route path="/create" element={<Register />} />
-            <Route path="/createChannel" element={<CreateChannel />} />
+            <Route
+                path="/createChannel"
+                element={
+                    <ProtectedRoute>
+                        <CreateChannel />
+                    </ProtectedRoute>
+                }
+            />
             <Route path="/user/:username" element={<User />} />
-            <Route path="/recover" element={<Reset />} />
+            <Route
+                path="/recover"
+                element={
+                    <ProtectedRoute>
+                        <Reset />
+                    </ProtectedRoute>
+                }
+            />
             <Route path="*" element={<NotFound />} />
-            <Route path="/addpost/" element={<AddPost />} />
-            <Route path="/addpost/:parent" element={<AddPost />} />
+            <Route
+                path="/addpost/"
+                element={
+                    <ProtectedRoute>
+                        <AddPost />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/addpost/:parent"
+                element={
+                    <ProtectedRoute>
+                        <AddPost />
+                    </ProtectedRoute>
+                }
+            />
             <Route path="/message/:id" element={<Message />} />
             <Route path="/channel/" element={<Channel />} />
             <Route path="/channel/:channelId" element={<Channel />} />
-            <Route path="/notification" element={<Notification />} />
+            <Route
+                path="/notification"
+                element={
+                    <ProtectedRoute>
+                        <Notification />
+                    </ProtectedRoute>
+                }
+            />
         </>,
     ),
 );
@@ -63,7 +130,8 @@ function App(): JSX.Element {
                         NotificationStore.setNotification(messages);
                     },
                     (error) => {
-                        if (error.status === 500) {
+                        // attuale specifica 401 è quando non abbiamo auth.
+                        if (error.status === 401) {
                             setAuthState(null);
                         }
                     },
