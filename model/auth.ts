@@ -1,10 +1,11 @@
-import mongoose from 'mongoose';
+import type mongoose from 'mongoose';
 
 export interface IUserAuth {
     username: string;
     password: string;
     salt: string;
     userId: mongoose.Types.ObjectId;
+    suspended: boolean;
     enableReset: boolean;
     otp?: string;
 }

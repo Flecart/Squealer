@@ -1,5 +1,6 @@
 import type mongoose from 'mongoose';
 import type { IQuotas } from './quota';
+import type { IUserAuth } from './auth';
 
 export const UserModelName = 'User';
 
@@ -40,3 +41,5 @@ export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
 export interface ISuccessMessage {
     message: string;
 }
+
+export type UserModRensponse = IUser & Pick<IUserAuth, 'suspended'>;
