@@ -52,8 +52,11 @@ const quotaWeek = computed<number>(() => {
 const quotaMonth = computed<number>(() => {
   return currentClient.value.maxQuota.month - currentClient.value.usedQuota.month
 })
-</script>
 
+const isUrgentQuota = computed<boolean>(() => {
+  return Math.min(quotaDay.value, quotaWeek.value, quotaMonth.value) < urgentThreshold
+})
+</script>
 <template>
   <h1>SMM Dashboard</h1>
   <div class="client-name">
@@ -68,12 +71,20 @@ const quotaMonth = computed<number>(() => {
       </b-dropdown-item>
     </b-dropdown>
   </div>
-  <template v-if="hasFetchedClients">
-    <BuyModal :username="selectedClient" :urgent="quotaDay > urgentThreshold" />
-  </template>
-  <template v-else>
-    <b-spinner label="Loading..."></b-spinner>
-  </template>
+
+  <div class="quota-groups me-2">
+    <template v-if="hasFetchedClients">
+      <BuyModal class="me-2 mb-1" :username="selectedClient" :urgent="isUrgentQuota" />
+    </template>
+    <template v-else>
+      <b-spinner label="Loading..."></b-spinner>
+    </template>
+    <template v-if="isUrgentQuota">
+      <b-alert variant="danger" show>
+        You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
+      </b-alert>
+    </template>
+  </div>
 
   <div class="mt-2">
     Current client quota:
@@ -124,5 +135,24 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+}
+
+.quota-groups {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.quota-groups .alert {
+  margin: 0;
+}
+
+@media screen and (max-width: 990px) {
+  .quota-groups {
+    flex-wrap: wrap;
+  }
 }
 </style>

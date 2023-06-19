@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek, urgentPriceIncrease } from '@model/quota'
+import {
+  quotaPriceDay,
+  quotaPriceMonth,
+  quotaPriceWeek,
+  urgentPriceIncrease,
+  type IQuotas
+} from '@model/quota'
 import { inject, ref, computed } from 'vue'
 import { buyQuotaBaseRoute } from '@/routes'
 import { authInject } from '@/keys'
@@ -47,24 +53,33 @@ function handleSubmit() {
   }
 
   loading.value = true
-  fetch(buyQuotaBaseRoute + props.username, {
+  fetch(`${buyQuotaBaseRoute}/${props.username}`, {
     method: 'POST',
     headers: {
-      contentType: 'application/json',
+      'Content-Type': 'application/json',
       Authorization: 'Bearer ' + authState.token
-    }
-  }).then((response) => {
-    loading.value = false
-    if (response.ok) {
-      alertVariant.value = 'success'
-      alertShow.value = true
-      alertText.value = 'Quota bought successfully'
-    } else {
-      alertVariant.value = 'danger'
-      alertShow.value = true
-      alertText.value = 'Error buying quota'
-    }
+    },
+    body: JSON.stringify({
+      day: dayQuota.value,
+      week: weekQuota.value,
+      month: monthQuota.value
+    } as IQuotas)
   })
+    .then((response) => {
+      loading.value = false
+      if (response.ok) {
+        alertVariant.value = 'success'
+        alertShow.value = true
+        alertText.value = 'Quota bought successfully'
+      } else {
+        alertVariant.value = 'danger'
+        alertShow.value = true
+        alertText.value = 'Error buying quota'
+      }
+    })
+    .catch((e) => {
+      console.log(e)
+    })
 }
 
 function handleMonthChange(value: number) {

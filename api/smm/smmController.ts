@@ -2,8 +2,12 @@ import { Request, Route, Get, Post, Body, Path, Security, UploadedFile, FormFiel
 import { SmmService } from './smmService';
 import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
 import { type IUser, type ISuccessMessage } from '@model/user';
-import { IQuotas } from '@model/quota';
+// import { IQuotas } from '@model/quota';
 import { MessageCreationRensponse } from '@model/message';
+import logger from '@server/logger';
+import { IQuotas } from '@model/quota';
+
+const smmLogger = logger.child({ module: 'SMM' });
 
 @Route('/smm')
 export class SmmController {
@@ -31,7 +35,8 @@ export class SmmController {
         @Path() user: string,
         @Body() body: IQuotas,
     ): Promise<ISuccessMessage> {
-        return new SmmService().buyQuota(getUserFromRequest(request), user, body);
+        smmLogger.info(`User ${getUserFromRequest(request)} is buying quota for ${user}`);
+        return new SmmService().buyQuota(user, getUserFromRequest(request), body);
     }
 
     @Post('/message/{clientUsername}')
