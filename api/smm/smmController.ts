@@ -15,20 +15,17 @@ export class SmmController {
 
     @Post('/add-client/{user}')
     @Security('jwt')
-    // TODO: set success and failure response move any to different value
     public async addClient(@Request() request: any, @Path() user: string): Promise<ISuccessMessage> {
         return new SmmService().addClient(user, getUserFromRequest(request));
     }
     @Get('/clients/{user}')
     @Security('jwt')
-    // TODO: set success and failure response move any to different value
     public async getClient(@Request() request: any, @Path() user: string): Promise<IUser> {
         return new SmmService().getClient(getUserFromRequest(request), user);
     }
 
     @Post('/buy-quota/{user}')
     @Security('jwt')
-    // TODO: set success and failure response, move any to different value
     public async buyQuota(
         @Request() request: any,
         @Path() user: string,
@@ -39,7 +36,6 @@ export class SmmController {
 
     @Post('/message/{clientUsername}')
     @Security('jwt')
-    // TODO: set success and failure response
     public async sendMessage(
         @Request() request: any,
         @Path() clientUsername: string,

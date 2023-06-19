@@ -1,6 +1,5 @@
-import mongoose from 'mongoose';
-import { type PermissionType } from './channel';
-
+import type mongoose from 'mongoose';
+import type { PermissionType } from './channel';
 /** 
 Commento per le api
 */
@@ -82,4 +81,23 @@ export interface MessageCreationRensponse {
 export interface ReactionResponse {
     reaction: IReactionType;
     category: number;
+}
+
+export function sortRecently(a: IMessage, b: IMessage): number {
+    if (a.date > b.date) return -1;
+    if (a.date < b.date) return 1;
+    return 0;
+}
+
+export function sortHighliths(a: IMessage, b: IMessage): number {
+    const mapReactionToNumber = new Map<IReactionType, number>();
+    mapReactionToNumber.set(IReactionType.ANGRY, -2);
+    mapReactionToNumber.set(IReactionType.DISLIKE, -1);
+    mapReactionToNumber.set(IReactionType.UNSET, 0);
+    mapReactionToNumber.set(IReactionType.LIKE, 1);
+    mapReactionToNumber.set(IReactionType.LOVE, 3);
+    const toNumber = (reaction: IReaction): number => mapReactionToNumber.get(reaction.type) ?? 0;
+    const na = a.reaction.map(toNumber).reduce((a, b) => a + b, 0);
+    const nb = b.reaction.map(toNumber).reduce((a, b) => a + b, 0);
+    return na - nb;
 }

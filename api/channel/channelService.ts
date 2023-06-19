@@ -1,25 +1,26 @@
 import { HttpError } from '@model/error';
 import MessageModel from '@db/message';
-import { IChannel, ChannelType, PermissionType, ChannelResponse } from '@model/channel';
+import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel } from '@model/channel';
 import { ICategory, type Invitation } from '@model/message';
-import { HydratedDocument } from 'mongoose';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
+import { UserRoles } from '@model/user';
+import { HydratedDocument } from 'mongoose';
 
 export class ChannelService {
     public async list(user: string | null): Promise<IChannel[]> {
-        const publicChannel = await ChannelModel.find({
+        let publicChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.SQUEALER }, { type: ChannelType.PUBLIC }],
         });
-        if (user === null) {
-            return publicChannel;
+
+        if (user !== null) {
+            const userChannel = await ChannelModel.find({
+                $or: [{ type: ChannelType.USER }, { type: ChannelType.PRIVATE }],
+                users: { $elemMatch: { user: user } },
+            });
+            publicChannel = publicChannel.concat(userChannel);
         }
-        //TODO da testare
-        const userChannel = await ChannelModel.find({
-            $or: [{ type: ChannelType.USER }, { type: ChannelType.PRIVATE }],
-            users: { $elemMatch: { user: user } },
-        });
-        return publicChannel.concat(userChannel);
+        return publicChannel.sort(sortChannel);
     }
 
     public async getChannel(channelName: string, user: string | null): Promise<IChannel> {
@@ -44,15 +45,23 @@ export class ChannelService {
         type: ChannelType,
         description?: string,
         isFromApi?: boolean,
-    ): Promise<any> {
+    ): Promise<HydratedDocument<IChannel>> {
         let fromApi = isFromApi ?? false;
         const ownerUser = await UserModel.findOne({ username: owner });
+
+        if (ownerUser === null) {
+            throw new HttpError(400, `User with username ${owner} does not exist`);
+        }
 
         if (fromApi && !(type === ChannelType.PUBLIC || type === ChannelType.PRIVATE)) {
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
+        console.log(channelName);
         if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@'))) {
             throw new HttpError(400, `Channel name ${channelName} is not valid name`);
+        }
+        if (ChannelType.SQUEALER == type && ownerUser.role !== UserRoles.MODERATOR) {
+            throw new HttpError(400, `User ${owner} is not authorized to create a squealer channel`);
         }
 
         if (type === ChannelType.SQUEALER) {
@@ -60,9 +69,8 @@ export class ChannelService {
         } else {
             channelName = channelName.toLowerCase();
         }
-        if (ownerUser === null) {
-            throw new HttpError(400, `Owner with username ${owner} does not exist`);
-        } else if ((await ChannelModel.findOne({ name: channelName })) !== null) {
+
+        if ((await ChannelModel.findOne({ name: channelName })) !== null) {
             throw new HttpError(400, 'Channel name already exists');
         }
 
@@ -94,11 +102,7 @@ export class ChannelService {
                 });
         }
         channel.save();
-        if (fromApi) {
-            return channel;
-        }
-
-        return { message: 'Channel created', channel: channelName };
+        return channel;
     }
 
     public async updateDescription(
@@ -245,10 +249,10 @@ export class ChannelService {
                 data: content,
             },
             channel: null,
+            category: ICategory.NORMAL,
             children: [],
             creator: userIssuer,
             date: new Date(),
-            category: ICategory.NORMAL,
             parent: null,
             reaction: [],
             views: 0,
@@ -277,17 +281,32 @@ export class ChannelService {
         return content;
     }
 
-    async getOwnerNames(_channel: HydratedDocument<IChannel>): Promise<string[]> {
-        // if (isMultiOwnerChannel(channel)) {
-        //     const owners = await AuthModel.find({ userId: { $in: channel.members.ownerRef } });
-        //     return owners.map((owner: IUserAuth) => owner.username);
-        // } else {
-        //     const owner = await AuthModel.findOne({ userId: channel.ownerRef });
-        //     if (owner === null) {
-        //         throw new HttpError(500, `User with id ${channel.ownerRef} does not exist`);
-        //     }
-        //     return [owner.username];
-        // }
-        return [];
+    public async setPermission(
+        admin: string,
+        channelName: string,
+        user: string,
+        newPermission: PermissionType,
+    ): Promise<PermissionType> {
+        const channel = await ChannelModel.findOne({ name: channelName });
+        if (channel == null) {
+            throw new HttpError(400, 'channel not found');
+        }
+        const userRecord = await UserModel.findOne({ username: user });
+        if (userRecord == null) {
+            throw new HttpError(400, 'user not found');
+        }
+        const adminRow = channel.users.find((u) => u.user == admin);
+        if (adminRow == null || adminRow.privilege !== PermissionType.ADMIN) {
+            throw new HttpError(403, "Don't have the right to do this operation");
+        }
+
+        const userRow = channel.users.find((u) => u.user == userRecord.name);
+        if (userRow == null) {
+            throw new HttpError(400, 'user not found');
+        }
+        userRow.privilege = newPermission;
+        channel.markModified('users');
+        await channel.save();
+        return newPermission;
     }
 }

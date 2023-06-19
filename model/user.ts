@@ -13,6 +13,7 @@ export enum UserRoles {
     SMM = 'smm',
     VIP = 'vip',
     MODERATOR = 'moderator',
+    VERIFIED = 'verified',
 }
 
 export interface IUser {

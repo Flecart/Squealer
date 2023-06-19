@@ -1,5 +1,5 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import PurchaseQuota from 'src/components/PurchaseQuota';
+import PurchaseQuota from 'src/components/posts/PurchaseQuota';
 import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from 'src/contexts';
@@ -17,6 +17,7 @@ import {
     type TempSupportedContent,
 } from '@model/temporizzati';
 import Map from 'src/components/Map';
+import { toEnglishString } from 'src/utils';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -255,20 +256,34 @@ export default function AddPost(): JSX.Element {
         if (selectedImage != null) {
             return renderFilePreview();
         } else if (geolocationCoord != null) {
-            // TODO: fix me
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             return <Map positions={geolocationCoord.positions} />;
         } else {
             return (
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="textareaInput">
                     <Form.Label>
-                        Message textarea{' '}
-                        {user !== null &&
-                            `day:${user.usedQuota.day + messageText.length}/${user.maxQuota.day} week: ${
-                                user.usedQuota.week + messageText.length
-                            }/${user.maxQuota.week} month:${user.usedQuota.month + messageText.length}/${
-                                user.maxQuota.month
-                            }`}
+                        Message textarea, remaining quota:{' '}
+                        {user !== null && (
+                            <>
+                                day:{' '}
+                                <span aria-label={toEnglishString(user.usedQuota.day + messageText.length)}>
+                                    {' '}
+                                    {user.usedQuota.day + messageText.length}{' '}
+                                </span>
+                                /<span aria-label={toEnglishString(user.maxQuota.day)}> {user.maxQuota.day}</span>
+                                week:{' '}
+                                <span aria-label={toEnglishString(user.usedQuota.week + messageText.length)}>
+                                    {' '}
+                                    {user.usedQuota.week + messageText.length}{' '}
+                                </span>
+                                /<span aria-label={toEnglishString(user.maxQuota.week)}> {user.maxQuota.week}</span>
+                                month:{' '}
+                                <span aria-label={toEnglishString(user.usedQuota.month + messageText.length)}>
+                                    {' '}
+                                    {user.usedQuota.month + messageText.length}{' '}
+                                </span>
+                                /<span aria-label={toEnglishString(user.maxQuota.month)}> {user.maxQuota.month}</span>
+                            </>
+                        )}
                     </Form.Label>
 
                     <Form.Control
@@ -277,6 +292,7 @@ export default function AddPost(): JSX.Element {
                         onChange={(e) => {
                             setMessageText(e.target.value);
                         }}
+                        placeholder="Write your message here, you can also upload a file or send geolocation."
                     />
                 </Form.Group>
             );
@@ -288,19 +304,21 @@ export default function AddPost(): JSX.Element {
             {renderParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="channelInput">
                         <Form.Label>Channel</Form.Label>
                         <Form.Control
                             onChange={(e) => {
                                 setDestination(e.target.value);
                             }}
+                            placeholder="Enter Channel Name"
+                            autoFocus={true}
                         />
                     </Form.Group>
                 )}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {renderMessagePayload()}
 
-                <Form.Group>
+                <Form.Group controlId="fileUploadInput">
                     <Form.Label>File to upload: </Form.Label>
                     <Form.Control
                         title="upload image"
@@ -348,7 +366,7 @@ export default function AddPost(): JSX.Element {
 
                 {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="periodInput">
                     <Form.Label> Period: </Form.Label>
                     <Form.Control
                         type="number"

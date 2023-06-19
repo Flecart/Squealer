@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase } from 'src/api/routes';
 import MessageListLoader from 'src/components/MessageListLoader';
-import Post from 'src/components/Post';
+import Post from 'src/components/posts/Post';
 import { AuthContext } from 'src/contexts';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 

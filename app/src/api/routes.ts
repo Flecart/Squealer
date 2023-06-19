@@ -1,4 +1,5 @@
-const apiBase = `${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : ''}/api`;
+export const squealerBaseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';
+const apiBase = `${squealerBaseUrl}/api`;
 
 export const apiLogin = `${apiBase}/auth/login`;
 export const apiUserBase = `${apiBase}/user`;
@@ -11,5 +12,7 @@ export const apiChannelBase = `${apiBase}/channel`;
 export const apiFileUpload = `${apiBase}/upload`;
 export const apiTemporized = `${apiBase}/temporizzati`;
 export const apiQuotaBase = `${apiBase}/user/quota`;
+export const apiSettingReset = `${apiBase}/auth/setting-reset`;
+export const apiResetPassword = `${apiBase}/auth/reset-password`;
 
 export const imageBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';

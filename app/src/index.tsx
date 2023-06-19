@@ -19,16 +19,22 @@ import Notification from './views/Notification';
 import { fetchApi } from './api/fetch';
 import { apiUserBase } from './api/routes';
 import { NotificationStore } from './notification';
+import { CreateChannel } from './views/CreateChannel';
+import Channels from './views/Channels';
+import Reset from './views/Reset';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Home />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/channels" element={<Channels />} />
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/create" element={<Register />} />
+            <Route path="/createChannel" element={<CreateChannel />} />
             <Route path="/user/:username" element={<User />} />
+            <Route path="/recover" element={<Reset />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/addpost/" element={<AddPost />} />
             <Route path="/addpost/:parent" element={<AddPost />} />
@@ -57,7 +63,9 @@ function App(): JSX.Element {
                         NotificationStore.setNotification(messages);
                     },
                     (error) => {
-                        console.log(error);
+                        if (error.status === 500) {
+                            setAuthState(null);
+                        }
                     },
                 );
             };
