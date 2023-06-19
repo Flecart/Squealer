@@ -30,6 +30,7 @@
     Handlebars.registerPartial('user-card', (a) => {
         return userCardTemplate(a);
     });
+
     fetch(`/api/moddash/users`, {
         headers: {
             'Content-Type': 'application/json',
@@ -48,6 +49,7 @@
             context.error = error;
             document.getElementById('main-content').innerHTML = template(context);
         });
+
 })();
 
 function changeQuota(username) {

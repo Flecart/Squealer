@@ -29,6 +29,7 @@ export interface ReactionRequest {
 export class ModdashService {
     public async changeQuota(admin: string, user: string, quota: IQuotas): Promise<void> {
         await this.checkModerator(admin);
+
         const target = await UserModel.findOne({ name: user });
         if (!target) throw new HttpError(404, 'User not found');
         target.maxQuota = quota;

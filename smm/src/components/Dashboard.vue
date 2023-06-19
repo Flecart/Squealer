@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, inject, onMounted, watch } from 'vue'
-import { getClientsRoute, getClientMessageBaseRoute } from '@/routes'
+import { ref, inject, watch } from 'vue'
+import { getClientMessageBaseRoute } from '@/routes'
+import { clientInject } from '@/keys'
 import type { IUser } from '@model/user'
 import type { IMessage } from '@model/message'
 import BuyModal from './BuyModal.vue'
@@ -10,36 +11,7 @@ defineProps<{
   msg: string
 }>()
 
-const authState: { token: string } = inject('auth')!
-const clients = ref<IUser[]>([])
 const selectedClient = ref<string>('loading...')
-const hasFetchedClients = ref<boolean>(false)
-
-const messages = ref<IMessage[]>([])
-// const hasFetchedMessages = ref<boolean>(false)
-
-const selectClient = (client: string) => {
-  selectedClient.value = client
-}
-
-onMounted(async () => {
-  const response = await fetch(getClientsRoute, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + authState.token
-    }
-  })
-  const jsonResponse = await response.json()
-
-  clients.value = jsonResponse
-  selectedClient.value = jsonResponse[0].username
-  hasFetchedClients.value = true
-})
-
-function fetchMessages(currentClient: string) {
-  return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
-}
-
 watch(selectedClient, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     fetchMessages(newValue).then((data) => {
@@ -47,6 +19,21 @@ watch(selectedClient, (newValue, oldValue) => {
     })
   }
 })
+const hasFetchedClients = ref<boolean>(false)
+
+const messages = ref<IMessage[]>([])
+
+const selectClient = (client: string) => {
+  selectedClient.value = client
+}
+
+const clients = inject<IUser[]>(clientInject)!
+selectedClient.value = clients[0].username
+hasFetchedClients.value = true
+
+function fetchMessages(currentClient: string) {
+  return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
+}
 </script>
 
 <template>
