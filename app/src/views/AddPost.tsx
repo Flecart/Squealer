@@ -33,16 +33,10 @@ export default function AddPost(): JSX.Element {
 
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<IUser | null>(null);
-    // const [role, setRole] = useState<UserRoles | null>(null);
 
     const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
     const [tempPeriod, setTempPeriod] = useState<number>(1);
     const [tempTimes, setTempTimes] = useState<number>(1);
-
-    const userHasPermition = (role: UserRoles | null): boolean => {
-        console.log(role);
-        return role === UserRoles.SMM || role === UserRoles.VIP;
-    };
 
     useEffect(() => {
         if (authState === null) {
@@ -88,6 +82,10 @@ export default function AddPost(): JSX.Element {
             return null;
         }
         return user.role;
+    }, [user]);
+
+    const permissions = useMemo<boolean>(() => {
+        return role === UserRoles.SMM || role === UserRoles.VIP;
     }, [user]);
 
     const sendTemporizedMessage = useCallback(
@@ -335,16 +333,16 @@ export default function AddPost(): JSX.Element {
                         onClick={() => {
                             setModalShow(true);
                         }}
-                        disabled={!userHasPermition(role)}
+                        disabled={!permissions}
                         className="d-flex align-items-center my-2"
                     >
-                        <span hidden={userHasPermition(role)}>
+                        <span hidden={permissions}>
                             <Lock size={19.2} className="pe-1" />
                         </span>
                         Acquista Quota
                     </Button>
                 </div>
-                <span hidden={userHasPermition(role)} style={{ color: 'var(--bs-yellow)' }} className="mb-2">
+                <span hidden={permissions} style={{ color: 'var(--bs-yellow)' }} className="mb-2">
                     L&apos;Acquisto Quota è riservato agli utenti verificati o pro
                 </span>
 
