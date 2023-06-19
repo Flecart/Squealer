@@ -1,15 +1,16 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Spinner, Stack, Container } from 'react-bootstrap';
 import Post from './posts/Post';
 import { type IMessage } from '@model/message';
 import { fetchApi } from '../api/fetch';
 import { apiFeedBase } from '../api/routes';
-import { AuthContext } from '../contexts';
+// import { AuthContext } from '../contexts';
+import { useAuth } from 'src/hooks/AuthProvider';
 
 export function MakeFeed(): JSX.Element {
     // TODO: gestire il caricamento etc
     const [contents, setContents] = useState<IMessage[] | null>(null);
-    const [authState] = useContext(AuthContext);
+    const { authState } = useAuth();
 
     useEffect(() => {
         fetchApi<IMessage[]>(

@@ -6,22 +6,23 @@ import Login from './views/Login';
 import User from './views/User';
 import Logout from './views/Logout';
 import Register from './views/Register';
-import { AuthContext, ThemeContext } from './contexts';
+import { ThemeContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import React, { useCallback, useEffect } from 'react';
-import { type AuthResponse } from '@model/auth';
+// import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
 import AddPost from './views/AddPost';
 import Message from './views/Message';
 import Settings from './views/Settings';
 import Channel from './views/Channel';
 import Notification from './views/Notification';
-import { fetchApi } from './api/fetch';
-import { apiUserBase } from './api/routes';
-import { NotificationStore } from './notification';
+// import { fetchApi } from './api/fetch';
+// import { apiUserBase } from './api/routes';
+// import { NotificationStore } from './notification';
 import { CreateChannel } from './views/CreateChannel';
 import Channels from './views/Channels';
 import Reset from './views/Reset';
+import { AuthProvider } from './hooks/AuthProvider';
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -49,35 +50,37 @@ const router = createBrowserRouter(
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
 function App(): JSX.Element {
-    const [authState, setAuthState] = usePersistState<AuthResponse | null>('auth', null);
+    // const [authState, setAuthState] = usePersistState<AuthResponse | null>('auth', null);
     const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
 
-    useEffect((): (() => void) => {
-        if (authState !== null) {
-            const getNotification = (): void => {
-                fetchApi<string[]>(
-                    `${apiUserBase}/notification`,
-                    { method: 'GET' },
-                    authState,
-                    (messages) => {
-                        NotificationStore.setNotification(messages);
-                    },
-                    (error) => {
-                        if (error.status === 500) {
-                            setAuthState(null);
-                        }
-                    },
-                );
-            };
+    // useEffect((): (() => void) => {
+    //     if (authState !== null) {
+    //         const getNotification = (): void => {
+    //             fetchApi<string[]>(
+    //                 `${apiUserBase}/notification`,
+    //                 { method: 'GET' },
+    //                 authState,
+    //                 (messages) => {
+    //                     NotificationStore.setNotification(messages);
+    //                 },
+    //                 (error) => {
+    //                     console.log(error);
+    //                     // secondo attuali specifiche, 401 solo se token scaduto.
+    //                     // if (error.status === 401) {
+    //                     //     setAuthState(null);
+    //                     // }
+    //                 },
+    //             );
+    //         };
 
-            getNotification();
-            const interval = setInterval(getNotification, 10000);
-            return () => {
-                clearInterval(interval);
-            };
-        }
-        return () => {};
-    }, [authState]);
+    //         getNotification();
+    //         const interval = setInterval(getNotification, 10000);
+    //         return () => {
+    //             clearInterval(interval);
+    //         };
+    //     }
+    //     return () => {};
+    // }, [authState]);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-bs-theme', themeState);
@@ -90,11 +93,11 @@ function App(): JSX.Element {
 
     return (
         <React.StrictMode>
-            <AuthContext.Provider value={[authState, setAuthState]}>
+            <AuthProvider>
                 <ThemeContext.Provider value={[themeState, toggleTheme]}>
                     <RouterProvider router={router} />
                 </ThemeContext.Provider>
-            </AuthContext.Provider>
+            </AuthProvider>
         </React.StrictMode>
     );
 }

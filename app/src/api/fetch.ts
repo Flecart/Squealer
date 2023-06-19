@@ -7,7 +7,7 @@ export async function fetchApi<T>(
     auth: AuthResponse | null,
     success: (a: T) => void,
     error: (a: HttpError) => void,
-): void {
+): Promise<void> {
     let headers = new Headers();
     if (init.headers === undefined) {
         headers.append('Content-Type', 'application/json');
@@ -28,8 +28,8 @@ export async function fetchApi<T>(
             if (res.status === 200 || res.status === 201) success((await res.json()) as T);
             else error((await res.json()) as HttpError);
         })
-        .catch((e) => {
-            console.log(e);
-            error(new HttpError(1000, 'Network error'));
+        .catch((_) => {
+            // https://hexometer.com/http-status-codes/ for No response
+            error(new HttpError(0, 'Network error'));
         });
 }
