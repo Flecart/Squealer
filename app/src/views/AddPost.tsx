@@ -8,7 +8,7 @@ import { type Maps, type MessageCreation, type IMessage, type MessageCreationRen
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
-import Post from 'src/components/Post';
+import Post from 'src/components/posts/Post';
 import { type IUser, haveEnoughtQuota, UserRoles } from '@model/user';
 import { Lock } from 'react-bootstrap-icons';
 import {
