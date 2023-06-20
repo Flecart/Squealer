@@ -83,11 +83,18 @@ function Post({ message }: PostProps): JSX.Element {
     const renderMessageContent = useCallback(() => {
         if (message.content === undefined) return <></>;
         if (message.content.type === 'image') {
-            return <Image src={`${imageBase}/${message.content.data as string}`} fluid />;
+            return (
+                <Image
+                    src={`${imageBase}/${message.content.data as string}`}
+                    alt="Immagine Post"
+                    style={{ maxWidth: '500px' }}
+                    fluid
+                />
+            );
         } else if (message.content.type === 'video') {
             return (
                 <Container>
-                    <video className="mb-3 w-100" controls>
+                    <video className="mb-3 " style={{ maxWidth: '500px' }} controls>
                         <source src={`${imageBase}/${message.content.data as string}`}></source>
                     </video>
                 </Container>
