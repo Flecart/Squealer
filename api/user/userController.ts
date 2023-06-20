@@ -14,6 +14,7 @@ import {
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
 import { type IUser, type UserRoles } from '@model/user';
+import { NotificationRensponse } from '@model/user';
 
 @Route('/user')
 export class UserController extends Controller {
@@ -28,8 +29,8 @@ export class UserController extends Controller {
 
     @Get('/notification')
     @Security('jwt')
-    public async getNotifications(@Request() request: any) {
-        return new UserService().getNotifications(getUserFromRequest(request));
+    public async getNotifications(@Request() request: any): Promise<NotificationRensponse> {
+        return await new UserService().getNotifications(getUserFromRequest(request));
     }
     @Delete('/notification')
     @Security('jwt')
@@ -46,6 +47,12 @@ export class UserController extends Controller {
     @Get('{username}')
     public async getUser(@Path() username: string) {
         return new UserService().getUser(username);
+    }
+
+    @Get('/invitations')
+    @Security('jwt')
+    public async getInvitations(@Request() request: any) {
+        return new UserService().getInvitations(getUserFromRequest(request));
     }
 
     @Delete('/delete')

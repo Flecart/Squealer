@@ -28,6 +28,7 @@ export interface IUser {
     messages: IMessageInbox[];
     channel: string[];
     role: UserRoles;
+    invitations: mongoose.Types.ObjectId[];
 }
 
 export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {
@@ -43,3 +44,8 @@ export interface ISuccessMessage {
 }
 
 export type UserModRensponse = IUser & Pick<IUserAuth, 'suspended'>;
+
+export interface NotificationRensponse {
+    message: string[];
+    invitation: string[];
+}

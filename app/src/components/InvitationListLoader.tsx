@@ -8,15 +8,15 @@ import InviteMessage from './InviteMessage';
 import Post from './posts/Post';
 
 interface PropsMessageIds {
-    childrens: string[];
+    invitations: string[];
     compare?: (a: IMessage, b: IMessage) => number;
 }
 
-export default function MessageListLoader({ childrens, compare }: PropsMessageIds): JSX.Element {
-    if (childrens.length === 0) return <></>;
+export default function MessageListLoader({ invitations }: PropsMessageIds): JSX.Element {
+    if (invitations.length === 0) return <></>;
 
     const [authState] = useContext(AuthContext);
-    const [messages, setMessages] = useState<IMessage[] | null>(null);
+    const [messages, setMessages] = useState<IInvitation[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     useEffect(() => {
         const params = new URLSearchParams(childrens.map((s) => ['ids', s])).toString();

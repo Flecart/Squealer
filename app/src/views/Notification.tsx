@@ -2,6 +2,7 @@ import { useContext, useState, useSyncExternalStore } from 'react';
 import { Button, Row } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import { apiUserBase } from 'src/api/routes';
+import InviteMessage from 'src/components/InviteMessage';
 import MessageListLoader from 'src/components/MessageListLoader';
 import { AuthContext } from 'src/contexts';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
@@ -11,7 +12,6 @@ export default function Notification(): JSX.Element {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const notification = useSyncExternalStore(NotificationStore.subscribe, NotificationStore.getSnapshot);
     const [authState] = useContext(AuthContext);
-    const [clear, setClear] = useState<boolean>(false);
     const clearAll = (): void => {
         setClear(true);
         fetchApi<string>(
@@ -19,7 +19,10 @@ export default function Notification(): JSX.Element {
             { method: 'DELETE' },
             authState,
             (_) => {
-                NotificationStore.setNotification([]);
+                NotificationStore.setNotification({
+                    message: [],
+                    invitation: [],
+                });
                 setClear(false);
             },
             (error) => {
@@ -33,7 +36,15 @@ export default function Notification(): JSX.Element {
             <Row xs="auto" className="d-flex justify-content-center">
                 <Button onClick={clearAll}>Clear All</Button>
             </Row>
-            {clear ? <p>Deleating Notification</p> : <MessageListLoader childrens={notification} />}
+            <h3>Invitation</h3>
+            {notification.message.length === 0 ? (
+                <p>No notification</p>
+            ) : (
+                <InviteMessageLoader invitation={notification.invitation} />
+            )}
+            <hr />
+            <h3>Message</h3>
+            {clear ? <p>Deleating Notification</p> : <MessageListLoader childrens={notification.message} />}
         </SidebarSearchLayout>
     );
 }

@@ -9,6 +9,7 @@ import { fetchApi } from './api/fetch';
 import { apiUserBase } from './api/routes';
 import { NotificationStore } from './notification';
 import router from './router';
+import { type NotificationRensponse } from '@model/user';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
@@ -19,7 +20,7 @@ function App(): JSX.Element {
     useEffect((): (() => void) => {
         if (authState !== null) {
             const getNotification = (): void => {
-                fetchApi<string[]>(
+                fetchApi<NotificationRensponse>(
                     `${apiUserBase}/notification`,
                     { method: 'GET' },
                     authState,

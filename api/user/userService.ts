@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
-import { type IUser, type UserRoles } from '@model/user';
+import { type NotificationRensponse, type IUser, type UserRoles } from '@model/user';
 import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
 import { type IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
+import { IInvitation } from '@model/invitation';
+import InvitationModel from '@db/invitation';
 
 type UserModelType = mongoose.HydratedDocument<IUser>;
 
@@ -17,13 +19,18 @@ export default class UserService {
         return 'success';
     }
 
-    public async getNotifications(username: string): Promise<string[]> {
+    public async getNotifications(username: string): Promise<NotificationRensponse> {
         const userModel = await UserModel.findOne({ username: username });
         if (userModel == null) throw new HttpError(404, 'User not found');
+        const invitations = userModel.invitations.map((invitation) => invitation.toString());
         const unreadedMessage = userModel.messages
             .filter((message) => !message.viewed)
             .map((message) => message.message.toString());
-        return unreadedMessage;
+
+        return {
+            message: unreadedMessage,
+            invitation: invitations,
+        } as NotificationRensponse;
     }
 
     public async getUser(username: string): Promise<IUser> {
@@ -100,5 +107,16 @@ export default class UserService {
         user.role = role;
         await user.save();
         return user;
+    }
+
+    public async getInvitations(username: string): Promise<IInvitation[]> {
+        const user = await UserModel.findOne({ username: username }, 'invitations');
+        if (!user) {
+            throw new HttpError(404, 'User not found');
+        }
+
+        const invitation = user.invitations.map((invitation) => InvitationModel.findById(invitation));
+        const invitations = await Promise.all(invitation);
+        return invitations.filter((invitation) => invitation != null) as IInvitation[];
     }
 }

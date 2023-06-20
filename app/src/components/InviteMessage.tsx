@@ -8,20 +8,16 @@ import { fetchApi } from '../api/fetch';
 import { apiChannelBase } from 'src/api/routes';
 import { type ChannelResponse } from '@model/channel';
 import { type ISuccessMessage } from '@model/user';
+import { type IInvitation } from '@model/invitation';
 
 interface PostProps {
-    message: IMessage;
+    invitation: IInvitation;
 }
 
-function InviteMessage({ message }: PostProps): JSX.Element {
-    if (message.content.type !== 'invitation') {
-        console.log('should not be displayed');
-        return <></>;
-    }
+function InviteMessage({ invitation }: PostProps): JSX.Element {
     const [hide, setHide] = useState(false);
     const [auth] = useContext(AuthContext);
-    const userUrl = `/user/${message.creator}`;
-    const invitation: Invitation = message.content.data as Invitation;
+    const userUrl = `/user/${invitation.to}`;
     const channelUrl = `/channel/${invitation.channel}`;
     const navigate = useNavigate();
 
@@ -31,7 +27,7 @@ function InviteMessage({ message }: PostProps): JSX.Element {
             {
                 method: 'POST',
                 body: JSON.stringify({
-                    messageID: message._id.toString(),
+                    messageID: invitatoion._id.toString(),
                 }),
             },
             auth,

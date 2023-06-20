@@ -176,6 +176,7 @@ export class LoginService {
             usedQuota: { day: 0, week: 0, month: 0 },
             channel: [],
             role: UserRoles.NORMAL,
+            invitations: [],
         });
     }
 

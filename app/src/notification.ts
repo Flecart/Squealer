@@ -1,8 +1,18 @@
-let notification: string[] = [];
+import { type NotificationRensponse } from '@model/user';
+
+let notification: NotificationRensponse = {
+    message: [],
+    invitation: [],
+};
+
 let listeners: Array<() => void> = [];
+
 export const NotificationStore = {
-    setNotification(newNotification: string[]) {
-        if (notification.length === newNotification.length && notification.every((v, i) => v === newNotification[i]))
+    setNotification(newNotification: NotificationRensponse) {
+        if (
+            notification.message.length === newNotification.message.length &&
+            notification.message.every((v, i) => v === newNotification.message[i])
+        )
             return;
         notification = newNotification;
         emitChange();
