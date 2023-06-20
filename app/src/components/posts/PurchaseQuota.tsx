@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota';
 import { apiQuotaBase } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
-import { fetchApi } from '../api/fetch';
+import { fetchApi } from 'src/api/fetch';
 
 interface PurchaseQuotaProps {
     show: boolean;

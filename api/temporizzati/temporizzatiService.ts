@@ -7,6 +7,7 @@ import UserModel from '@db/user';
 import { type ContentInput } from '@model/temporizzati';
 import { v4 as uuidv4 } from 'uuid';
 import { Buffer } from 'buffer';
+import logger from '@server/logger';
 
 type TimerCount = {
     interval: NodeJS.Timeout;
@@ -17,6 +18,8 @@ type WikiReponse = {
     year: string;
     text: string;
 };
+
+const tempLogger = logger.child({ module: 'Temporizzati' });
 
 export class TemporizzatiService {
     static jobs: Map<string, TimerCount> = new Map();
@@ -30,6 +33,11 @@ export class TemporizzatiService {
         if (!creator) {
             throw new HttpError(404, 'Username not found');
         }
+
+        if (temporizzati.iterazioni <= 0) {
+            throw new HttpError(400, 'Iterazioni deve essere maggiore di 0');
+        }
+
         const obj = new TemporizzatiModel({
             creator: username,
             channel: temporizzati.channel,
@@ -57,9 +65,10 @@ export class TemporizzatiService {
         };
         if (temporizzati.content.type === 'text') {
             let data = temporizzati.content.data as string;
-            data = data.replace('{TIME}', new Date().toLocaleTimeString());
-            data = data.replace('{DATE}', new Date().toLocaleDateString());
-            data = data.replace('{NUM}', iteration.toString());
+            data = data
+                .replace('{TIME}', new Date().toLocaleTimeString())
+                .replace('{DATE}', new Date().toLocaleDateString())
+                .replace('{NUM}', iteration.toString());
             content.data = data;
         } else if (temporizzati.content.type === 'wikipedia') {
             content.type = 'text';
@@ -82,18 +91,25 @@ export class TemporizzatiService {
         if (this.jobs.has(id)) {
             throw new HttpError(400, 'Temporizzato già esistente');
         }
-        const timer = setInterval(async () => {
-            const current = this.jobs.get(id) as TimerCount;
+
+        const createMessage = async (currentIteration: number) => {
             try {
                 const messageCreate = await TemporizzatiService.fromITemporizzatiToMessageCreation(
                     temporizzati,
-                    current.numIter,
+                    currentIteration,
                 );
                 new MessageService().create(messageCreate, temporizzati.creator);
             } catch (e) {
-                console.log(e);
+                tempLogger.error(e);
                 TemporizzatiService.delete(id);
             }
+        };
+
+        createMessage(0); // primo messaggio è immediato in questo modo.
+
+        const timer = setInterval(async () => {
+            const current = this.jobs.get(id) as TimerCount;
+            await createMessage(current.numIter);
             if (current !== undefined) {
                 current.numIter++;
                 this.jobs.set(id, current);
@@ -102,9 +118,10 @@ export class TemporizzatiService {
                 }
             }
         }, temporizzati.periodo);
+
         this.jobs.set(id, {
             interval: timer,
-            numIter: 0,
+            numIter: 1,
         });
     }
 

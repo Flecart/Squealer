@@ -93,3 +93,16 @@
 .reaction-content-active-yellow {
     @include reaction-content(var(--bs-yellow), true);
 }
+
+.post-user-link {
+    text-decoration-line: none;
+}
+
+.post-channel-link {
+    text-decoration-line: none;
+    color: aquamarine;
+
+    &:hover {
+        color: blackness(aquamarine, 5%);
+    }
+}

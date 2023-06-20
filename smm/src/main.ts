@@ -1,46 +1,34 @@
 import Vue, { createApp } from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import * as VueRouter from 'vue-router'
-import Dashboard from './components/Dashboard.vue'
-import { squealerBaseURL } from './routes'
-// @ts-ignore outside of root directory
-import endpoints from '../../config/endpoints.json'
+import { getClientsRoute, router, redirectToLogin } from './routes'
+import { authInject, clientInject } from './keys'
 
 import './assets/app.scss'
+import type { IUser } from '@model/user'
 
-const routes = [
-  { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
-  { path: `/${endpoints.SMM}/about`, name: 'about', component: Dashboard }
-]
-
-const router = VueRouter.createRouter({
-  history: VueRouter.createWebHistory(),
-  routes
-})
-
-const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
+// gently provided by https://stackoverflow.com/questions/51292406/check-if-token-expired-using-this-jwt-library
+const isTokenExpired = (token: string) =>
+  Date.now() >= JSON.parse(window.atob(token.split('.')[1])).exp * 1000
 
 const app = createApp(App)
 
-router.beforeEach((to, _) => {
-  const targetPath = to.path
-  const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
-
-  if (authState == null) {
-    // in dev mode set the auth by hand, localstorage won't work with different ports
-    window.location.replace(
-      `${squealerBaseURL}/login?redirect=${encodeURIComponent(baseUrl + targetPath)}`
-    )
-  } else {
-    app.provide('auth', authState)
+const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
+if (authState != null) {
+  if (isTokenExpired(authState.token)) {
+    redirectToLogin()
   }
 
-  if (targetPath == '/logout') {
-    // redirect to main after logout, ci sono cose brutte col localstorage :(
-    window.location.replace(`${squealerBaseURL}/logout?redirect=${encodeURIComponent(baseUrl)}`)
-  }
-})
+  app.provide(authInject, authState)
+  const response = await fetch(getClientsRoute, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + authState.token
+    }
+  })
+  const jsonResponse = await (response as Response).json()
+  app.provide(clientInject, jsonResponse as IUser[])
+}
 
 // @ts-ignore
 Vue.use(BootstrapVue).use(IconsPlugin)

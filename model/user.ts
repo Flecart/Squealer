@@ -1,5 +1,6 @@
 import type mongoose from 'mongoose';
 import { type IQuotas, quotaMaxExtra } from './quota';
+import type { IUserAuth } from './auth';
 
 export const UserModelName = 'User';
 
@@ -65,3 +66,5 @@ export function getExtraQuota(user: IUser, quota: number): number {
 export interface ISuccessMessage {
     message: string;
 }
+
+export type UserModRensponse = IUser & Pick<IUserAuth, 'suspended'>;

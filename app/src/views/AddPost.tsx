@@ -1,5 +1,5 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import PurchaseQuota from 'src/components/PurchaseQuota';
+import PurchaseQuota from 'src/components/posts/PurchaseQuota';
 import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from 'src/contexts';
@@ -8,8 +8,8 @@ import { type Maps, type MessageCreation, type IMessage, type MessageCreationRen
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
-import Post from 'src/components/Post';
 import { type IUser, haveEnoughtQuota, getExtraQuota } from '@model/user';
+import Post from 'src/components/posts/Post';
 import {
     type ITemporizzati,
     type ContentInput as TemporizedContentInput,
@@ -18,6 +18,7 @@ import {
 import Map from 'src/components/Map';
 import PayDebt from 'src/components/PayDebt';
 import DebtWarning from 'src/components/DebtWarning';
+import { toEnglishString } from 'src/utils';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -42,7 +43,7 @@ export default function AddPost(): JSX.Element {
     const [tempPeriod, setTempPeriod] = useState<number>(1);
     const [tempTimes, setTempTimes] = useState<number>(1);
 
-    const showQuota = (quota: number): string => {
+    /* const showQuota = (quota: number): string => {
         if (user !== null) {
             return `day:${user.maxQuota.day - user.usedQuota.day - quota} 
             week: ${user.maxQuota.week - user.usedQuota.week - quota} 
@@ -51,7 +52,37 @@ export default function AddPost(): JSX.Element {
         } else {
             return '';
         }
-    };
+    }; */
+
+    function ShowQuota(props: { quota: number }): JSX.Element {
+        if (user === null) {
+            return <></>;
+        }
+        return (
+            <>
+                day:{' '}
+                <span aria-label={toEnglishString(user.maxQuota.day - user.usedQuota.day - props.quota)}>
+                    {' '}
+                    {user.maxQuota.day - user.usedQuota.day - props.quota}{' '}
+                </span>
+                week:{' '}
+                <span aria-label={toEnglishString(user.maxQuota.week - user.usedQuota.week - props.quota)}>
+                    {' '}
+                    {user.maxQuota.week - user.usedQuota.week - props.quota}{' '}
+                </span>
+                month:{' '}
+                <span aria-label={toEnglishString(user.maxQuota.month - user.usedQuota.month - props.quota)}>
+                    {' '}
+                    {user.maxQuota.month - user.usedQuota.month - props.quota}{' '}
+                </span>
+                extra:{' '}
+                <span aria-label={toEnglishString(getExtraQuota(user, props.quota))}>
+                    {' '}
+                    {getExtraQuota(user, props.quota)}{' '}
+                </span>
+            </>
+        );
+    }
 
     useEffect(() => {
         if (authState === null) {
@@ -239,7 +270,7 @@ export default function AddPost(): JSX.Element {
 
         return (
             <div>
-                {user !== null && showQuota(100)}
+                {user !== null && <ShowQuota quota={100} />}
 
                 {selectedImage.type.startsWith('image/') && (
                     <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} fluid />
@@ -278,13 +309,13 @@ export default function AddPost(): JSX.Element {
         if (selectedImage != null) {
             return renderFilePreview();
         } else if (geolocationCoord != null) {
-            // TODO: fix me
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             return <Map positions={geolocationCoord.positions} />;
         } else {
             return (
-                <Form.Group className="mb-3">
-                    <Form.Label>Message textarea {user !== null && showQuota(messageText.length)}</Form.Label>
+                <Form.Group className="mb-3" controlId="textareaInput">
+                    <Form.Label>
+                        Message textarea, remaining quota: {user !== null && <ShowQuota quota={messageText.length} />}
+                    </Form.Label>
 
                     <Form.Control
                         as="textarea"
@@ -292,6 +323,7 @@ export default function AddPost(): JSX.Element {
                         onChange={(e) => {
                             setMessageText(e.target.value);
                         }}
+                        placeholder="Write your message here, you can also upload a file or send geolocation."
                     />
                 </Form.Group>
             );
@@ -303,19 +335,21 @@ export default function AddPost(): JSX.Element {
             {renderParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="channelInput">
                         <Form.Label>Channel</Form.Label>
                         <Form.Control
                             onChange={(e) => {
                                 setDestination(e.target.value);
                             }}
+                            placeholder="Enter Channel Name"
+                            autoFocus={true}
                         />
                     </Form.Group>
                 )}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {renderMessagePayload()}
 
-                <Form.Group>
+                <Form.Group controlId="fileUploadInput">
                     <Form.Label>File to upload: </Form.Label>
                     <Form.Control
                         title="upload image"
@@ -356,7 +390,7 @@ export default function AddPost(): JSX.Element {
 
                 {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="periodInput">
                     <Form.Label> Period: </Form.Label>
                     <Form.Control
                         type="number"

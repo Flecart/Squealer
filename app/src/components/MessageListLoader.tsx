@@ -5,7 +5,7 @@ import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
 import InviteMessage from './InviteMessage';
-import Post from './Post';
+import Post from './posts/Post';
 
 interface PropsMessageIds {
     childrens: string[];

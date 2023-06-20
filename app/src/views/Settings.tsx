@@ -1,20 +1,15 @@
 import { Accordion, Container, Stack } from 'react-bootstrap';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts';
-import { useNavigate } from 'react-router-dom';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import ChangeUsername from 'src/components/ChangeUsername';
 import ChangePassword from 'src/components/ChangePassword';
 import ChangeRole from 'src/components/ChangeRole';
 import DeleteAccount from 'src/components/Delete';
+import EnableReset from 'src/components/EnableReset';
 
 export default function Settings(): JSX.Element {
     const [authState] = useContext(AuthContext);
-    const navigate = useNavigate();
-    if (authState === null) {
-        navigate('/login');
-    }
-
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center">
@@ -33,7 +28,12 @@ export default function Settings(): JSX.Element {
                                     <ChangePassword />
                                 </Accordion.Body>
                             </Accordion.Item>
-                            {/* <Link to="user/reset">Reset</Link>/ */}
+                            <Accordion.Item eventKey="4">
+                                <Accordion.Header>Reset Password</Accordion.Header>
+                                <Accordion.Body>
+                                    <EnableReset />
+                                </Accordion.Body>
+                            </Accordion.Item>
                             <Accordion.Item eventKey="2">
                                 <Accordion.Header>Change Roles</Accordion.Header>
                                 <Accordion.Body>
@@ -49,6 +49,7 @@ export default function Settings(): JSX.Element {
                         </Accordion>
                     </Stack>
                 ) : (
+                    // TODO:???????
                     <Container>Cose Da Aggiungere</Container>
                 )}
             </Container>

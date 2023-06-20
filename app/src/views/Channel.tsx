@@ -42,6 +42,7 @@ export default function Channel(): JSX.Element {
                     setChannel(() => channel);
                 },
                 (error) => {
+                    if (error.status === 404) navigate('/404');
                     setError(() => error.message);
                 },
             );

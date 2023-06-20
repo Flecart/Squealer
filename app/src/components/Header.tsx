@@ -1,5 +1,5 @@
 import { useContext, useState, useSyncExternalStore } from 'react';
-import { SideBar } from './SideBar';
+import { SideBar } from 'src/components/SideBar';
 import { Navbar, Container, Offcanvas, Stack, Col } from 'react-bootstrap';
 // import { Nav, Form } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';

@@ -6,9 +6,21 @@ interface SideButtonProps {
     to: string;
     name: string;
     SideIcon: Icon;
+    isExternal?: boolean;
 }
 
-export function SideButton({ to, name, SideIcon }: SideButtonProps): JSX.Element {
+export function SideButton({ to, name, SideIcon, isExternal }: SideButtonProps): JSX.Element {
+    if (isExternal !== undefined && isExternal)
+        return (
+            <div
+                aria-label={name}
+                className="btn btn-lg rounded-pill sideButton d-flex d-row align-items-center justify-content-evenly"
+                onClick={() => (window.location.href = to)}
+            >
+                <SideIcon aria-hidden={true} className="pe-2" height={25} width={30} />
+                {name}
+            </div>
+        );
     return (
         <Link
             to={to}
