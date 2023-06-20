@@ -300,7 +300,7 @@ export class ChannelService {
             throw new HttpError(403, "Don't have the right to do this operation");
         }
 
-        const userRow = channel.users.find((u) => u.user == userRecord.name);
+        const userRow = channel.users.find((u) => u.user == userRecord.username);
         if (userRow == null) {
             throw new HttpError(400, 'user not found');
         }
