@@ -56,8 +56,8 @@
                 </div>
             {{/if}}
 
+            <input type="text" id="search-user"  placeholder="Search User" class="form-control m-2"/>
             {{#if users}}
-                <input type="text" id="search-user"  placeholder="Search User" class="form-control m-2"/>
                 <div class="container" style="display:flex;flex-wrap:wrap; gap:1rem;align-content:center;">
                     {{#each users}}
                         {{> user-card}}
@@ -203,7 +203,6 @@
                 </div>
             </div>
         </script>
-
 
         <!-- sidebar component -->
         <header class="navbar sticky-top bg-light flex-md-nowrap d-md-none d-flex justify-content-between p-0 shadow">
