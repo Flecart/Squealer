@@ -26,7 +26,7 @@ export class ChannelService {
     public async getChannel(channelName: string, user: string | null): Promise<IChannel> {
         const channel = await ChannelModel.findOne({ name: channelName });
         if (channel === null) {
-            throw new HttpError(400, `Channel with name ${channelName} does not exist`);
+            throw new HttpError(404, `Channel with name ${channelName} does not exist`);
         }
         if (channel.type === ChannelType.PRIVATE || channel?.type === ChannelType.USER) {
             if (user === null) {
@@ -300,7 +300,7 @@ export class ChannelService {
             throw new HttpError(403, "Don't have the right to do this operation");
         }
 
-        const userRow = channel.users.find((u) => u.user == userRecord.name);
+        const userRow = channel.users.find((u) => u.user == userRecord.username);
         if (userRow == null) {
             throw new HttpError(400, 'user not found');
         }

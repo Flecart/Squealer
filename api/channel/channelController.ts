@@ -36,7 +36,7 @@ export class ChannelController extends Controller {
         };
     }
 
-    @Put('{channelName}/descrition')
+    @Put('{channelName}/description')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel description updated')

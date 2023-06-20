@@ -1,11 +1,12 @@
 import { IReactionType, type IReaction, type ReactionResponse } from '@model/message';
 import { useState, useMemo, useContext, useCallback } from 'react';
 import { Button, ButtonGroup } from 'react-bootstrap';
-import { fetchApi } from '../api/fetch';
-import { apiMessageBase } from '../api/routes';
+import { fetchApi } from '../../api/fetch';
+import { apiMessageBase } from '../../api/routes';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext, CategoryContext } from 'src/contexts';
 import 'src/scss/Post.scss';
+import { toEnglishString } from 'src/utils';
 
 interface IReactionButton {
     clicked: JSX.Element;
@@ -144,7 +145,6 @@ export default function PostButtons({ messageId, reactions }: PostButtonProps): 
                             );
                         }}
                         className="reaction-button"
-                        area-label={`${buttonNumbers[currentReaction.type] as number} ${currentReaction.ariaAction}`}
                     >
                         <div
                             className={`reaction-content-${currReaction === currentReaction.type ? 'active-' : ''}${
@@ -157,7 +157,12 @@ export default function PostButtons({ messageId, reactions }: PostButtonProps): 
                                     ? currentReaction.clicked
                                     : currentReaction.nonclicked}
                             </div>
-                            <span className="reaction-number">
+                            <span
+                                aria-label={`${toEnglishString(buttonNumbers[currentReaction.type] as number)} ${
+                                    currentReaction.ariaAction
+                                }`}
+                                className="reaction-number"
+                            >
                                 {formatNumberReactions(buttonNumbers[currentReaction.type] as number)}
                             </span>
                         </div>

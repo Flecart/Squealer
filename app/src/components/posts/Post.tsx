@@ -4,12 +4,12 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext, CategoryContext } from 'src/contexts';
-import { fetchApi } from '../api/fetch';
-import { apiUserBase } from '../api/routes';
+import { fetchApi } from 'src/api/fetch';
 import { toHumanReadableDate } from 'src/utils';
-import { imageBase } from 'src/api/routes';
-import Map from './Map';
+import { imageBase, apiUserBase } from 'src/api/routes';
+import Map from 'src/components/Map';
 import PostButtons from './PostButtons';
+import 'src/scss/Post.scss';
 
 interface PostProps {
     message: IMessage;
@@ -82,8 +82,6 @@ function Post({ message }: PostProps): JSX.Element {
 
     const renderMessageContent = useCallback(() => {
         if (message.content === undefined) return <></>;
-        // TODO: completare i tipi
-
         if (message.content.type === 'image') {
             return <Image src={`${imageBase}/${message.content.data as string}`} fluid />;
         } else if (message.content.type === 'video') {
@@ -98,9 +96,36 @@ function Post({ message }: PostProps): JSX.Element {
             const data: Maps = message.content.data as Maps;
             return <Map positions={data.positions} />;
         } else {
-            return <p>{message.content.data as string} </p>;
+            const textMessage = message.content.data as string;
+            // e.g. @useralphanumeric, but not @user@user
+            const mentionRegex = /\B@(\w+)$/;
+
+            // begin with $ or # and then alphanumeric
+            const channelsRegex = /\B([#§])\w+$/;
+            const parts = textMessage.split(' ');
+
+            return (
+                <p>
+                    {parts.map((part, index) => {
+                        if (mentionRegex.test(part)) {
+                            return (
+                                <a className="post-user-link" href={`/user/${part.slice(1)}`} key={index}>
+                                    {part + ' '}
+                                </a>
+                            );
+                        } else if (channelsRegex.test(part)) {
+                            return (
+                                <a className="post-channel-link" href={`/channel/${part.slice(1)}`} key={index}>
+                                    {part + ' '}
+                                </a>
+                            );
+                        } else {
+                            return <span key={index}> {part} </span>;
+                        }
+                    })}
+                </p>
+            );
         }
-        return <>{message.content.type}</>;
     }, [message.content]);
 
     return (
@@ -144,7 +169,6 @@ function Post({ message }: PostProps): JSX.Element {
                         }}
                     >
                         {renderMessageContent()}
-                        {/* TODO: transform in user good date. (like 1h or similiar */}
                     </Row>
                     <Row>
                         <CategoryContext.Provider value={[null, setCategoryState]}>
@@ -155,7 +179,7 @@ function Post({ message }: PostProps): JSX.Element {
                     <Row>
                         {authState !== null && (
                             <Link to={`/addpost/${message._id.toString()}`} className="me-3">
-                                Replay
+                                Reply
                             </Link>
                         )}
                     </Row>
