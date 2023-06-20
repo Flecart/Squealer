@@ -137,7 +137,7 @@ function Post({ message }: PostProps): JSX.Element {
     }, [message.content]);
 
     return (
-        <Row className="g-4" as="article" role="article">
+        <Row className="g-4" as="article">
             <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
                 <Image
                     className="w-100 float-end"
@@ -155,9 +155,11 @@ function Post({ message }: PostProps): JSX.Element {
                                 <span className="fs-4 fw-bolder"> {user?.name}</span>
                             </a>
                             <a href={profiloUrl} className="text-decoration-none ">
-                                <span className="fw-light"> @{user?.username} </span>
+                                <address className="fw-light post-address"> @{user?.username} </address>
                             </a>
-                            <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>{' '}
+                            <time dateTime={message.date.toString()}>
+                                <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>
+                            </time>
                             {message.channel !== undefined && (
                                 <span className="fw-light">
                                     <Link to={`/channel/${message.channel}`}>{message.channel}</Link>
