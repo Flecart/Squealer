@@ -4,13 +4,22 @@ import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
 import { type IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
-import { IInvitation } from '@model/invitation';
+import { type IInvitationRensponse } from '@model/invitation';
 import InvitationModel from '@db/invitation';
 
 type UserModelType = mongoose.HydratedDocument<IUser>;
 
 export default class UserService {
-    public async delNotification(username: string): Promise<string> {
+    public async delNotification(username: string, id: string): Promise<string> {
+        const userModel = await UserModel.findOne({ username: username });
+        if (userModel == null) throw new HttpError(404, 'User not found');
+        userModel.messages = userModel.messages.filter((message) => message.message.toString() !== id);
+        userModel.markModified('messages');
+        userModel.save();
+        return 'success';
+    }
+
+    public async delNotifications(username: string): Promise<string> {
         const userModel = await UserModel.findOne({ username: username });
         if (userModel == null) throw new HttpError(404, 'User not found');
         userModel.messages.filter((message) => !message.viewed).forEach((message) => (message.viewed = true));
@@ -96,12 +105,11 @@ export default class UserService {
 
         creator.markModified('maxQuota');
         await creator.save();
-        console.log(`Daily quota updated to ${creator.maxQuota.day}`);
     }
 
     public async updateRole(username: string, role: UserRoles): Promise<IUser> {
         const user = await UserModel.findOne({ username: username });
-        if (!user) {
+        if (user == null) {
             throw new HttpError(404, 'User not found');
         }
         user.role = role;
@@ -109,14 +117,31 @@ export default class UserService {
         return user;
     }
 
-    public async getInvitations(username: string): Promise<IInvitation[]> {
-        const user = await UserModel.findOne({ username: username }, 'invitations');
-        if (!user) {
+    public async getInvitations(username: string): Promise<IInvitationRensponse[]> {
+        console.log(username);
+        const user = await UserModel.findOne({ username: username });
+        console.log(user);
+
+        if (user == null) {
             throw new HttpError(404, 'User not found');
         }
+        console.log(user.invitations);
 
         const invitation = user.invitations.map((invitation) => InvitationModel.findById(invitation));
         const invitations = await Promise.all(invitation);
-        return invitations.filter((invitation) => invitation != null) as IInvitation[];
+
+        const invitationsResponse: IInvitationRensponse[] = [];
+        invitations.forEach((invitation) => {
+            if (invitation) {
+                invitationsResponse.push({
+                    _id: invitation._id.toString(),
+                    to: invitation.to,
+                    issuer: invitation.issuer,
+                    channel: invitation.channel,
+                    permission: invitation.permission,
+                } as IInvitationRensponse);
+            }
+        });
+        return invitationsResponse;
     }
 }

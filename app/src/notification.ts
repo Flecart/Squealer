@@ -11,7 +11,9 @@ export const NotificationStore = {
     setNotification(newNotification: NotificationRensponse) {
         if (
             notification.message.length === newNotification.message.length &&
-            notification.message.every((v, i) => v === newNotification.message[i])
+            notification.message.every((v, i) => v === newNotification.message[i]) &&
+            notification.invitation.length === newNotification.invitation.length &&
+            notification.invitation.every((v, i) => v === newNotification.invitation[i])
         )
             return;
         notification = newNotification;

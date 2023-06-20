@@ -16,6 +16,10 @@ import { getUserFromRequest } from '@api/utils';
 import { type IUser, type UserRoles } from '@model/user';
 import { NotificationRensponse } from '@model/user';
 
+import logger from '@server/logger';
+
+const userLogger = logger.child({ label: 'user' });
+
 @Route('/user')
 export class UserController extends Controller {
     @Post('/upgrade')
@@ -32,10 +36,15 @@ export class UserController extends Controller {
     public async getNotifications(@Request() request: any): Promise<NotificationRensponse> {
         return await new UserService().getNotifications(getUserFromRequest(request));
     }
-    @Delete('/notification')
+    @Delete('/notifications')
     @Security('jwt')
-    public async deleteNotification(@Request() request: any) {
-        return new UserService().delNotification(getUserFromRequest(request));
+    public async deleteNotifications(@Request() request: any) {
+        return new UserService().delNotifications(getUserFromRequest(request));
+    }
+    @Delete('/notification/{id}')
+    @Security('jwt')
+    public async deleteNotification(@Request() request: any, @Path() id: string) {
+        return new UserService().delNotification(getUserFromRequest(request), id);
     }
 
     @Get()
@@ -44,15 +53,15 @@ export class UserController extends Controller {
         return new UserService().getUser(getUserFromRequest(request));
     }
 
-    @Get('{username}')
-    public async getUser(@Path() username: string) {
-        return new UserService().getUser(username);
-    }
-
     @Get('/invitations')
     @Security('jwt')
     public async getInvitations(@Request() request: any) {
+        userLogger.info(`User ${getUserFromRequest(request)} get invitations`);
         return new UserService().getInvitations(getUserFromRequest(request));
+    }
+    @Get('{username}')
+    public async getUser(@Path() username: string) {
+        return new UserService().getUser(username);
     }
 
     @Delete('/delete')

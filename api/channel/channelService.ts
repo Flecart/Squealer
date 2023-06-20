@@ -56,7 +56,6 @@ export class ChannelService {
         if (fromApi && !(type === ChannelType.PUBLIC || type === ChannelType.PRIVATE)) {
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
-        console.log(channelName);
         if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@'))) {
             throw new HttpError(400, `Channel name ${channelName} is not valid name`);
         }
@@ -230,32 +229,33 @@ export class ChannelService {
         }
 
         const _invitation = await InvitationModel.findOne({ to: userToAdd, channel: channelObj.name });
-        if (!_invitation) {
+        if (_invitation !== null) {
             throw new HttpError(400, 'User already invited');
         }
         const invitation = new InvitationModel({
             to: userToAdd,
-            from: userIssuer,
+            issuer: userIssuer,
             channel: channelObj.name,
             permission: permission,
         });
 
         await invitation.save();
         toAdd.invitations.push(invitation._id);
-
+        toAdd.markModified('invitations');
+        await toAdd.save();
         return userToAdd;
     }
 
     public async deleteInviteMessage(userId: string, messageId: string): Promise<IInvitation> {
         const user = await UserModel.findOne({ username: userId });
-        if (!user) {
+        if (user === null) {
             throw new HttpError(400, `User with username ${userId} not exist`);
         }
-        if (!user.invitations.find((e) => e.toString() === messageId)) {
-            throw new HttpError(400, `Message with id ${messageId} not exist`);
+        if (user.invitations.find((e) => e.toString() === messageId) == undefined) {
+            throw new HttpError(400, `Invite with id ${messageId} not exist`);
         }
         const invitation = await InvitationModel.findByIdAndDelete(messageId);
-        if (!invitation) {
+        if (invitation === null) {
             throw new HttpError(400, `Message with id ${messageId} not exist`);
         }
         user.invitations = user.invitations.filter((e) => e.toString() !== messageId);
