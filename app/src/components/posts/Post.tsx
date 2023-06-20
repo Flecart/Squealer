@@ -87,6 +87,7 @@ function Post({ message }: PostProps): JSX.Element {
                 <Image
                     src={`${imageBase}/${message.content.data as string}`}
                     alt="Immagine Post"
+                    className="mb-3 mt-2"
                     style={{ maxWidth: '500px' }}
                     fluid
                 />
@@ -94,14 +95,14 @@ function Post({ message }: PostProps): JSX.Element {
         } else if (message.content.type === 'video') {
             return (
                 <Container>
-                    <video className="mb-3 " style={{ maxWidth: '500px' }} controls>
+                    <video className="mb-3 mt-2" style={{ maxWidth: '500px' }} controls>
                         <source src={`${imageBase}/${message.content.data as string}`}></source>
                     </video>
                 </Container>
             );
         } else if (message.content.type === 'maps') {
             const data: Maps = message.content.data as Maps;
-            return <Map positions={data.positions} />;
+            return <Map className="mb-3 mt-2" positions={data.positions} />;
         } else {
             const textMessage = message.content.data as string;
             // e.g. @useralphanumeric, but not @user@user
@@ -112,7 +113,7 @@ function Post({ message }: PostProps): JSX.Element {
             const parts = textMessage.split(' ');
 
             return (
-                <p>
+                <p className="post-paragraph-text">
                     {parts.map((part, index) => {
                         if (mentionRegex.test(part)) {
                             return (
