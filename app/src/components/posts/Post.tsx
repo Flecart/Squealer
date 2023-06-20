@@ -138,7 +138,7 @@ function Post({ message }: PostProps): JSX.Element {
 
     return (
         <Row className="g-4" as="article">
-            <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
+            <Col xs={2} className="pe-0 flex-row-reverse">
                 <Image
                     className="w-100 float-end"
                     src={user?.profile_pic}
@@ -147,7 +147,7 @@ function Post({ message }: PostProps): JSX.Element {
                     roundedCircle
                 />
             </Col>
-            <Col>
+            <Col xs={10}>
                 <Container className="d-flex justify-content-center flex-column pb-4">
                     <Row>
                         <div>
@@ -170,7 +170,6 @@ function Post({ message }: PostProps): JSX.Element {
                                     {getCategoryText(categoryState)}
                                 </span>
                             )}
-                            {/* TODO: transform in user good date. (like 1h or similiar */}
                         </div>
                     </Row>
                     <Row
