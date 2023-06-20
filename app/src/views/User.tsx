@@ -1,8 +1,8 @@
-import { Container, Row, Tab, Tabs } from 'react-bootstrap';
-import Image from 'react-bootstrap/Image';
+import { Container, Image, Row, Tab, Tabs } from 'react-bootstrap';
+import { AuthContext } from '../contexts';
 import { type IUser } from '@model/user';
 import { type HttpError } from '@model/error';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
 import { apiMessageBase, apiUserBase } from 'src/api/routes';
@@ -11,15 +11,22 @@ import { sortHighliths, sortRecently, type IMessage } from '@model/message';
 import MessageListLoader from 'src/components/MessageListLoader';
 
 function User(): JSX.Element {
+    const [authState] = useContext(AuthContext);
     const { username } = useParams();
-    const navigator = useNavigate();
+    const navigate = useNavigate();
 
     const [user, setUser] = useState<IUser | null>(null);
     const [messages, setMessages] = useState<IMessage[] | null>(null);
 
+    useEffect(() => {
+        if (authState === null) {
+            navigate('/login');
+        }
+    }, [authState, navigate]);
+
     const handleUserError = useCallback((error: HttpError): void => {
         console.log(error.message);
-        if (error.status === 404) navigator('/404');
+        if (error.status === 404) navigate('/404');
     }, []);
 
     const handleMessageError = useCallback((error: HttpError): void => {
@@ -48,6 +55,13 @@ function User(): JSX.Element {
             handleMessageError,
         );
     }, [username]);
+
+    const permission = useMemo<boolean>(() => {
+        if (user === null || authState === null) {
+            return false;
+        }
+        return user.username === authState.username;
+    }, [user, authState]);
 
     const handleTabChange = (key: string | null): void => {
         console.log(key);
