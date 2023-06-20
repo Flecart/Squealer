@@ -389,37 +389,37 @@ initConnection().then(async () => {
     console.log("Database dropped")
     mongoose.connection.close()
 
-    // await createDefaultUsers();
-    // const loginToken = await getLoginTokens();
+    await createDefaultUsers();
+    const loginToken = await getLoginTokens();
 
-    // const listOfToken = loginToken.map((token) => token.token);
+    const listOfToken = loginToken.map((token) => token.token);
 
-    // loginToken.forEach((token) => loginTockenMap.set(token.name, token.token));
+    loginToken.forEach((token) => loginTockenMap.set(token.name, token.token));
 
-    // setChannelMember(listOfToken);
+    setChannelMember(listOfToken);
 
-    // await createChannels(listOfToken);
-    // console.log("Channels created")
+    await createChannels(listOfToken);
+    console.log("Channels created")
 
-    // await joinChannel();
-    // console.log("Users joined channels")
+    await joinChannel();
+    console.log("Users joined channels")
 
-    // await createPrivateChannel();
-    // console.log("Private channels created")
+    await createPrivateChannel();
+    console.log("Private channels created")
 
-    // await addUsersToPrivateChannel();
+    await addUsersToPrivateChannel();
 
-    // const message = await createMessagesPublic();
-    // console.log("Messages created")
+    const message = await createMessagesPublic();
+    console.log("Messages created")
 
-    // await createPrivateMessage();
-    // console.log('Private messages created')
+    await createPrivateMessage();
+    console.log('Private messages created')
 
-    // await createRensponse(message, listOfToken);
+    await createRensponse(message, listOfToken);
 
-    // await createGeolocationMessagesPublic();
-    // await createTemporalMessage();
-    // await createRolesAndClients(loginToken);
+    await createGeolocationMessagesPublic();
+    await createTemporalMessage();
+    await createRolesAndClients(loginToken);
 
     await makeDefaults();
 })
