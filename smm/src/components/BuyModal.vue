@@ -4,6 +4,7 @@ import BuyQuotaForm from './BuyQuotaForm.vue'
 
 defineProps<{
   username: string
+  urgent: boolean
 }>()
 
 const myModalRef = ref<HTMLElement>()
@@ -16,10 +17,12 @@ function showModal() {
 
 <template>
   <div>
-    <b-button id="show-btn" variant="warning" @click="showModal">Buy Quota</b-button>
+    <b-button id="show-btn" :variant="urgent ? 'danger' : 'warning'" @click="showModal"
+      >Buy Quota</b-button
+    >
 
     <b-modal ref="myModalRef" hide-footer title="Quota Purchase Form">
-      <BuyQuotaForm :username="username" />
+      <BuyQuotaForm :username="username" :urgent="urgent" />
     </b-modal>
   </div>
 </template>

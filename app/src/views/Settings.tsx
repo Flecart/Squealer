@@ -1,7 +1,6 @@
 import { Accordion, Container, Stack } from 'react-bootstrap';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts';
-import { useNavigate } from 'react-router-dom';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import ChangeUsername from 'src/components/ChangeUsername';
 import ChangePassword from 'src/components/ChangePassword';
@@ -11,11 +10,6 @@ import EnableReset from 'src/components/EnableReset';
 
 export default function Settings(): JSX.Element {
     const [authState] = useContext(AuthContext);
-    const navigate = useNavigate();
-    if (authState === null) {
-        navigate('/login');
-    }
-
     return (
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center">
@@ -55,6 +49,7 @@ export default function Settings(): JSX.Element {
                         </Accordion>
                     </Stack>
                 ) : (
+                    // TODO:???????
                     <Container>Cose Da Aggiungere</Container>
                 )}
             </Container>

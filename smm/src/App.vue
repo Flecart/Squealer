@@ -12,6 +12,11 @@ import SideBar from './components/SideBar.vue'
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap.scss';
 
+main {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
 @media screen and (min-width: map-get($grid-breakpoints, md)) {
   main {
     margin-left: 22rem;

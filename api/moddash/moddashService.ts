@@ -29,8 +29,7 @@ export interface ReactionRequest {
 export class ModdashService {
     public async changeQuota(admin: string, user: string, quota: IQuotas): Promise<void> {
         await this.checkModerator(admin);
-
-        const target = await UserModel.findOne({ name: user });
+        const target = await UserModel.findOne({ username: user });
         if (!target) throw new HttpError(404, 'User not found');
         target.maxQuota = quota;
         await target.save();
@@ -48,7 +47,7 @@ export class ModdashService {
         const all = await UserModel.find({ roule: { $ne: UserRoles.MODERATOR } });
         const res: UserModRensponse[] = [];
         for (let user of all) {
-            const auth = await AuthModel.findOne({ username: user.name });
+            const auth = await AuthModel.findOne({ username: user.username });
             if (auth) {
                 res.push({
                     suspended: auth.suspended,
@@ -115,7 +114,7 @@ export class ModdashService {
     }
 
     private async checkModerator(userId: string): Promise<void> {
-        const user = await UserModel.findOne({ name: userId });
+        const user = await UserModel.findOne({ username: userId });
         if (!user) throw new HttpError(404, 'User not found');
         if (user.role !== UserRoles.MODERATOR) throw new HttpError(403, 'You are not a moderator');
     }
@@ -157,7 +156,7 @@ export class ModdashService {
             }
         }
         if (message.creator !== null || message.creator !== undefined) {
-            const user = await UserModel.findOne({ name: message.creator });
+            const user = await UserModel.findOne({ username: message.creator });
             if (user) {
                 user.messages = user.messages.filter((m) => m.toString() !== messageId);
                 user.markModified('messages');

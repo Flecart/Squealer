@@ -276,8 +276,9 @@ async function createTemporalMessage() {
 async function createRolesAndClients(loginTokens: LoginToken[]) {
     assert(loginTokens.length > 1, "No login tokens")
 
-    const smmToken = loginTokens[0] as LoginToken;
-    const clientToken = loginTokens[1] as LoginToken;
+    const smmToken = loginTokens[1] as LoginToken;
+    const clientToken = loginTokens[0] as LoginToken;
+    const clientToken2 = loginTokens[2] as LoginToken;
 
     await request(baseUrl)
         .post("/api/user/role")
@@ -294,12 +295,25 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
             role: "vip",
         }).expect(200);
 
+    await request(baseUrl)
+    .post("/api/user/role")
+    .set('Authorization', `Bearer ${clientToken2.token}`)
+    .send({
+        role: "vip",
+    }).expect(200);
+
     console.log("SMM and VIP role created")
 
     await request(baseUrl)
         .post(`/api/smm/add-client/${clientToken.name}`)
         .set('Authorization', `Bearer ${smmToken.token}`)
         .expect(200);
+
+    await request(baseUrl)
+    .post(`/api/smm/add-client/${clientToken2.name}`)
+    .set('Authorization', `Bearer ${smmToken.token}`)
+    .expect(200);
+
 
     console.log("Client added")
 }

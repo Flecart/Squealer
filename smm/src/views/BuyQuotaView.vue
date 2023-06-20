@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { clientInject } from '@/keys'
 import type { IUser } from '@model/user'
-import { inject, ref } from 'vue'
+import { inject, ref, computed } from 'vue'
 import BuyModal from '@/components/BuyQuotaForm.vue'
+import { urgentThreshold } from '@model/quota'
 
 const clients = inject<IUser[]>(clientInject)!
 
-const currentClient = ref<string>(clients[0].username)
+const currentClient = ref<IUser>(clients[0])
+
+const quotaDay = computed<number>(() => {
+  return currentClient.value.maxQuota.day - currentClient.value.usedQuota.day
+})
 </script>
 
 <template>
@@ -16,7 +21,7 @@ const currentClient = ref<string>(clients[0].username)
       <b-dropdown-item
         v-for="client in clients"
         :key="client.username"
-        @click="currentClient = client.username"
+        @click="currentClient = client"
       >
         {{ client.username }}
       </b-dropdown-item>
@@ -24,7 +29,7 @@ const currentClient = ref<string>(clients[0].username)
   </div>
 
   <div class="form-container">
-    <BuyModal :username="currentClient" />
+    <BuyModal :username="currentClient.username" :urgent="quotaDay < urgentThreshold" />
   </div>
 </template>
 
