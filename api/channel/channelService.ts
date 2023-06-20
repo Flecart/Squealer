@@ -53,12 +53,11 @@ export class ChannelService {
             throw new HttpError(400, `User with username ${owner} does not exist`);
         }
 
-        if (fromApi && !(type === ChannelType.PUBLIC || type === ChannelType.PRIVATE)) {
+        if (!fromApi && !(type === ChannelType.USER)) {
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
-        console.log(channelName);
-        if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@'))) {
-            throw new HttpError(400, `Channel name ${channelName} is not valid name`);
+        if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@') || channelName.startsWith('§'))) {
+            throw new HttpError(400, `Channel name ${channelName} is not valid name can't start with @ or # or §`);
         }
         if (ChannelType.SQUEALER == type && ownerUser.role !== UserRoles.MODERATOR) {
             throw new HttpError(400, `User ${owner} is not authorized to create a squealer channel`);

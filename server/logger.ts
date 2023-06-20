@@ -13,14 +13,14 @@ const logger = winston.createLogger({
 
             format: winston.format.combine(winston.format.colorize(), printf),
         }),
-        new winston.transports.File({
-            filename: 'logs.log',
-            level: 'info',
-        }),
-        new winston.transports.File({
-            filename: 'debug.log',
-            level: 'debug',
-        }),
+        // new winston.transports.File({
+        //     filename: 'logs.log',
+        //     level: 'info',
+        // }),
+        // new winston.transports.File({
+        //     filename: 'debug.log',
+        //     level: 'debug',
+        // }),
     ],
 });
 

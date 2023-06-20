@@ -14,6 +14,9 @@ import {
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
 import { type IUser, type UserRoles } from '@model/user';
+import logger from '@server/logger';
+
+const userLogger = logger.child({ label: 'user' });
 
 @Route('/user')
 export class UserController extends Controller {
@@ -82,6 +85,7 @@ export class UserController extends Controller {
     @Security('jwt')
     @SuccessResponse(200, 'Role Updated')
     public async updateRole(@Request() request: any, @Body() role: { role: UserRoles }): Promise<IUser> {
+        userLogger.info(`updateRole for user ${getUserFromRequest(request)} as ${role.role}`);
         return await new UserService().updateRole(getUserFromRequest(request), role.role);
     }
 }
