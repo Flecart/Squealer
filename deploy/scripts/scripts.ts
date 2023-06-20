@@ -3,28 +3,27 @@
 
 import mongoose from 'mongoose';
 import request from 'supertest';
-import initConnection from '../../server/mongo';
+import initConnection from '@server/mongo';
 import { randomBattisti, randomGuccini } from './readscript'
 
 import dotenv from 'dotenv';
-import { ChannelInfo, ChannelType, PermissionType } from '../../model/channel';
+import { ChannelInfo, ChannelType, PermissionType } from '@model/channel';
 import { MapPosition, Maps } from '@model/message';
 import assert from 'node:assert'
+import {
+    apiRoleRoute,
+    baseUrl,
+    channelCreateRoute,
+    createUserRoute,
+    loginRoute,
+    messageCreateRoute,
+    type Credentials
+} from './globals';
+import {createDefaultUsersAndChannels as makeDefaults} from './defaults';
 
 dotenv.config({
     path: './.env',
 });
-
-const createUserRoute = "/api/auth/create"
-const loginRoute = "/api/auth/login"
-const channelCreateRoute = "/api/channel/create"
-const messageCreateRoute = "/api/message"
-const baseUrl = "http://localhost:3000"
-
-type Credentials = {
-    username: string
-    password: string
-}
 
 type LoginToken = { name: string, token: string }
 
@@ -280,7 +279,7 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
     const clientToken2 = loginTokens[2] as LoginToken;
 
     await request(baseUrl)
-        .post("/api/user/role")
+        .post(apiRoleRoute)
         .set('Authorization', `Bearer ${smmToken.token}`)
         .send({
             role: "smm",
@@ -288,14 +287,14 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
 
 
     await request(baseUrl)
-        .post("/api/user/role")
+        .post(apiRoleRoute)
         .set('Authorization', `Bearer ${clientToken.token}`)
         .send({
             role: "vip",
         }).expect(200);
 
     await request(baseUrl)
-    .post("/api/user/role")
+    .post(apiRoleRoute)
     .set('Authorization', `Bearer ${clientToken2.token}`)
     .send({
         role: "vip",
@@ -381,40 +380,46 @@ async function addUsersToPrivateChannel() {
     }
 }
 
+async function createProjectDefaultAccounts() {
+    
+}
+
 initConnection().then(async () => {
     await mongoose.connection.db.dropDatabase() // tanto nessuna informazione importante è presente, è sicuro droppare così
     console.log("Database dropped")
     mongoose.connection.close()
 
-    await createDefaultUsers();
-    const loginToken = await getLoginTokens();
+    // await createDefaultUsers();
+    // const loginToken = await getLoginTokens();
 
-    const listOfToken = loginToken.map((token) => token.token);
+    // const listOfToken = loginToken.map((token) => token.token);
 
-    loginToken.forEach((token) => loginTockenMap.set(token.name, token.token));
+    // loginToken.forEach((token) => loginTockenMap.set(token.name, token.token));
 
-    setChannelMember(listOfToken);
+    // setChannelMember(listOfToken);
 
-    await createChannels(listOfToken);
-    console.log("Channels created")
+    // await createChannels(listOfToken);
+    // console.log("Channels created")
 
-    await joinChannel();
-    console.log("Users joined channels")
+    // await joinChannel();
+    // console.log("Users joined channels")
 
-    await createPrivateChannel();
-    console.log("Private channels created")
+    // await createPrivateChannel();
+    // console.log("Private channels created")
 
-    await addUsersToPrivateChannel();
+    // await addUsersToPrivateChannel();
 
-    const message = await createMessagesPublic();
-    console.log("Messages created")
+    // const message = await createMessagesPublic();
+    // console.log("Messages created")
 
-    await createPrivateMessage();
-    console.log('Private messages created')
+    // await createPrivateMessage();
+    // console.log('Private messages created')
 
-    await createRensponse(message, listOfToken);
+    // await createRensponse(message, listOfToken);
 
-    await createGeolocationMessagesPublic();
-    await createTemporalMessage();
-    await createRolesAndClients(loginToken);
+    // await createGeolocationMessagesPublic();
+    // await createTemporalMessage();
+    // await createRolesAndClients(loginToken);
+
+    await makeDefaults();
 })
