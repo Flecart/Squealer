@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { PermissionType } from './channel';
 
 export interface IInvitation {
