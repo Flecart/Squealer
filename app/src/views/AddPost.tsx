@@ -86,7 +86,7 @@ export default function AddPost(): JSX.Element {
     }, [user]);
 
     const permissions = useMemo<boolean>(() => {
-        return role === UserRoles.SMM || role === UserRoles.VIP;
+        return role === UserRoles.SMM || role === UserRoles.VIP || role === UserRoles.VERIFIED;
     }, [user]);
 
     const sendTemporizedMessage = useCallback(

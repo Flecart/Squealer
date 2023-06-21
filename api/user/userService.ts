@@ -56,7 +56,7 @@ export default class UserService {
         if (!user) {
             throw new HttpError(404, 'Username not found');
         }
-        if (user.role !== UserRoles.VIP && user.role !== UserRoles.SMM) {
+        if (user.role !== UserRoles.VIP && user.role !== UserRoles.SMM && user.role !== UserRoles.VERIFIED) {
             throw new HttpError(400, 'User has not Permitions');
         }
         if (dailyQuota < 0 || weeklyQuota < 0 || monthlyQuota < 0) {
