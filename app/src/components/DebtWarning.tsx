@@ -8,11 +8,17 @@ interface DebtWarningProps {
 
 export default function DebtWarning({ show, onClose }: DebtWarningProps): JSX.Element {
     return (
-        <ToastContainer position="middle-center" style={{ zIndex: 1 }}>
-            <Toast show={show} onClose={onClose}>
+        <ToastContainer
+            aria-atomic="true"
+            role="alert"
+            aria-live="assertive"
+            position="middle-center"
+            style={{ zIndex: 1 }}
+        >
+            <Toast show={show} onClose={onClose} aria-atomic="true" role="alert" aria-live="assertive">
                 <Toast.Header>
                     <img src={LogoLight} className="rounded me-2" aria-hidden={true} height={30} width={30} />
-                    <strong className="me-auto">Squealer</strong>
+                    <strong className="me-auto text-light">Squealer Warning</strong>
                 </Toast.Header>
                 <Toast.Body>
                     Attenzione, in questo momento potresti star utilizzando della quota extra.
