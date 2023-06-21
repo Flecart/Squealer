@@ -67,14 +67,7 @@ const router = createBrowserRouter(
                 }
             />
             <Route path="/user/:username" element={<User />} />
-            <Route
-                path="/recover"
-                element={
-                    <ProtectedRoute>
-                        <Reset />
-                    </ProtectedRoute>
-                }
-            />
+            <Route path="/recover" element={<Reset />} />
             <Route path="*" element={<NotFound />} />
             <Route
                 path="/addpost/"
