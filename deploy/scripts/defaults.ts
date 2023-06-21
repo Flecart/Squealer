@@ -4,7 +4,7 @@ import { baseUrl, createUserRoute, apiRoleRoute, channelCreateRoute, Credentials
 import { ChannelInfo, ChannelType } from '@model/channel';
 import assert from 'node:assert'
 import { randomTwits } from './readscript';
-import { MessageCreation } from '@model/message';
+import { IReactionType, MessageCreation, MessageCreationRensponse } from '@model/message';
 import {DEFAULT_QUOTA} from '@config/api'
 
 // the format is Name, Password,
@@ -121,6 +121,8 @@ const channels = [
     ...hashTagChannels,
 ]
 
+const allMessages: MessageCreationRensponse[] = [];
+
 const getChannelType = (channelName: string) => {
     if (squealerChannels.includes(channelName)) {
         return ChannelType.SQUEALER;
@@ -186,7 +188,7 @@ async function createChannels() {
             // save joined channels into map
         });
         console.log("joined all channels");
-    }, 100);  // ancora non capisco perché c'è problema di concorrenza...
+    }, 300);  // ancora non capisco perché c'è problema di concorrenza...
 
     setTimeout(async () => {
         // dai messaggi per ogni utente che ha joinato qualche canale pubblico:
@@ -196,11 +198,12 @@ async function createChannels() {
 
             if (quasiEsaurito) {
                 let currentMaxQuota = DEFAULT_QUOTA.day;
-                while (currentMaxQuota > 50) {
+                while (currentMaxQuota > 0) {
                     const randomTwit = randomTwits();
                     twits.push(randomTwit);
                     currentMaxQuota -= randomTwit.length;
                 }
+                twits.pop(); // l'ultimo elemento che ha fatto traboccare il vado è da togliere
             } else {
                 for (let i = 0; i < 5; i++) {
                     twits.push(randomTwits());
@@ -228,14 +231,56 @@ async function createChannels() {
 
                 if (res.status !== 200) console.log(res.error);
                 assert(res.status === 200);
-                
+                allMessages.push(res.body as MessageCreationRensponse);
             }
         });
-    }, 1000);
+    }, 600);
+}
 
-    // TODO: mettere le reazioni random
+const createRandomReactionType = (): IReactionType => {
+    let reactionType = IReactionType.UNSET;
+    const random = Math.random();
+    if (random < 0.25) {
+        reactionType = IReactionType.LIKE;
+    } else if (random < 0.5) {
+        reactionType = IReactionType.DISLIKE;
+    } else if (random < 0.75) {
+        reactionType = IReactionType.LOVE;
+    } else {
+        reactionType = IReactionType.ANGRY;
+    }
+
+    return reactionType
+}
+
+export async function createMessageReactions() {
+    loginTokens.forEach(async (token, _) => {
+        // chose random number of reactions:
+        const numberOfReactions = Math.floor(Math.random() * allMessages.length * 0.70);
+
+        // chose random messages to react to
+        const messagesToReact = allMessages.sort(() => Math.random() - 0.5).slice(0, numberOfReactions);
+
+        const res = await Promise.all(
+            messagesToReact.map(async (message) => {
+                return request(baseUrl)
+                .post(`${messageCreateRoute}/${message.id}/reaction`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({type: createRandomReactionType()});
+            })
+        )
+
+        res.forEach(r => {
+            if (r.status !== 200) console.log(r.error);
+            assert(r.status === 200);
+        });
+    });
+
+    console.log("created all reactions");
+
     // TODO: fare in modo che nomebuffo1 stia per aumentare la quota per buona reputazione
     // TODO: fare in modo che nomebuffo2 stia per diminuire la quota per cattiva reputazione
+    // Questo può essere fatto in modo facile con i superpoteri di un account squealer.
 }
 
 export async function createDefaultUsersAndChannels() {
@@ -245,5 +290,11 @@ export async function createDefaultUsersAndChannels() {
     // che mongo abbia correttamente cambiato i ruoli e creato gli utenti
     setTimeout(async () => {
         await createChannels();
-    }, 600);
+    }, 100);
+
+
+    // 
+    setTimeout(async () => {
+        await createMessageReactions();
+    }, 3000);
 }
