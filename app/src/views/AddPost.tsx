@@ -43,17 +43,6 @@ export default function AddPost(): JSX.Element {
     const [tempPeriod, setTempPeriod] = useState<number>(1);
     const [tempTimes, setTempTimes] = useState<number>(1);
 
-    /* const showQuota = (quota: number): string => {
-        if (user !== null) {
-            return `day:${user.maxQuota.day - user.usedQuota.day - quota} 
-            week: ${user.maxQuota.week - user.usedQuota.week - quota} 
-            month:${user.maxQuota.month - user.usedQuota.month - quota} 
-            extra:`.concat(getExtraQuota(user, quota).toString());
-        } else {
-            return '';
-        }
-    }; */
-
     function ShowQuota(props: { quota: number }): JSX.Element {
         if (user === null) {
             return <></>;
