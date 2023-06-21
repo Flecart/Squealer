@@ -67,10 +67,6 @@ function User(): JSX.Element {
                 <Row>
                     <h2 className="text-center">@{username}</h2>
                 </Row>
-                <Row>
-                    <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                </Row>
-
                 {/* TODO: edit profile button if the user is him self */}
             </Container>
 
