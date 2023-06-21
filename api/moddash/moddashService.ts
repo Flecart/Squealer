@@ -28,14 +28,14 @@ export interface ReactionRequest {
 
 export class ModdashService {
     public async changeQuota(admin: string, user: string, quota: IQuotas): Promise<void> {
-        await this.checkModerator(admin);
+        await this._checkModerator(admin);
         const target = await UserModel.findOne({ username: user });
         if (!target) throw new HttpError(404, 'User not found');
         target.maxQuota = quota;
         await target.save();
     }
     public async suspendUser(admin: string, user: string, suspended: boolean): Promise<void> {
-        await this.checkModerator(admin);
+        await this._checkModerator(admin);
         const target = await AuthModel.findOne({ username: user });
         if (!target) throw new HttpError(404, 'User not found');
         target.set('suspended', suspended);
@@ -43,7 +43,7 @@ export class ModdashService {
     }
 
     public async listUsers(userId: string): Promise<UserModRensponse[]> {
-        await this.checkModerator(userId);
+        await this._checkModerator(userId);
         const all = await UserModel.find({ roule: { $ne: UserRoles.MODERATOR } });
         const res: UserModRensponse[] = [];
         for (let user of all) {
@@ -68,7 +68,7 @@ export class ModdashService {
     }
 
     public async listPosts(userId: string, filter: FilterPosts): Promise<any> {
-        await this.checkModerator(userId);
+        await this._checkModerator(userId);
         const query: any = {};
         if (filter.username) query.creator = filter.username;
         if (filter.channel) query.channel = filter.channel;
@@ -84,16 +84,16 @@ export class ModdashService {
     }
 
     public async changeReaction(userId: string, messageId: string, reaction: ReactionRequest): Promise<void> {
-        await this.checkModerator(userId);
+        await this._checkModerator(userId);
         const message = await MessageModel.findOne({ _id: messageId });
         if (!message) throw new HttpError(404, 'Message not found');
-        await this.changeReactionToMessage(message, reaction.love, IReactionType.LOVE);
-        await this.changeReactionToMessage(message, reaction.like, IReactionType.LIKE);
-        await this.changeReactionToMessage(message, reaction.dislike, IReactionType.DISLIKE);
-        await this.changeReactionToMessage(message, reaction.angry, IReactionType.ANGRY);
+        await this._changeReactionToMessage(message, reaction.love, IReactionType.LOVE);
+        await this._changeReactionToMessage(message, reaction.like, IReactionType.LIKE);
+        await this._changeReactionToMessage(message, reaction.dislike, IReactionType.DISLIKE);
+        await this._changeReactionToMessage(message, reaction.angry, IReactionType.ANGRY);
     }
 
-    private async changeReactionToMessage(
+    private async _changeReactionToMessage(
         message: HydratedDocument<IMessage>,
         many: number,
         type: IReactionType,
@@ -113,18 +113,18 @@ export class ModdashService {
         await message.save();
     }
 
-    private async checkModerator(userId: string): Promise<void> {
+    private async _checkModerator(userId: string): Promise<void> {
         const user = await UserModel.findOne({ username: userId });
         if (!user) throw new HttpError(404, 'User not found');
         if (user.role !== UserRoles.MODERATOR) throw new HttpError(403, 'You are not a moderator');
     }
 
     public async deletePost(userId: string, messageId: string): Promise<void> {
-        await this.checkModerator(userId);
-        await this.recursiveDelition(messageId);
+        await this._checkModerator(userId);
+        await this._recursiveDeletion(messageId);
     }
     public async copyMessage(admin: string, messageId: string, channel: string): Promise<void> {
-        await this.checkModerator(admin);
+        await this._checkModerator(admin);
         const message = await MessageModel.findOne({ _id: messageId });
         if (!message) throw new HttpError(404, 'Message not found');
         const toChannel = await ChannelModel.findOne({ name: channel });
@@ -144,7 +144,7 @@ export class ModdashService {
         toChannel.messages.push(newMessage._id);
         await toChannel.save();
     }
-    private async recursiveDelition(messageId: string): Promise<void> {
+    private async _recursiveDeletion(messageId: string): Promise<void> {
         const message = await MessageModel.findOne({ _id: messageId });
         if (!message) throw new HttpError(404, 'Message not found');
         if (message.channel !== null || message.channel !== undefined) {
@@ -166,7 +166,7 @@ export class ModdashService {
         const messages = message.children.slice();
         await message.deleteOne();
         for (let child of messages) {
-            await this.recursiveDelition(child.toString());
+            await this._recursiveDeletion(child.toString());
         }
     }
 }
