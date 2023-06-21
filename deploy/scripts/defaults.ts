@@ -207,7 +207,6 @@ async function createChannels() {
                 }
             }
 
-            const allRequests = [];
             for (let i = 0; i < twits.length; i++) {
                 // select random channel
                 const channelName = channel[Math.floor(Math.random() * channel.length)] as string;
@@ -220,19 +219,17 @@ async function createChannels() {
                     parent: undefined,
                 } as MessageCreation
 
-                allRequests.push(
-                    request(baseUrl)
+                // il messaggio deve essere awaitato, in modo che le quota si aggiornino correttamente.
+                // non possiamo fare promise all.
+                const res = await request(baseUrl)
                     .post(messageCreateRoute)
                     .set('Authorization', `Bearer ${loginTokens.get(username)}`)
                     .field('data', JSON.stringify(message))
-                )
-            }
 
-            const res = await Promise.all(allRequests);
-            res.forEach(r => {
-                if (r.status !== 200) console.log(r.error);
-                assert(r.status === 200)
-            });
+                if (res.status !== 200) console.log(res.error);
+                assert(res.status === 200);
+                
+            }
         });
     }, 1000);
 
