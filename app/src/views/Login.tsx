@@ -1,11 +1,25 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { AuthContext } from '../contexts';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
 import { apiLogin as loginEndpoint } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
+import 'src/scss/App.scss';
+import { LogoLight } from 'app/logos/LogosInfo';
+import {
+    formFormBS,
+    inputFormBS,
+    buttonFormBS,
+    containerFormBS,
+    titleFormBS,
+    imageFormBS,
+    spinnerFormBS,
+    alertFormBS,
+    subTitleFormBS,
+    linksFormBS,
+} from 'src/layout/FormsLayout';
 
 export default function Login(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);
@@ -66,45 +80,56 @@ export default function Login(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className="d-flex justify-content-center">
-                <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handleLoginUser}>
-                    <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Username</Form.Label>
+            <Container className={containerFormBS}>
+                <h1 className={titleFormBS}>Welcome back to Squealer!</h1>
+                <img src={LogoLight} width={70} height={70} className={imageFormBS} alt="Logo Squealer" />
+                <Form className={formFormBS} onSubmit={handleLoginUser}>
+                    <h5 className={subTitleFormBS}>Insert your credentials to Login in your account!</h5>
+                    <FormGroup className={inputFormBS} controlId="FormUsername">
+                        <Form.Label>Username</Form.Label>
                         <Form.Control
                             type="text"
                             value={formName}
                             onChange={(e) => {
                                 setFormName(e.target.value);
                             }}
-                            placeholder="Inserisci il tuo username"
+                            placeholder="Insert your username"
                         />
                     </FormGroup>
-                    <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Password</Form.Label>
+                    <FormGroup className={inputFormBS} controlId="FormPassword">
+                        <Form.Label>Password</Form.Label>
                         <Form.Control
                             type="password"
                             value={formPassword}
                             onChange={(e) => {
                                 setFormPassword(e.target.value);
                             }}
-                            placeholder="Inserisci la tua password"
+                            placeholder="Insert your password"
                         />
                     </FormGroup>
-                    <Container className="d-flex justify-content-center">
-                        <Button className="col-6 me-1" variant="outline-success" type="submit">
-                            Login
-                        </Button>
-                    </Container>
-                    <Container className="d-flex justify-content-center">
-                        {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
-                        {pendingRequest && (
-                            <>
-                                <Spinner animation="border" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                            </>
-                        )}
-                    </Container>
+
+                    <Button className={buttonFormBS} variant="outline-success" type="submit">
+                        Login
+                    </Button>
+
+                    <small className="text-center mt-2">
+                        <Link to="/recover" className={linksFormBS}>
+                            Did you lost your credentials? <br />
+                            Reset your password here!
+                        </Link>
+                    </small>
+
+                    {errorMessage !== null && (
+                        <Alert className={alertFormBS} variant="danger">
+                            {errorMessage}
+                        </Alert>
+                    )}
+
+                    {pendingRequest && (
+                        <Spinner className={spinnerFormBS} animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    )}
                 </Form>
             </Container>
         </SidebarSearchLayout>
