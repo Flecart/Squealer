@@ -19,6 +19,7 @@ import Map from 'src/components/Map';
 import PayDebt from 'src/components/PayDebt';
 import DebtWarning from 'src/components/DebtWarning';
 import { toEnglishString } from 'src/utils';
+import { quotaMaxExtra } from '@model/quota';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -130,6 +131,19 @@ export default function AddPost(): JSX.Element {
         }
         return 0;
     }, [user]);
+
+    const maxLenghtChar = useMemo<number>(() => {
+        if (user !== null) {
+            const remQuotaDay: number = user.maxQuota.day - user.usedQuota.day;
+            const remQuotaWeek: number = user.maxQuota.week - user.usedQuota.week;
+            const remQuotaMonth: number = user.maxQuota.month - user.usedQuota.month;
+            if (remQuotaDay === 0 || remQuotaWeek === 0 || remQuotaMonth === 0) {
+                return 0;
+            }
+            return Math.min(remQuotaDay, remQuotaWeek, remQuotaMonth) + quotaMaxExtra;
+        }
+        return 0;
+    }, [user?.maxQuota, user?.usedQuota]);
 
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
@@ -308,6 +322,7 @@ export default function AddPost(): JSX.Element {
 
                     <Form.Control
                         as="textarea"
+                        maxLength={maxLenghtChar}
                         rows={3}
                         onChange={(e) => {
                             setMessageText(e.target.value);
