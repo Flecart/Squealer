@@ -380,10 +380,6 @@ async function addUsersToPrivateChannel() {
     }
 }
 
-async function createProjectDefaultAccounts() {
-    
-}
-
 initConnection().then(async () => {
     await mongoose.connection.db.dropDatabase() // tanto nessuna informazione importante è presente, è sicuro droppare così
     console.log("Database dropped")
