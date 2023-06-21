@@ -7,19 +7,8 @@ import { type AuthResponse } from '@model/auth';
 import { apiLogin as loginEndpoint } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
 import 'src/scss/App.scss';
+import 'src/scss/Form.scss';
 import { LogoLight } from 'app/logos/LogosInfo';
-import {
-    formFormBS,
-    inputFormBS,
-    buttonFormBS,
-    containerFormBS,
-    titleFormBS,
-    imageFormBS,
-    spinnerFormBS,
-    alertFormBS,
-    subTitleFormBS,
-    linksFormBS,
-} from 'src/layout/FormsLayout';
 
 export default function Login(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);
@@ -80,12 +69,12 @@ export default function Login(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className={containerFormBS}>
-                <h1 className={titleFormBS}>Welcome back to Squealer!</h1>
-                <img src={LogoLight} width={70} height={70} className={imageFormBS} alt="Logo Squealer" />
-                <Form className={formFormBS} onSubmit={handleLoginUser}>
-                    <h5 className={subTitleFormBS}>Insert your credentials to Login in your account!</h5>
-                    <FormGroup className={inputFormBS} controlId="FormUsername">
+            <Container className="containerFormBS">
+                <h1 className="titleFormBS">Welcome back to Squealer!</h1>
+                <img src={LogoLight} width={70} height={70} className="imageFormBS" alt="Logo Squealer" />
+                <Form className="formFormBS" onSubmit={handleLoginUser}>
+                    <h5 className="subTitleFormBS">Insert your credentials to Login in your account!</h5>
+                    <FormGroup className="inputFormBS" controlId="FormUsername">
                         <Form.Label>Username</Form.Label>
                         <Form.Control
                             type="text"
@@ -96,7 +85,7 @@ export default function Login(): JSX.Element {
                             placeholder="Insert your username"
                         />
                     </FormGroup>
-                    <FormGroup className={inputFormBS} controlId="FormPassword">
+                    <FormGroup className="inputFormBS" controlId="FormPassword">
                         <Form.Label>Password</Form.Label>
                         <Form.Control
                             type="password"
@@ -108,25 +97,25 @@ export default function Login(): JSX.Element {
                         />
                     </FormGroup>
 
-                    <Button className={buttonFormBS} variant="outline-success" type="submit">
+                    <Button className="buttonFormBS" variant="outline-success" type="submit">
                         Login
                     </Button>
 
                     <small className="text-center mt-2">
-                        <Link to="/recover" className={linksFormBS}>
+                        <Link to="/recover" className="linksFormBS">
                             Did you lost your credentials? <br />
                             Reset your password here!
                         </Link>
                     </small>
 
                     {errorMessage !== null && (
-                        <Alert className={alertFormBS} variant="danger">
+                        <Alert className="alertFormBS" variant="danger">
                             {errorMessage}
                         </Alert>
                     )}
 
                     {pendingRequest && (
-                        <Spinner className={spinnerFormBS} animation="border" role="status">
+                        <Spinner className="spinnerFormBS" animation="border" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </Spinner>
                     )}
