@@ -1,4 +1,3 @@
-
 import request from 'supertest';
 import { baseUrl, createUserRoute, apiRoleRoute, channelCreateRoute, Credentials, messageCreateRoute } from './globals';
 import { ChannelInfo, ChannelType } from '@model/channel';
@@ -17,6 +16,7 @@ const proAccounts: [string, string][] = [
 
 const smmAccounts: [string, string][] = [
     ['fvSMM', '12345678'],
+    ['noclients', '12345678']
 ];
 
 const modAccounts: [string, string][] = [
@@ -75,6 +75,20 @@ async function createUsers() {
                     }).expect(200)
             }));
             console.log(`setting all ${role} roles`)
+
+            if (role === 'smm') {
+                // add clients to fvsmm
+                const clients = proAccounts.map(([username, _]) => username);
+                for (const client of clients) {
+                    await request(baseUrl)
+                        .post(`/api/smm/add-client/${client.toLocaleLowerCase()}`)
+                        .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
+                        .send({
+                            role,
+                            client,
+                        }).expect(200)
+                }
+            }
         });
 }
 
