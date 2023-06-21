@@ -120,7 +120,7 @@ export class LoginService {
         }
 
         if (!authUser.enableReset) {
-            throw new HttpError(400, 'Recupero Password non Abilitato');
+            throw new HttpError(400, 'Password Recover Service is not enabled');
         }
 
         if (authUser.otp !== this._hashPassword(authUser.salt, reset_password)) {
