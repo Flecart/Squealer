@@ -3,28 +3,64 @@ import { ref, inject, watch, computed } from 'vue'
 import { getClientMessageBaseRoute } from '@/routes'
 import { clientInject } from '@/keys'
 import type { IUser } from '@model/user'
-import type { IMessage, IMessageWithPages } from '@model/message'
+import type { IMessage, IMessageWithPages, MessageSortTypes } from '@model/message'
 import { urgentThreshold } from '@model/quota'
 import BuyModal from './BuyModal.vue'
 import Post from './Post.vue'
 import { toEnglishString } from '@/utils'
-import { assert } from 'console'
 
 defineProps<{
   msg: string
 }>()
 
+interface SortMode {
+  title: string
+  value: MessageSortTypes
+}
+
+const messageSortModes: SortMode[] = [
+  {
+    title: 'By Popularity',
+    value: 'popularity'
+  },
+  {
+    title: 'By Unpopularity',
+    value: 'unpopularity'
+  },
+  {
+    title: 'By Reaction Number Asc',
+    value: 'reactions-asc'
+  },
+  {
+    title: 'By Reaction Number Desc',
+    value: 'reactions-desc'
+  },
+  {
+    title: 'By Controvery Risk',
+    value: 'risk'
+  }
+]
+
 const currentPage = ref<number>(0)
 const totalPages = ref<number>(1)
+const tabIndex = ref<number>(0)
 const selectedClient = ref<string>('loading...')
-watch([selectedClient, currentPage], ([newValue, newPage], [oldValue, oldPage]) => {
-  if (newValue !== oldValue || newPage !== oldPage) {
-    fetchMessages(newValue, newPage).then((data: IMessageWithPages) => {
-      messages.value = data.messages
-      totalPages.value = data.pages
-    })
+watch(
+  [selectedClient, currentPage, tabIndex],
+  ([newValue, newPage, newPageIndex], [oldValue, oldPage, oldPageIndex]) => {
+    if (newValue !== oldValue || newPage !== oldPage || newPageIndex !== oldPageIndex) {
+      const sort = messageSortModes[newPageIndex].value
+      fetchMessages(newValue, newPage, sort).then((data: IMessageWithPages) => {
+        messages.value = data.messages
+        totalPages.value = data.pages
+      })
+    }
+
+    if (newPage === oldPage) {
+      currentPage.value = 0
+    }
   }
-})
+)
 
 const messages = ref<IMessage[]>([])
 
@@ -44,9 +80,9 @@ if (hasClients.value) {
   selectedClient.value = 'No clients'
 }
 
-function fetchMessages(currentClient: string, page: number) {
-  return fetch(`${getClientMessageBaseRoute}/${currentClient}?page=${page}`).then((response) =>
-    response.json()
+function fetchMessages(currentClient: string, page: number, sort: MessageSortTypes = 'popularity') {
+  return fetch(`${getClientMessageBaseRoute}/${currentClient}?page=${page}&sort=${sort}`).then(
+    (response) => response.json()
   )
 }
 
@@ -131,6 +167,7 @@ const setPageNumber = (page: number) => {
       >
     </div>
 
+    <!-- TODO: questo dovrebbe essere sostituito da b-pagination, però la cosa buona è che si può usare anch ein moddash questo quasi. -->
     <nav aria-label="Post pagination">
       <ul class="pagination">
         <li class="page-item">
@@ -180,17 +217,25 @@ const setPageNumber = (page: number) => {
         </li>
       </ul>
     </nav>
-    <div class="posts">
-      <template v-if="messages.length === 0">
-        <b-alert variant="info" show> No posts found for this client. </b-alert>
-      </template>
-      <Post
-        v-for="message in messages"
-        :key="message._id.toString()"
-        :message="message"
-        :author="(clients.find((c) => c.username === selectedClient) as IUser)"
-      />
-    </div>
+
+    <b-card no-body>
+      <b-tabs v-model="tabIndex" card>
+        <template v-for="sortMode in messageSortModes" :key="sortMode.value">
+          <b-tab :title="sortMode.title"></b-tab>
+        </template>
+      </b-tabs>
+      <div class="posts">
+        <template v-if="messages.length === 0">
+          <b-alert variant="info" show> No posts found for this client. </b-alert>
+        </template>
+        <Post
+          v-for="message in messages"
+          :key="message._id.toString()"
+          :message="message"
+          :author="(clients.find((c) => c.username === selectedClient) as IUser)"
+        />
+      </div>
+    </b-card>
   </template>
 </template>
 
@@ -209,7 +254,8 @@ h1 {
 }
 
 .posts {
-  margin-right: 2rem;
+  margin-right: 1rem;
+  margin-left: 1rem;
   display: flex;
   flex-wrap: wrap;
   width: 100%;
