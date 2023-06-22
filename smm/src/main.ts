@@ -30,7 +30,6 @@ if (authState != null) {
     })
 
   app.provide(authInject, authState)
-  console.log(authState)
   const response = await fetch(getClientsRoute, {
     headers: {
       'Content-Type': 'application/json',

@@ -3,21 +3,25 @@ import { ref, inject, watch, computed } from 'vue'
 import { getClientMessageBaseRoute } from '@/routes'
 import { clientInject } from '@/keys'
 import type { IUser } from '@model/user'
-import type { IMessage } from '@model/message'
+import type { IMessage, IMessageWithPages } from '@model/message'
 import { urgentThreshold } from '@model/quota'
 import BuyModal from './BuyModal.vue'
 import Post from './Post.vue'
 import { toEnglishString } from '@/utils'
+import { assert } from 'console'
 
 defineProps<{
   msg: string
 }>()
 
+const currentPage = ref<number>(0)
+const totalPages = ref<number>(1)
 const selectedClient = ref<string>('loading...')
-watch(selectedClient, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    fetchMessages(newValue).then((data) => {
-      messages.value = data
+watch([selectedClient, currentPage], ([newValue, newPage], [oldValue, oldPage]) => {
+  if (newValue !== oldValue || newPage !== oldPage) {
+    fetchMessages(newValue, newPage).then((data: IMessageWithPages) => {
+      messages.value = data.messages
+      totalPages.value = data.pages
     })
   }
 })
@@ -40,8 +44,10 @@ if (hasClients.value) {
   selectedClient.value = 'No clients'
 }
 
-function fetchMessages(currentClient: string) {
-  return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
+function fetchMessages(currentClient: string, page: number) {
+  return fetch(`${getClientMessageBaseRoute}/${currentClient}?page=${page}`).then((response) =>
+    response.json()
+  )
 }
 
 const currentClient = computed<IUser>(() => {
@@ -63,6 +69,18 @@ const quotaMonth = computed<number>(() => {
 const isUrgentQuota = computed<boolean>(() => {
   return Math.min(quotaDay.value, quotaWeek.value, quotaMonth.value) < urgentThreshold
 })
+
+const setPreviousPage = () => {
+  currentPage.value = Math.max(currentPage.value - 1, 0)
+}
+
+const setNextPage = () => {
+  currentPage.value = Math.min(currentPage.value + 1, totalPages.value - 1)
+}
+
+const setPageNumber = (page: number) => {
+  currentPage.value = page
+}
 </script>
 <template>
   <h1>SMM Dashboard</h1>
@@ -113,6 +131,55 @@ const isUrgentQuota = computed<boolean>(() => {
       >
     </div>
 
+    <nav aria-label="Post pagination">
+      <ul class="pagination">
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Previous"
+            :disabled="currentPage == 0"
+            @click="setPreviousPage"
+          >
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+          </div>
+        </li>
+
+        <li class="page-item" v-if="currentPage > 1" aria-label="First page">
+          <div role="button" class="page-link" @click="setPageNumber(0)">1...</div>
+        </li>
+        <li class="page-item" v-if="currentPage != 0">
+          <div role="button" class="page-link" @click="setPreviousPage">{{ currentPage }}</div>
+        </li>
+
+        <li class="page-item active" aria-label="Current Page">
+          <div role="button" class="page-link" active>{{ currentPage + 1 }}</div>
+        </li>
+        <li class="page-item" v-if="currentPage != totalPages - 1">
+          <div role="button" class="page-link" @click="setNextPage">
+            {{ currentPage + 2 }}
+          </div>
+        </li>
+        <li class="page-item" v-if="currentPage < totalPages - 2" aria-label="Last Page">
+          <div role="button" class="page-link" @click="setPageNumber(totalPages - 1)">
+            ...{{ totalPages }}
+          </div>
+        </li>
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Next"
+            :disabled="currentPage == totalPages - 1"
+            @click="setNextPage"
+          >
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+          </div>
+        </li>
+      </ul>
+    </nav>
     <div class="posts">
       <template v-if="messages.length === 0">
         <b-alert variant="info" show> No posts found for this client. </b-alert>
@@ -142,7 +209,6 @@ h1 {
 }
 
 .posts {
-  margin-top: 2rem;
   margin-right: 2rem;
   display: flex;
   flex-wrap: wrap;
@@ -159,6 +225,10 @@ h1 {
 
 .quota-groups .alert {
   margin: 0 0 0 1rem;
+}
+
+.pagination {
+  margin-top: 1rem;
 }
 
 @media screen and (max-width: 990px) {

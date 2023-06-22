@@ -63,6 +63,11 @@ export interface IMessage {
     category: ICategory;
 }
 
+export interface IMessageWithPages {
+    messages: IMessage[];
+    pages: number;
+}
+
 export enum IReactionType {
     ANGRY = -2,
     DISLIKE = -1,

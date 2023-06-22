@@ -9,6 +9,7 @@ import {
     type ReactionResponse,
     messageSort,
     type MessageSortTypes,
+    IMessageWithPages,
 } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
@@ -35,7 +36,7 @@ export class MessageService {
         page: number,
         limit: number,
         sort?: MessageSortTypes,
-    ): Promise<IMessage[]> {
+    ): Promise<IMessageWithPages> {
         const messages = await (
             await MessageModel.find({ creator: username, channel: { $ne: null } })
         ).filter(async (message) => {
@@ -44,12 +45,18 @@ export class MessageService {
             else return false;
         });
 
+        let returnMessages: IMessage[] = [];
         if (sort) {
             const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
-            return messages.sort(customSort).slice(page * limit, (page + 1) * limit);
+            returnMessages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
         } else {
-            return messages.slice(page * limit, (page + 1) * limit);
+            returnMessages = messages.slice(page * limit, (page + 1) * limit);
         }
+
+        return {
+            messages: returnMessages,
+            pages: Math.ceil(messages.length / limit),
+        } as IMessageWithPages;
     }
 
     public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {

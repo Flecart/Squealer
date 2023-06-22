@@ -6,6 +6,7 @@ import {
     MessageSortTypes,
     type MessageCreationRensponse,
     type ReactionResponse,
+    IMessageWithPages,
 } from '@model/message';
 import {
     Get,
@@ -23,10 +24,13 @@ import {
 import { MessageService } from './messageService';
 import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
 import { HttpError } from '@model/error';
+import logger from '@server/logger';
 /*
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
 */
+
+const log = logger.child({ label: 'messageController' });
 
 @Route('/message')
 export class MessageController {
@@ -67,7 +71,8 @@ export class MessageController {
         @Query('page') page: number,
         @Query('limit') limit?: number,
         @Query('sort') sort?: MessageSortTypes,
-    ): Promise<IMessage[]> {
+    ): Promise<IMessageWithPages> {
+        log.info(`userMessage: user: ${user}, page: ${page}, limit: ${limit}, sort: ${sort}`);
         if (!limit) {
             limit = DefaultPageSize;
         }
