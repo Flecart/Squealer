@@ -62,7 +62,6 @@ function redirectToMessage(messageId: string) {
 .post:hover {
   background-color: #f5f5f5;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  overflow-wrap: break-word;
 }
 
 .post:active {
@@ -73,6 +72,7 @@ function redirectToMessage(messageId: string) {
   display: flex;
   align-items: center;
   margin-bottom: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .post-author {

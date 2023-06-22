@@ -21,7 +21,6 @@ watch(selectedClient, (newValue, oldValue) => {
     })
   }
 })
-const hasFetchedClients = ref<boolean>(false)
 
 const messages = ref<IMessage[]>([])
 
@@ -30,8 +29,16 @@ const selectClient = (client: string) => {
 }
 
 const clients = inject<IUser[]>(clientInject)!
-selectedClient.value = clients[0].username
-hasFetchedClients.value = true
+
+const hasClients = computed<boolean>(() => {
+  return clients.length > 0
+})
+
+if (hasClients.value) {
+  selectedClient.value = clients[0].username
+} else {
+  selectedClient.value = 'No clients'
+}
 
 function fetchMessages(currentClient: string) {
   return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
@@ -61,7 +68,7 @@ const isUrgentQuota = computed<boolean>(() => {
   <h1>SMM Dashboard</h1>
   <div class="client-name">
     <span> Current client: </span>
-    <b-dropdown :text="selectedClient" class="m-md-2">
+    <b-dropdown :text="selectedClient" class="m-2">
       <b-dropdown-item
         v-for="client in clients"
         :key="client.username"
@@ -72,47 +79,52 @@ const isUrgentQuota = computed<boolean>(() => {
     </b-dropdown>
   </div>
 
-  <div class="quota-groups me-2">
-    <template v-if="hasFetchedClients">
+  <template v-if="!hasClients">
+    <b-alert variant="info" show>
+      No clients found. Ask for some <span class="font-weight-bold">VIP</span> users to add you as
+      his/her SMM manager</b-alert
+    >
+  </template>
+
+  <template v-else>
+    <div class="quota-groups me-2">
       <BuyModal class="me-2 mb-1" :username="selectedClient" :urgent="isUrgentQuota" />
-    </template>
-    <template v-else>
-      <b-spinner label="Loading..."></b-spinner>
-    </template>
-    <template v-if="isUrgentQuota">
-      <b-alert variant="danger" show>
-        You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
-      </b-alert>
-    </template>
-  </div>
+      <template v-if="isUrgentQuota">
+        <b-alert variant="danger" show>
+          You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
+        </b-alert>
+      </template>
+    </div>
 
-  <div class="mt-2">
-    Current client quota:
-    <b-badge class="mx-1" variant="primary"
-      >Daily
-      <span :aria-label="toEnglishString(quotaDay)"> {{ quotaDay }} </span> characters</b-badge
-    >
-    <b-badge class="mx-1" variant="primary"
-      >Weekly
-      <span :aria-label="toEnglishString(quotaWeek)"> {{ quotaWeek }} </span> characters</b-badge
-    >
-    <b-badge class="mx-1" variant="primary"
-      >Monthly
-      <span :aria-label="toEnglishString(quotaMonth)"> {{ quotaMonth }} </span> characters</b-badge
-    >
-  </div>
+    <div class="mt-2">
+      Current client quota:
+      <b-badge class="mx-1" variant="primary"
+        >Daily
+        <span :aria-label="toEnglishString(quotaDay)"> {{ quotaDay }} </span> characters</b-badge
+      >
+      <b-badge class="mx-1" variant="primary"
+        >Weekly
+        <span :aria-label="toEnglishString(quotaWeek)"> {{ quotaWeek }} </span> characters</b-badge
+      >
+      <b-badge class="mx-1" variant="primary"
+        >Monthly
+        <span :aria-label="toEnglishString(quotaMonth)"> {{ quotaMonth }} </span>
+        characters</b-badge
+      >
+    </div>
 
-  <div class="posts">
-    <template v-if="messages.length === 0">
-      <b-alert variant="info" show> No posts found for this client. </b-alert>
-    </template>
-    <Post
-      v-for="message in messages"
-      :key="message._id.toString()"
-      :message="message"
-      :author="(clients.find((c) => c.username === selectedClient) as IUser)"
-    />
-  </div>
+    <div class="posts">
+      <template v-if="messages.length === 0">
+        <b-alert variant="info" show> No posts found for this client. </b-alert>
+      </template>
+      <Post
+        v-for="message in messages"
+        :key="message._id.toString()"
+        :message="message"
+        :author="(clients.find((c) => c.username === selectedClient) as IUser)"
+      />
+    </div>
+  </template>
 </template>
 
 <style scoped>
