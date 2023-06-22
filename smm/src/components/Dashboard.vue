@@ -140,14 +140,13 @@ h1 {
 .quota-groups {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 
   align-items: center;
   margin-top: 1rem;
 }
 
 .quota-groups .alert {
-  margin: 0;
+  margin: 0 0 0 1rem;
 }
 
 @media screen and (max-width: 990px) {
