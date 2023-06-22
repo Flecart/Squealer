@@ -21,7 +21,28 @@ export type Invitation = { to: string; channel: string; permission: PermissionTy
 
 export type SupportedContent = 'text' | 'image' | 'video' | 'maps' | 'invitation';
 
-export const CriticMass = 1;
+export const CriticMass = 2;
+
+export const DefaultPageSize = 10;
+
+export type MessageSortTypes = 'reactions-desc' | 'reactions-asc' | 'popularity' | 'risk' | 'unpopularity';
+
+export function messageSort(a: IMessage, b: IMessage, type: MessageSortTypes): number {
+    switch (type) {
+        case 'reactions-desc':
+            return -sortReactionsAsc(a, b);
+        case 'reactions-asc':
+            return -sortReactionsAsc(a, b);
+        case 'popularity':
+            return sortPopularity(a, b);
+        case 'unpopularity':
+            return -sortPopularity(a, b);
+        case 'risk':
+            return sortRisk(a, b);
+        default:
+            return 0;
+    }
+}
 
 /** 
 Commento per le api
@@ -100,4 +121,52 @@ export function sortHighliths(a: IMessage, b: IMessage): number {
     const na = a.reaction.map(toNumber).reduce((a, b) => a + b, 0);
     const nb = b.reaction.map(toNumber).reduce((a, b) => a + b, 0);
     return na - nb;
+}
+
+function sortPopularity(a: IMessage, b: IMessage): number {
+    const aReactions = a.reaction.reduce((acc, curr) => acc + curr.type, 0);
+    const bReactions = b.reaction.reduce((acc, curr) => acc + curr.type, 0);
+    return aReactions - bReactions;
+}
+
+function sortReactionsAsc(a: IMessage, b: IMessage): number {
+    const aNumReactions = a.reaction.length;
+    const bNumReactions = b.reaction.length;
+    return aNumReactions - bNumReactions;
+}
+
+// se è più vicino a diventare controverso o unpopolare, allora è più rischioso
+function sortRisk(a: IMessage, b: IMessage): number {
+    const aPositive = a.reaction.filter((reaction) => reaction.type > 0).reduce((acc, curr) => acc + curr.type, 0);
+    const aNegative = a.reaction.filter((reaction) => reaction.type < 0).reduce((acc, curr) => acc + curr.type, 0);
+
+    const bPositive = b.reaction.filter((reaction) => reaction.type > 0).reduce((acc, curr) => acc + curr.type, 0);
+    const bNegative = b.reaction.filter((reaction) => reaction.type < 0).reduce((acc, curr) => acc + curr.type, 0);
+
+    const isControversial = (positive: number, negative: number) =>
+        Math.abs(positive) > CriticMass && Math.abs(negative) > CriticMass;
+    const controversialCount = (positive: number, negative: number): number => {
+        let controversialValue = 0;
+        if (!isControversial(positive, negative)) {
+            controversialValue += Math.abs(positive) > CriticMass ? 0 : CriticMass - Math.abs(positive);
+            controversialValue += Math.abs(negative) > CriticMass ? 0 : CriticMass - Math.abs(negative);
+        }
+
+        return controversialValue;
+    };
+    const negativeCount = (negative: number): number => {
+        let negativeValue = 0;
+        if (Math.abs(negative) < CriticMass) {
+            negativeValue += CriticMass - Math.abs(negative);
+        }
+        return negativeValue;
+    };
+    // provo a misurare quanto mi manca per diventare controverso.
+    const aControversial = controversialCount(aPositive, aNegative);
+    const bControversial = controversialCount(bPositive, bNegative);
+    const aNegativeCount = negativeCount(aNegative);
+    const bNegativeCount = negativeCount(bNegative);
+
+    // a < b solo se ha un conteggio minore di b
+    return aControversial + aNegativeCount - (bControversial + bNegativeCount);
 }

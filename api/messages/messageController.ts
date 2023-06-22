@@ -1,7 +1,9 @@
 import {
+    DefaultPageSize,
     IMessage,
     IReactionType,
     MapPosition,
+    MessageSortTypes,
     type MessageCreationRensponse,
     type ReactionResponse,
 } from '@model/message';
@@ -60,8 +62,16 @@ export class MessageController {
 
     @Get('/user/{username}')
     @Response<IMessage[]>(200, 'OK')
-    public async userMessage(@Path('username') user: string): Promise<IMessage[]> {
-        return new MessageService().getOwnedMessages(user);
+    public async userMessage(
+        @Path('username') user: string,
+        @Query('page') page: number,
+        @Query('limit') limit?: number,
+        @Query('sort') sort?: MessageSortTypes,
+    ): Promise<IMessage[]> {
+        if (!limit) {
+            limit = DefaultPageSize;
+        }
+        return new MessageService().getOwnedMessages(user, page, limit, sort);
     }
 
     @Get('/{id}/')
