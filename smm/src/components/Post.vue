@@ -62,6 +62,7 @@ function redirectToMessage(messageId: string) {
 .post:hover {
   background-color: #f5f5f5;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  overflow-wrap: break-word;
 }
 
 .post:active {
