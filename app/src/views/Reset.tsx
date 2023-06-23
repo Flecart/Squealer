@@ -50,14 +50,14 @@ export default function Reset(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className="containerFormBS">
+            <Container className="container-form-bs">
                 {resetPassword === null ? (
-                    <Form className="formFormBS" onSubmit={showResetPassword}>
-                        <h5 className="subTitleFormBS">
+                    <Form className="form-form-bs" onSubmit={showResetPassword}>
+                        <h5 className="subtitle-form-bs">
                             Use your username and recovery password to Reset your password so you can access to your
                             account.
                         </h5>
-                        <FormGroup className="inputFormBS" controlId="UsernameForm">
+                        <FormGroup className="input-form-bs" controlId="UsernameForm">
                             <Form.Label>Username</Form.Label>
                             <Form.Control
                                 type="text"
@@ -68,7 +68,7 @@ export default function Reset(): JSX.Element {
                                 placeholder="Insert your username"
                             />
                         </FormGroup>
-                        <FormGroup className="inputFormBS" controlId="RecoveryPasswordForm">
+                        <FormGroup className="input-form-bs" controlId="RecoveryPasswordForm">
                             <Form.Label>Recovery Password</Form.Label>
                             <Form.Control
                                 type="text"
@@ -79,11 +79,11 @@ export default function Reset(): JSX.Element {
                                 placeholder="Insert your recovery password"
                             />
                         </FormGroup>
-                        <Button className="buttonFormBS" variant="outline-success" type="submit">
+                        <Button className="button-form-bs" variant="outline-success" type="submit">
                             Conferma
                         </Button>
                         {errorMessage !== null && (
-                            <Alert className="alertFormBS" variant="danger">
+                            <Alert className="alert-form-bs" variant="danger">
                                 {errorMessage}
                             </Alert>
                         )}
@@ -94,7 +94,7 @@ export default function Reset(): JSX.Element {
                         )}
                     </Form>
                 ) : (
-                    <Alert className="alertFormBS" variant="success">
+                    <Alert className="alert-form-bs" variant="success">
                         Your password has been resetted with success. <br />
                         Your new password is:
                         <b>{resetPassword}</b>
