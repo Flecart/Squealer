@@ -1,4 +1,4 @@
-import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../contexts';
 import { fetchApi } from '../api/fetch';
@@ -53,7 +53,7 @@ export default function EnebleReset(): JSX.Element {
                     },
                     authState,
                     (_otp) => {
-                        setSuccessMessage('Recupero Password abilitato con Successo');
+                        setSuccessMessage('Password Reset enabled sucessfully');
                         setOtp(_otp.otp);
                         setPendingRequest(false);
                     },
@@ -70,45 +70,45 @@ export default function EnebleReset(): JSX.Element {
     return (
         <>
             {showEnableReset ? (
-                <Form className="m-0 me-4 py-3 px-3 " onSubmit={handleChangePassword}>
-                    <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Password</Form.Label>
+                <Form className="form-form-bs" onSubmit={handleChangePassword}>
+                    <FormGroup className="input-form-bs" controlId="Password">
+                        <Form.Label>Password</Form.Label>
                         <Form.Control
                             type="password"
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value);
                             }}
-                            placeholder="Inserisci il la tua password"
+                            placeholder="Insert your password"
                         />
                     </FormGroup>
-                    <Container className="d-flex justify-content-center">
-                        <Button className="col-6 me-1" variant="outline-success" type="submit">
-                            Abilita il Reset della Password
-                        </Button>
-                    </Container>
-                    <Container className="d-flex justify-content-center">
-                        {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
-                        {pendingRequest && (
-                            <>
-                                <Spinner animation="border" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                            </>
-                        )}
-                        {successMessage !== null && (
-                            <Alert variant="sucess">
-                                {successMessage}
-                                <br />
-                                Custodisci con cura la tua password di riserva:
-                                <br />
-                                {otp}
-                            </Alert>
-                        )}
-                    </Container>
+                    <Button className="button-setting-bs" variant="outline-success" type="submit">
+                        Enable Password Reset
+                    </Button>
+                    {errorMessage !== null && (
+                        <Alert className="alert-form-bs" variant="danger">
+                            {errorMessage}
+                        </Alert>
+                    )}
+                    {pendingRequest && (
+                        <Spinner className="spinner-form-bs" animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    )}
+                    {successMessage !== null && (
+                        <Alert className="alert-form-bs" variant="sucess">
+                            {successMessage}
+                            <br />
+                            Take great care of your recovery password:
+                            <br />
+                            {otp}
+                        </Alert>
+                    )}
                 </Form>
             ) : (
-                <Alert variant="success">Il Servizio di Recupero Password è già abilitato!</Alert>
+                <Alert className="alert-form-bs" variant="success">
+                    Reset Password servivs is already enabled!
+                </Alert>
             )}
         </>
     );

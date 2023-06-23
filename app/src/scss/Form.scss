@@ -22,6 +22,11 @@
     @extend .mt-1;
 }
 
+.button-setting-bs {
+    @extend .button-form-bs;
+    @extend .w-auto;
+}
+
 .container-form-bs {
     @extend .d-flex;
     @extend .flex-column;

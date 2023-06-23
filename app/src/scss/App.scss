@@ -5,5 +5,12 @@
 @import 'Form.scss';
 
 [class~='alert-danger'] {
-    background-color: rgb(217, 52, 35);
+    background-color: rgb(217, 52, 35) !important;
+}
+
+[class~='btn-danger'] {
+    --bs-btn-bg: rgb(217, 52, 35) !important;
+    --bs-btn-border-color: rgb(217, 52, 35) !important;
+    --bs-btn-hover-bg: rgb(175, 45, 31) !important;
+    --bs-btn-hover-border-color: rgb(175, 45, 31) !important;
 }
