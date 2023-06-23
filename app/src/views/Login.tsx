@@ -69,12 +69,12 @@ export default function Login(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className="containerFormBS">
-                <h1 className="titleFormBS">Welcome back to Squealer!</h1>
-                <img src={LogoLight} width={70} height={70} className="imageFormBS" alt="Logo Squealer" />
-                <Form className="formFormBS" onSubmit={handleLoginUser}>
-                    <h5 className="subTitleFormBS">Insert your credentials to Login in your account!</h5>
-                    <FormGroup className="inputFormBS" controlId="FormUsername">
+            <Container className="container-form-bs">
+                <h1 className="title-form-bs">Welcome back to Squealer!</h1>
+                <img src={LogoLight} width={70} height={70} className="image-form-bs" alt="Logo Squealer" />
+                <Form className="form-form-bs" onSubmit={handleLoginUser}>
+                    <h5 className="subtitle-form-bs">Insert your credentials to Login in your account!</h5>
+                    <FormGroup className="input-form-bs" controlId="FormUsername">
                         <Form.Label>Username</Form.Label>
                         <Form.Control
                             type="text"
@@ -85,7 +85,7 @@ export default function Login(): JSX.Element {
                             placeholder="Insert your username"
                         />
                     </FormGroup>
-                    <FormGroup className="inputFormBS" controlId="FormPassword">
+                    <FormGroup className="input-form-bs" controlId="FormPassword">
                         <Form.Label>Password</Form.Label>
                         <Form.Control
                             type="password"
@@ -97,25 +97,25 @@ export default function Login(): JSX.Element {
                         />
                     </FormGroup>
 
-                    <Button className="buttonFormBS" variant="outline-success" type="submit">
+                    <Button className="button-form-bs" variant="outline-success" type="submit">
                         Login
                     </Button>
 
                     <small className="text-center mt-2">
-                        <Link to="/recover" className="linksFormBS">
+                        <Link to="/recover" className="links-form-bs">
                             Did you lost your credentials? <br />
                             Reset your password here!
                         </Link>
                     </small>
 
                     {errorMessage !== null && (
-                        <Alert className="alertFormBS" variant="danger">
+                        <Alert className="alert-form-bs" variant="danger">
                             {errorMessage}
                         </Alert>
                     )}
 
                     {pendingRequest && (
-                        <Spinner className="spinnerFormBS" animation="border" role="status">
+                        <Spinner className="spinner-form-bs" animation="border" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </Spinner>
                     )}

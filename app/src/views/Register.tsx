@@ -66,13 +66,13 @@ export default function Register(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className="containerFormBS">
-                <h1 className="titleFormBS">Welcome to Squealer!</h1>
-                <img src={LogoLight} width={70} height={70} className="imageFormBS" alt="Squealer Logo" />
+            <Container className="container-form-bs">
+                <h1 className="title-form-bs">Welcome to Squealer!</h1>
+                <img src={LogoLight} width={70} height={70} className="image-form-bs" alt="Squealer Logo" />
 
-                <Form className="formFormBS" onSubmit={handleCreateUser}>
-                    <h5 className="subTitleFormBS">Fill the form to Register as new user!</h5>
-                    <FormGroup className="inputFormBS" controlId="UsernameField">
+                <Form className="form-form-bs" onSubmit={handleCreateUser}>
+                    <h5 className="subtitle-form-bs">Fill the form to Register as new user!</h5>
+                    <FormGroup className="input-form-bs" controlId="UsernameField">
                         <Form.Label>Username</Form.Label>
                         <Form.Control
                             type="text"
@@ -83,7 +83,7 @@ export default function Register(): JSX.Element {
                             placeholder="Insert your username"
                         />
                     </FormGroup>
-                    <FormGroup className="inputFormBS" controlId="PasswordField">
+                    <FormGroup className="input-form-bs" controlId="PasswordField">
                         <Form.Label>Password</Form.Label>
                         <Form.Control
                             type="password"
@@ -94,24 +94,24 @@ export default function Register(): JSX.Element {
                             placeholder="Insert your password"
                         />
                     </FormGroup>
-                    <Button className="buttonFormBS" variant="outline-success" type="submit">
+                    <Button className="button-form-bs" variant="outline-success" type="submit">
                         Registrati
                     </Button>
 
                     <small className="text-center mt-2">
-                        <Link to="/login" className="linksFormBS">
+                        <Link to="/login" className="links-form-bs">
                             Do you already have an accont? <br />
                             Login here!
                         </Link>
                     </small>
 
                     {errorMessage !== null && (
-                        <Alert className="alertFormBS" variant="danger">
+                        <Alert className="alert-form-bs" variant="danger">
                             {errorMessage}
                         </Alert>
                     )}
                     {pendingRequest && (
-                        <Spinner className="spinnerFormBS" animation="border" role="status">
+                        <Spinner className="spinner-form-bs" animation="border" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </Spinner>
                     )}

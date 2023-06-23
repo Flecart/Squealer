@@ -1,63 +1,56 @@
-.formFormBS {
-    border-radius: var(--bs-border-radius-lg) !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    align-items: stretch !important;
-    display: flex !important;
-    flex-direction: column !important;
-    border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
-    width: 100%;
-    --bs-gutter-x: 1.5rem;
-    --bs-gutter-y: 0;
+@import 'src/scss/Global.scss';
+@import 'src/scss/Mixins.scss';
+
+.form-form-bs {
+    @extend .d-flex;
+    @extend .flex-column;
+    @extend .align-items-stretch;
+    @extend .container-fluid;
+    @extend .m-0;
+    @extend .p-3;
+    @extend .border;
+    @extend .rounded-3;
 }
 
-.inputFormBS {
-    margin-bottom: 1rem !important;
+.input-form-bs {
+    @extend .mb-1;
 }
 
-.buttonFormBS {
-    margin-top: 0.25rem !important;
-    align-self: center !important;
-    flex: 0 0 auto;
-    width: 50%;
+.button-form-bs {
+    @extend .col-6;
+    @extend .align-self-center;
+    @extend .mt-1;
 }
 
-.containerFormBS {
-    align-items: center !important;
-    flex-direction: column !important;
-    display: flex !important;
+.container-form-bs {
+    @extend .d-flex;
+    @extend .flex-column;
+    @extend .align-items-center;
 }
 
-.titleFormBS {
-    margin: 0 !important;
-    text-align: center !important;
+.title-form-bs {
+    @extend .m-0;
+    @extend .text-center;
 }
 
-.subTitleFormBS {
-    text-align: center !important;
+.subtitle-form-bs {
+    @extend .text-center;
 }
 
-.imageFormBS {
-    display: inline-block !important;
+.image-form-bs {
+    @extend .d-inline-block;
 }
 
-.alertFormBS {
-    margin-top: 1rem !important;
-    margin-right: 1rem !important;
-    margin-left: 1rem !important;
-    margin-bottom: 0.25rem !important;
+.alert-form-bs {
+    @extend .m-3;
+    @extend .mb-1;
 }
 
-.spinnerFormBS {
-    margin: 0.25rem !important;
-    align-self: center !important;
+.spinner-form-bs {
+    @extend .m-1;
+    @extend .align-self-center;
 }
 
-.subTitleFormBS {
-    text-align: center !important;
-}
-
-.linksFormBS {
-    color: #3498db !important;
-    text-decoration: underline;
+.links-form-bs {
+    @extend .link-info;
 }
