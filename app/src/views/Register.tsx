@@ -7,8 +7,6 @@ import { type AuthResponse } from '@model/auth';
 import { apiCreate as createEndpoint } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
 import { LogoLight } from 'app/logos/LogosInfo';
-import 'src/scss/App.scss';
-import 'src/scss/Form.scss';
 
 export default function Register(): JSX.Element {
     const [authState, setAuthState] = useContext(AuthContext);

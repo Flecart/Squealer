@@ -6,8 +6,6 @@ import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
 import { apiLogin as loginEndpoint } from 'src/api/routes';
 import SidebarSearchLayout from '../layout/SidebarSearchLayout';
-import 'src/scss/App.scss';
-import 'src/scss/Form.scss';
 import { LogoLight } from 'app/logos/LogosInfo';
 
 export default function Login(): JSX.Element {

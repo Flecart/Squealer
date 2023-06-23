@@ -3,8 +3,6 @@ import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootst
 import { apiResetPassword as resetPasswordEndpoint } from 'src/api/routes';
 import { fetchApi } from 'src/api/fetch';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import 'src/scss/Form.scss';
-import 'src/scss/App.scss';
 
 export default function Reset(): JSX.Element {
     const [formName, setFormName] = useState('');

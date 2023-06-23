@@ -1,5 +1,6 @@
 import ReactDOM from 'react-dom/client';
 import './scss/Global.scss';
+import './scss/App.scss';
 import { AuthContext, ThemeContext } from './contexts';
 import { RouterProvider } from 'react-router-dom';
 import React, { useCallback, useEffect } from 'react';
