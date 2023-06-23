@@ -2,6 +2,8 @@
 // You can customize the font
 // See: https://getbootstrap.com/docs/4.4/getting-started/theming/
 
+@import 'Form.scss';
+
 [class~='alert-danger'] {
     background-color: rgb(217, 52, 35);
 }
