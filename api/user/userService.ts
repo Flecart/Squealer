@@ -118,14 +118,11 @@ export default class UserService {
     }
 
     public async getInvitations(username: string): Promise<IInvitationRensponse[]> {
-        console.log(username);
         const user = await UserModel.findOne({ username: username });
-        console.log(user);
 
         if (user == null) {
             throw new HttpError(404, 'User not found');
         }
-        console.log(user.invitations);
 
         const invitation = user.invitations.map((invitation) => InvitationModel.findById(invitation));
         const invitations = await Promise.all(invitation);

@@ -8,10 +8,10 @@ import Post from './posts/Post';
 
 interface PropsMessageIds {
     childrens: string[];
-    notification: (id: string) => void;
+    notificationClear: (id: string) => void;
 }
 
-export default function MessageListLoader({ childrens, notification }: PropsMessageIds): JSX.Element {
+export default function NotificationListLoader({ childrens, notificationClear }: PropsMessageIds): JSX.Element {
     if (childrens.length === 0) return <></>;
 
     const [authState] = useContext(AuthContext);
@@ -57,7 +57,7 @@ export default function MessageListLoader({ childrens, notification }: PropsMess
                                     <Button
                                         onClick={() => {
                                             setHide(() => [...hide, message._id.toString()]);
-                                            notification(message._id.toString());
+                                            notificationClear(message._id.toString());
                                         }}
                                     >
                                         X
