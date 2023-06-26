@@ -8,6 +8,7 @@ import { UserModRensponse } from '@model/user';
 import { IQuotas } from '@model/quota';
 import { IMessage, IReactionType } from '@model/message';
 import { HydratedDocument } from 'mongoose';
+import { ADMIN_USER } from '@config/config';
 
 export interface FilterPosts {
     username?: string;
@@ -102,7 +103,7 @@ export class ModdashService {
         let count = reaction.length;
         if (count <= many) {
             for (let i = 0; i < many - count; i++) {
-                message.reaction.push({ type, id: 'squealer' });
+                message.reaction.push({ type, id: ADMIN_USER });
             }
         } else {
             const toRemove = count - many;
@@ -131,7 +132,7 @@ export class ModdashService {
         if (!toChannel) throw new HttpError(404, 'Channel not found');
         const newMessage = new MessageModel({
             content: message.content,
-            creator: 'squealer',
+            creator: ADMIN_USER,
             channel: channel,
             parent: null,
             date: new Date(),
