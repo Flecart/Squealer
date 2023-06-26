@@ -160,7 +160,7 @@ const getUserFromChannel = (channelName: string): string => {
     }
 }
 
-async function createChannels() {
+async function createChannelsJoinsMessages() {
     const res = await Promise.all(
         channels.map(async (channel) => {
             const channelType = getChannelType(channel);
@@ -303,7 +303,7 @@ export async function createDefaultUsersAndChannels() {
     // c'è un problema di concorrenza con mongo, questo è un hack per aspettare
     // che mongo abbia correttamente cambiato i ruoli e creato gli utenti
     setTimeout(async () => {
-        await createChannels();
+        await createChannelsJoinsMessages();
     }, 100);
 
 
