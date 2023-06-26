@@ -19,7 +19,6 @@ export function SideBar(): JSX.Element {
             authState,
             (user) => {
                 setRole(() => user.role);
-                console.log(user);
             },
             () => {},
         );

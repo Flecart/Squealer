@@ -177,6 +177,7 @@ export class LoginService {
             debtQuota: 0,
             channel: [],
             role: UserRoles.NORMAL,
+            invitations: [],
         });
     }
 
