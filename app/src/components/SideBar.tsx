@@ -28,9 +28,9 @@ export function SideBar(): JSX.Element {
     return (
         <Navbar className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
             <SideButton to="/" name="Home" SideIcon={Icon.HouseFill} />
-
             {authState !== null ? (
                 <>
+                    <SideButton to="/search" name="Search" SideIcon={Icon.Search} />
                     <SideButton to="/settings" name="Impostazioni" SideIcon={Icon.GearFill} />
 
                     <SideButton to="/logout" name="Logout" SideIcon={Icon.BoxArrowLeft} />
