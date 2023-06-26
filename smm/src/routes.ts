@@ -15,31 +15,32 @@ export const getUserBaseRoute = `${squealerBaseURL}/api/user`
 
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
 export const redirectToLogin = () => {
-  // in dev mode set the auth by hand, localstorage won't work with different ports
-  window.location.replace(`${squealerBaseURL}/logout?redirect=${encodeURIComponent(baseUrl)}`)
+    // in dev mode set the auth by hand, localstorage won't work with different ports
+    window.location.replace(`${squealerBaseURL}/logout?redirect=${encodeURIComponent(baseUrl)}`)
 }
 
 const routes = [
-  { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
-  { path: `/${endpoints.SMM}/buy-quota`, name: 'about', component: BuyQuotaVue }
+    { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
+    { path: `/${endpoints.SMM}/buy-quota`, name: 'buy-quota', component: BuyQuotaVue },
+    { path: `/${endpoints.SMM}/geolocalization`, name: 'geolocalization', component: BuyQuotaVue }
 ]
 
 export const router = VueRouter.createRouter({
-  history: VueRouter.createWebHistory(),
-  routes
+    history: VueRouter.createWebHistory(),
+    routes
 })
 
 router.beforeEach((to, _) => {
-  const targetPath = to.path
-  const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
+    const targetPath = to.path
+    const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
 
-  if (authState == null) {
-    redirectToLogin()
-  }
+    if (authState == null) {
+        redirectToLogin()
+    }
 
-  if (targetPath == '/logout') {
-    // redirect to main after logout, ci sono cose brutte col localstorage :(
-    localStorage.removeItem('auth')
-    redirectToLogin()
-  }
+    if (targetPath == '/logout') {
+        // redirect to main after logout, ci sono cose brutte col localstorage :(
+        localStorage.removeItem('auth')
+        redirectToLogin()
+    }
 })
