@@ -1,29 +1,35 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
 import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
+import { type IUser, haveEnoughtQuota, getExtraQuota } from '@model/user';
 import Post from 'src/components/posts/Post';
-import { type IUser, haveEnoughtQuota } from '@model/user';
 import {
     type ITemporizzati,
     type ContentInput as TemporizedContentInput,
     type TempSupportedContent,
 } from '@model/temporizzati';
 import Map from 'src/components/Map';
+import PayDebt from 'src/components/PayDebt';
+import DebtWarning from 'src/components/DebtWarning';
 import { toEnglishString } from 'src/utils';
+import { quotaMaxExtra } from '@model/quota';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
     const navigate = useNavigate();
     const { parent } = useParams();
 
+    const [payDebt, setPayDebt] = useState<boolean>(false);
     const [modalShow, setModalShow] = useState<boolean>(false);
+    const [showWarning, setShowWarning] = useState<boolean>(false);
+    const [oneTimeView, setOneTimeView] = useState<boolean>(false);
 
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
@@ -37,6 +43,36 @@ export default function AddPost(): JSX.Element {
     const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
     const [tempPeriod, setTempPeriod] = useState<number>(1);
     const [tempTimes, setTempTimes] = useState<number>(1);
+
+    function ShowQuota(props: { quota: number }): JSX.Element {
+        if (user === null) {
+            return <></>;
+        }
+        return (
+            <>
+                day:{' '}
+                <span aria-label={toEnglishString(user.maxQuota.day - user.usedQuota.day - props.quota)}>
+                    {' '}
+                    {user.maxQuota.day - user.usedQuota.day - props.quota}{' '}
+                </span>
+                week:{' '}
+                <span aria-label={toEnglishString(user.maxQuota.week - user.usedQuota.week - props.quota)}>
+                    {' '}
+                    {user.maxQuota.week - user.usedQuota.week - props.quota}{' '}
+                </span>
+                month:{' '}
+                <span aria-label={toEnglishString(user.maxQuota.month - user.usedQuota.month - props.quota)}>
+                    {' '}
+                    {user.maxQuota.month - user.usedQuota.month - props.quota}{' '}
+                </span>
+                extra:{' '}
+                <span aria-label={toEnglishString(getExtraQuota(user, props.quota))}>
+                    {' '}
+                    {getExtraQuota(user, props.quota)}{' '}
+                </span>
+            </>
+        );
+    }
 
     useEffect(() => {
         if (authState === null) {
@@ -76,6 +112,38 @@ export default function AddPost(): JSX.Element {
             },
         );
     }, [authState?.username]);
+
+    useEffect(() => {
+        if (user !== null && !oneTimeView) {
+            if (selectedImage === null && getExtraQuota(user, messageText.length) < 50) {
+                setOneTimeView(true);
+                setShowWarning(true);
+            } else if (selectedImage !== null && getExtraQuota(user, 100) < 50) {
+                setOneTimeView(true);
+                setShowWarning(true);
+            }
+        }
+    }, [user, selectedImage, messageText]);
+
+    const debt = useMemo<number>(() => {
+        if (user !== null) {
+            return user.debtQuota;
+        }
+        return 0;
+    }, [user]);
+
+    const maxLenghtChar = useMemo<number>(() => {
+        if (user !== null) {
+            const remQuotaDay: number = user.maxQuota.day - user.usedQuota.day;
+            const remQuotaWeek: number = user.maxQuota.week - user.usedQuota.week;
+            const remQuotaMonth: number = user.maxQuota.month - user.usedQuota.month;
+            if (remQuotaDay === 0 || remQuotaWeek === 0 || remQuotaMonth === 0) {
+                return 0;
+            }
+            return Math.min(remQuotaDay, remQuotaWeek, remQuotaMonth) + quotaMaxExtra;
+        }
+        return 0;
+    }, [user?.maxQuota, user?.usedQuota]);
 
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
@@ -118,7 +186,10 @@ export default function AddPost(): JSX.Element {
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
             let channel = destination;
-            if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
+            if (debt !== 0) {
+                setPayDebt(true);
+                return;
+            } else if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
             } else if (channel === '') {
@@ -202,10 +273,7 @@ export default function AddPost(): JSX.Element {
 
         return (
             <div>
-                {user !== null &&
-                    `day:${user.usedQuota.day + 100}/${user.maxQuota.day} week: ${user.usedQuota.week + 100}/${
-                        user.maxQuota.week
-                    } month:${user.usedQuota.month + 100}/${user.maxQuota.month}`}
+                {user !== null && <ShowQuota quota={100} />}
 
                 {selectedImage.type.startsWith('image/') && (
                     <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} fluid />
@@ -249,33 +317,12 @@ export default function AddPost(): JSX.Element {
             return (
                 <Form.Group className="mb-3" controlId="textareaInput">
                     <Form.Label>
-                        Message textarea, remaining quota:{' '}
-                        {user !== null && (
-                            <>
-                                day:{' '}
-                                <span aria-label={toEnglishString(user.usedQuota.day + messageText.length)}>
-                                    {' '}
-                                    {user.usedQuota.day + messageText.length}{' '}
-                                </span>
-                                /<span aria-label={toEnglishString(user.maxQuota.day)}> {user.maxQuota.day}</span>
-                                week:{' '}
-                                <span aria-label={toEnglishString(user.usedQuota.week + messageText.length)}>
-                                    {' '}
-                                    {user.usedQuota.week + messageText.length}{' '}
-                                </span>
-                                /<span aria-label={toEnglishString(user.maxQuota.week)}> {user.maxQuota.week}</span>
-                                month:{' '}
-                                <span aria-label={toEnglishString(user.usedQuota.month + messageText.length)}>
-                                    {' '}
-                                    {user.usedQuota.month + messageText.length}{' '}
-                                </span>
-                                /<span aria-label={toEnglishString(user.maxQuota.month)}> {user.maxQuota.month}</span>
-                            </>
-                        )}
+                        Message textarea, remaining quota: {user !== null && <ShowQuota quota={messageText.length} />}
                     </Form.Label>
 
                     <Form.Control
                         as="textarea"
+                        maxLength={maxLenghtChar}
                         rows={3}
                         onChange={(e) => {
                             setMessageText(e.target.value);
@@ -285,7 +332,7 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
             );
         }
-    }, [user, geolocationCoord, selectedImage]);
+    }, [user, messageText, geolocationCoord, selectedImage]);
 
     return (
         <SidebarSearchLayout>
@@ -323,6 +370,12 @@ export default function AddPost(): JSX.Element {
                         }}
                     />
                 </Form.Group>
+                <DebtWarning
+                    show={showWarning}
+                    onClose={() => {
+                        setShowWarning(false);
+                    }}
+                />
                 {/* TODO: show geolocation button */}
 
                 <Button className="my-2" onClick={setGeolocation}>
@@ -332,6 +385,12 @@ export default function AddPost(): JSX.Element {
                 <Button className="my-2" type="submit" onClick={sendMessage}>
                     Send
                 </Button>
+
+                {error !== null && (
+                    <Row>
+                        <Alert variant="danger">{error}</Alert>
+                    </Row>
+                )}
 
                 {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
@@ -399,11 +458,7 @@ export default function AddPost(): JSX.Element {
                 <Button className="my-2" type="submit" onClick={sendTemporizedMessage}>
                     Send Temporizzato
                 </Button>
-                {error !== null && (
-                    <Row>
-                        <Alert variant="danger">{error}</Alert>
-                    </Row>
-                )}
+
                 <Button
                     variant="warning"
                     onClick={() => {
@@ -418,6 +473,14 @@ export default function AddPost(): JSX.Element {
                     onHide={() => {
                         setModalShow(false);
                     }}
+                />
+
+                <PayDebt
+                    show={payDebt}
+                    onHide={() => {
+                        setPayDebt(false);
+                    }}
+                    debt={debt}
                 />
             </Form>
         </SidebarSearchLayout>
