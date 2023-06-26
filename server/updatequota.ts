@@ -12,6 +12,13 @@ enum UpdateCategory {
     MonthAndWeek,
 }
 
+const millisecondsInSeconds = 1000;
+const millisecondsInMinute = 60 * millisecondsInSeconds;
+const millisecondsInHour = 60 * millisecondsInMinute;
+const millisecondsInDay = 24 * millisecondsInHour;
+const mondayDayCode = 1;
+const monthDayCode = 1;
+
 export async function periodicUpdateQuota(): Promise<void> {
     try {
         const data = await fs.promises.readFile('lastUpdate.json', 'utf8');
@@ -20,24 +27,24 @@ export async function periodicUpdateQuota(): Promise<void> {
         const lastUpdate = new Date(json.lastUpdate);
         const next = nextUpdate(lastUpdate);
         const nextUpdateDate = new Date(new Date().getTime() + next);
-        createNewTimout(next, updateCategory(nextUpdateDate));
+        createNewTimeout(next, updateCategory(nextUpdateDate));
     } catch (err) {
         loggerQuota.error('Error writing lastUpdate.json');
         loggerQuota.error(err);
-        createNewTimout(0, UpdateCategory.Month);
+        createNewTimeout(0, UpdateCategory.Month);
     }
 }
 
 function nextUpdate(oldDate: Date): number {
     const current_time = new Date();
     if (current_time.getDate() == oldDate.getDate()) {
-        return 24 * 60 * 60 * 1000 - DateToMilliseconds(current_time);
+        return millisecondsInDay - DateToMilliseconds(current_time);
     } else {
         return 0;
     }
 }
 
-function createNewTimout(milliseconds: number, updateCat: UpdateCategory): void {
+function createNewTimeout(milliseconds: number, updateCat: UpdateCategory): void {
     setTimeout(async () => {
         await updateQuota(updateCat);
         await writeNextUpdate();
@@ -45,7 +52,7 @@ function createNewTimout(milliseconds: number, updateCat: UpdateCategory): void 
         const nextUpdateMill = nextUpdate(current_time);
         const nextUpdateDate = new Date(current_time.getTime() + nextUpdateMill);
         // it goes in recursion until the next day
-        createNewTimout(nextUpdateMill, updateCategory(nextUpdateDate));
+        createNewTimeout(nextUpdateMill, updateCategory(nextUpdateDate));
     }, milliseconds);
 }
 
@@ -60,7 +67,11 @@ async function writeNextUpdate(): Promise<void> {
 }
 
 function DateToMilliseconds(date: Date): number {
-    return date.getHours() * 3600000 + date.getMinutes() * 60000 + date.getSeconds() * 1000;
+    return (
+        date.getHours() * millisecondsInHour +
+        date.getMinutes() * millisecondsInMinute +
+        date.getSeconds() * millisecondsInSeconds
+    );
 }
 
 async function updateQuota(category: UpdateCategory) {
@@ -93,9 +104,9 @@ async function updateQuota(category: UpdateCategory) {
 function updateCategory(date: Date): UpdateCategory {
     if (date.getDate() == 1 && date.getDay() == 1) {
         return UpdateCategory.MonthAndWeek;
-    } else if (date.getDate() == 1) {
+    } else if (date.getDate() == monthDayCode) {
         return UpdateCategory.Month;
-    } else if (date.getDay() == 1) {
+    } else if (date.getDay() == mondayDayCode) {
         return UpdateCategory.Week;
     } else {
         return UpdateCategory.Day;
