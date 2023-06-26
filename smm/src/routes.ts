@@ -1,6 +1,7 @@
 import * as VueRouter from 'vue-router'
 import Dashboard from './components/Dashboard.vue'
 import BuyQuotaVue from './views/BuyQuotaView.vue'
+import GeolocalizationViewVue from './views/GeolocalizationView.vue'
 
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
@@ -19,10 +20,18 @@ export const redirectToLogin = () => {
     window.location.replace(`${squealerBaseURL}/logout?redirect=${encodeURIComponent(baseUrl)}`)
 }
 
+export const dashboardName = 'dashboard'
+export const buyQuotaName = 'buy-quota'
+export const geolocalizationName = 'geolocalization'
+
 const routes = [
-    { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
-    { path: `/${endpoints.SMM}/buy-quota`, name: 'buy-quota', component: BuyQuotaVue },
-    { path: `/${endpoints.SMM}/geolocalization`, name: 'geolocalization', component: BuyQuotaVue }
+    { path: `/${endpoints.SMM}`, name: dashboardName, component: Dashboard },
+    { path: `/${endpoints.SMM}/buy-quota`, name: buyQuotaName, component: BuyQuotaVue },
+    {
+        path: `/${endpoints.SMM}/geolocalization`,
+        name: geolocalizationName,
+        component: GeolocalizationViewVue
+    }
 ]
 
 export const router = VueRouter.createRouter({
