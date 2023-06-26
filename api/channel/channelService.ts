@@ -54,6 +54,7 @@ export class ChannelService {
         }
 
         if (!fromApi && !(type === ChannelType.USER)) {
+            // TODO(gio): aggingere il check descritto nei commenti della PR #138
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
         if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@') || channelName.startsWith('§'))) {
