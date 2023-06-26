@@ -116,7 +116,6 @@ export default class UserService {
         await user.save();
         return user;
     }
-
     public async getInvitations(username: string): Promise<IInvitationRensponse[]> {
         const user = await UserModel.findOne({ username: username });
 
@@ -140,5 +139,14 @@ export default class UserService {
             }
         });
         return invitationsResponse;
+}
+public async payDebt(username: string): Promise<{ message: string }> {
+        const user = await UserModel.findOne({ username: username });
+        if (!user) {
+            throw new HttpError(404, 'User not found');
+        }
+        user.debtQuota = 0;
+        await user.save();
+        return { message: 'Successfull Payment' };
     }
 }

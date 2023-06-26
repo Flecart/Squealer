@@ -83,18 +83,26 @@ function Post({ message }: PostProps): JSX.Element {
     const renderMessageContent = useCallback(() => {
         if (message.content === undefined) return <></>;
         if (message.content.type === 'image') {
-            return <Image src={`${imageBase}/${message.content.data as string}`} fluid />;
+            return (
+                <Image
+                    src={`${imageBase}/${message.content.data as string}`}
+                    alt="Immagine Post"
+                    className="mb-3 mt-2"
+                    style={{ maxWidth: '500px' }}
+                    fluid
+                />
+            );
         } else if (message.content.type === 'video') {
             return (
                 <Container>
-                    <video className="mb-3 w-100" controls>
+                    <video className="mb-3 mt-2" style={{ maxWidth: '500px' }} controls>
                         <source src={`${imageBase}/${message.content.data as string}`}></source>
                     </video>
                 </Container>
             );
         } else if (message.content.type === 'maps') {
             const data: Maps = message.content.data as Maps;
-            return <Map positions={data.positions} />;
+            return <Map className="mb-3 mt-2" positions={data.positions} />;
         } else {
             const textMessage = message.content.data as string;
             // e.g. @useralphanumeric, but not @user@user
@@ -105,7 +113,7 @@ function Post({ message }: PostProps): JSX.Element {
             const parts = textMessage.split(' ');
 
             return (
-                <p>
+                <p className="post-paragraph-text">
                     {parts.map((part, index) => {
                         if (mentionRegex.test(part)) {
                             return (
@@ -129,8 +137,8 @@ function Post({ message }: PostProps): JSX.Element {
     }, [message.content]);
 
     return (
-        <Row className="g-4" as="article" role="article">
-            <Col xs={2} md={1.5} xl={1} className="pe-0 flex-row-reverse">
+        <Row className="g-4" as="article">
+            <Col xs={2} className="pe-0 flex-row-reverse">
                 <Image
                     className="w-100 float-end"
                     src={user?.profile_pic}
@@ -139,7 +147,7 @@ function Post({ message }: PostProps): JSX.Element {
                     roundedCircle
                 />
             </Col>
-            <Col>
+            <Col xs={10}>
                 <Container className="d-flex justify-content-center flex-column pb-4">
                     <Row>
                         <div>
@@ -147,9 +155,11 @@ function Post({ message }: PostProps): JSX.Element {
                                 <span className="fs-4 fw-bolder"> {user?.name}</span>
                             </a>
                             <a href={profiloUrl} className="text-decoration-none ">
-                                <span className="fw-light"> @{user?.username} </span>
+                                <address className="fw-light post-address"> @{user?.username} </address>
                             </a>
-                            <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>{' '}
+                            <time dateTime={message.date.toString()}>
+                                <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>
+                            </time>
                             {message.channel !== undefined && (
                                 <span className="fw-light">
                                     <Link to={`/channel/${message.channel}`}>{message.channel}</Link>
@@ -160,7 +170,6 @@ function Post({ message }: PostProps): JSX.Element {
                                     {getCategoryText(categoryState)}
                                 </span>
                             )}
-                            {/* TODO: transform in user good date. (like 1h or similiar */}
                         </div>
                     </Row>
                     <Row

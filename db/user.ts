@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema<IUser>({
 
     usedQuota: { type: Object, required: true },
     maxQuota: { type: Object, required: true },
+    debtQuota: { type: Number, required: true },
 
     clients: { type: [String], required: false },
     messages: { type: [MessageInboxSchema], required: true },

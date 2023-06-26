@@ -100,4 +100,11 @@ export class UserController extends Controller {
     public async updateRole(@Request() request: any, @Body() role: { role: UserRoles }): Promise<IUser> {
         return await new UserService().updateRole(getUserFromRequest(request), role.role);
     }
+
+    @Put('/pay-debt')
+    @Security('jwt')
+    @SuccessResponse(200, 'Role Updated')
+    public async payDebt(@Request() request: any): Promise<{ message: string }> {
+        return await new UserService().payDebt(getUserFromRequest(request));
+    }
 }

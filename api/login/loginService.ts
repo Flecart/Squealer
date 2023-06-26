@@ -174,6 +174,7 @@ export class LoginService {
             clients: [],
             maxQuota: DEFAULT_QUOTA,
             usedQuota: { day: 0, week: 0, month: 0 },
+            debtQuota: 0,
             channel: [],
             role: UserRoles.NORMAL,
             invitations: [],

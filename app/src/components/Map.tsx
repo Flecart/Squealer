@@ -18,6 +18,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 export interface MapProps {
     positions: Maps['positions'];
+    className?: string;
 }
 
 export interface MapItemsProps {
@@ -44,7 +45,7 @@ function MapItems({ positions }: MapItemsProps): JSX.Element {
     );
 }
 
-function Map({ positions }: MapProps): JSX.Element {
+function Map({ positions, className }: MapProps): JSX.Element {
     const memoPositions: Array<[number, number]> = useMemo(() => {
         if (positions === undefined) return [];
         return positions.map((pos: MapPosition) => {
@@ -57,10 +58,12 @@ function Map({ positions }: MapProps): JSX.Element {
             {
                 memoPositions.length > 0 ? (
                     <MapContainer
+                        className={className ?? ''}
                         style={{ height: '15rem' }}
                         center={memoPositions[memoPositions.length - 1]}
                         zoom={13}
                         scrollWheelZoom={false}
+                        zoomControl={false}
                         dragging={false} // don't allow dragging will get -> https://github.com/Leaflet/Leaflet/issues/6859
                     >
                         <MapItems positions={memoPositions} />
