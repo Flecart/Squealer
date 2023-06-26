@@ -9,6 +9,7 @@ enum UpdateCategory {
     Day,
     Week,
     Month,
+    MonthAndWeek,
 }
 
 export async function periodicUpdateQuota(): Promise<void> {
@@ -43,6 +44,7 @@ function createNewTimout(milliseconds: number, updateCat: UpdateCategory): void 
         const current_time = new Date();
         const nextUpdateMill = nextUpdate(current_time);
         const nextUpdateDate = new Date(current_time.getTime() + nextUpdateMill);
+        // it goes in recursion until the next day
         createNewTimout(nextUpdateMill, updateCategory(nextUpdateDate));
     }, milliseconds);
 }
@@ -67,12 +69,13 @@ async function updateQuota(category: UpdateCategory) {
     session.startTransaction();
     const users = await UserModel.find({});
     for (const user of users) {
+        // because every time i call this funciton i want to reset the day quota
         user.usedQuota.day = 0;
-        if (category == UpdateCategory.Week || category == UpdateCategory.Month) {
+        if (category == UpdateCategory.Week || category == UpdateCategory.MonthAndWeek) {
             user.usedQuota.week = 0;
-            if (category == UpdateCategory.Month) {
-                user.usedQuota.month = 0;
-            }
+        }
+        if (category == UpdateCategory.Month || category == UpdateCategory.MonthAndWeek) {
+            user.usedQuota.month = 0;
         }
         user.markModified('usedQuota');
         await user.save({ session: session });
@@ -88,7 +91,9 @@ async function updateQuota(category: UpdateCategory) {
 }
 
 function updateCategory(date: Date): UpdateCategory {
-    if (date.getDate() == 1) {
+    if (date.getDate() == 1 && date.getDay() == 1) {
+        return UpdateCategory.MonthAndWeek;
+    } else if (date.getDate() == 1) {
         return UpdateCategory.Month;
     } else if (date.getDay() == 1) {
         return UpdateCategory.Week;
