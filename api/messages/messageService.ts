@@ -277,6 +277,20 @@ export class MessageService {
             creator.usedQuota.day += lenChar;
             creator.usedQuota.week += lenChar;
             creator.usedQuota.month += lenChar;
+
+            if (creator.usedQuota.day > creator.maxQuota.day) {
+                creator.debtQuota += creator.usedQuota.day - creator.maxQuota.day;
+                creator.usedQuota.day = creator.maxQuota.day;
+            }
+            if (creator.usedQuota.week > creator.maxQuota.week) {
+                creator.debtQuota += creator.usedQuota.week - creator.maxQuota.week;
+                creator.usedQuota.week = creator.maxQuota.week;
+            }
+            if (creator.usedQuota.month > creator.maxQuota.month) {
+                creator.debtQuota += creator.usedQuota.month - creator.maxQuota.month;
+                creator.usedQuota.month = creator.maxQuota.month;
+            }
+
             creator.markModified('usedQuota');
             await creator.save();
             messageServiceLog.info(`Daily quota updated to ${creator.usedQuota.day}`);
