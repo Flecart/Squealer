@@ -1,14 +1,25 @@
 import mongoose from 'mongoose';
-import { type IUser, type UserRoles } from '@model/user';
+import { type NotificationRensponse, type IUser, type UserRoles } from '@model/user';
 import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
 import { type IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
+import { type IInvitationRensponse } from '@model/invitation';
+import InvitationModel from '@db/invitation';
 
 type UserModelType = mongoose.HydratedDocument<IUser>;
 
 export default class UserService {
-    public async delNotification(username: string): Promise<string> {
+    public async delNotification(username: string, id: string): Promise<string> {
+        const userModel = await UserModel.findOne({ username: username });
+        if (userModel == null) throw new HttpError(404, 'User not found');
+        userModel.messages = userModel.messages.filter((message) => message.message.toString() !== id);
+        userModel.markModified('messages');
+        userModel.save();
+        return 'success';
+    }
+
+    public async delNotifications(username: string): Promise<string> {
         const userModel = await UserModel.findOne({ username: username });
         if (userModel == null) throw new HttpError(404, 'User not found');
         userModel.messages.filter((message) => !message.viewed).forEach((message) => (message.viewed = true));
@@ -17,13 +28,18 @@ export default class UserService {
         return 'success';
     }
 
-    public async getNotifications(username: string): Promise<string[]> {
+    public async getNotifications(username: string): Promise<NotificationRensponse> {
         const userModel = await UserModel.findOne({ username: username });
         if (userModel == null) throw new HttpError(404, 'User not found');
+        const invitations = userModel.invitations.map((invitation) => invitation.toString());
         const unreadedMessage = userModel.messages
             .filter((message) => !message.viewed)
             .map((message) => message.message.toString());
-        return unreadedMessage;
+
+        return {
+            message: unreadedMessage,
+            invitation: invitations,
+        } as NotificationRensponse;
     }
 
     public async getUser(username: string): Promise<IUser> {
@@ -89,16 +105,48 @@ export default class UserService {
 
         creator.markModified('maxQuota');
         await creator.save();
-        console.log(`Daily quota updated to ${creator.maxQuota.day}`);
     }
 
     public async updateRole(username: string, role: UserRoles): Promise<IUser> {
         const user = await UserModel.findOne({ username: username });
-        if (!user) {
+        if (user == null) {
             throw new HttpError(404, 'User not found');
         }
         user.role = role;
         await user.save();
         return user;
+    }
+    public async getInvitations(username: string): Promise<IInvitationRensponse[]> {
+        const user = await UserModel.findOne({ username: username });
+
+        if (user == null) {
+            throw new HttpError(404, 'User not found');
+        }
+
+        const invitation = user.invitations.map((invitation) => InvitationModel.findById(invitation));
+        const invitations = await Promise.all(invitation);
+
+        const invitationsResponse: IInvitationRensponse[] = [];
+        invitations.forEach((invitation) => {
+            if (invitation) {
+                invitationsResponse.push({
+                    _id: invitation._id.toString(),
+                    to: invitation.to,
+                    issuer: invitation.issuer,
+                    channel: invitation.channel,
+                    permission: invitation.permission,
+                } as IInvitationRensponse);
+            }
+        });
+        return invitationsResponse;
+}
+public async payDebt(username: string): Promise<{ message: string }> {
+        const user = await UserModel.findOne({ username: username });
+        if (!user) {
+            throw new HttpError(404, 'User not found');
+        }
+        user.debtQuota = 0;
+        await user.save();
+        return { message: 'Successfull Payment' };
     }
 }
