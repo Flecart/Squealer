@@ -3,28 +3,28 @@
 
 import mongoose from 'mongoose';
 import request from 'supertest';
-import initConnection from '../../server/mongo';
+import initConnection from '@server/mongo';
 import { randomBattisti, randomGuccini } from './readscript'
 
 import dotenv from 'dotenv';
-import { ChannelInfo, ChannelType, PermissionType } from '../../model/channel';
+import { ChannelInfo, ChannelType, PermissionType } from '@model/channel';
 import { MapPosition, Maps } from '@model/message';
 import assert from 'node:assert'
+import {
+    apiRoleRoute,
+    baseUrl,
+    channelCreateRoute,
+    createUserRoute,
+    loginRoute,
+    messageCreateRoute,
+    type Credentials
+} from './globals';
+import {createDefaultUsersAndChannels as makeDefaults} from './defaults';
+import { ADMIN_USER } from '@config/config'
 
 dotenv.config({
     path: './.env',
 });
-
-const createUserRoute = "/api/auth/create"
-const loginRoute = "/api/auth/login"
-const channelCreateRoute = "/api/channel/create"
-const messageCreateRoute = "/api/message"
-const baseUrl = "http://localhost:3000"
-
-type Credentials = {
-    username: string
-    password: string
-}
 
 type LoginToken = { name: string, token: string }
 
@@ -36,6 +36,7 @@ type MessageCreate = {
     id: string,
     token: string,
 }
+
 let publicChannel = [
     {
         nome: 'battisti', description: 'canale dedicato a lucio battisti',
@@ -280,7 +281,7 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
     const clientToken2 = loginTokens[2] as LoginToken;
 
     await request(baseUrl)
-        .post("/api/user/role")
+        .post(apiRoleRoute)
         .set('Authorization', `Bearer ${smmToken.token}`)
         .send({
             role: "smm",
@@ -288,14 +289,14 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
 
 
     await request(baseUrl)
-        .post("/api/user/role")
+        .post(apiRoleRoute)
         .set('Authorization', `Bearer ${clientToken.token}`)
         .send({
             role: "vip",
         }).expect(200);
 
     await request(baseUrl)
-    .post("/api/user/role")
+    .post(apiRoleRoute)
     .set('Authorization', `Bearer ${clientToken2.token}`)
     .send({
         role: "vip",
@@ -309,9 +310,9 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
         .expect(200);
 
     await request(baseUrl)
-    .post(`/api/smm/add-client/${clientToken2.name}`)
-    .set('Authorization', `Bearer ${smmToken.token}`)
-    .expect(200);
+        .post(`/api/smm/add-client/${clientToken2.name}`)
+        .set('Authorization', `Bearer ${smmToken.token}`)
+        .expect(200);
 
 
     console.log("Client added")
@@ -381,12 +382,26 @@ async function addUsersToPrivateChannel() {
     }
 }
 
+async function creatModerator() {
+    const token = (await request(baseUrl)
+        .post(createUserRoute)
+        .send(createCredentials(ADMIN_USER))
+        .expect(201)).body.token;
+    await request(baseUrl)
+        .post("/api/user/role")
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+            role: "moderator",
+        }).expect(200);
+}
+
 initConnection().then(async () => {
     await mongoose.connection.db.dropDatabase() // tanto nessuna informazione importante è presente, è sicuro droppare così
     console.log("Database dropped")
     mongoose.connection.close()
 
     await createDefaultUsers();
+    await creatModerator();
     const loginToken = await getLoginTokens();
 
     const listOfToken = loginToken.map((token) => token.token);
@@ -417,4 +432,6 @@ initConnection().then(async () => {
     await createGeolocationMessagesPublic();
     await createTemporalMessage();
     await createRolesAndClients(loginToken);
+
+    await makeDefaults();
 })
