@@ -7,6 +7,9 @@ import {
     Maps,
     MapPosition,
     type ReactionResponse,
+    messageSort,
+    type MessageSortTypes,
+    IMessageWithPages,
 } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
@@ -28,14 +31,32 @@ type UserModelType = mongoose.HydratedDocument<IUser>;
 const messageServiceLog = logger.child({ label: 'messageService' });
 
 export class MessageService {
-    public async getOwnedMessages(username: string): Promise<IMessage[]> {
-        const messages = (await MessageModel.find({ creator: username })).map(async (message) => {
-            if (message.channel === null) return null;
+    public async getOwnedMessages(
+        username: string,
+        page: number,
+        limit: number,
+        sort?: MessageSortTypes,
+    ): Promise<IMessageWithPages> {
+        const messages = await (
+            await MessageModel.find({ creator: username, channel: { $ne: null } })
+        ).filter(async (message) => {
             const channel = await ChannelModel.findOne({ name: message.channel });
-            if (channel !== null && isPublicChannel(channel)) return message;
-            return null;
+            if (channel !== null && isPublicChannel(channel)) return true;
+            else return false;
         });
-        return (await Promise.all(messages)).filter((a) => a !== null) as IMessage[];
+
+        let returnMessages: IMessage[] = [];
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            returnMessages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
+        } else {
+            returnMessages = messages.slice(page * limit, (page + 1) * limit);
+        }
+
+        return {
+            messages: returnMessages,
+            pages: Math.ceil(messages.length / limit),
+        } as IMessageWithPages;
     }
 
     public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {
