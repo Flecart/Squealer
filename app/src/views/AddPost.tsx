@@ -20,6 +20,7 @@ import PayDebt from 'src/components/PayDebt';
 import DebtWarning from 'src/components/DebtWarning';
 import { toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
+import { Lock as LockIcon } from 'react-bootstrap-icons';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -407,7 +408,7 @@ export default function AddPost(): JSX.Element {
                         className="d-flex align-items-center my-2"
                     >
                         <span hidden={permissions}>
-                            <Lock size={19.2} className="pe-1" />
+                            <LockIcon size={19.2} className="pe-1" />
                         </span>
                         Acquista Quota
                     </Button>
