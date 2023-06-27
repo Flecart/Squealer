@@ -1,4 +1,4 @@
-import { Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@tsoa/runtime';
+import { Query, Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@tsoa/runtime';
 import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
@@ -8,6 +8,14 @@ import { type ISuccessMessage } from '@model/user';
 
 @Route('/channel/')
 export class ChannelController extends Controller {
+    @Get('channels')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200)
+    public async getChannels(@Request() request: any, @Query('channels') channels: string[]): Promise<IChannel[]> {
+        return new ChannelService().getChannels(channels, getUserFromRequest(request));
+    }
+
     @Get()
     @Response<HttpError>(400, 'Bad Request')
     @Security('maybeJWT')

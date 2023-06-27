@@ -3,41 +3,77 @@ import { Alert, Spinner } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import MessageListLoader from 'src/components/MessageListLoader';
 import { AuthContext } from 'src/contexts';
+import type SearchResult from '@model/search';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
+import { ChannelListLoader } from 'src/components/ChannelList';
+import { apiBase } from 'src/api/routes';
 
 export default function Search(): JSX.Element {
-    const [search, setSearch] = useState<string>('');
     const [searching, setSearching] = useState<boolean>(false);
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
     const [searchError, setSearchError] = useState<string>('');
 
     const [authState] = useContext(AuthContext);
 
-    const handleSearch = (): void => {
-        console.log(search);
-        setSearching(true);
-        setSearchError('');
-        setSearchResults([]);
-        fetchApi<string[]>(
-            `/search/${search}`,
-            { method: 'GET' },
-            authState,
-            (results) => {
-                setSearchResults(results);
-                setSearching(false);
-            },
-            (error) => {
-                setSearchError(error.message);
-                setSearching(false);
-            },
-        );
-    };
+    function Content(): JSX.Element {
+        if (searching) {
+            return (
+                <div className="flex flex-col items-center justify-center h-full">
+                    <Spinner animation="border" role="status" />
+                </div>
+            );
+        }
+        if (searchError !== '') {
+            return (
+                <div className="flex flex-col items-center justify-center h-full">
+                    <Alert variant="danger">{searchError}</Alert>
+                </div>
+            );
+        }
 
-    return (
-        <SidebarSearchLayout>
-            <div className="form-outline m-4">
+        if (searchResults === null) return <></>;
+        if (searchResults.channel.length === 0 && searchResults.messages.length === 0)
+            return (
+                <div className="flex flex-col items-center justify-center h-full">
+                    <Alert variant="info">No results found</Alert>
+                </div>
+            );
+        return (
+            <>
+                {searchResults.channel.length !== 0 && <ChannelListLoader channels={searchResults.channel} />}
+                {searchResults.messages.length !== 0 && <MessageListLoader childrens={searchResults.messages} />}
+            </>
+        );
+    }
+
+    function Search(): JSX.Element {
+        // facendo questo componente ogni volta che si va a scrivere nel form non si ricarica la pagina
+        // però il problma che ogni volta che si fa un submit viene cancellato l'input
+        const [search, setSearch] = useState<string>('');
+        const handleSearch = (): void => {
+            setSearching(true);
+            setSearchError('');
+            setSearchResults(null);
+            const searchParam = new URLSearchParams(`search=${encodeURI(search)}`).toString();
+            fetchApi<SearchResult>(
+                `${apiBase}/search?${searchParam}`,
+                { method: 'GET' },
+                authState,
+                (results) => {
+                    setSearchResults(results);
+                    setSearching(false);
+                },
+                (error) => {
+                    setSearchError(error.message);
+                    setSearching(false);
+                },
+            );
+        };
+
+        return (
+            <div className="form-outline m-4 d-flex flex-col flex-md-row  ">
                 <input
-                    className="w-full form-control h-12 px-4 text-lg text-gray-700 bg-gray-200 rounded-lg focus:outline-none focus:bg-white focus:shadow-outline"
+                    className=" form-control h-12 px-4 text-lg text-gray-700 bg-gray-200 rounded-lg focus:outline-none focus:bg-white focus:shadow-outline"
                     type="text"
                     placeholder="Search..."
                     aria-label="Search Bar"
@@ -46,26 +82,18 @@ export default function Search(): JSX.Element {
                     }}
                 />
 
-                <button onClick={handleSearch} className="button">
-                    {' '}
-                    Search{' '}
+                <button onClick={handleSearch} className="btn">
+                    Search
                 </button>
             </div>
-            <div className="flex flex-row items-center justify-center h-full"></div>
+        );
+    }
 
-            {searching ? (
-                <div className="flex flex-col items-center justify-center h-full">
-                    <Spinner animation="border" role="status" />
-                </div>
-            ) : (
-                <>
-                    {searchError !== '' ? (
-                        <Alert variant="danger">{searchError}</Alert>
-                    ) : (
-                        <MessageListLoader childrens={searchResults} />
-                    )}
-                </>
-            )}
+    return (
+        <SidebarSearchLayout>
+            <Search />
+
+            <Content />
         </SidebarSearchLayout>
     );
 }

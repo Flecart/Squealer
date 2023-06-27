@@ -40,7 +40,14 @@ const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Home />} />
-            <Route path="/search" element={<SearchPage />} />
+            <Route
+                path="/search"
+                element={
+                    <ProtectedRoute>
+                        <SearchPage />
+                    </ProtectedRoute>
+                }
+            />
             <Route
                 path="/settings"
                 element={

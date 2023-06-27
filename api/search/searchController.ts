@@ -9,8 +9,8 @@ const searchLogger = logger.child({ label: 'search' });
 export class SearchController {
     @Get('/')
     @Security('jwt')
-    public async listUsers(@Request() request: any, @Query() path?: any): Promise<any> {
-        searchLogger.info('listUsers', { searchParams: request.params.searchParams });
-        return new SearchService().search(getUserFromRequest(request), path);
+    public async listUsers(@Request() request: any, @Query() search?: any): Promise<any> {
+        searchLogger.info('listUsers', search);
+        return new SearchService().search(getUserFromRequest(request), search);
     }
 }

@@ -1,6 +1,6 @@
 import { HttpError } from '@model/error';
 import MessageModel from '@db/message';
-import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel } from '@model/channel';
+import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
 import { ICategory, type Invitation } from '@model/message';
 import ChannelModel from '@db/channel';
 import UserModel from '@db/user';
@@ -8,6 +8,22 @@ import { UserRoles } from '@model/user';
 import { HydratedDocument } from 'mongoose';
 
 export class ChannelService {
+    public async getChannels(channelName: string[], user: string): Promise<IChannel[]> {
+        console.log(channelName);
+        const channels = await ChannelModel.find({ _id: { $in: channelName } });
+        console.log(channels);
+
+        return channels.filter((channel) => {
+            if (isPublicChannel(channel)) {
+                return true;
+            }
+            if (channel.type === ChannelType.PRIVATE && channel.users.find((u) => u.user === user) != null) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     public async list(user: string | null): Promise<IChannel[]> {
         let publicChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.SQUEALER }, { type: ChannelType.PUBLIC }],
