@@ -17,7 +17,15 @@ import { HttpError } from '@model/error';
 const ISO_8601 = /^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$/i;
 
 export class HistoryService {
-    public async getHistory(username: string, from: string, to: string): Promise<HistoryPoint[]> {
+    public async getHistory(username: string, from?: string, to?: string): Promise<HistoryPoint[]> {
+        if (!from) {
+            from = new Date().toISOString().slice(0, 10); // get YYYY-MM-DD
+        }
+
+        if (!to) {
+            to = new Date().toISOString().slice(0, 10);
+        }
+
         const history: HydratedDocument<IHistory> | null = await HistoryModel.findOne({ username: username });
         if (history === null) {
             return [];

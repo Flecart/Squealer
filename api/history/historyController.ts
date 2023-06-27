@@ -19,15 +19,10 @@ export class HistoryController extends Controller {
         @Query('from') from?: string,
         @Query('to') to?: string,
     ): Promise<HistoryPoint[]> {
-        if (!from) {
-            from = new Date().toISOString().slice(0, 10); // get YYYY-MM-DD
-        }
-
-        if (!to) {
-            to = new Date().toISOString().slice(0, 10);
-        }
         historyLogger.info(
-            `getting all history points from ${from} to ${to} for user '${getUserFromRequest(request)}'`,
+            `getting all history points from '${from ?? 'default_from'}' to '${
+                to ?? 'default_to'
+            }' for user '${getUserFromRequest(request)}'`,
         );
         return new HistoryService().getHistory(getUserFromRequest(request), from, to);
     }
