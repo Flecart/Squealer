@@ -2,11 +2,14 @@
 import { ref, onMounted, onBeforeUnmount, inject } from 'vue'
 import ChooseClientsVue from '@/components/ChooseClients.vue'
 import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
+import markerIconPng from 'leaflet/dist/images/marker-icon.png'
+import L, { Icon } from 'leaflet'
 import { postClientMessageRoute } from '@/routes'
 import type { Maps as MapsMessage, MessageCreation } from '@model/message'
 import { type currentClientType, currentClientInject, authInject } from '@/keys'
 
+// https://stackoverflow.com/questions/60174040/marker-icon-isnt-showing-in-leaflet
+const icon = new Icon({ iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41] })
 const sanDonatoBologna = [
   44.498026, // lat
   11.355863 // lng
@@ -48,7 +51,7 @@ onMounted(() => {
     10
   )
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance)
-  const marker = L.marker(mapInstance.getCenter())
+  const marker = L.marker(mapInstance.getCenter(), { icon })
     .addTo(mapInstance)
     .bindPopup(getPositionLabel(mapInstance))
 
