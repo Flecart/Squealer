@@ -10,6 +10,7 @@ import {
     messageSort,
     type MessageSortTypes,
     IMessageWithPages,
+    IReaction,
 } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
@@ -23,6 +24,7 @@ import { ChannelService } from '@api/channel/channelService';
 import logger from '@server/logger';
 import UserService from '@api/user/userService';
 import { DEFAULT_QUOTA } from '@config/api';
+import { HistoryUpdateType } from '@model/history';
 
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
@@ -71,6 +73,8 @@ export class MessageService {
         else if (message.parent !== undefined) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
+            parent.historyEnumerated = false;
+            await parent.save();
         } else {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
@@ -91,6 +95,7 @@ export class MessageService {
             category: ICategory.NORMAL,
             positiveReactions: 0,
             negativeReactions: 0,
+            historyEnumerated: false,
         });
         await savedMessage.save();
 
@@ -168,27 +173,10 @@ export class MessageService {
         let negativeReactions = 0;
         let positiveReactions = 0;
 
-        message.reaction.forEach((reaction) => {
-            switch (reaction.type) {
-                case IReactionType.ANGRY:
-                    negativeReactions += 2;
-                    break;
-
-                case IReactionType.DISLIKE:
-                    negativeReactions += 1;
-                    break;
-
-                case IReactionType.LIKE:
-                    positiveReactions += 1;
-                    break;
-
-                case IReactionType.LOVE:
-                    positiveReactions += 2;
-                    break;
-
-                default:
-                    break;
-            }
+        message.reaction.forEach((reaction: IReaction) => {
+            const reactionValue = this._getReactionValue(reaction.type);
+            if (reactionValue < 0) negativeReactions += -reactionValue;
+            else positiveReactions += reactionValue;
         });
 
         if (negativeReactions > CriticMass && positiveReactions > CriticMass) {
@@ -213,11 +201,30 @@ export class MessageService {
             message.category = ICategory.NORMAL;
         }
 
+        message.historyUpdates.push({
+            type: HistoryUpdateType.POPULARITY,
+            value: this._getReactionValue(type),
+        });
         message.markModified('reaction');
         message.save();
         console.info(message);
 
         return { reaction: type, category: message.category };
+    }
+
+    private _getReactionValue(reaction: IReactionType) {
+        switch (reaction) {
+            case IReactionType.ANGRY:
+                return -2;
+            case IReactionType.DISLIKE:
+                return -1;
+            case IReactionType.LIKE:
+                return 1;
+            case IReactionType.LOVE:
+                return 2;
+            default:
+                return 0;
+        }
     }
 
     private async _getChannel(username: string, channelName: string): Promise<ChannelModelType> {

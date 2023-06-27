@@ -140,6 +140,7 @@ export class ModdashService {
             reaction: [],
             views: 0,
             category: 0,
+            historyEnumerated: false,
         });
         await newMessage.save();
         toChannel.messages.push(newMessage._id);
