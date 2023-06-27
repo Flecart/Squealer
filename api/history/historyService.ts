@@ -62,7 +62,7 @@ export class HistoryService {
             { creator: username, $where: 'this.historyUpdates.length > 0' },
             { historyUpdates: 1 },
         );
-        updateMessages.forEach((message) => {
+        updateMessages.forEach(async (message) => {
             message.historyUpdates.forEach((update) => {
                 switch (update.type) {
                     case HistoryUpdateType.POPULARITY:
@@ -76,6 +76,9 @@ export class HistoryService {
                         break;
                 }
             });
+            message.historyUpdates = [];
+            message.markModified('historyUpdates');
+            await message.save();
         });
 
         history.values.push(historyPoint);

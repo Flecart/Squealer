@@ -12,6 +12,7 @@ import initStorageDir from './storage';
 import { HttpError } from '@model/error';
 import logger from './logger';
 import { errors as joseErrors } from 'jose';
+import collectEvents from './history';
 
 const indexLogger = logger.child({ label: 'index' });
 
@@ -40,6 +41,7 @@ function logMiddleware(req: ExRequest, _res: ExResponse, next: Function) {
 }
 
 initMongo()
+    .then(collectEvents)
     .then(initStorageDir)
     .then(() => {
         indexLogger.info('MongoDB and storage dir initialized');
