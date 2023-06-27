@@ -3,7 +3,7 @@ import { ref, inject, watch, computed } from 'vue'
 import { getClientMessageBaseRoute } from '@/routes'
 import { clientInject } from '@/keys'
 import type { IUser } from '@model/user'
-import type { IMessage } from '@model/message'
+import type { IMessage, IMessageWithPages, MessageSortTypes } from '@model/message'
 import { urgentThreshold } from '@model/quota'
 import BuyModal from './BuyModal.vue'
 import Post from './Post.vue'
@@ -13,15 +13,54 @@ defineProps<{
   msg: string
 }>()
 
-const selectedClient = ref<string>('loading...')
-watch(selectedClient, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    fetchMessages(newValue).then((data) => {
-      messages.value = data
-    })
+interface SortMode {
+  title: string
+  value: MessageSortTypes
+}
+
+const messageSortModes: SortMode[] = [
+  {
+    title: 'By Popularity',
+    value: 'popularity'
+  },
+  {
+    title: 'By Unpopularity',
+    value: 'unpopularity'
+  },
+  {
+    title: 'By Reaction Number Asc',
+    value: 'reactions-asc'
+  },
+  {
+    title: 'By Reaction Number Desc',
+    value: 'reactions-desc'
+  },
+  {
+    title: 'By Controvery Risk',
+    value: 'risk'
   }
-})
-const hasFetchedClients = ref<boolean>(false)
+]
+
+const currentPage = ref<number>(0)
+const totalPages = ref<number>(1)
+const tabIndex = ref<number>(0)
+const selectedClient = ref<string>('loading...')
+watch(
+  [selectedClient, currentPage, tabIndex],
+  ([newValue, newPage, newPageIndex], [oldValue, oldPage, oldPageIndex]) => {
+    if (newValue !== oldValue || newPage !== oldPage || newPageIndex !== oldPageIndex) {
+      const sort = messageSortModes[newPageIndex].value
+      fetchMessages(newValue, newPage, sort).then((data: IMessageWithPages) => {
+        messages.value = data.messages
+        totalPages.value = data.pages
+      })
+    }
+
+    if (newPage === oldPage) {
+      currentPage.value = 0
+    }
+  }
+)
 
 const messages = ref<IMessage[]>([])
 
@@ -30,11 +69,21 @@ const selectClient = (client: string) => {
 }
 
 const clients = inject<IUser[]>(clientInject)!
-selectedClient.value = clients[0].username
-hasFetchedClients.value = true
 
-function fetchMessages(currentClient: string) {
-  return fetch(`${getClientMessageBaseRoute}/${currentClient}`).then((response) => response.json())
+const hasClients = computed<boolean>(() => {
+  return clients.length > 0
+})
+
+if (hasClients.value) {
+  selectedClient.value = clients[0].username
+} else {
+  selectedClient.value = 'No clients'
+}
+
+function fetchMessages(currentClient: string, page: number, sort: MessageSortTypes = 'popularity') {
+  return fetch(`${getClientMessageBaseRoute}/${currentClient}?page=${page}&sort=${sort}`).then(
+    (response) => response.json()
+  )
 }
 
 const currentClient = computed<IUser>(() => {
@@ -56,12 +105,24 @@ const quotaMonth = computed<number>(() => {
 const isUrgentQuota = computed<boolean>(() => {
   return Math.min(quotaDay.value, quotaWeek.value, quotaMonth.value) < urgentThreshold
 })
+
+const setPreviousPage = () => {
+  currentPage.value = Math.max(currentPage.value - 1, 0)
+}
+
+const setNextPage = () => {
+  currentPage.value = Math.min(currentPage.value + 1, totalPages.value - 1)
+}
+
+const setPageNumber = (page: number) => {
+  currentPage.value = page
+}
 </script>
 <template>
   <h1>SMM Dashboard</h1>
   <div class="client-name">
     <span> Current client: </span>
-    <b-dropdown :text="selectedClient" class="m-md-2">
+    <b-dropdown :text="selectedClient" class="m-2">
       <b-dropdown-item
         v-for="client in clients"
         :key="client.username"
@@ -72,47 +133,110 @@ const isUrgentQuota = computed<boolean>(() => {
     </b-dropdown>
   </div>
 
-  <div class="quota-groups me-2">
-    <template v-if="hasFetchedClients">
+  <template v-if="!hasClients">
+    <b-alert variant="info" show>
+      No clients found. Ask for some <span class="font-weight-bold">VIP</span> users to add you as
+      his/her SMM manager</b-alert
+    >
+  </template>
+
+  <template v-else>
+    <div class="quota-groups me-2">
       <BuyModal class="me-2 mb-1" :username="selectedClient" :urgent="isUrgentQuota" />
-    </template>
-    <template v-else>
-      <b-spinner label="Loading..."></b-spinner>
-    </template>
-    <template v-if="isUrgentQuota">
-      <b-alert variant="danger" show>
-        You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
-      </b-alert>
-    </template>
-  </div>
+      <template v-if="isUrgentQuota">
+        <b-alert variant="danger" show>
+          You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
+        </b-alert>
+      </template>
+    </div>
 
-  <div class="mt-2">
-    Current client quota:
-    <b-badge class="mx-1" variant="primary"
-      >Daily
-      <span :aria-label="toEnglishString(quotaDay)"> {{ quotaDay }} </span> characters</b-badge
-    >
-    <b-badge class="mx-1" variant="primary"
-      >Weekly
-      <span :aria-label="toEnglishString(quotaWeek)"> {{ quotaWeek }} </span> characters</b-badge
-    >
-    <b-badge class="mx-1" variant="primary"
-      >Monthly
-      <span :aria-label="toEnglishString(quotaMonth)"> {{ quotaMonth }} </span> characters</b-badge
-    >
-  </div>
+    <div class="mt-2">
+      Current client quota:
+      <b-badge class="mx-1" variant="primary"
+        >Daily
+        <span :aria-label="toEnglishString(quotaDay)"> {{ quotaDay }} </span> characters</b-badge
+      >
+      <b-badge class="mx-1" variant="primary"
+        >Weekly
+        <span :aria-label="toEnglishString(quotaWeek)"> {{ quotaWeek }} </span> characters</b-badge
+      >
+      <b-badge class="mx-1" variant="primary"
+        >Monthly
+        <span :aria-label="toEnglishString(quotaMonth)"> {{ quotaMonth }} </span>
+        characters</b-badge
+      >
+    </div>
 
-  <div class="posts">
-    <template v-if="messages.length === 0">
-      <b-alert variant="info" show> No posts found for this client. </b-alert>
-    </template>
-    <Post
-      v-for="message in messages"
-      :key="message._id.toString()"
-      :message="message"
-      :author="(clients.find((c) => c.username === selectedClient) as IUser)"
-    />
-  </div>
+    <!-- TODO: questo dovrebbe essere sostituito da b-pagination, però la cosa buona è che si può usare anch ein moddash questo quasi. -->
+    <nav aria-label="Post pagination">
+      <ul class="pagination">
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Previous"
+            :disabled="currentPage == 0"
+            @click="setPreviousPage"
+          >
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+          </div>
+        </li>
+
+        <li class="page-item" v-if="currentPage > 1" aria-label="First page">
+          <div role="button" class="page-link" @click="setPageNumber(0)">1...</div>
+        </li>
+        <li class="page-item" v-if="currentPage != 0">
+          <div role="button" class="page-link" @click="setPreviousPage">{{ currentPage }}</div>
+        </li>
+
+        <li class="page-item active" aria-label="Current Page">
+          <div role="button" class="page-link" active>{{ currentPage + 1 }}</div>
+        </li>
+        <li class="page-item" v-if="currentPage != totalPages - 1">
+          <div role="button" class="page-link" @click="setNextPage">
+            {{ currentPage + 2 }}
+          </div>
+        </li>
+        <li class="page-item" v-if="currentPage < totalPages - 2" aria-label="Last Page">
+          <div role="button" class="page-link" @click="setPageNumber(totalPages - 1)">
+            ...{{ totalPages }}
+          </div>
+        </li>
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Next"
+            :disabled="currentPage == totalPages - 1"
+            @click="setNextPage"
+          >
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <b-card no-body>
+      <b-tabs v-model="tabIndex" card>
+        <template v-for="sortMode in messageSortModes" :key="sortMode.value">
+          <b-tab :title="sortMode.title"></b-tab>
+        </template>
+      </b-tabs>
+      <div class="posts">
+        <template v-if="messages.length === 0">
+          <b-alert variant="info" show> No posts found for this client. </b-alert>
+        </template>
+        <Post
+          v-for="message in messages"
+          :key="message._id.toString()"
+          :message="message"
+          :author="(clients.find((c) => c.username === selectedClient) as IUser)"
+        />
+      </div>
+    </b-card>
+  </template>
 </template>
 
 <style scoped>
@@ -130,8 +254,8 @@ h1 {
 }
 
 .posts {
-  margin-top: 2rem;
-  margin-right: 2rem;
+  margin-right: 1rem;
+  margin-left: 1rem;
   display: flex;
   flex-wrap: wrap;
   width: 100%;
@@ -140,14 +264,17 @@ h1 {
 .quota-groups {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 
   align-items: center;
   margin-top: 1rem;
 }
 
 .quota-groups .alert {
-  margin: 0;
+  margin: 0 0 0 1rem;
+}
+
+.pagination {
+  margin-top: 1rem;
 }
 
 @media screen and (max-width: 990px) {

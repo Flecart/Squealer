@@ -14,3 +14,4 @@ export const MONGO_DOMAIN = process.env['MONGO_DOMAIN'];
 export const JWT_ISSUER = process.env['JWT_ISSUER'] || 'urn:squealer:issuer';
 export const PORT = process.env['PORT'] || 3000;
 export const ENABLE_CROSS_ORIGIN = process.env['CROSS_ORIGIN'] === 'true' || false;
+export const ADMIN_USER = 'squealer';

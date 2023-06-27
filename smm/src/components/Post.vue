@@ -72,6 +72,7 @@ function redirectToMessage(messageId: string) {
   display: flex;
   align-items: center;
   margin-bottom: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .post-author {
