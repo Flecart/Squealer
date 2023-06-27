@@ -1,6 +1,6 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
-import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
+import { Form, Button, Alert, Image, InputGroup } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +20,8 @@ import PayDebt from 'src/components/PayDebt';
 import DebtWarning from 'src/components/DebtWarning';
 import { toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
+import * as Icon from 'react-bootstrap-icons';
+import 'src/scss/SideButton.scss';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -280,11 +282,11 @@ export default function AddPost(): JSX.Element {
                 )}
 
                 {selectedImage.type.startsWith('video/') && (
-                    <Container>
+                    <>
                         <video className="mb-3 w-100" controls>
                             <source src={URL.createObjectURL(selectedImage)} type={selectedImage.type}></source>
                         </video>
-                    </Container>
+                    </>
                 )}
 
                 <Button
@@ -317,10 +319,11 @@ export default function AddPost(): JSX.Element {
             return (
                 <Form.Group className="mb-3" controlId="textareaInput">
                     <Form.Label>
-                        Message textarea, remaining quota: {user !== null && <ShowQuota quota={messageText.length} />}
+                        Remaining Quota: {user !== null && <ShowQuota quota={messageText.length} />}
                     </Form.Label>
 
                     <Form.Control
+                        aria-label="message textarea"
                         as="textarea"
                         maxLength={maxLenghtChar}
                         rows={3}
@@ -339,37 +342,58 @@ export default function AddPost(): JSX.Element {
             {renderParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <Form.Group className="mb-3" controlId="channelInput">
-                        <Form.Label>Channel</Form.Label>
+                    <InputGroup className="mb-3">
+                        <InputGroup.Text className="text-white">Channel</InputGroup.Text>
                         <Form.Control
                             onChange={(e) => {
                                 setDestination(e.target.value);
                             }}
-                            placeholder="Enter Channel Name"
+                            placeholder="Enter Channel name"
+                            aria-label="channel input"
                             autoFocus={true}
                         />
-                    </Form.Group>
+                    </InputGroup>
                 )}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {renderMessagePayload()}
 
-                <Form.Group controlId="fileUploadInput">
-                    <Form.Label>File to upload: </Form.Label>
-                    <Form.Control
-                        title="upload image"
-                        type="file"
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            if (event.target.files === null || event.target.files.length < 1) return;
-                            const file: File = event.target.files[0] as File;
-                            if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-                                setError(() => 'You can only upload images or videos');
-                                return;
-                            }
+                <div className="d-flex flex-row justify-content-center aling-items-center mb-3">
+                    <Button className="me-2" type="submit" onClick={sendMessage}>
+                        Send
+                    </Button>
 
-                            setSelectedImage(event.target.files[0] as File);
-                        }}
-                    />
-                </Form.Group>
+                    <Form.Group className=" sideButton rounded-3 p-2" controlId="fileUploadInput">
+                        <Form.Label className="m-0">
+                            <Icon.Image role="img" aria-label="upload media" height={25} width={25} />
+                        </Form.Label>
+                        <Form.Control
+                            tabIndex={0}
+                            className="visually-hidden"
+                            aria-hidden="true"
+                            title="upload image"
+                            type="file"
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                if (event.target.files === null || event.target.files.length < 1) return;
+                                const file: File = event.target.files[0] as File;
+                                if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+                                    setError(() => 'You can only upload images or videos');
+                                    return;
+                                }
+                                setSelectedImage(event.target.files[0] as File);
+                            }}
+                        />
+                    </Form.Group>
+
+                    <div
+                        tabIndex={0}
+                        className="sideButton rounded-circle p-2"
+                        aria-label="Geolocation"
+                        onClick={setGeolocation}
+                    >
+                        <Icon.GeoAltFill role="img" height={25} width={25} />
+                    </div>
+                </div>
+
                 <DebtWarning
                     show={showWarning}
                     onClose={() => {
@@ -378,26 +402,16 @@ export default function AddPost(): JSX.Element {
                 />
                 {/* TODO: show geolocation button */}
 
-                <Button className="my-2" onClick={setGeolocation}>
-                    Geolocation
-                </Button>
-
-                <Button className="my-2" type="submit" onClick={sendMessage}>
-                    Send
-                </Button>
-
-                {error !== null && (
-                    <Row>
-                        <Alert variant="danger">{error}</Alert>
-                    </Row>
-                )}
+                {error !== null && <Alert variant="danger">{error}</Alert>}
 
                 {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
-                <Form.Group className="mb-3" controlId="periodInput">
-                    <Form.Label> Period: </Form.Label>
+                <InputGroup className="mb-3">
+                    <InputGroup.Text className="text-white"> Period: </InputGroup.Text>
                     <Form.Control
                         type="number"
+                        min={0}
+                        aria-label="period input"
                         onChange={(e) => {
                             let value = parseInt(e.target.value);
                             if (isNaN(value)) {
@@ -406,10 +420,14 @@ export default function AddPost(): JSX.Element {
                             setTempPeriod(value);
                         }}
                     />
+                </InputGroup>
 
-                    <Form.Label> Times: </Form.Label>
+                <InputGroup className="mb-3">
+                    <InputGroup.Text className="text-white"> Times: </InputGroup.Text>
                     <Form.Control
                         type="number"
+                        min={0}
+                        aria-label="times input"
                         onChange={(e) => {
                             let value = parseInt(e.target.value);
                             if (isNaN(value)) {
@@ -418,10 +436,11 @@ export default function AddPost(): JSX.Element {
                             setTempTimes(value);
                         }}
                     />
+                </InputGroup>
 
+                <Form.Group className="d-flex flex-row px-1" controlId="typeTemporize">
                     <Form.Label> Type: </Form.Label>
-
-                    <div>
+                    <div className="d-flex flex-row justify-content-around w-100">
                         <Form.Check
                             type="radio"
                             label="Wikipedia"
@@ -456,7 +475,7 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
 
                 <Button className="my-2" type="submit" onClick={sendTemporizedMessage}>
-                    Send Temporizzato
+                    Send Temporized
                 </Button>
 
                 <Button

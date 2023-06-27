@@ -1,0 +1,13 @@
+.label-add-post {
+    @extend .d-flex;
+    @extend .justify-content-center;
+    @extend .pe-0;
+    @extend .col-3;
+    @extend .form-label;
+    @extend .col-form-label;
+}
+
+.input-add-post {
+    @extend .col-9;
+    @extend .ps-0;
+}
