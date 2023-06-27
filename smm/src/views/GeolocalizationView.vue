@@ -1,16 +1,39 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, inject } from 'vue'
 import ChooseClientsVue from '@/components/ChooseClients.vue'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { postClientMessageRoute } from '@/routes'
+import type { Maps as MapsMessage, MessageCreation } from '@model/message'
+import { type currentClientType, currentClientInject, authInject } from '@/keys'
+
 const sanDonatoBologna = [
   44.498026, // lat
   11.355863 // lng
 ]
 const map = ref<HTMLElement>()
 const inputValue = ref<string>('')
+const errorMessage = ref<string>('')
+const successMessage = ref<string>('')
+const secondsToShowError = 5
+const { currentClient, setClient: _ } = inject<currentClientType>(currentClientInject)!
+const authToken = inject<{ token: string }>(authInject)!
 
 let mapInstance: L.Map
+
+const setErrorMessage = (message: string) => {
+  errorMessage.value = message
+  setTimeout(() => {
+    errorMessage.value = ''
+  }, secondsToShowError * 1000)
+}
+
+const setSuccessMessage = (message: string) => {
+  successMessage.value = message
+  setTimeout(() => {
+    successMessage.value = ''
+  }, secondsToShowError * 1000)
+}
 
 const getPositionLabel = (map: L.Map) => {
   const center = map.getCenter()
@@ -39,10 +62,49 @@ onBeforeUnmount(() => {
 })
 
 const handleSubmit = () => {
+  if (inputValue.value.length === 0) {
+    errorMessage.value = 'Please insert a channel name'
+    return
+  }
+  // TODO: make a quota check in front end before submitting, but this is not important.
   const center = mapInstance.getCenter()
-  const lat = center.lat
-  const lng = center.lng
-  // TODO:
+  const centerLat = center.lat
+  const centerLng = center.lng
+
+  const message: MessageCreation = {
+    content: {
+      type: 'maps',
+      data: {
+        positions: [{ lat: centerLat, lng: centerLng }]
+      } as MapsMessage
+    },
+    channel: inputValue.value,
+    parent: undefined
+  }
+
+  const formData = new FormData()
+  formData.append('data', JSON.stringify(message))
+
+  fetch(`${postClientMessageRoute}/${currentClient.value.username}`, {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + authToken.token
+    },
+    body: formData
+  })
+    .then(async (response) => {
+      if (response.ok) {
+        setSuccessMessage('Message sent successfully')
+        setErrorMessage('')
+      } else {
+        const body = await response.json()
+        throw new Error(body.message ?? 'Error sending message')
+      }
+    })
+    .catch((error) => {
+      setErrorMessage(error.message ?? 'Error sending message')
+      setSuccessMessage('')
+    })
 }
 </script>
 <template>
@@ -55,14 +117,20 @@ const handleSubmit = () => {
       to change the position of the marker and then click on the button to send the post.
     </p>
 
-    <div class="map-container" ref="map" style="height: 15rem"></div>
+    <div class="map-container" ref="map"></div>
 
-    <form @submit.prevent="handleSubmit">
+    <form @submit.prevent="handleSubmit" class="mb-3">
       <b-input-group id="channel-label" prepend="Channel Name:" class="mt-3">
         <b-form-input v-model="inputValue" aria-labelledby="channel-label"></b-form-input>
       </b-input-group>
       <button type="submit" class="btn btn-primary mt-3">Send</button>
     </form>
+    <b-alert :show="errorMessage.length > 0 ? secondsToShowError : 0" variant="danger">{{
+      errorMessage
+    }}</b-alert>
+    <b-alert :show="successMessage.length > 0 ? secondsToShowError : 0" variant="success">{{
+      successMessage
+    }}</b-alert>
   </div>
 </template>
 
@@ -71,6 +139,10 @@ const handleSubmit = () => {
 
 .main {
   width: 80%;
+}
+
+.map-container {
+  height: 15rem;
 }
 
 .info {
