@@ -1,4 +1,4 @@
-import { Alert, Button, Container, Spinner, Stack } from 'react-bootstrap';
+import { Alert, Button, Container, Spinner } from 'react-bootstrap';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../contexts';
 import { useNavigate } from 'react-router-dom';
@@ -36,24 +36,25 @@ export default function DeleteAccount(): JSX.Element {
     }
 
     return (
-        <Container className="d-flex justify-content-center text-center p-3">
-            <Stack>
+        <Container className="container-form-bs">
+            <h4 className="subtitle-form-bs">
+                Do you really want delete your account?
                 <br />
-                <h4>Vuoi davvero cancellare il tuo account? Questa azione è irreversibile!</h4>
-                <Button variant="danger" onClick={handleDeleteUser}>
-                    Elimina Account
-                </Button>
-                <Container>
-                    {pendingRequest && (
-                        <>
-                            <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Cancellazione...</span>
-                            </Spinner>
-                        </>
-                    )}
-                    {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
-                </Container>
-            </Stack>
+                This action is irreversible!
+            </h4>
+            <Button variant="danger" onClick={handleDeleteUser}>
+                Delete Account
+            </Button>
+            {pendingRequest && (
+                <Spinner className="spinner-form-bs" animation="border" role="status">
+                    <span className="visually-hidden">Deleting...</span>
+                </Spinner>
+            )}
+            {errorMessage !== null && (
+                <Alert className="alert-form-bs" variant="danger">
+                    {errorMessage}
+                </Alert>
+            )}
         </Container>
     );
 }

@@ -67,41 +67,41 @@ function User(): JSX.Element {
                 <Row>
                     <h2 className="text-center">@{username}</h2>
                 </Row>
-                <Row>
-                    <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                </Row>
-
                 {/* TODO: edit profile button if the user is him self */}
             </Container>
 
             <Container as="main">
                 {/* TODO: refactor tab element to have li childs as elements?? */}
-                <Tabs
-                    defaultActiveKey="hightlight" // TODO: decidere il default a seconda della route?, sarebbe bono, poi renderizzare solo tramite quello.
-                    onSelect={handleTabChange}
-                    className="mb-3"
-                >
-                    {/* TODO: forse i tabs dovrebbero essere dei componenti? dovremmo dare chiave, elemento, poi anche funzione (che carichi le cose, quindi credo vera
+                {messages !== null && messages.length === 0 ? (
+                    <h2>No Messages</h2>
+                ) : (
+                    <Tabs
+                        defaultActiveKey="hightlight" // TODO: decidere il default a seconda della route?, sarebbe bono, poi renderizzare solo tramite quello.
+                        onSelect={handleTabChange}
+                        className="mb-3"
+                    >
+                        {/* TODO: forse i tabs dovrebbero essere dei componenti? dovremmo dare chiave, elemento, poi anche funzione (che carichi le cose, quindi credo vera
                             mente che sarebbe meglio farlo componente separato) */}
-                    <Tab eventKey="hightlight" title="Highlight">
-                        {/* Display posts in for loop if they exists */}
+                        <Tab eventKey="hightlight" title="Highlight">
+                            {/* Display posts in for loop if they exists */}
 
-                        {messages !== null && (
-                            <MessageListLoader
-                                childrens={messages.map((a) => a._id.toString())}
-                                compare={sortRecently}
-                            />
-                        )}
-                    </Tab>
-                    <Tab eventKey="posts" title="Last Posts">
-                        {messages !== null && (
-                            <MessageListLoader
-                                childrens={messages.map((a) => a._id.toString())}
-                                compare={sortHighliths}
-                            />
-                        )}
-                    </Tab>
-                </Tabs>
+                            {messages !== null && (
+                                <MessageListLoader
+                                    childrens={messages.map((a) => a._id.toString())}
+                                    compare={sortRecently}
+                                />
+                            )}
+                        </Tab>
+                        <Tab eventKey="posts" title="Last Posts">
+                            {messages !== null && (
+                                <MessageListLoader
+                                    childrens={messages.map((a) => a._id.toString())}
+                                    compare={sortHighliths}
+                                />
+                            )}
+                        </Tab>
+                    </Tabs>
+                )}
             </Container>
         </SidebarSearchLayout>
     );

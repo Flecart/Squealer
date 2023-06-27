@@ -16,11 +16,13 @@ const UserSchema = new mongoose.Schema<IUser>({
 
     usedQuota: { type: Object, required: true },
     maxQuota: { type: Object, required: true },
+    debtQuota: { type: Number, required: true },
 
     clients: { type: [String], required: false },
     messages: { type: [MessageInboxSchema], required: true },
     channel: { type: [String], required: true },
     role: { type: String, required: true },
+    invitations: { type: [mongoose.Schema.Types.ObjectId], required: true },
 });
 
 export default mongoose.model<IUser>(UserModelName, UserSchema);

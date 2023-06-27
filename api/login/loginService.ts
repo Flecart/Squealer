@@ -28,10 +28,13 @@ export class LoginService {
     }
 
     public async login(username: string, password: string): Promise<AuthResponse> {
-        const model = await AuthUserModel.findOne({ username: username }, 'username role salt password');
+        const model = await AuthUserModel.findOne({ username: username });
         const user = await UserModel.findOne({ username: username });
         if (user === null) {
             throw new HttpError(400, 'User not found');
+        }
+        if (model && model.suspended) {
+            throw new HttpError(400, 'User suspended');
         }
         if (model && model.password == this._hashPassword(model.salt, password)) {
             return {
@@ -117,7 +120,7 @@ export class LoginService {
         }
 
         if (!authUser.enableReset) {
-            throw new HttpError(400, 'Recupero Password non Abilitato');
+            throw new HttpError(400, 'Password Recover Service is not enabled');
         }
 
         if (authUser.otp !== this._hashPassword(authUser.salt, reset_password)) {
@@ -171,8 +174,10 @@ export class LoginService {
             clients: [],
             maxQuota: DEFAULT_QUOTA,
             usedQuota: { day: 0, week: 0, month: 0 },
+            debtQuota: 0,
             channel: [],
             role: UserRoles.NORMAL,
+            invitations: [],
         });
     }
 

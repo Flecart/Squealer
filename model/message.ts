@@ -1,5 +1,4 @@
 import type mongoose from 'mongoose';
-import type { PermissionType } from './channel';
 /** 
 Commento per le api
 */
@@ -17,9 +16,7 @@ export interface Maps {
     positions: MapPosition[];
 }
 
-export type Invitation = { to: string; channel: string; permission: PermissionType };
-
-export type SupportedContent = 'text' | 'image' | 'video' | 'maps' | 'invitation';
+export type SupportedContent = 'text' | 'image' | 'video' | 'maps';
 
 export const CriticMass = 1;
 
@@ -32,7 +29,7 @@ export interface IMessage {
     parent?: mongoose.Types.ObjectId; // il messaggio a cui risponde
     content: {
         type: SupportedContent;
-        data: string | Img | Maps | Invitation;
+        data: string | Img | Maps;
     };
     children: mongoose.Types.ObjectId[];
     creator: string;

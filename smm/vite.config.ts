@@ -19,7 +19,8 @@ export default defineConfig({
   base: `/${endpoints.SMM}`,
   build: {
     outDir: `../build/${endpoints.SMM}`,
-    emptyOutDir: true
+    emptyOutDir: true,
+    target: 'esnext'
   },
   cacheDir: '../node_modules/.vite'
 })

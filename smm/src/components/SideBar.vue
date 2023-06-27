@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
+import type { IUser } from '@model/user'
+import { smmUserInject } from '@/keys'
+
+const smmUser = inject<IUser>(smmUserInject)!
 
 const show = ref(true)
 </script>
@@ -40,11 +44,11 @@ const show = ref(true)
     </b-navbar>
     <nav>
       <b-list-group class="pt-3 px-1">
-        <b-list-group-item href="#some-link" class="list-nav-item" active>
+        <b-list-group-item href="/smm" class="list-nav-item" active>
           <b-icon-speedometer2 aria-hidden="true"></b-icon-speedometer2>
           Dashboard
         </b-list-group-item>
-        <b-list-group-item href="#" class="list-nav-item">
+        <b-list-group-item to="/smm/buy-quota" class="list-nav-item">
           <b-icon-bag aria-hidden="true"></b-icon-bag>
           Buy quotas
         </b-list-group-item>
@@ -62,13 +66,25 @@ const show = ref(true)
       <hr />
       <div class="sidebar-footer">
         <a href="#" class="d-flex align-items-center link-dark text-decoration-none">
-          <!-- TODO: fetch image from backend! -->
-          <img src="https://github.com/mdo.png" alt="" class="footer-profile-image" />
+          <template v-if="smmUser">
+            <img :src="smmUser.profile_pic" alt="" class="footer-profile-image" />
+          </template>
+          <template v-else>
+            <img src="https://placekitten.com/640/360" alt="" class="footer-profile-image" />
+          </template>
         </a>
-        <b-dropdown class="footer-dropdown-button" size="sm" text="mdo" variant="outline-primary">
-          <b-dropdown-item><a class="dropdown-item" href="#">New project...</a></b-dropdown-item>
-          <b-dropdown-item><a class="dropdown-item" href="#">Settings</a></b-dropdown-item>
-          <b-dropdown-item><a class="dropdown-item" href="#">Profile</a></b-dropdown-item>
+        <b-dropdown
+          class="footer-dropdown-button"
+          size="sm"
+          :text="smmUser ? smmUser.username : 'loading...'"
+          variant="outline-primary"
+        >
+          <!-- Questo funziona solo in production, development non dovrebbe andare, catturato dal locahost locale -->
+          <b-dropdown-item
+            ><a class="dropdown-item" :href="`/user/${smmUser?.username}`"
+              >Profile</a
+            ></b-dropdown-item
+          >
           <b-dropdown-divider></b-dropdown-divider>
           <b-dropdown-item
             ><router-link class="dropdown-item" to="/logout">Sign out</router-link></b-dropdown-item
@@ -136,6 +152,7 @@ const show = ref(true)
     margin: 0 1rem 0 1rem;
     width: 2rem;
     height: 2rem;
+    border: 1px solid var(--secondary);
   }
 
   .footer-dropdown-button {
