@@ -20,11 +20,13 @@ const lastPosition = computed(() => {
   return memoPositions.value[memoPositions.value.length - 1]
 })
 
+const zoomValue = 13
+
 let mapInstance: L.Map
 onMounted(() => {
-  mapInstance = L.map(map.value as HTMLElement, { zoomControl: false }).setView(
+  mapInstance = L.map(map.value as HTMLElement, { zoomControl: false, dragging: false }).setView(
     lastPosition.value as L.LatLngTuple,
-    13
+    zoomValue
   )
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance)
   L.polyline(memoPositions.value as L.LatLngExpression[], { color: 'blue' }).addTo(mapInstance)
