@@ -12,7 +12,7 @@ export class SearchService {
             if (search.startsWith('§')) {
                 searchChannel = searchChannel.substring(1);
             }
-            const channel = await ChannelModel.find({ name: searchChannel });
+            const channel = await ChannelModel.find({ name: searchChannel }, '_id');
             const channelIds = channel.map((channel) => channel._id.toString());
             return {
                 channel: channelIds,
@@ -25,8 +25,8 @@ export class SearchService {
         );
 
         const asyncFilter = async (arr: IMessage[], predicate: (a: IMessage) => Promise<boolean>) => {
-            const results = await Promise.all(arr.map(predicate));
-            return arr.filter((_v, index) => results[index]);
+            const keepOrIgnore = await Promise.all(arr.map(predicate));
+            return arr.filter((_, index) => keepOrIgnore[index]);
         };
 
         const messages = await asyncFilter(messageFromModel, async (message: IMessage) => {

@@ -60,8 +60,8 @@ interface ChannelListLoaderProps {
 export function ChannelListLoader({ channels }: ChannelListLoaderProps): JSX.Element {
     const [auth] = useContext(AuthContext);
 
-    // eslint-disable-next-line
-    const [state, dispatch] = useReducer(reducer, { ...defaultState, auth: auth }) as [
+    // @ts-expect-error eslint-disable-next-line
+    const [state, dispatch] = useReducer(reducer, { ...defaultState, auth }) as [
         LoaderState,
         React.Dispatch<LoaderAction>,
     ];
