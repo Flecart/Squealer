@@ -73,7 +73,11 @@ export class MessageService {
         else if (message.parent !== undefined) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
-            parent.historyEnumerated = false;
+            parent.historyUpdates.push({
+                type: HistoryUpdateType.REPLY,
+                value: 1, // one new reply
+            });
+            parent.markModified('historyUpdates');
             await parent.save();
         } else {
             throw new HttpError(400, 'Invalid no parent nor channel');
@@ -95,7 +99,6 @@ export class MessageService {
             category: ICategory.NORMAL,
             positiveReactions: 0,
             negativeReactions: 0,
-            historyEnumerated: false,
         });
         await savedMessage.save();
 
@@ -205,9 +208,9 @@ export class MessageService {
             type: HistoryUpdateType.POPULARITY,
             value: this._getReactionValue(type),
         });
+        message.markModified('historyUpdates');
         message.markModified('reaction');
-        message.save();
-        console.info(message);
+        await message.save();
 
         return { reaction: type, category: message.category };
     }

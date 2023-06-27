@@ -1,4 +1,5 @@
 import type mongoose from 'mongoose';
+import { HistoryUpdate } from '@model/history';
 /** 
 Commento per le api
 */
@@ -58,6 +59,8 @@ export interface IMessage {
     views: number; // impressions.
     reaction: IReaction[];
     category: ICategory;
+
+    historyUpdates: HistoryUpdate[];
 }
 
 export interface IMessageWithPages {
