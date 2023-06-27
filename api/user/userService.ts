@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { type NotificationRensponse, type IUser, type UserRoles } from '@model/user';
+import { type NotificationRensponse, type IUser, UserRoles } from '@model/user';
 import UserModel from '@db/user';
 import AuthUserModel from '@db/auth';
 import { type IQuotas } from '@model/quota';
@@ -68,11 +68,17 @@ export default class UserService {
         weeklyQuota: number,
         monthlyQuota: number,
     ): Promise<any> {
-        const creator = await UserModel.findOne({ username: username });
-        if (!creator) {
+        const user = await UserModel.findOne({ username: username });
+        if (!user) {
             throw new HttpError(404, 'Username not found');
         }
-        this.changeQuota(creator, dailyQuota, weeklyQuota, monthlyQuota);
+        if (user.role !== UserRoles.VIP && user.role !== UserRoles.SMM && user.role !== UserRoles.VERIFIED) {
+            throw new HttpError(400, 'User has not Permitions');
+        }
+        if (dailyQuota < 0 || weeklyQuota < 0 || monthlyQuota < 0) {
+            throw new HttpError(400, 'Cannot purchase negative Quota!');
+        }
+        this.changeQuota(user, dailyQuota, weeklyQuota, monthlyQuota);
         return { message: 'Quota Purchased Successfully' };
     }
 
@@ -139,8 +145,8 @@ export default class UserService {
             }
         });
         return invitationsResponse;
-}
-public async payDebt(username: string): Promise<{ message: string }> {
+    }
+    public async payDebt(username: string): Promise<{ message: string }> {
         const user = await UserModel.findOne({ username: username });
         if (!user) {
             throw new HttpError(404, 'User not found');
