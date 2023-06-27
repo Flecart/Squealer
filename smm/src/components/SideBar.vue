@@ -50,7 +50,7 @@ console.log(route.name)
     <nav>
       <b-list-group class="pt-3 px-1">
         <b-list-group-item
-          href="/smm"
+          :to="{ name: dashboardName }"
           class="list-nav-item"
           :active="$route.name === dashboardName"
         >
@@ -58,7 +58,7 @@ console.log(route.name)
           Dashboard
         </b-list-group-item>
         <b-list-group-item
-          :to="buyQuotaName"
+          :to="{ name: buyQuotaName }"
           class="list-nav-item"
           :active="$route.name === buyQuotaName"
         >
@@ -66,7 +66,7 @@ console.log(route.name)
           Buy quotas
         </b-list-group-item>
         <b-list-group-item
-          :to="geolocalizationName"
+          :to="{ name: geolocalizationName }"
           class="list-nav-item"
           :active="$route.name === geolocalizationName"
         >
