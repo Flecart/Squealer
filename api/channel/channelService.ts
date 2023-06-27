@@ -1,7 +1,5 @@
 import { HttpError } from '@model/error';
-import MessageModel from '@db/message';
 import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
-import { ICategory, type Invitation } from '@model/message';
 import ChannelModel from '@db/channel';
 import InvitationModel from '@db/invitation';
 import UserModel from '@db/user';
