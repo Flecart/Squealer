@@ -24,6 +24,13 @@
         document.getElementById('search-user').onchange = searchUser;
     };
 
+    const userCardSource = document.getElementById(USERS_CARD_ID).innerHTML;
+    const userCardTemplate = Handlebars.compile(userCardSource);
+
+    Handlebars.registerPartial('user-card', (a) => {
+        return userCardTemplate(a);
+    });
+
     fetch(`/api/moddash/users`, {
         headers: {
             'Content-Type': 'application/json',
@@ -43,12 +50,6 @@
             document.getElementById('main-content').innerHTML = template(context);
         });
 
-    const userCardSource = document.getElementById(USERS_CARD_ID).innerHTML;
-    const userCardTemplate = Handlebars.compile(userCardSource);
-
-    Handlebars.registerPartial('user-card', (a) => {
-        return userCardTemplate(a);
-    });
 })();
 
 function changeQuota(username) {

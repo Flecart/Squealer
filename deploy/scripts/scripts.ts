@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 import { ChannelInfo, ChannelType, PermissionType } from '../../model/channel';
 import { MapPosition, Maps } from '@model/message';
 import assert from 'node:assert'
+import { ADMIN_USER } from '@config/config'
 
 dotenv.config({
     path: './.env',
@@ -36,6 +37,7 @@ type MessageCreate = {
     id: string,
     token: string,
 }
+
 let publicChannel = [
     {
         nome: 'battisti', description: 'canale dedicato a lucio battisti',
@@ -295,11 +297,11 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
         }).expect(200);
 
     await request(baseUrl)
-    .post("/api/user/role")
-    .set('Authorization', `Bearer ${clientToken2.token}`)
-    .send({
-        role: "vip",
-    }).expect(200);
+        .post("/api/user/role")
+        .set('Authorization', `Bearer ${clientToken2.token}`)
+        .send({
+            role: "vip",
+        }).expect(200);
 
     console.log("SMM and VIP role created")
 
@@ -309,9 +311,9 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
         .expect(200);
 
     await request(baseUrl)
-    .post(`/api/smm/add-client/${clientToken2.name}`)
-    .set('Authorization', `Bearer ${smmToken.token}`)
-    .expect(200);
+        .post(`/api/smm/add-client/${clientToken2.name}`)
+        .set('Authorization', `Bearer ${smmToken.token}`)
+        .expect(200);
 
 
     console.log("Client added")
@@ -381,12 +383,26 @@ async function addUsersToPrivateChannel() {
     }
 }
 
+async function creatModerator() {
+    const token = (await request(baseUrl)
+        .post(createUserRoute)
+        .send(createCredentials(ADMIN_USER))
+        .expect(201)).body.token;
+    await request(baseUrl)
+        .post("/api/user/role")
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+            role: "moderator",
+        }).expect(200);
+}
+
 initConnection().then(async () => {
     await mongoose.connection.db.dropDatabase() // tanto nessuna informazione importante è presente, è sicuro droppare così
     console.log("Database dropped")
     mongoose.connection.close()
 
     await createDefaultUsers();
+    await creatModerator();
     const loginToken = await getLoginTokens();
 
     const listOfToken = loginToken.map((token) => token.token);
