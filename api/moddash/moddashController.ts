@@ -22,7 +22,7 @@ export class ModdashController {
         return new ModdashService().suspendUser(getUserFromRequest(request), username, body.suspended);
     }
 
-  @Post('/changeQuota/{username}')
+    @Post('/changeQuota/{username}')
     @Security('jwt')
     public async changeQuota(@Request() request: any, @Path() username: string, @Body() body: any): Promise<any> {
         moddashLog.info(`Set quota:${body.quota} to user ${username} requested by ${getUserFromRequest(request)}`);

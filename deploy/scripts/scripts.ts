@@ -3,29 +3,28 @@
 
 import mongoose from 'mongoose';
 import request from 'supertest';
-import initConnection from '../../server/mongo';
+import initConnection from '@server/mongo';
 import { randomBattisti, randomGuccini } from './readscript'
 
 import dotenv from 'dotenv';
-import { ChannelInfo, ChannelType, PermissionType } from '../../model/channel';
+import { ChannelInfo, ChannelType, PermissionType } from '@model/channel';
 import { MapPosition, Maps } from '@model/message';
 import assert from 'node:assert'
+import {
+    apiRoleRoute,
+    baseUrl,
+    channelCreateRoute,
+    createUserRoute,
+    loginRoute,
+    messageCreateRoute,
+    type Credentials
+} from './globals';
+import {createDefaultUsersAndChannels as makeDefaults} from './defaults';
 import { ADMIN_USER } from '@config/config'
 
 dotenv.config({
     path: './.env',
 });
-
-const createUserRoute = "/api/auth/create"
-const loginRoute = "/api/auth/login"
-const channelCreateRoute = "/api/channel/create"
-const messageCreateRoute = "/api/message"
-const baseUrl = "http://localhost:3000"
-
-type Credentials = {
-    username: string
-    password: string
-}
 
 type LoginToken = { name: string, token: string }
 
@@ -282,7 +281,7 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
     const clientToken2 = loginTokens[2] as LoginToken;
 
     await request(baseUrl)
-        .post("/api/user/role")
+        .post(apiRoleRoute)
         .set('Authorization', `Bearer ${smmToken.token}`)
         .send({
             role: "smm",
@@ -290,18 +289,18 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
 
 
     await request(baseUrl)
-        .post("/api/user/role")
+        .post(apiRoleRoute)
         .set('Authorization', `Bearer ${clientToken.token}`)
         .send({
             role: "vip",
         }).expect(200);
 
     await request(baseUrl)
-        .post("/api/user/role")
-        .set('Authorization', `Bearer ${clientToken2.token}`)
-        .send({
-            role: "vip",
-        }).expect(200);
+    .post(apiRoleRoute)
+    .set('Authorization', `Bearer ${clientToken2.token}`)
+    .send({
+        role: "vip",
+    }).expect(200);
 
     console.log("SMM and VIP role created")
 
@@ -433,4 +432,6 @@ initConnection().then(async () => {
     await createGeolocationMessagesPublic();
     await createTemporalMessage();
     await createRolesAndClients(loginToken);
+
+    await makeDefaults();
 })

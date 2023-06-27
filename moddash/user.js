@@ -49,7 +49,6 @@
             context.error = error;
             document.getElementById('main-content').innerHTML = template(context);
         });
-
 })();
 
 function changeQuota(username) {

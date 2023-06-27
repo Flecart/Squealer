@@ -14,11 +14,11 @@ const logger = winston.createLogger({
             format: winston.format.combine(winston.format.colorize(), printf),
         }),
         new winston.transports.File({
-            filename: 'logs.log',
+            filename: '/tmp/logs.log',
             level: 'info',
         }),
         new winston.transports.File({
-            filename: 'debug.log',
+            filename: '/tmp/debug.log',
             level: 'debug',
         }),
     ],
