@@ -56,11 +56,10 @@
                 </div>
             {{/if}}
 
-            <input type="text" id="search-user"  placeholder="Search User" class="form-control m-2"/>
             {{#if users}}
                 <div class="container" style="display:flex;flex-wrap:wrap; gap:1rem;align-content:center;">
                     {{#each users}}
-                        {{> user-card}}
+            {{> user-card}}
                     {{/each}}
                 </div>
             {{/if}}
@@ -165,6 +164,7 @@
                                             >Change</button>
 
                                         </form>
+
                                     </div>
                                 </div>
                                 <div class='modal-footer'>
@@ -238,7 +238,7 @@
                             <hr class="d-none d-md-block" />
                             <ul class="nav flex-column mb-auto">
                                 <li>
-                                    <a href="post.html" class="nav-link active" aria-current="Manage User">
+                                    <a href="post.html" class="nav-link active" aria-current="Manage Posts">
                                         Manage Posts
                                     </a>
                                 </li>
@@ -247,12 +247,18 @@
                                         Manage Users
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="channel.html" class="nav-link active" aria-current="Manage Channels">
+                                        Manage Channels
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div id="user-sidebar"></div>
                     </div>
                 </nav>
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <input type="text" id="search-user" placeholder="Search User" class="form-control m-2" />
                     <div id="main-content" class="mt-2"></div>
                 </main>
             </div>
