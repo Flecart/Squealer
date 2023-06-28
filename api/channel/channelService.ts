@@ -8,10 +8,8 @@ import { HydratedDocument } from 'mongoose';
 import { type IInvitation } from '@model/invitation';
 
 export class ChannelService {
-    public async getChannels(channelName: string[], user: string): Promise<IChannel[]> {
-        console.log(channelName);
-        const channels = await ChannelModel.find({ _id: { $in: channelName } });
-        console.log(channels);
+    public async getChannels(channelIds: string[], user: string): Promise<IChannel[]> {
+        const channels = await ChannelModel.find({ _id: { $in: channelIds } });
 
         return channels.filter((channel) => {
             if (isPublicChannel(channel)) {

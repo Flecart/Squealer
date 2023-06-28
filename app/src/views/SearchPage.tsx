@@ -50,7 +50,8 @@ export default function Search(): JSX.Element {
         // facendo questo componente ogni volta che si va a scrivere nel form non si ricarica la pagina
         // però il problma che ogni volta che si fa un submit viene cancellato l'input
         const [search, setSearch] = useState<string>('');
-        const handleSearch = (): void => {
+        const handleSearch = (e: React.FormEvent): void => {
+            e.preventDefault();
             setSearching(true);
             setSearchError('');
             setSearchResults(null);
@@ -71,21 +72,21 @@ export default function Search(): JSX.Element {
         };
 
         return (
-            <div className="form-outline m-4 d-flex flex-col flex-md-row  ">
+            <form className="form-outline m-4 d-flex flex-col flex-md-row  ">
                 <input
                     className=" form-control h-12 px-4 text-lg text-gray-700 bg-gray-200 rounded-lg focus:outline-none focus:bg-white focus:shadow-outline"
                     type="text"
-                    placeholder="Search..."
-                    aria-label="Search Bar"
+                    placeholder="Search for messages"
+                    aria-label="Search Bar Input"
                     onChange={(e) => {
                         setSearch(e.target.value);
                     }}
                 />
 
-                <button onClick={handleSearch} className="btn">
+                <button onClick={handleSearch} onSubmit={handleSearch} className="btn" type="submit">
                     Search
                 </button>
-            </div>
+            </form>
         );
     }
 
