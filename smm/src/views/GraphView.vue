@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import GraphPointsVue from '@/components/GraphPoints.vue'
 import { getClienthistoryBaseRoute } from '@/routes'
-import { inject, ref, computed, watch, reactive } from 'vue'
+import { inject, ref, computed, watch } from 'vue'
 import { authInject, currentClientInject, type currentClientType } from '@/keys'
 import { HistoryPoint, HistoryUpdateType } from '@model/history'
 import ChooseClients from '@/components/ChooseClients.vue'
@@ -13,6 +13,14 @@ type ChartData = {
     data: number[]
   }[]
 }
+
+const today = new Date()
+const tomorrow = new Date(today)
+tomorrow.setDate(tomorrow.getDate() + 1)
+
+const startDate = ref<string>(today.toISOString().slice(0, 10)) // YYYY-MM-DD
+const endDate = ref<string>(tomorrow.toISOString().slice(0, 10)) // YYYY-MM-DD
+const errorMessage = ref<string>('')
 
 function assert(boolean: boolean, msg: string) {
   if (!boolean) console.error(msg)
@@ -36,16 +44,32 @@ const auth = inject<{ token: string }>(authInject)!
 const analiticsData = ref<HistoryPoint[]>([])
 
 fetchHistory()
-watch(currentClient, () => {
-  fetchHistory()
-})
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+watch(
+  [currentClient, startDate, endDate],
+  ([_newClient, newStartDate, newEndDate], [_oldClient, oldStartDate, oldEndDate]) => {
+    errorMessage.value = ''
+
+    const _startDate = new Date(newStartDate)
+    const _endDate = new Date(newEndDate)
+    if (_startDate >= _endDate) {
+      errorMessage.value =
+        'If start date is after or equal end date, there will be no data to be shown!'
+    }
+    fetchHistory()
+  }
+)
 
 function fetchHistory() {
-  fetch(`${getClienthistoryBaseRoute}/${currentClient.value.username}`, {
-    headers: {
-      Authorization: `Bearer ${auth.token}`
+  fetch(
+    `${getClienthistoryBaseRoute}/${currentClient.value.username}?from=${startDate.value}&to=${endDate.value}`,
+    {
+      headers: {
+        Authorization: `Bearer ${auth.token}`
+      }
     }
-  })
+  )
     .then((response) => response.json())
     .then((data) => {
       analiticsData.value = data
@@ -64,11 +88,6 @@ const chartData = computed(() => {
   return data
 })
 
-watch(chartData, (newVal, oldVad) => {
-  console.log(JSON.stringify(newVal))
-  console.log(JSON.stringify(oldVad))
-})
-
 function getTitle(type: HistoryUpdateType) {
   return views[type as number].title
 }
@@ -78,16 +97,16 @@ function getChartData(historyPoints: HistoryPoint[], type: HistoryUpdateType, ti
   const labels: string[] = []
   const data: number[] = []
   historyPoints.forEach((point) => {
-    labels.push(`${point.date.getHours()}:00H`)
+    labels.push(`${point.date.getHours()}:00H ${point.date.getDate()}/${point.date.getMonth()}`)
     switch (type) {
       case HistoryUpdateType.POPULARITY:
         data.push(point.popularity)
         break
       case HistoryUpdateType.POST:
-        data.push(point.reply)
+        data.push(point.post)
         break
       case HistoryUpdateType.REPLY:
-        data.push(point.post)
+        data.push(point.reply)
         break
     }
   })
@@ -136,8 +155,18 @@ function compactHistoriesByHour(historyPoints: HistoryPoint[]) {
 </script>
 
 <template>
-  <h1>Analitics</h1>
+  <h1>Analytics</h1>
   <ChooseClients />
+  <div class="d-md-flex mb-3">
+    <div class="form-date mt-3">
+      <label :for="`date-start`">Start time: </label>
+      <b-form-input :id="`date-start`" type="date" v-model="startDate"></b-form-input>
+    </div>
+    <div class="form-date ml-md-5 mt-3">
+      <label :for="`date-end`">End date: </label>
+      <b-form-input :id="`date-end`" type="date" v-model="endDate"></b-form-input>
+    </div>
+  </div>
   <template v-if="analiticsData.length > 0">
     <div>
       <b-tabs content-class="mt-3" v-model="tabIndex">
@@ -151,8 +180,25 @@ function compactHistoriesByHour(historyPoints: HistoryPoint[]) {
   </template>
   <template v-else>
     <p>
-      There are still no history points, wait for some time (about an hour) until we gather some
-      data.
+      There are still no history points for client
+      <span class="font-weight-bold">{{ currentClient.username }}</span> in this time range.
     </p>
   </template>
+
+  <b-alert variant="warning" :show="errorMessage.length > 0" class="mt-3">
+    {{ errorMessage }}</b-alert
+  >
 </template>
+
+<style scoped>
+.form-date {
+  display: flex;
+  align-items: center;
+  width: 40%;
+}
+
+.form-date label {
+  width: 40%;
+  margin-bottom: 0;
+}
+</style>
