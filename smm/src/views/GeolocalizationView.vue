@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, inject } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, inject } from 'vue'
 import ChooseClientsVue from '@/components/ChooseClients.vue'
 import 'leaflet/dist/leaflet.css'
 import markerIconPng from 'leaflet/dist/images/marker-icon.png'
@@ -44,6 +44,14 @@ const getPositionLabel = (map: L.Map) => {
     3
   )})`
 }
+
+const showErrorSeconds = computed(() => {
+  return errorMessage.value.length > 0 ? secondsToShowError : 0
+})
+
+const showSuccessSeconds = computed(() => {
+  return successMessage.value.length > 0 ? secondsToShowError : 0
+})
 
 onMounted(() => {
   mapInstance = L.map(map.value as HTMLElement, { zoomControl: true, dragging: true }).setView(
@@ -128,12 +136,8 @@ const handleSubmit = () => {
       </b-input-group>
       <button type="submit" class="btn btn-primary mt-3">Send</button>
     </form>
-    <b-alert :show="errorMessage.length > 0 ? secondsToShowError : 0" variant="danger">{{
-      errorMessage
-    }}</b-alert>
-    <b-alert :show="successMessage.length > 0 ? secondsToShowError : 0" variant="success">{{
-      successMessage
-    }}</b-alert>
+    <b-alert :show="showErrorSeconds" variant="danger">{{ errorMessage }}</b-alert>
+    <b-alert :show="showSuccessSeconds" variant="success">{{ successMessage }}</b-alert>
   </div>
 </template>
 
