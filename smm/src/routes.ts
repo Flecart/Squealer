@@ -1,6 +1,7 @@
 import * as VueRouter from 'vue-router'
 import Dashboard from './components/Dashboard.vue'
 import BuyQuotaVue from './views/BuyQuotaView.vue'
+import GeolocalizationViewVue from './views/GeolocalizationView.vue'
 
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
@@ -10,6 +11,7 @@ export const squealerBaseURL = process.env.NODE_ENV === 'development' ? 'http://
 
 export const getClientsRoute = `${squealerBaseURL}/api/smm/clients`
 export const buyQuotaBaseRoute = `${squealerBaseURL}/api/smm/buy-quota`
+export const postClientMessageRoute = `${squealerBaseURL}/api/smm/message`
 export const getClientMessageBaseRoute = `${squealerBaseURL}/api/message/user`
 export const getUserBaseRoute = `${squealerBaseURL}/api/user`
 
@@ -19,9 +21,18 @@ export const redirectToLogin = () => {
   window.location.replace(`${squealerBaseURL}/logout?redirect=${encodeURIComponent(baseUrl)}`)
 }
 
+export const dashboardName = 'dashboard'
+export const buyQuotaName = 'buy-quota'
+export const geolocalizationName = 'geolocalization'
+
 const routes = [
-  { path: `/${endpoints.SMM}`, name: 'main', component: Dashboard },
-  { path: `/${endpoints.SMM}/buy-quota`, name: 'about', component: BuyQuotaVue }
+  { path: `/${endpoints.SMM}`, name: dashboardName, component: Dashboard },
+  { path: `/${endpoints.SMM}/buy-quota`, name: buyQuotaName, component: BuyQuotaVue },
+  {
+    path: `/${endpoints.SMM}/geolocalization`,
+    name: geolocalizationName,
+    component: GeolocalizationViewVue
+  }
 ]
 
 export const router = VueRouter.createRouter({
