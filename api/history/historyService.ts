@@ -1,8 +1,10 @@
-import { HistoryPoint, HistoryUpdateType, type IHistory } from '@model/history';
+import { HistoryPoint, type IHistory } from '@model/history';
 import HistoryModel from '@db/history';
 import MessageModel from '@db/message';
 import { HydratedDocument } from 'mongoose';
 import { HttpError } from '@model/error';
+import logger from '@server/logger';
+
 /**
  * RegExp to test a string for a ISO 8601 Date spec
  *  YYYY
@@ -15,15 +17,19 @@ import { HttpError } from '@model/error';
  * @type {RegExp}
  */
 const ISO_8601 = /^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$/i;
+const historyServiceLogger = logger.child({ label: 'history' });
 
 export class HistoryService {
     public async getHistory(username: string, from?: string, to?: string): Promise<HistoryPoint[]> {
+        const today = new Date();
         if (!from) {
-            from = new Date().toISOString().slice(0, 10); // get YYYY-MM-DD
+            from = today.toISOString().slice(0, 10); // get YYYY-MM-DD
         }
 
         if (!to) {
-            to = new Date().toISOString().slice(0, 10);
+            const nextDay = today;
+            nextDay.setDate(today.getDate() + 1);
+            to = nextDay.toISOString().slice(0, 10);
         }
 
         const history: HydratedDocument<IHistory> | null = await HistoryModel.findOne({ username: username });
@@ -58,23 +64,13 @@ export class HistoryService {
 
         let historyPoint = new HistoryPoint();
 
-        const updateMessages = await MessageModel.find(
-            { creator: username, $where: 'this.historyUpdates.length > 0' },
-            { historyUpdates: 1 },
-        );
+        const updateMessages = await MessageModel.find({ creator: username, $where: 'this.historyUpdates.length > 0' });
+
+        historyServiceLogger.info(`found ${updateMessages.length} messages to update`);
+
         updateMessages.forEach(async (message) => {
             message.historyUpdates.forEach((update) => {
-                switch (update.type) {
-                    case HistoryUpdateType.POPULARITY:
-                        historyPoint.popularity += update.value;
-                        break;
-                    case HistoryUpdateType.REPLY:
-                        historyPoint.reply += update.value;
-                        break;
-                    case HistoryUpdateType.POST:
-                        historyPoint.post += update.value;
-                        break;
-                }
+                historyPoint.addUpdate(update);
             });
             message.historyUpdates = [];
             message.markModified('historyUpdates');
@@ -82,6 +78,7 @@ export class HistoryService {
         });
 
         history.values.push(historyPoint);
+        historyServiceLogger.info(`${JSON.stringify(history.values)}`);
         history.markModified('values');
         await history.save();
         return { msg: 'History updated' };

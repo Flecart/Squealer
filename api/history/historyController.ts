@@ -13,7 +13,7 @@ export class HistoryController extends Controller {
     @Get('')
     @Security('jwt')
     @Response<HttpError>(401, 'Unauthorized')
-    @SuccessResponse(400, 'Bad Request')
+    @SuccessResponse(200, 'Bad Request')
     public async getHistory(
         @Request() request: any,
         @Query('from') from?: string,
