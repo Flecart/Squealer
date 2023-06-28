@@ -1,5 +1,5 @@
 import type mongoose from 'mongoose';
-import { HistoryUpdate } from '@model/history';
+import type { HistoryUpdate } from '@model/history';
 /** 
 Commento per le api
 */

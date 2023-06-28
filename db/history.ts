@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { IHistory } from '@model/history';
+import { type IHistory } from '@model/history';
 
 export const HistoryModelName = 'History';
 
