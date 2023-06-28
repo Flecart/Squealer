@@ -3,7 +3,7 @@ import { ref, inject } from 'vue'
 import type { IUser } from '@model/user'
 import { smmUserInject } from '@/keys'
 import { useRoute } from 'vue-router'
-import { dashboardName, geolocalizationName, buyQuotaName } from '@/routes'
+import { dashboardName, geolocalizationName, buyQuotaName, graphName } from '@/routes'
 
 const smmUser = inject<IUser>(smmUserInject)!
 
@@ -73,9 +73,13 @@ console.log(route.name)
           <b-icon-geo-alt aria-hidden="true"></b-icon-geo-alt>
           Activate geolocation</b-list-group-item
         >
-        <b-list-group-item href="#" class="list-nav-item">
+        <b-list-group-item
+          :to="{ name: graphName }"
+          class="list-nav-item"
+          :active="$route.name === graphName"
+        >
           <b-icon-person aria-hidden="true"></b-icon-person>
-          Customers
+          Analitics
         </b-list-group-item>
       </b-list-group>
     </nav>
