@@ -21,8 +21,8 @@ function assert(boolean: boolean, msg: string) {
 const tabIndex = ref<number>(0)
 const views = [
   { title: 'Popularity', type: HistoryUpdateType.POPULARITY },
-  { title: 'Post Frequency', type: HistoryUpdateType.POST },
-  { title: 'Reply Frequency', type: HistoryUpdateType.REPLY }
+  { title: 'Reply Frequency', type: HistoryUpdateType.REPLY },
+  { title: 'Post Frequency', type: HistoryUpdateType.POST }
 ]
 
 const options = {
