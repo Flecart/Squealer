@@ -19,7 +19,9 @@
     "sass": "^1.62.1",
     "vue": "^3.3.2",
     "vue-router": "^4.2.0",
-    "leaflet": "^1.9.1"
+    "leaflet": "^1.9.1",
+    "chartjs": "^4.3.0",
+    "vue-chartjs": "^5.2.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",
