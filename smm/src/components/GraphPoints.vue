@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, registerables } from 'chart.js'
 
