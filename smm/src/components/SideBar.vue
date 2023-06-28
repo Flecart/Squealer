@@ -78,8 +78,8 @@ console.log(route.name)
           class="list-nav-item"
           :active="$route.name === graphName"
         >
-          <b-icon-person aria-hidden="true"></b-icon-person>
-          Analitics
+          <b-icon-graph-up aria-hidden="true"></b-icon-graph-up>
+          Analytics
         </b-list-group-item>
       </b-list-group>
     </nav>
