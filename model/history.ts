@@ -6,10 +6,8 @@ export enum HistoryUpdateType {
     POST = 2,
 }
 
-export type UnionHistoryUpdateTypes = HistoryUpdateType.POPULARITY | HistoryUpdateType.REPLY | HistoryUpdateType.POST;
-
 export interface HistoryUpdate {
-    type: UnionHistoryUpdateTypes;
+    type: HistoryUpdateType;
     value: number;
 }
 
@@ -25,6 +23,26 @@ export class HistoryPoint {
         this.reply = 0;
         this.post = 0;
         this.date = new Date();
+    }
+
+    addUpdate(update: HistoryUpdate) {
+        switch (update.type) {
+            case HistoryUpdateType.POPULARITY:
+                this.popularity += update.value;
+                break;
+            case HistoryUpdateType.REPLY:
+                this.reply += update.value;
+                break;
+            case HistoryUpdateType.POST:
+                this.post += update.value;
+                break;
+        }
+    }
+
+    add(historyPoint: HistoryPoint) {
+        this.popularity += historyPoint.popularity;
+        this.reply += historyPoint.reply;
+        this.post += historyPoint.post;
     }
 }
 
