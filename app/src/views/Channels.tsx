@@ -5,9 +5,9 @@ import { type IUser } from '@model/user';
 import { type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
 import { apiChannelBase, apiUserBase } from 'src/api/routes';
-import { Link } from 'react-router-dom';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { Stack, Alert, Spinner, Container } from 'react-bootstrap';
+import { ChannelList } from 'src/components/ChannelList';
 
 export default function Channels(): JSX.Element {
     const [auth] = useContext(AuthContext);
@@ -69,13 +69,7 @@ export default function Channels(): JSX.Element {
         if (channels !== null) {
             return (
                 <>
-                    <Stack>
-                        {channels.map(
-                            (channel: IChannel): JSX.Element => (
-                                <ChannelRow key={channel.name} channel={channel} user={user} />
-                            ),
-                        )}
-                    </Stack>
+                    <ChannelList channels={channels} user={user} />
                 </>
             );
         }
@@ -88,33 +82,5 @@ export default function Channels(): JSX.Element {
                 <Content />
             </Container>
         </SidebarSearchLayout>
-    );
-}
-
-function ChannelRow({ channel, user }: { channel: IChannel; user: IUser | null }): JSX.Element {
-    let join = false;
-    if (user !== null) {
-        console.log(user.channel);
-        join = user.channel.find((c) => c === channel.name) !== undefined;
-    }
-
-    return (
-        <Stack direction="horizontal">
-            <Link to={`/channel/${channel.name}`}>
-                <span>{channel.name}</span>
-            </Link>
-            <span className="me-3 ps-3" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {channel.description}
-            </span>
-
-            <span className="ms-auto">
-                {join && (
-                    <span className="pe-3" style={{ color: 'var(--bs-red)' }}>
-                        Joined
-                    </span>
-                )}
-                <span className="ms-auto ">{channel.type}</span>
-            </span>
-        </Stack>
     );
 }

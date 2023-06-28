@@ -4,7 +4,6 @@ import { Alert, Spinner, Stack } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
-import InviteMessage from './InviteMessage';
 import Post from './posts/Post';
 
 interface PropsMessageIds {
@@ -13,6 +12,7 @@ interface PropsMessageIds {
 }
 
 export default function MessageListLoader({ childrens, compare }: PropsMessageIds): JSX.Element {
+    console.log(childrens);
     if (childrens.length === 0) return <></>;
 
     const [authState] = useContext(AuthContext);
@@ -41,18 +41,14 @@ export default function MessageListLoader({ childrens, compare }: PropsMessageId
             return <Spinner animation="border" role="status" />;
         } else if (messages === null) {
             return <Alert variant="danger">{error}</Alert>;
-        } else {
-            return (
-                <Stack>
-                    {messages.map((message) => {
-                        if (message.content.type === 'invitation') {
-                            return <InviteMessage key={message._id.toString()} message={message} />;
-                        }
-                        return <Post key={message._id.toString()} message={message} />;
-                    })}
-                </Stack>
-            );
         }
+        return (
+            <Stack>
+                {messages.map((message) => {
+                    return <Post key={message._id.toString()} message={message} />;
+                })}
+            </Stack>
+        );
     }
 
     return <Posts />;

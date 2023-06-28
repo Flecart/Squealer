@@ -14,6 +14,7 @@ import Settings from './views/Settings';
 import Channel from './views/Channel';
 import Notification from './views/Notification';
 import { CreateChannel } from './views/CreateChannel';
+import SearchPage from './views/SearchPage';
 import Channels from './views/Channels';
 import Reset from './views/Reset';
 
@@ -39,6 +40,14 @@ const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Home />} />
+            <Route
+                path="/search"
+                element={
+                    <ProtectedRoute>
+                        <SearchPage />
+                    </ProtectedRoute>
+                }
+            />
             <Route
                 path="/settings"
                 element={
