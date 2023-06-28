@@ -123,7 +123,11 @@ function Post({ message }: PostProps): JSX.Element {
                             );
                         } else if (channelsRegex.test(part)) {
                             return (
-                                <a className="post-channel-link" href={`/channel/${part.slice(1)}`} key={index}>
+                                <a
+                                    className="post-channel-link"
+                                    href={`/channel/${part.startsWith('#') ? encodeURIComponent(part) : part.slice(1)}`}
+                                    key={index}
+                                >
                                     {part + ' '}
                                 </a>
                             );
