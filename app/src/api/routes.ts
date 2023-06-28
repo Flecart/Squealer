@@ -1,4 +1,4 @@
-export const squealerBaseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';
+export const squealerBaseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export const apiBase = `${squealerBaseUrl}/api`;
 
@@ -16,4 +16,4 @@ export const apiQuotaBase = `${apiBase}/user/quota`;
 export const apiSettingReset = `${apiBase}/auth/setting-reset`;
 export const apiResetPassword = `${apiBase}/auth/reset-password`;
 
-export const imageBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';
+export const imageBase = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
