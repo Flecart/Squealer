@@ -16,32 +16,3 @@ ChartJS.register(...registerables)
 <template>
   <Line :data="props.chartData" :options="props.chartOptions" />
 </template>
-
-<!-- 
- <template>
-    <Bar :data="chartData" :options="chartOptions" />
-  </template>
-  
-  <script lang="ts">
-  import { Bar } from 'vue-chartjs'
-  import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
-  
-  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
-  
-  export default {
-    components: { Bar },
-    props: {
-      chartData: {
-          type: {
-            labels: Array,
-            datasets: Array
-          },
-          required: true
-        },
-      chartOptions: {
-        type: Object,
-        default: () => {}
-      }
-    }
-  }
-  </script> -->
