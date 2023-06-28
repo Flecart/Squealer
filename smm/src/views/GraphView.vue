@@ -33,7 +33,7 @@ const { currentClient, setClient: _ } = inject<currentClientType>(currentClientI
 
 const auth = inject<{ token: string }>(authInject)!
 
-const analiticsData = reactive<{ value: HistoryPoint[] }>({ value: [] })
+const analiticsData = ref<HistoryPoint[]>([])
 
 fetchHistory()
 watch(currentClient, () => {
@@ -49,7 +49,6 @@ function fetchHistory() {
     .then((response) => response.json())
     .then((data) => {
       analiticsData.value = data
-      console.log(chartData.value)
     })
 }
 
@@ -61,8 +60,6 @@ const chartData = computed(() => {
   allTypes.forEach((type) => {
     data.set(type, getChartData(compactHistory, type, getTitle(type)))
   })
-
-  console.log(data)
 
   return data
 })
@@ -114,7 +111,7 @@ function compactHistoriesByHour(historyPoints: HistoryPoint[]) {
   const compactedHistoryPoint: HistoryPoint[] = []
 
   historyPoints.sort((a, b) => {
-    return a.date < b.date ? 1 : -1
+    return new Date(a.date) > new Date(b.date) ? 1 : -1 // sort crescente by date
   })
 
   const firstDate = new Date(historyPoints[0].date)
@@ -124,8 +121,8 @@ function compactHistoriesByHour(historyPoints: HistoryPoint[]) {
     'first date and last date should be the same day'
   )
 
-  for (let i = firstDate.getHours(); i < lastDate.getHours(); i++) {
-    const pointsInHour = historyPoints.filter((point) => point.date.getHours() === i)
+  for (let i = firstDate.getHours(); i <= lastDate.getHours(); i++) {
+    const pointsInHour = historyPoints.filter((point) => new Date(point.date).getHours() === i)
     const sum = pointsInHour.reduce((acc, point) => {
       acc.add(point)
       return acc
@@ -141,14 +138,12 @@ function compactHistoriesByHour(historyPoints: HistoryPoint[]) {
 <template>
   <h1>Analitics</h1>
   <ChooseClients />
-  <!-- <GraphPointsVue :chartData="dummyChartData" :chartOptions="options" /> -->
-  <template v-if="analiticsData.value.length > 0">
-    {{ JSON.stringify(chartData) }}
+  <template v-if="analiticsData.length > 0">
     <div>
       <b-tabs content-class="mt-3" v-model="tabIndex">
         <template v-for="view in views" :key="view.type">
           <b-tab :title="view.title">
-            <GraphPointsVue :chartData="chartData?.get(view.type)" :chartOptions="options" />
+            <GraphPointsVue :chartData="chartData.get(view.type)" :chartOptions="options" />
           </b-tab>
         </template>
       </b-tabs>
