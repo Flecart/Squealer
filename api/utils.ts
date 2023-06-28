@@ -21,7 +21,7 @@ export function parseMessageCreationWithFile(stringRequest: string, file?: Expre
 }
 
 // down here is used primarily for tests
-export const baseUrl = 'http://localhost:3000';
+export const baseUrl = 'http://localhost:8000';
 export const apiUserCreate = '/api/auth/create';
 export const apiUserLogin = '/api/auth/login';
 
