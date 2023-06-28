@@ -389,6 +389,12 @@ export default function AddPost(): JSX.Element {
                         className="sideButton rounded-circle p-2"
                         aria-label="Geolocation"
                         onClick={setGeolocation}
+                        onKeyUp={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                setGeolocation();
+                            }
+                        }}
                     >
                         <Icon.GeoAltFill role="img" height={25} width={25} />
                     </div>
