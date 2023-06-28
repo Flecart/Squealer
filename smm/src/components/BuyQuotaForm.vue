@@ -112,19 +112,19 @@ function updateCost() {
   </div>
 
   <div class="price-groups">
-    <b-badge class="mx-1" variant="primary"
+    <b-badge class="mx-1 price-item" variant="primary"
       >Daily price
       <span :aria-label="toEnglishString(currentPriceDay) + 'Euros'">
         {{ currentPriceDay }}€
       </span></b-badge
     >
-    <b-badge class="mx-1" variant="primary"
+    <b-badge class="mx-1 price-item" variant="primary"
       >Weekly price
       <span :aria-label="toEnglishString(currentPriceWeek) + 'Euros'">
         {{ currentPriceWeek }}€
       </span></b-badge
     >
-    <b-badge class="mx-1" variant="primary"
+    <b-badge class="mx-1 price-item" variant="primary"
       >Monthly price
       <span :aria-label="toEnglishString(currentPriceMonth) + 'Euros'">
         {{ currentPriceMonth }}€
@@ -186,7 +186,12 @@ function updateCost() {
 .price-groups {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   align-items: center;
   margin: 1rem 0;
+}
+
+.price-item {
+  margin: 0.2rem 0.5rem 0 0.5rem;
 }
 </style>
