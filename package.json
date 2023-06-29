@@ -8,7 +8,7 @@
     "dev:app:noapi": "yarn workspace app start",
     "dev:app": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\" \"yarn workspace app start\"",
     "dev:server": "cross-env NODE_ENV=development concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
-    "build": "npm run build:server && npm run build:app && npm run build:smm",
+    "build": "npm run build:server && npm run build:app && npm run build:smm && mkdir build/app/uploads",
     "build:server": "tsoa spec-and-routes && tsc && resolve-tspaths",
     "build:app": "yarn workspace app build",
     "build:smm": "yarn workspace smm build",
