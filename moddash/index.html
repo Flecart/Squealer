@@ -60,19 +60,20 @@
         <script id="user-card-template" type="text/x-handlebars-template">
             <div class='card text-center' style='width: 18rem;'>
 
-                <div class='card-body'>
-                    <img src='{{profile_pic}}' alt='' width='64' height='64' class='rounded-circle me-2' />
-                    <strong>{{name}}</strong>
-                    <br />
-                    {{#if suspended}}
-                        <span class='badge bg-danger'>Disabled</span>
-                    {{/if}}
-                    <span class='badge bg-primary'>{{role}}</span>
+                <div class='card-body d-flex flex-column justify-content-center align-items-center'>
+                    <img src='{{profile_pic}}' alt='' width='64' height='64' class='border rounded-circle' />
+                    <strong>@{{name}}</strong>
 
-                    <br />
+                    <div>
+                        {{#if suspended}}
+                            <span class='badge bg-danger'>Disabled</span>
+                        {{/if}}
+                        <span class='badge bg-primary'>{{role}}</span>
+                    </div>
+
                     <button
                         type='button'
-                        class='btn btn-primary'
+                        class='btn btn-primary mt-3'
                         data-bs-toggle='modal'
                         data-bs-target='#modal-{{name}}'
                     >
@@ -119,7 +120,7 @@
                                             onclick="suspendUser('{{name}}',{{suspended}})"
                                             class='btn btn-primary'
                                         >
-                                            Troggle Disable
+                                            Suspend User
                                         </button>
                                         <br />
                                         <strong> change quota</strong>
