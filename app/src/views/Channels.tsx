@@ -6,8 +6,40 @@ import { type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
 import { apiChannelBase, apiUserBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { Stack, Alert, Spinner, Container } from 'react-bootstrap';
+import { Stack, Alert, Spinner, Container, Button, Modal } from 'react-bootstrap';
 import { ChannelList } from 'src/components/ChannelList';
+
+function AddChannelModal(): JSX.Element {
+    const [show, setShow] = useState<boolean>(false);
+
+    const handleClose = (): void => {
+        setShow(false);
+    };
+    const handleShow = (): void => {
+        setShow(true);
+    };
+    return (
+        <>
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create a channel</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+            </Modal>
+            <Stack>
+                <Button
+                    aria-label="add a channel"
+                    title="add a channel"
+                    variant="primary"
+                    className="mb-3"
+                    onClick={handleShow}
+                >
+                    Aggiungi Canale
+                </Button>
+            </Stack>
+        </>
+    );
+}
 
 export default function Channels(): JSX.Element {
     const [auth] = useContext(AuthContext);
@@ -69,6 +101,7 @@ export default function Channels(): JSX.Element {
         if (channels !== null) {
             return (
                 <>
+                    <AddChannelModal />
                     <ChannelList channels={channels} user={user} />
                 </>
             );
