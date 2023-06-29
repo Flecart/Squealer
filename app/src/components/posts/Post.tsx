@@ -141,7 +141,7 @@ function Post({ message }: PostProps): JSX.Element {
             <Col xs={2} className="pe-0 flex-row-reverse">
                 <Image
                     className="w-100 float-end"
-                    src={user?.profile_pic}
+                    src={user?.profile_pic ?? '/anonymous-user.png'}
                     alt="profile image"
                     style={{ minWidth: '3rem', maxWidth: '5rem' }}
                     roundedCircle
