@@ -2,6 +2,9 @@ import { Post, SuccessResponse, Response, UploadedFile, Route, Controller, Get, 
 import { HttpError } from '@model/error';
 import { FileService } from './fileService';
 import { Readable } from 'stream';
+import logger from '@server/logger';
+
+const fileLogger = logger.child({ label: 'fileController' });
 
 @Route('/file')
 export class FileController extends Controller {
@@ -9,7 +12,7 @@ export class FileController extends Controller {
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Download file')
     public async downloadFile(@Path('fileId') fileId: string): Promise<any> {
-        console.info(`FileController.downloadFile with id '${fileId}'`);
+        fileLogger.info(`FileController.downloadFile with id '${fileId}'`);
 
         const file = await new FileService().downloadFile(fileId);
         this.setHeader('Content-Type', file.mimetype);
@@ -23,10 +26,8 @@ export class FileController extends Controller {
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Upload file')
     public async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<any> {
-        console.info(`FileController.uploadFile with name '${file.originalname}'`);
+        fileLogger.info(`FileController.uploadFile with name '${file.originalname}'`);
 
-        return await new FileService().uploadFile(file);
+        return { msg: 'this endpoint is disabled for security reasons' };
     }
-
-    // TODO: privatize the file (can´t public access the file): https://github.com/lukeautry/tsoa/issues/44
 }

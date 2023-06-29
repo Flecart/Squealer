@@ -1,5 +1,6 @@
 import { HttpError } from '@model/error';
-import FileModel, { IFile } from '@model/file';
+import { IFile } from '@model/file';
+import FileModel from '@db/file';
 
 export class FileService {
     public async downloadFile(fileId: string): Promise<IFile> {
