@@ -56,7 +56,7 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                     },
                     authState,
                     () => {
-                        setSuccessMessage('Acquisto Avvenuto con Successo');
+                        setSuccessMessage('Quota purchased successfully!');
                         setInterval(() => {
                             navigate(0);
                         }, 1000);
@@ -74,7 +74,7 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
     return (
         <Modal show={show} onHide={onHide} size="lg" aria-labelledby="contained-modal-title-vcenter" centered>
             <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">Acquisto Quota</Modal.Title>
+                <Modal.Title id="contained-modal-title-vcenter">Purchase Quota</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {successMessage !== null ? (
@@ -85,7 +85,7 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                     <>
                         <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handlePurchaseQuota}>
                             <FormGroup className="mb-3">
-                                <Form.Label className="text-light">Quota Giornaliera</Form.Label>
+                                <Form.Label>Daily Quota</Form.Label>
                                 <Form.Control
                                     type="number"
                                     value={dailyQuota}
@@ -97,7 +97,7 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                                 />
                             </FormGroup>
                             <FormGroup className="mb-3">
-                                <Form.Label className="text-light">Quota Settimanale</Form.Label>
+                                <Form.Label>Weekly Quota</Form.Label>
                                 <Form.Control
                                     type="number"
                                     value={weeklyQuota}
@@ -109,7 +109,7 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                                 />
                             </FormGroup>
                             <FormGroup className="mb-3">
-                                <Form.Label className="text-light">Quota Mensile</Form.Label>
+                                <Form.Label>Monthly Quota</Form.Label>
                                 <Form.Control
                                     type="number"
                                     value={monthlyQuota}
@@ -120,20 +120,18 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                                     placeholder="0"
                                 />
                             </FormGroup>
-                            <p> Prezzo Totale {price} &euro; </p>
+                            <p> Total Price: {price} &euro; </p>
                             <Container className="d-flex justify-content-center">
                                 <Button className="col-6 me-1" variant="warning" type="submit">
-                                    Acquista
+                                    Purchase
                                 </Button>
                             </Container>
                             <Container className="d-flex justify-content-center">
                                 {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
                                 {pendingRequest && (
-                                    <>
-                                        <Spinner animation="border" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </Spinner>
-                                    </>
+                                    <Spinner animation="border" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </Spinner>
                                 )}
                             </Container>
                         </Form>

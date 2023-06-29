@@ -34,7 +34,7 @@ export default function PayDebt({ show, onHide, debt }: PayDebtProps): JSX.Eleme
                 },
                 authState,
                 () => {
-                    setSuccessMessage('Pagamento Avvenuto con Successo');
+                    setSuccessMessage('Successful Payment!');
                     setPendingRequest(false);
                     setInterval(() => {
                         navigate(0);
