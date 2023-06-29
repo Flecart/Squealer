@@ -61,14 +61,14 @@ export default function PayDebt({ show, onHide, debt }: PayDebtProps): JSX.Eleme
                 ) : (
                     <div className="d-flex flex-column justify-content-center">
                         <div className="mb-2">
-                            Gentile utente {authState?.username},<br />
-                            Per continuare a utilizzare il nostro servizio, <br />
-                            è necessario pagare la quota extra da lei usufruita nel precedente post.
+                            Dear user {authState?.username},<br />
+                            To continue using our service, <br />
+                            is necessary pay the extra quota used in your previous post.
                             <br />
-                            L&apos;importo da pagare è di {debt * quotaPriceExtra} &euro;
+                            The amount do be paid is {debt * quotaPriceExtra} &euro;
                         </div>
                         <Button variant="danger" onClick={handlePayDebt}>
-                            Procedi al Pagamento
+                            Proceed to Payment
                         </Button>
                     </div>
                 )}
