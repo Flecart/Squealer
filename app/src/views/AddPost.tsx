@@ -1,6 +1,6 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
-import { Form, Button, Alert, Image, InputGroup, Collapse, FormGroup } from 'react-bootstrap';
+import { Form, Button, Alert, Image, Collapse } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
@@ -318,7 +318,12 @@ export default function AddPost(): JSX.Element {
                 Remaining Quota: {user !== null && <ShowQuota quota={100} />}
                 <div className="d-inline-flex flex-column position-relative">
                     {selectedImage.type.startsWith('image/') && (
-                        <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} fluid />
+                        <Image
+                            className="mb-3 border"
+                            alt="uploaded image"
+                            src={URL.createObjectURL(selectedImage)}
+                            fluid
+                        />
                     )}
 
                     {selectedImage.type.startsWith('video/') && (
@@ -387,7 +392,7 @@ export default function AddPost(): JSX.Element {
             {renderParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <FormGroup controlId="channelInput" className="group-add-post">
+                    <Form.Group controlId="channelInput" className="group-add-post">
                         <Form.Label className="label-add-post">Channel</Form.Label>
                         <Form.Control
                             onChange={(e) => {
@@ -396,7 +401,7 @@ export default function AddPost(): JSX.Element {
                             placeholder="Enter Channel name"
                             autoFocus={true}
                         />
-                    </FormGroup>
+                    </Form.Group>
                 )}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {renderMessagePayload()}
@@ -424,6 +429,7 @@ export default function AddPost(): JSX.Element {
                         className="me-2 rounded-3 p-2"
                         variant="dark"
                         disabled={showTemporize}
+                        aria-label="Input Media"
                         onClick={() => {
                             if (hiddenFileInput !== null) {
                                 if (hiddenFileInput.current !== null) hiddenFileInput.current.click();
@@ -464,11 +470,11 @@ export default function AddPost(): JSX.Element {
                             }
                         }}
                     >
-                        <Icon.GeoAltFill role="img" height={25} width={25} />
+                        <Icon.GeoAltFill aria-hidden="true" role="img" height={25} width={25} />
                     </Button>
                 </div>
 
-                <div hidden={permissions} style={{ color: 'var(--bs-yellow)' }} className="mb-2">
+                <div hidden={permissions} style={{ color: 'var(--bs-yellow)' }} className="text-center mb-2">
                     The Purchase Quota service is reserved for verified or pro users.
                 </div>
 
@@ -498,12 +504,12 @@ export default function AddPost(): JSX.Element {
 
                 <Collapse in={showTemporize}>
                     <div id="temporized-section">
-                        <InputGroup className="mb-3">
-                            <InputGroup.Text className="text-white"> Period: </InputGroup.Text>
+                        <Form.Group controlId="periodInput" className="group-add-post m-0">
+                            <Form.Label className="label-add-post"> Period: </Form.Label>
                             <Form.Control
                                 type="number"
+                                aria-describedby="textPeriod"
                                 min={0}
-                                aria-label="period input"
                                 onChange={(e) => {
                                     let value = parseInt(e.target.value);
                                     if (isNaN(value)) {
@@ -512,14 +518,17 @@ export default function AddPost(): JSX.Element {
                                     setTempPeriod(value);
                                 }}
                             />
-                        </InputGroup>
+                        </Form.Group>
+                        <Form.Text id="textPeriod" className="text-add-post">
+                            Set the Interval between messages
+                        </Form.Text>
 
-                        <InputGroup className="mb-3">
-                            <InputGroup.Text className="text-white"> Times: </InputGroup.Text>
+                        <Form.Group controlId="timesInput" className="group-add-post m-0">
+                            <Form.Label className="label-add-post"> Times: </Form.Label>
                             <Form.Control
                                 type="number"
                                 min={0}
-                                aria-label="times input"
+                                aria-describedby="textTimes"
                                 onChange={(e) => {
                                     let value = parseInt(e.target.value);
                                     if (isNaN(value)) {
@@ -528,7 +537,10 @@ export default function AddPost(): JSX.Element {
                                     setTempTimes(value);
                                 }}
                             />
-                        </InputGroup>
+                        </Form.Group>
+                        <Form.Text id="textTimes" className="text-add-post">
+                            Set the number of messages
+                        </Form.Text>
 
                         <Form.Group className="d-flex flex-row px-1" controlId="typeTemporize">
                             <Form.Label> Type: </Form.Label>

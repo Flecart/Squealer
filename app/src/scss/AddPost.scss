@@ -1,13 +1,16 @@
 .label-add-post {
-    @extend .d-flex;
-    @extend .justify-content-center;
-    @extend .pe-0;
-    @extend .col-3;
-    @extend .form-label;
-    @extend .col-form-label;
+    @extend .text-white;
+    @extend .input-group-text;
+    @extend .m-0;
 }
 
-.input-add-post {
-    @extend .col-9;
-    @extend .ps-0;
+.group-add-post {
+    @extend .input-group;
+    @extend .mb-3;
+}
+
+.text-add-post {
+    @extend .text-white;
+    @extend .mb-3;
+    @extend .d-inline-block;
 }
