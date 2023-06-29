@@ -3,11 +3,11 @@ import { ref, inject, watch, computed } from 'vue'
 import { getClientMessageBaseRoute } from '@/routes'
 import { currentClientInject, type currentClientType } from '@/keys'
 import type { IMessage, IMessageWithPages, MessageSortTypes } from '@model/message'
-import { urgentThreshold } from '@model/quota'
+import { IQuotas, urgentThreshold } from '@model/quota'
 import BuyModalVue from './BuyModal.vue'
 import PostVue from './Post.vue'
 import ChooseClientsVue from './ChooseClients.vue'
-import { toEnglishString } from '@/utils'
+import CurrentQuota from './CurrentQuota.vue'
 
 const { currentClient: selectedClient, setClient: _ } =
   inject<currentClientType>(currentClientInject)!
@@ -71,20 +71,19 @@ function fetchMessages(currentClient: string, page: number, sort: MessageSortTyp
     })
 }
 
-const quotaDay = computed<number>(() => {
-  return selectedClient.value.maxQuota.day - selectedClient.value.usedQuota.day
-})
-
-const quotaWeek = computed<number>(() => {
-  return selectedClient.value.maxQuota.week - selectedClient.value.usedQuota.week
-})
-
-const quotaMonth = computed<number>(() => {
-  return selectedClient.value.maxQuota.month - selectedClient.value.usedQuota.month
+const remainingQuota = computed<IQuotas>(() => {
+  return {
+    day: selectedClient.value.maxQuota.day - selectedClient.value.usedQuota.day,
+    week: selectedClient.value.maxQuota.week - selectedClient.value.usedQuota.week,
+    month: selectedClient.value.maxQuota.month - selectedClient.value.usedQuota.month
+  } as IQuotas
 })
 
 const isUrgentQuota = computed<boolean>(() => {
-  return Math.min(quotaDay.value, quotaWeek.value, quotaMonth.value) < urgentThreshold
+  return (
+    Math.min(remainingQuota.value.day, remainingQuota.value.week, remainingQuota.value.month) <
+    urgentThreshold
+  )
 })
 
 const setPreviousPage = () => {
@@ -112,24 +111,7 @@ const setPageNumber = (page: number) => {
     </template>
   </div>
 
-  <div class="mt-2">
-    Current client quota:
-    <b-badge class="mx-1" variant="primary"
-      >Daily
-      <span :aria-label="toEnglishString(quotaDay)"> {{ quotaDay }} </span>
-      characters</b-badge
-    >
-    <b-badge class="mx-1" variant="primary"
-      >Weekly
-      <span :aria-label="toEnglishString(quotaWeek)"> {{ quotaWeek }} </span>
-      characters</b-badge
-    >
-    <b-badge class="mx-1" variant="primary"
-      >Monthly
-      <span :aria-label="toEnglishString(quotaMonth)"> {{ quotaMonth }} </span>
-      characters</b-badge
-    >
-  </div>
+  <CurrentQuota :client="selectedClient" :remaining-quota="remainingQuota" />
 
   <!-- TODO: questo dovrebbe essere sostituito da b-pagination, però la cosa buona è che si può usare anch ein moddash questo quasi. -->
   <nav aria-label="Post pagination">
