@@ -48,19 +48,20 @@ export default function AddPost(): JSX.Element {
 
     const [showTemporize, setShowTemporize] = useState(false);
 
-    const hiddenFileInput = useRef(null);
+    const hiddenFileInput = useRef<HTMLInputElement | null>(null);
 
     function CloseButton(): JSX.Element {
         return (
             <Button
                 className="position-absolute rounded-circle top-0 end-0 p-1 m-1"
                 variant="danger"
+                style={{ zIndex: '1' }}
                 onClick={() => {
                     setSelectedImage(null);
                     setGeolocationCoord(null);
                 }}
             >
-                <Icon.X role="img" aria-label="remove media" height={25} width={25} />
+                <Icon.X role="button" aria-label="remove media" height={25} width={25} />
             </Button>
         );
     }
@@ -336,7 +337,17 @@ export default function AddPost(): JSX.Element {
         if (selectedImage != null) {
             return renderFilePreview();
         } else if (geolocationCoord != null) {
-            return <Map positions={geolocationCoord.positions} />;
+            return (
+                <>
+                    <div className="d-flex flex-column align-items-center">
+                        Remaining Quota: {user !== null && <ShowQuota quota={100} />}
+                    </div>
+                    <div className="position-relative">
+                        <Map positions={geolocationCoord.positions} />
+                        <CloseButton />
+                    </div>
+                </>
+            );
         } else {
             return (
                 <Form.Group className="mb-3" controlId="textareaInput">
@@ -387,7 +398,7 @@ export default function AddPost(): JSX.Element {
                             setModalShow(true);
                         }}
                     >
-                        Acquista Quota
+                        Buy Quota
                     </Button>
 
                     <Button className="me-2" type="submit" onClick={sendMessage} disabled={showTemporize}>
@@ -400,7 +411,6 @@ export default function AddPost(): JSX.Element {
                         disabled={showTemporize}
                         onClick={() => {
                             if (hiddenFileInput !== null) {
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                                 if (hiddenFileInput.current !== null) hiddenFileInput.current.click();
                             }
                         }}
