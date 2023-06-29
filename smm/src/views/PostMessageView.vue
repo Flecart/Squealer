@@ -2,15 +2,21 @@
 import ChooseClientsVue from '@/components/ChooseClients.vue'
 import CurrentQuotaVue from '@/components/CurrentQuota.vue'
 import { inject, ref, watch, computed } from 'vue'
-import { currentClientInject, type currentClientType } from '@/keys'
+import { currentClientInject, authInject, type currentClientType } from '@/keys'
 import type { IQuotas } from '@model/quota'
-import { geolocalizationName } from '@/routes'
+import { geolocalizationName, postClientMessageRoute } from '@/routes'
+import { mediaQuotaValue, type MessageCreation } from '@model/message'
 
 const { currentClient, setClient } = inject<currentClientType>(currentClientInject)!
+const authToken = inject<{ token: string }>(authInject)!
 
 const usedQuota = ref<number>(0)
 const fileInputRef = ref<HTMLInputElement>()
 const choosenFile = ref<File>()
+
+const errorMessage = ref<string>('')
+const successMessage = ref<string>('')
+const secondsToShowError = 5
 
 const remainingQuota = computed<IQuotas>(() => {
   return {
@@ -28,14 +34,13 @@ watch(textInput, (newValue, _oldValue) => {
   usedQuota.value = newValue.length
 })
 
-watch(choosenFile, () => {
-  console.log('choosenFile')
-  console.log(choosenFile.value)
+watch(choosenFile, (newValue) => {
+  if (newValue) {
+    usedQuota.value = mediaQuotaValue
+  } else {
+    usedQuota.value = 0
+  }
 })
-
-const handleSubmit = () => {
-  console.log('submit')
-}
 
 const selectFileInput = () => {
   fileInputRef.value?.click()
@@ -54,6 +59,69 @@ const removeImage = () => {
   choosenFile.value = undefined
   fileInputRef.value!.value = ''
 }
+
+const handleSubmit = () => {
+  if (remainingQuota.value.day < 0) {
+    setErrorMessage('Your client has exceeded his daily quota, go to to buy some quota!')
+    return
+  }
+
+  const message: MessageCreation = {
+    content: {
+      type: 'text',
+      data: textInput.value
+    },
+    channel: channelInput.value,
+    parent: undefined
+  }
+
+  const formData = new FormData()
+  if (choosenFile.value) {
+    message.content.type = choosenFile.value.type.startsWith('image/') ? 'image' : 'video'
+    formData.append('file', choosenFile.value)
+  }
+
+  formData.append('data', JSON.stringify(message))
+
+  removeImage()
+  textInput.value = ''
+  channelInput.value = ''
+
+  fetch(`${postClientMessageRoute}/${currentClient.value.username}`, {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + authToken.token
+    },
+    body: formData
+  })
+    .then(async (response) => {
+      if (response.ok) {
+        setSuccessMessage('Message sent successfully')
+        setErrorMessage('')
+      } else {
+        const body = await response.json()
+        throw new Error(body.message ?? 'Error sending message')
+      }
+    })
+    .catch((error) => {
+      setErrorMessage(error.message ?? 'Error sending message')
+      setSuccessMessage('')
+    })
+}
+
+const setErrorMessage = (message: string) => {
+  errorMessage.value = message
+  setTimeout(() => {
+    errorMessage.value = ''
+  }, secondsToShowError * 1000)
+}
+
+const setSuccessMessage = (message: string) => {
+  successMessage.value = message
+  setTimeout(() => {
+    successMessage.value = ''
+  }, secondsToShowError * 1000)
+}
 </script>
 
 <template>
@@ -66,7 +134,7 @@ const removeImage = () => {
   </p>
   <CurrentQuotaVue :client="currentClient" :remaining-quota="remainingQuota" />
 
-  <b-form class="form" @submit.prevent="handleSubmit">
+  <b-form class="width-limit mb-3" @submit.prevent="handleSubmit">
     <label class="sr-only" for="inline-form-input-channel">Channel</label>
     <b-input-group prepend="Channel" class="mb-2 mt-2 mr-sm-2 mb-sm-0">
       <b-form-input
@@ -139,12 +207,21 @@ const removeImage = () => {
       <b-button type="submit" variant="primary">Send</b-button>
     </div>
   </b-form>
+
+  <div class="width-limit">
+    <b-alert :show="errorMessage.length > 0 ? secondsToShowError : 0" variant="danger">{{
+      errorMessage
+    }}</b-alert>
+    <b-alert :show="successMessage.length > 0 ? secondsToShowError : 0" variant="success">{{
+      successMessage
+    }}</b-alert>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap.scss';
 
-.form {
+.width-limit {
   max-width: 100vw;
 }
 
@@ -159,7 +236,7 @@ const removeImage = () => {
 }
 
 @media screen and (min-width: map-get($grid-breakpoints, md)) {
-  .form {
+  .width-limit {
     max-width: 50vw;
   }
 }
