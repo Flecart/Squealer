@@ -1,6 +1,6 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
-import { Form, Button, Alert, Image, InputGroup, Collapse } from 'react-bootstrap';
+import { Form, Button, Alert, Image, InputGroup, Collapse, FormGroup } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { type Maps, type MessageCreation, type IMessage, type MessageCreationRen
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
-import { type IUser, haveEnoughtQuota, getExtraQuota } from '@model/user';
+import { type IUser, haveEnoughtQuota, getExtraQuota, UserRoles } from '@model/user';
 import Post from 'src/components/posts/Post';
 import {
     type ITemporizzati,
@@ -22,6 +22,7 @@ import { toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
 import * as Icon from 'react-bootstrap-icons';
 import 'src/scss/SideButton.scss';
+import { Lock as LockIcon } from 'react-bootstrap-icons';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -142,6 +143,17 @@ export default function AddPost(): JSX.Element {
             },
         );
     }, [authState?.username]);
+
+    const role = useMemo<UserRoles | null>(() => {
+        if (user === null) {
+            return null;
+        }
+        return user.role;
+    }, [user]);
+
+    const permissions = useMemo<boolean>(() => {
+        return role === UserRoles.SMM || role === UserRoles.VIP || role === UserRoles.VERIFIED;
+    }, [user]);
 
     useEffect(() => {
         if (user !== null && !oneTimeView) {
@@ -375,30 +387,33 @@ export default function AddPost(): JSX.Element {
             {renderParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text className="text-white">Channel</InputGroup.Text>
+                    <FormGroup controlId="channelInput" className="group-add-post">
+                        <Form.Label className="label-add-post">Channel</Form.Label>
                         <Form.Control
                             onChange={(e) => {
                                 setDestination(e.target.value);
                             }}
                             placeholder="Enter Channel name"
-                            aria-label="channel input"
                             autoFocus={true}
                         />
-                    </InputGroup>
+                    </FormGroup>
                 )}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {renderMessagePayload()}
 
                 <div className="d-flex flex-row justify-content-center aling-items-center mb-3">
                     <Button
-                        className="me-2"
                         variant="warning"
                         onClick={() => {
                             setModalShow(true);
                         }}
+                        disabled={!permissions}
+                        className="d-flex align-items-center me-2"
                     >
-                        Buy Quota
+                        <span className="d-flex align-items-center" hidden={permissions}>
+                            <LockIcon aria-hidden="true" size={19.2} className="me-1" />
+                        </span>
+                        Purchase Quota
                     </Button>
 
                     <Button className="me-2" type="submit" onClick={sendMessage} disabled={showTemporize}>
@@ -451,6 +466,10 @@ export default function AddPost(): JSX.Element {
                     >
                         <Icon.GeoAltFill role="img" height={25} width={25} />
                     </Button>
+                </div>
+
+                <div hidden={permissions} style={{ color: 'var(--bs-yellow)' }} className="mb-2">
+                    The Purchase Quota service is reserved for verified or pro users.
                 </div>
 
                 <DebtWarning

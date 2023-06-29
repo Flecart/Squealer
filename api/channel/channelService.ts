@@ -1,5 +1,5 @@
 import { HttpError } from '@model/error';
-import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel } from '@model/channel';
+import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
 import ChannelModel from '@db/channel';
 import InvitationModel from '@db/invitation';
 import UserModel from '@db/user';
@@ -8,6 +8,20 @@ import { HydratedDocument } from 'mongoose';
 import { type IInvitation } from '@model/invitation';
 
 export class ChannelService {
+    public async getChannels(channelIds: string[], user: string): Promise<IChannel[]> {
+        const channels = await ChannelModel.find({ _id: { $in: channelIds } });
+
+        return channels.filter((channel) => {
+            if (isPublicChannel(channel)) {
+                return true;
+            }
+            if (channel.type === ChannelType.PRIVATE && channel.users.find((u) => u.user === user) != null) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     public async list(user: string | null): Promise<IChannel[]> {
         let publicChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.SQUEALER }, { type: ChannelType.PUBLIC }],
@@ -53,11 +67,12 @@ export class ChannelService {
             throw new HttpError(400, `User with username ${owner} does not exist`);
         }
 
-        if (fromApi && !(type === ChannelType.PUBLIC || type === ChannelType.PRIVATE)) {
+        if (!fromApi && !(type === ChannelType.USER)) {
+            // TODO(gio): aggingere il check descritto nei commenti della PR #138
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
-        if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@'))) {
-            throw new HttpError(400, `Channel name ${channelName} is not valid name`);
+        if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@') || channelName.startsWith('§'))) {
+            throw new HttpError(400, `Channel name ${channelName} is not valid name can't start with @ or # or §`);
         }
         if (ChannelType.SQUEALER == type && ownerUser.role !== UserRoles.MODERATOR) {
             throw new HttpError(400, `User ${owner} is not authorized to create a squealer channel`);

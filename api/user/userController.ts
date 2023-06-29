@@ -98,6 +98,7 @@ export class UserController extends Controller {
     @Security('jwt')
     @SuccessResponse(200, 'Role Updated')
     public async updateRole(@Request() request: any, @Body() role: { role: UserRoles }): Promise<IUser> {
+        userLogger.info(`updateRole for user ${getUserFromRequest(request)} as ${role.role}`);
         return await new UserService().updateRole(getUserFromRequest(request), role.role);
     }
 
