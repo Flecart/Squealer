@@ -3,6 +3,7 @@ import { FilterPosts, ModdashService, ReactionRequest } from './moddashService';
 import { getUserFromRequest } from '@api/utils';
 import logger from '@server/logger';
 import { ChannelSortBy } from '@model/channel';
+import { IQuotas } from '@model/quota';
 
 const moddashLog = logger.child({ label: 'moddash' });
 
@@ -25,7 +26,11 @@ export class ModdashController {
 
     @Post('/changeQuota/{username}')
     @Security('jwt')
-    public async changeQuota(@Request() request: any, @Path() username: string, @Body() body: any): Promise<any> {
+    public async changeQuota(
+        @Request() request: any,
+        @Path() username: string,
+        @Body() body: { quota: IQuotas },
+    ): Promise<any> {
         moddashLog.info(`Set quota:${body.quota} to user ${username} requested by ${getUserFromRequest(request)}`);
         return new ModdashService().changeQuota(getUserFromRequest(request), username, body.quota);
     }
