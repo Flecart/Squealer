@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useMemo } from 'react';
 import { Spinner, Stack, Container } from 'react-bootstrap';
 import Post from './posts/Post';
 import { type IMessage } from '@model/message';
@@ -24,9 +24,12 @@ export function MakeFeed(): JSX.Element {
             },
         );
     }, []);
-    const feed = contents?.map((content: IMessage) => {
-        return <Post key={content._id.toString()} message={content} />;
-    });
+
+    const feed = useMemo(() => {
+        return contents?.map((content: IMessage) => {
+            return <Post key={content._id.toString()} message={content} />;
+        });
+    }, [contents]);
 
     return (
         // xs={6} -> className="... col-xs-6 ..."
