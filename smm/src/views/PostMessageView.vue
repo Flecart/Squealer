@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ChooseClientsVue from '@/components/ChooseClients.vue'
 import CurrentQuotaVue from '@/components/CurrentQuota.vue'
-import { inject, ref, watch, computed } from 'vue'
+import { inject, ref, watch, computed, onMounted, onBeforeUnmount } from 'vue'
 import { currentClientInject, authInject, type currentClientType } from '@/keys'
 import type { IQuotas } from '@model/quota'
 import { geolocalizationName, postClientMessageRoute } from '@/routes'
@@ -122,6 +122,52 @@ const setSuccessMessage = (message: string) => {
     successMessage.value = ''
   }, secondsToShowError * 1000)
 }
+
+// UNDER: handling of suggestion for channels
+
+const suggestionShowed = computed(() => {
+  return channelInput.value.length > 0
+})
+
+const suggestions = ref<string[]>(['prova1', 'prova2'])
+const activeSuggestionIdx = ref<number>(0)
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    e.preventDefault() // prevent form submission
+  }
+
+  if (suggestionShowed.value) {
+    console.log('got key input')
+
+    if (e.key === 'ArrowUp') {
+      activeSuggestionIdx.value = Math.max(0, activeSuggestionIdx.value - 1)
+    } else if (e.key === 'ArrowDown') {
+      activeSuggestionIdx.value = Math.min(
+        suggestions.value.length - 1,
+        activeSuggestionIdx.value + 1
+      )
+    } else if (e.key === 'Enter') {
+      channelInput.value = suggestions.value[activeSuggestionIdx.value]
+    }
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleSubmit()
+    }
+  }
+}
+
+const chooseSuggestion = (suggestionIdx: number) => {
+  channelInput.value = suggestions.value[suggestionIdx] as string
+  activeSuggestionIdx.value = suggestionIdx
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 
 <template>
@@ -135,14 +181,27 @@ const setSuccessMessage = (message: string) => {
   <CurrentQuotaVue :client="currentClient" :remaining-quota="remainingQuota" />
 
   <b-form class="width-limit mb-3" @submit.prevent="handleSubmit">
-    <label class="sr-only" for="inline-form-input-channel">Channel</label>
-    <b-input-group prepend="Channel" class="mb-2 mt-2 mr-sm-2 mb-sm-0">
-      <b-form-input
-        v-model="channelInput"
-        id="inline-form-input-channel"
-        placeholder="Enter Channel name"
-      ></b-form-input>
-    </b-input-group>
+    <div class="position-relative">
+      <label class="sr-only" for="inline-form-input-channel">Channel</label>
+      <b-input-group prepend="Channel" class="mb-2 mt-2 mr-sm-2 mb-sm-0">
+        <b-form-input
+          v-model="channelInput"
+          id="inline-form-input-channel"
+          placeholder="Enter Channel name"
+        ></b-form-input>
+      </b-input-group>
+      <b-list-group v-if="suggestionShowed" class="position-absolute" role="listbox">
+        <template v-for="(suggestion, i) in suggestions" :key="suggestion">
+          <b-list-group-item
+            @click="chooseSuggestion(i)"
+            role="option"
+            :active="i === activeSuggestionIdx"
+          >
+            {{ suggestion }}
+          </b-list-group-item>
+        </template>
+      </b-list-group>
+    </div>
 
     <template v-if="choosenFile">
       <div class="mt-3 border position-relative">
