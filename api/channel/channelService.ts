@@ -88,6 +88,10 @@ export class ChannelService {
 
         if ((await ChannelModel.findOne({ name: channelName })) !== null) {
             throw new HttpError(400, 'Channel name already exists');
+        } else if (channelName.length > 30) {
+            throw new HttpError(400, 'Channel name is too long');
+        } else if (channelName.length < 3) {
+            throw new HttpError(400, 'Channel name is too short, minimum 3 characters');
         }
 
         const channel = new ChannelModel({
@@ -117,7 +121,7 @@ export class ChannelService {
                     }
                 });
         }
-        channel.save();
+        await channel.save();
         return channel;
     }
 
