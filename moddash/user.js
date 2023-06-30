@@ -61,6 +61,7 @@ export function changeQuota(username) {
     const dayquota = document.getElementById(`dayquota-${username}`).value;
     const weekquota = document.getElementById(`weekquota-${username}`).value;
     const monthquota = document.getElementById(`monthquota-${username}`).value;
+
     fetch(stringFormat(changeQuotaRoute, [username]), {
         method: 'POST',
         headers: {
