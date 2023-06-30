@@ -5,11 +5,12 @@ import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext, CategoryContext } from 'src/contexts';
 import { fetchApi } from 'src/api/fetch';
-import { toHumanReadableDate } from 'src/utils';
+import { toEnglishString, toHumanReadableDate } from 'src/utils';
 import { imageBase, apiUserBase } from 'src/api/routes';
 import Map from 'src/components/Map';
 import PostButtons from './PostButtons';
 import 'src/scss/Post.scss';
+import { Eye as EyeIcon } from 'react-bootstrap-icons';
 
 interface PostProps {
     message: IMessage;
@@ -141,7 +142,7 @@ function Post({ message }: PostProps): JSX.Element {
             <Col xs={2} className="pe-0 flex-row-reverse">
                 <Image
                     className="w-100 float-end"
-                    src={user?.profile_pic}
+                    src={user?.profile_pic ?? '/anonymous-user.png'}
                     alt="profile image"
                     style={{ minWidth: '3rem', maxWidth: '5rem' }}
                     roundedCircle
@@ -186,11 +187,23 @@ function Post({ message }: PostProps): JSX.Element {
                     </Row>
 
                     <Row>
-                        {authState !== null && (
-                            <Link to={`/addpost/${message._id.toString()}`} className="me-3">
-                                Reply
-                            </Link>
-                        )}
+                        <Col>
+                            {authState !== null && (
+                                <Link to={`/addpost/${message._id.toString()}`} className="me-3">
+                                    <span aria-label={toEnglishString(message.children.length) + ' replies'}>
+                                        {' '}
+                                        {message.children.length}
+                                    </span>{' '}
+                                    Reply
+                                </Link>
+                            )}
+                        </Col>
+                        <Col className="d-flex align-items-center">
+                            <div title="total views">
+                                <span aria-label={toEnglishString(message.views) + ' views'}>{message.views}</span>{' '}
+                                <EyeIcon aria-hidden="true" />
+                            </div>
+                        </Col>
                     </Row>
                 </Container>
             </Col>
