@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type ChannelResponse, ChannelType, type IChannel } from '@model/channel';
@@ -49,7 +49,7 @@ export default function Channel(): JSX.Element {
             );
     }, [channelId]);
 
-    function Content(): JSX.Element {
+    const Content = useCallback(() => {
         if (channel === null || channel === undefined)
             return (
                 <div className="d-flex justify-content-center">
@@ -61,7 +61,7 @@ export default function Channel(): JSX.Element {
         }
         const MessageSortList = (
             <MessageSortComponent
-                def={channel?.messages.map((a) => a.toString())}
+                messageIds={channel?.messages.map((a) => a.toString())}
                 reqInit={{ method: 'GET' }}
                 url={`${apiChannelBase}/${channel.name.replace('#', '%23')}/messagesId`}
             />
@@ -84,7 +84,7 @@ export default function Channel(): JSX.Element {
                 </Tab>
             </Tabs>
         );
-    }
+    }, [channel]);
 
     return (
         <SidebarSearchLayout>
