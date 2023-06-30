@@ -3,6 +3,7 @@
 // See: https://getbootstrap.com/docs/4.4/getting-started/theming/
 
 @import 'Form.scss';
+@import 'AddPost.scss';
 
 [class~='alert-danger'] {
     background-color: rgb(217, 52, 35) !important;
