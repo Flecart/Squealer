@@ -234,7 +234,7 @@ export default function AddPost(): JSX.Element {
             } else if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
-            } else if (channel === '') {
+            } else if (parent === undefined && channel === '') {
                 setError(() => 'Destination not specified');
                 return;
             }
