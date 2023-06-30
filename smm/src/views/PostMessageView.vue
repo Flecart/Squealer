@@ -135,7 +135,7 @@ const activeSuggestionIdx = ref<number>(0)
 
 const handleKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-    e.preventDefault() // prevent form submission
+    e.preventDefault()
   }
 
   if (suggestionShowed.value) {

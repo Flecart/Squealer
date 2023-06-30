@@ -55,6 +55,31 @@ export class ChannelService {
         return channel;
     }
 
+    public async getChannelSuggestions(search: string, limit: number): Promise<IChannel[]> {
+        const channels = await ChannelModel.find({
+            name: { $regex: search, $options: 'i' },
+            type: { $ne: ChannelType.USER },
+        }).limit(limit);
+        return channels;
+        // Reminder per il me di domani:
+        /**
+         * 1. Fare 3 suggestion diverse una per chanali privati e pubblici, hashtag e user
+         * 2. Implementare le chiamate frontend per le suggestions.
+         * 3. Se possibile refactorare il codice simile di ricerca per il moddash
+         * 4. andare ad implementare la pagina per il smm senza clienti
+         * 5. andare ad implementare la pagina per il vip per prendere smm
+         * 6. mostrare il tick per utenti verificati.
+         * 7. testare molto.
+         * 8. implementare le suggestions per l'app.
+         * 9. cambio immagine profilo
+         * 10. cambio descrizione del canale
+         * 11. cambio username? (questo va a toccare molte cose).
+         * 12. utilizzare la pr della centralizzazione degli api per risolvere le path api
+         * che collidono.
+         *
+         */
+    }
+
     public async create(
         channelName: string,
         owner: string,

@@ -20,6 +20,18 @@ export class ChannelController extends Controller {
         return new ChannelService().getChannels(channels, getUserFromRequest(request));
     }
 
+    @Get('suggestions')
+    @SuccessResponse(200, 'Channel suggestions')
+    public async getChannelSuggestions(
+        @Query('search') search: string,
+        @Query('avoid') avoid: string[],
+        @Query('limit') limit?: number,
+    ) {
+        if (!limit) limit = 5;
+        channelLogger.info(`Getting channel suggestions for ${search} avoiding ${avoid} with limit ${limit}`);
+        return new ChannelService().getChannelSuggestions(search, avoid, limit);
+    }
+
     @Get()
     @Response<HttpError>(400, 'Bad Request')
     @Security('maybeJWT')
@@ -195,19 +207,5 @@ export class ChannelController extends Controller {
                 body.permission,
             ),
         };
-    }
-
-    @Get('suggestions')
-    @SuccessResponse(200, 'Channel suggestions')
-    public async getChannelSuggestions(
-        @Query('search') search: string,
-        @Query('avoid') avoid: string[],
-        @Query('limit') limit?: number,
-    ) {
-        if (!limit) limit = 5;
-
-        channelLogger.info(`Getting channel suggestions for ${search} avoiding ${avoid} with limit ${limit}`);
-        return 'ok';
-        // return new ChannelService().getChannelSuggestions(search, avoid, limit);
     }
 }
