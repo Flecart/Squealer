@@ -9,8 +9,8 @@ const { currentClient, setClient } = inject<currentClientType>(currentClientInje
 
 <template>
   <div class="client-name">
-    <span> Current client: </span>
-    <b-dropdown :text="currentClient.username" class="m-md-2">
+    <span class="pr-2"> Current client: </span>
+    <b-dropdown :text="currentClient.username" class="m-md-2 mr-2">
       <b-dropdown-item v-for="client in clients" :key="client.username" @click="setClient(client)">
         {{ client.username }}
       </b-dropdown-item>

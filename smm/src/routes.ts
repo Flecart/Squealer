@@ -2,6 +2,7 @@ import * as VueRouter from 'vue-router'
 import Dashboard from './components/Dashboard.vue'
 import BuyQuotaVue from './views/BuyQuotaView.vue'
 import GeolocalizationViewVue from './views/GeolocalizationView.vue'
+import GraphViewVue from './views/GraphView.vue'
 import PostMessageViewVue from '@/views/PostMessageView.vue'
 
 // @ts-ignore outside of root directory
@@ -15,6 +16,7 @@ export const buyQuotaBaseRoute = `${squealerBaseURL}/api/smm/buy-quota`
 export const postClientMessageRoute = `${squealerBaseURL}/api/smm/message`
 export const getClientMessageBaseRoute = `${squealerBaseURL}/api/message/user`
 export const getUserBaseRoute = `${squealerBaseURL}/api/user`
+export const getClienthistoryBaseRoute = `${squealerBaseURL}/api/smm/history`
 
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
 export const redirectToLogin = () => {
@@ -25,6 +27,7 @@ export const redirectToLogin = () => {
 export const dashboardName = 'dashboard'
 export const buyQuotaName = 'buy-quota'
 export const geolocalizationName = 'geolocalization'
+export const graphName = 'graph'
 export const sendMessageName = 'send-message'
 
 const routes = [
@@ -34,6 +37,11 @@ const routes = [
     path: `/${endpoints.SMM}/geolocalization`,
     name: geolocalizationName,
     component: GeolocalizationViewVue
+  },
+  {
+    path: `/${endpoints.SMM}/graph`,
+    name: graphName,
+    component: GraphViewVue
   },
   { path: `/${endpoints.SMM}/send-message`, name: sendMessageName, component: PostMessageViewVue }
 ]
