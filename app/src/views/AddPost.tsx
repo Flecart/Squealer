@@ -26,7 +26,6 @@ import { Lock as LockIcon } from 'react-bootstrap-icons';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
-
     const navigate = useNavigate();
     const { parent } = useParams();
 
@@ -235,7 +234,7 @@ export default function AddPost(): JSX.Element {
             } else if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
-            } else if (parent === undefined && channel === '') {
+            } else if (channel === '') {
                 setError(() => 'Destination not specified');
                 return;
             }
