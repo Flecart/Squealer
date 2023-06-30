@@ -14,8 +14,10 @@ import { type NotificationRensponse } from '@model/user';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
+export const authStorageKey = 'auth';
+
 function App(): JSX.Element {
-    const [authState, setAuthState] = usePersistState<AuthResponse | null>('auth', null);
+    const [authState, setAuthState] = usePersistState<AuthResponse | null>(authStorageKey, null);
     const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
 
     useEffect((): (() => void) => {
