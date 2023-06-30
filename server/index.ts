@@ -11,6 +11,7 @@ import initMongo from './mongo';
 import { HttpError } from '@model/error';
 import logger from './logger';
 import { errors as joseErrors } from 'jose';
+import collectEvents from './history';
 
 const indexLogger = logger.child({ label: 'index' });
 
@@ -38,40 +39,42 @@ function logMiddleware(req: ExRequest, _res: ExResponse, next: Function) {
     next();
 }
 
-initMongo().then(() => {
-    indexLogger.info('MongoDB and storage dir initialized');
+initMongo()
+    .then(collectEvents)
+    .then(() => {
+        indexLogger.info('MongoDB and storage dir initialized');
 
-    const server = express();
-    server.disable('x-powered-by');
+        const server = express();
+        server.disable('x-powered-by');
 
-    if (ENABLE_CROSS_ORIGIN) {
-        server.use(cors());
-    }
+        if (ENABLE_CROSS_ORIGIN) {
+            server.use(cors());
+        }
 
-    server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-    server.use(bodyParser.json({ limit: '50mb' }));
+        server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+        server.use(bodyParser.json({ limit: '50mb' }));
 
-    server.use('/api/', logMiddleware);
-    RegisterRoutes(server);
-    server.use('/api/', errorHandler);
+        server.use('/api/', logMiddleware);
+        RegisterRoutes(server);
+        server.use('/api/', errorHandler);
 
-    server.use(`/${endpoint.APIDOCS}`, swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
-        return res.send(swaggerUi.generateHTML(await import(`../${DEV_DIR}swagger.json`)));
+        server.use(`/${endpoint.APIDOCS}`, swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
+            return res.send(swaggerUi.generateHTML(await import(`../${DEV_DIR}swagger.json`)));
+        });
+
+        server.use(`/${endpoint.DASHBOARD}`, express.static(endpoint.DASHBOARD));
+
+        server.use(`/${endpoint.SMM}`, express.static(path.resolve(__dirname, '../', endpoint.SMM)));
+        server.all(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
+            res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'));
+        });
+
+        server.use(express.static(path.resolve(__dirname, `../${DEV_DIR}app`)));
+        server.all('*', (_req: ExRequest, res: ExResponse) => {
+            res.sendFile(path.resolve(__dirname, `../${DEV_DIR}app`, 'index.html'));
+        });
+
+        server.listen(PORT, () => {
+            indexLogger.info(`> Ready on http://localhost:${PORT}`);
+        });
     });
-
-    server.use(`/${endpoint.DASHBOARD}`, express.static(endpoint.DASHBOARD));
-
-    server.use(`/${endpoint.SMM}`, express.static(path.resolve(__dirname, '../', endpoint.SMM)));
-    server.all(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
-        res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'));
-    });
-
-    server.use(express.static(path.resolve(__dirname, `../${DEV_DIR}app`)));
-    server.all('*', (_req: ExRequest, res: ExResponse) => {
-        res.sendFile(path.resolve(__dirname, `../${DEV_DIR}app`, 'index.html'));
-    });
-
-    server.listen(PORT, () => {
-        indexLogger.info(`> Ready on http://localhost:${PORT}`);
-    });
-});

@@ -10,6 +10,6 @@ export const smmUserInject = Symbol('smmUser')
 
 export const currentClientInject = Symbol('client')
 export type currentClientType = {
-    currentClient: Ref<IUser>
-    setClient: (client: IUser) => void
+  currentClient: Ref<IUser>
+  setClient: (client: IUser) => void
 }

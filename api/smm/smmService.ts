@@ -6,6 +6,7 @@ import { HydratedDocument } from 'mongoose';
 import { MessageService } from '@api/messages/messageService';
 import { type IQuotas } from '@model/quota';
 import UserService from '@api/user/userService';
+import { HistoryService } from '@api/history/historyService';
 
 export class SmmService {
     public async getClients(smmUsername: string): Promise<IUser[]> {
@@ -52,11 +53,11 @@ export class SmmService {
 
     public async getClient(smmUsername: string, clientUsername: string): Promise<IUser> {
         if (!(await this._checkClient(clientUsername, smmUsername))) {
-            throw new HttpError(401, 'Client not found');
+            throw new HttpError(404, 'Client not found');
         }
         const client = await UserModel.findOne({ username: clientUsername });
         if (client === null) {
-            throw new HttpError(401, 'Client not found');
+            throw new HttpError(404, 'Client not found');
         }
         if (client.role !== UserRoles.VIP) {
             throw new HttpError(401, 'Client is not a VIP user');
@@ -70,9 +71,16 @@ export class SmmService {
         message: MessageCreation,
     ): Promise<MessageCreationRensponse> {
         if (!(await this._checkClient(clientUsername, _smmUsername))) {
-            throw new HttpError(401, 'Client not found');
+            throw new HttpError(404, 'Client not found');
         }
         return await new MessageService().create(message, clientUsername);
+    }
+
+    public async getClientHistory(smmUsername: string, clientUsername: string, from?: string, to?: string) {
+        if (!(await this._checkClient(clientUsername, smmUsername))) {
+            throw new HttpError(404, 'Client not found');
+        }
+        return new HistoryService().getHistory(clientUsername, from, to);
     }
 
     private async _checkClient(clientUsername: string, smmUsername: string): Promise<boolean> {

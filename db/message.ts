@@ -3,6 +3,7 @@ import { Img } from '@model/message';
 import { Maps } from '@model/message';
 import { IReaction } from '@model/message';
 import { IMessage } from '@model/message';
+import { HistoryUpdateType } from '@model/history';
 
 const IReactionSchema = new mongoose.Schema<IReaction>({
     id: { type: String, required: true },
@@ -30,6 +31,16 @@ export const MessageSchema = new mongoose.Schema<IMessage>({
     parent: { type: mongoose.Types.ObjectId, ref: MessageModelName },
     reaction: { type: [IReactionSchema], required: true },
     category: { type: Number, required: true },
+    historyUpdates: {
+        type: [Object],
+        required: true,
+        default: [
+            {
+                type: HistoryUpdateType.POST,
+                value: 1, // quando creo un nuovo messaggio, c'è sempre da gestire l'evento che è stato creato un nuovo post.
+            },
+        ],
+    },
 });
 
 export default mongoose.model<IMessage>(MessageModelName, MessageSchema);

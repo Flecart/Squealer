@@ -26,7 +26,7 @@ export function SideBar(): JSX.Element {
     }, [authState]);
 
     return (
-        <Navbar className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
+        <Navbar role="menubar" className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
             <SideButton to="/" name="Home" SideIcon={Icon.HouseFill} />
 
             {authState !== null ? (
