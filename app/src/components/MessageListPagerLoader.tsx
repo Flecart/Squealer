@@ -20,7 +20,7 @@ export default function MessageListPageLoader({ childrens }: PropsMessageIds): J
                     .map((arr, i) => {
                         return <MessageListLoader childrens={arr} key={i} />;
                     })}
-                {pageShow < chunks.length - 1 && (
+                {pageShow < chunks.length - 1 ? (
                     <Button
                         onClick={(): void => {
                             setPageShow(pageShow + 1);
@@ -28,6 +28,8 @@ export default function MessageListPageLoader({ childrens }: PropsMessageIds): J
                     >
                         Load more
                     </Button>
+                ) : (
+                    <>No more messages</>
                 )}
             </Stack>
         );
