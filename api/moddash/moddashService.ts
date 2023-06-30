@@ -7,8 +7,9 @@ import { HttpError } from '@model/error';
 import { UserModRensponse } from '@model/user';
 import { IQuotas } from '@model/quota';
 import { IMessage, IReactionType } from '@model/message';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { ADMIN_USER } from '@config/config';
+import { ChannelSortBy, ChannelType, IChannel, PermissionType } from '@model/channel';
 
 export interface FilterPosts {
     username?: string;
@@ -169,5 +170,36 @@ export class ModdashService {
         for (let child of messages) {
             await this._recursiveDeletion(child.toString());
         }
+    }
+    public async listChannels(userId: string, sortby: ChannelSortBy, name: string, limit: number): Promise<IChannel[]> {
+        this._checkModerator(userId);
+        const channels = await ChannelModel.find({
+            name: { $regex: name, $options: 'i' },
+            type: { $ne: ChannelType.USER },
+        }).limit(limit);
+        switch (sortby) {
+            case ChannelSortBy.POSTS:
+                channels.sort((a, b) => b.messages.length - a.messages.length);
+                break;
+            case ChannelSortBy.USER:
+                channels.sort((a, b) => b.users.length - a.users.length);
+                break;
+        }
+        return channels;
+    }
+
+    public async updateRole(userId: string, channelId: string, username: string, role: string): Promise<any> {
+        this._checkModerator(userId);
+        const channel = await ChannelModel.findOne({ _id: new mongoose.Types.ObjectId(channelId) });
+        if (!channel) throw new HttpError(404, 'Channel not found');
+        for (const user of channel.users) {
+            if (user.user === username) {
+                user.privilege = role as unknown as PermissionType;
+            }
+        }
+        channel.markModified('users');
+        await channel.save();
+
+        return;
     }
 }
