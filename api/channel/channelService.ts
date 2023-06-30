@@ -1,13 +1,29 @@
 import { HttpError } from '@model/error';
-import MessageModel from '@db/message';
-import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel } from '@model/channel';
-import { ICategory, type Invitation } from '@model/message';
+import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
 import ChannelModel from '@db/channel';
+import MessageModel from '@db/message';
+import InvitationModel from '@db/invitation';
 import UserModel from '@db/user';
 import { UserRoles } from '@model/user';
 import { HydratedDocument } from 'mongoose';
+import { type IInvitation } from '@model/invitation';
+import { IMessage, MessageSortTypes, messageSort } from '@model/message';
 
 export class ChannelService {
+    public async getChannels(channelIds: string[], user: string): Promise<IChannel[]> {
+        const channels = await ChannelModel.find({ _id: { $in: channelIds } });
+
+        return channels.filter((channel) => {
+            if (isPublicChannel(channel)) {
+                return true;
+            }
+            if (channel.type === ChannelType.PRIVATE && channel.users.find((u) => u.user === user) != null) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     public async list(user: string | null): Promise<IChannel[]> {
         let publicChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.SQUEALER }, { type: ChannelType.PUBLIC }],
@@ -53,12 +69,12 @@ export class ChannelService {
             throw new HttpError(400, `User with username ${owner} does not exist`);
         }
 
-        if (fromApi && !(type === ChannelType.PUBLIC || type === ChannelType.PRIVATE)) {
+        if (!fromApi && !(type === ChannelType.USER)) {
+            // TODO(gio): aggingere il check descritto nei commenti della PR #138
             throw new HttpError(400, `Channel type ${type} is not valid from api call`);
         }
-        console.log(channelName);
-        if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@'))) {
-            throw new HttpError(400, `Channel name ${channelName} is not valid name`);
+        if (fromApi && (channelName.startsWith('#') || channelName.startsWith('@') || channelName.startsWith('§'))) {
+            throw new HttpError(400, `Channel name ${channelName} is not valid name can't start with @ or # or §`);
         }
         if (ChannelType.SQUEALER == type && ownerUser.role !== UserRoles.MODERATOR) {
             throw new HttpError(400, `User ${owner} is not authorized to create a squealer channel`);
@@ -209,10 +225,10 @@ export class ChannelService {
         // si può mettere in un array a parte nello user
         const toAdd = await UserModel.findOne({ username: userToAdd });
         const issuer = await UserModel.findOne({ username: userIssuer });
-        if (toAdd == null) {
+        if (!toAdd) {
             throw new HttpError(400, `User with username ${userToAdd} not exist`);
         }
-        if (issuer == null) {
+        if (!issuer) {
             throw new HttpError(400, `User with username ${userIssuer} not exist`);
         }
 
@@ -228,57 +244,40 @@ export class ChannelService {
         if (channelObj.users.find((user) => user.user == userToAdd) !== undefined) {
             throw new HttpError(400, 'User already in the channel');
         }
-        const messages = await Promise.all(toAdd.messages.map((m) => MessageModel.findById(m.message)));
-        const pendingRequest =
-            messages.filter(
-                (m) =>
-                    m !== null && m.content.type === 'invitation' && (m.content.data as Invitation).channel === channel,
-            ).length > 0;
-        if (pendingRequest) {
+
+        const _invitation = await InvitationModel.findOne({ to: userToAdd, channel: channelObj.name });
+        if (_invitation !== null) {
             throw new HttpError(400, 'User already invited');
         }
-
-        const content: Invitation = {
+        const invitation = new InvitationModel({
             to: userToAdd,
-            channel,
-            permission,
-        };
-        const message = new MessageModel({
-            content: {
-                type: 'invitation',
-                data: content,
-            },
-            channel: null,
-            category: ICategory.NORMAL,
-            children: [],
-            creator: userIssuer,
-            date: new Date(),
-            parent: null,
-            reaction: [],
-            views: 0,
+            issuer: userIssuer,
+            channel: channelObj.name,
+            permission: permission,
         });
-        await message.save();
 
-        toAdd.messages.push({ message: message._id, viewed: false });
+        await invitation.save();
+        toAdd.invitations.push(invitation._id);
+        toAdd.markModified('invitations');
         await toAdd.save();
         return userToAdd;
     }
 
-    public async deleteInviteMessage(messageId: string): Promise<Invitation> {
-        const message = await MessageModel.findById(messageId);
-        if (message == null) {
-            throw new HttpError(400, 'message not found');
+    public async deleteInviteMessage(userId: string, messageId: string): Promise<IInvitation> {
+        const user = await UserModel.findOne({ username: userId });
+        if (user === null) {
+            throw new HttpError(400, `User with username ${userId} not exist`);
         }
-        const content = message.content.data as Invitation;
-        await message.deleteOne();
-        const user = await UserModel.findOne({ username: content.to });
-        if (user == null) {
-            throw new HttpError(400, 'user not found');
+        if (user.invitations.find((e) => e.toString() === messageId) == undefined) {
+            throw new HttpError(400, `Invite with id ${messageId} not exist`);
         }
-        user.messages = user.messages.filter((m) => m.message._id.toString() !== messageId);
-        user.markModified('messages');
+        const invitation = await InvitationModel.findByIdAndDelete(messageId);
+        if (invitation === null) {
+            throw new HttpError(400, `Message with id ${messageId} not exist`);
+        }
+        user.invitations = user.invitations.filter((e) => e.toString() !== messageId);
         await user.save();
-        return content;
+        return invitation;
     }
 
     public async setPermission(
@@ -308,5 +307,18 @@ export class ChannelService {
         channel.markModified('users');
         await channel.save();
         return newPermission;
+    }
+    public async getMessageIds(
+        channelName: string,
+        user: string | null,
+        sort: MessageSortTypes | undefined,
+    ): Promise<string[]> {
+        const temp = await this.getChannel(channelName, user);
+        let messages = await MessageModel.find({ _id: { $in: temp.messages } });
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            messages = messages.sort(customSort);
+        }
+        return messages.map((m) => m._id.toString());
     }
 }

@@ -1,5 +1,6 @@
 import ReactDOM from 'react-dom/client';
 import './scss/Global.scss';
+import './scss/App.scss';
 import { AuthContext, ThemeContext } from './contexts';
 import { RouterProvider } from 'react-router-dom';
 import React, { useCallback, useEffect } from 'react';
@@ -9,6 +10,7 @@ import { fetchApi } from './api/fetch';
 import { apiUserBase } from './api/routes';
 import { NotificationStore } from './notification';
 import router from './router';
+import { type NotificationRensponse } from '@model/user';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
@@ -19,7 +21,7 @@ function App(): JSX.Element {
     useEffect((): (() => void) => {
         if (authState !== null) {
             const getNotification = (): void => {
-                fetchApi<string[]>(
+                fetchApi<NotificationRensponse>(
                     `${apiUserBase}/notification`,
                     { method: 'GET' },
                     authState,

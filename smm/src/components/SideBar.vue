@@ -2,10 +2,15 @@
 import { ref, inject } from 'vue'
 import type { IUser } from '@model/user'
 import { smmUserInject } from '@/keys'
+import { useRoute } from 'vue-router'
+import { dashboardName, geolocalizationName, buyQuotaName } from '@/routes'
 
 const smmUser = inject<IUser>(smmUserInject)!
 
 const show = ref(true)
+
+const route = useRoute()
+console.log(route.name)
 </script>
 
 <template>
@@ -44,15 +49,27 @@ const show = ref(true)
     </b-navbar>
     <nav>
       <b-list-group class="pt-3 px-1">
-        <b-list-group-item href="/smm" class="list-nav-item" active>
+        <b-list-group-item
+          :to="{ name: dashboardName }"
+          class="list-nav-item"
+          :active="$route.name === dashboardName"
+        >
           <b-icon-speedometer2 aria-hidden="true"></b-icon-speedometer2>
           Dashboard
         </b-list-group-item>
-        <b-list-group-item to="/smm/buy-quota" class="list-nav-item">
+        <b-list-group-item
+          :to="{ name: buyQuotaName }"
+          class="list-nav-item"
+          :active="$route.name === buyQuotaName"
+        >
           <b-icon-bag aria-hidden="true"></b-icon-bag>
           Buy quotas
         </b-list-group-item>
-        <b-list-group-item href="#" class="list-nav-item">
+        <b-list-group-item
+          :to="{ name: geolocalizationName }"
+          class="list-nav-item"
+          :active="$route.name === geolocalizationName"
+        >
           <b-icon-geo-alt aria-hidden="true"></b-icon-geo-alt>
           Activate geolocation</b-list-group-item
         >

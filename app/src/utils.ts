@@ -79,3 +79,21 @@ export function toEnglishString(n: number): string {
     const result = translate(n);
     return prefix + result.trim();
 }
+
+export function splitArrayInChunks<T>(array: T[], splitSize: number): T[][] {
+    const numberPage = Math.trunc(array.length / splitSize) + (array.length % splitSize > 0 ? 1 : 0);
+
+    const slicedArray: T[][] = [];
+
+    for (let i = 0; i < numberPage; i++) {
+        slicedArray.push(array.slice(i * splitSize, (i + 1) * splitSize));
+    }
+    return slicedArray;
+}
+
+export function getUsernameFromUserChannel(channelname: string, myname: string): string {
+    const channel = channelname.substring(1);
+    const name = channel.split('-');
+    if (name[0] === myname) return name[1] as string;
+    else return name[0] as string;
+}

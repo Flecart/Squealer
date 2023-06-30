@@ -20,7 +20,7 @@
     "lint": "eslint --ext .ts,.tsx .",
     "prettier": "prettier --write .",
     "init": "yarn install && yarn workspace app install && yarn workspace moddash install && mkdir build",
-    "scripts:populate": "ts-node -T deploy/scripts/scripts.ts",
+    "scripts:populate": "ts-node -r tsconfig-paths/register -T deploy/scripts/scripts.ts",
     "test:api": "jest api --detectOpenHandles"
   },
   "dependencies": {
@@ -36,6 +36,7 @@
     "swagger-ui-express": "^4.6.2",
     "tsoa": "^5.1.1",
     "typescript": "^5.0.4",
+    "uuid": "^9.0.0",
     "winston": "^3.9.0"
   },
   "devDependencies": {

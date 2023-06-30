@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { AuthContext } from '../contexts';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type AuthResponse } from '@model/auth';
 import { apiCreate as createEndpoint } from 'src/api/routes';
@@ -34,6 +34,11 @@ export default function Register(): JSX.Element {
 
             if (!pendingRequest) {
                 setPendingRequest(true);
+                if (formName === '' || formPassword === '') {
+                    setErrorMessage('You must fill the form to complete the Registration!');
+                    setPendingRequest(false);
+                    return;
+                }
                 fetchApi<AuthResponse>(
                     createEndpoint,
                     {
@@ -59,53 +64,55 @@ export default function Register(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <Container className="d-flex flex-column align-items-center">
-                <h1 className="m-0 text-center">Benvenuto su Squealer!</h1>
-                <img src={LogoLight} width={100} height={100} className="d-inline-block" alt="Logo Squealer" />
+            <Container className="container-form-bs">
+                <h1 className="title-form-bs">Welcome to Squealer!</h1>
+                <img src={LogoLight} width={70} height={70} className="image-form-bs" alt="Squealer Logo" />
 
-                <Form className="container-fluid m-0 p-3 border rounded-3" onSubmit={handleCreateUser}>
-                    <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Username</Form.Label>
+                <Form className="form-form-bs" onSubmit={handleCreateUser}>
+                    <h5 className="subtitle-form-bs">Fill the form to Register as new user!</h5>
+                    <FormGroup className="input-form-bs" controlId="UsernameField">
+                        <Form.Label>Username</Form.Label>
                         <Form.Control
                             type="text"
                             value={formName}
                             onChange={(e) => {
                                 setFormName(e.target.value);
                             }}
-                            placeholder="Inserisci il tuo username"
+                            placeholder="Insert your username"
                         />
                     </FormGroup>
-                    <FormGroup className="mb-3">
-                        <Form.Label className="text-light">Password</Form.Label>
+                    <FormGroup className="input-form-bs" controlId="PasswordField">
+                        <Form.Label>Password</Form.Label>
                         <Form.Control
                             type="password"
                             value={formPassword}
                             onChange={(e) => {
                                 setFormPassword(e.target.value);
                             }}
-                            placeholder="Inserisci la tua password"
+                            placeholder="Insert your password"
                         />
                     </FormGroup>
+                    <Button className="button-form-bs" variant="outline-success" type="submit">
+                        Registrati
+                    </Button>
 
-                    <Container className="d-flex justify-content-center mt-1">
-                        <Button className="col-6 me-1" variant="outline-success" type="submit">
-                            Registrati
-                        </Button>
-                        {errorMessage !== null && (
-                            <>
-                                <br />
-                                <p className="text-danger">{errorMessage}</p>
-                            </>
-                        )}
-                        {pendingRequest && (
-                            <>
-                                <br />
-                                <Spinner animation="border" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                            </>
-                        )}
-                    </Container>
+                    <small className="text-center mt-2">
+                        <Link to="/login" className="links-form-bs">
+                            Do you already have an accont? <br />
+                            Login here!
+                        </Link>
+                    </small>
+
+                    {errorMessage !== null && (
+                        <Alert className="alert-form-bs" variant="danger">
+                            {errorMessage}
+                        </Alert>
+                    )}
+                    {pendingRequest && (
+                        <Spinner className="spinner-form-bs" animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    )}
                 </Form>
             </Container>
         </SidebarSearchLayout>

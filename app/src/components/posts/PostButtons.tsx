@@ -89,7 +89,7 @@ export default function PostButtons({ messageId, reactions }: PostButtonProps): 
         const numbers: { [key: number]: number } = {};
         reactionsAndButtons.forEach((reactionButton) => {
             numbers[reactionButton.type] =
-                reactions.filter((m) => m.type === reactionButton.type).length +
+                reactions.filter((m) => m.type === reactionButton.type && m.id !== authState?.username).length +
                 (currReaction === reactionButton.type ? 1 : 0);
         });
         return numbers;
@@ -137,7 +137,7 @@ export default function PostButtons({ messageId, reactions }: PostButtonProps): 
             {reactionsAndButtons.map((currentReaction: IReactionButton) => {
                 return (
                     <Button
-                        key={currentReaction.type}
+                        key={currentReaction.type.toString()}
                         disabled={!active}
                         onClick={() => {
                             handleReaction(

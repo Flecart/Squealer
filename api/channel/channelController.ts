@@ -1,13 +1,25 @@
-import { Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@tsoa/runtime';
+import { Query, Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@tsoa/runtime';
 import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
 import { getMaybeUserFromRequest, getUserFromRequest } from '@api/utils';
 import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse, PermissionType } from '@model/channel';
 import { type ISuccessMessage } from '@model/user';
+import logger from '@server/logger';
+import { MessageSortTypes } from '@model/message';
+
+const channelLogger = logger.child({ label: 'channel' });
 
 @Route('/channel/')
 export class ChannelController extends Controller {
+    @Get('channels')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200)
+    public async getChannels(@Request() request: any, @Query('channels') channels: string[]): Promise<IChannel[]> {
+        return new ChannelService().getChannels(channels, getUserFromRequest(request));
+    }
+
     @Get()
     @Response<HttpError>(400, 'Bad Request')
     @Security('maybeJWT')
@@ -21,7 +33,7 @@ export class ChannelController extends Controller {
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(201, 'Channel created')
     public async create(@Body() channelInfo: ChannelInfo, @Request() request: any): Promise<ChannelResponse> {
-        console.info('ChannelController.create: ', channelInfo, getUserFromRequest(request));
+        channelLogger.info(`User ${getUserFromRequest(request)} create channel ${channelInfo.channelName}`);
         return {
             message: 'Channel created',
             channel: (
@@ -60,6 +72,18 @@ export class ChannelController extends Controller {
         return new ChannelService().getChannel(channelName, getMaybeUserFromRequest(request));
     }
 
+    @Get('{channelName}/messagesId')
+    @Security('maybeJWT')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200)
+    public async getMessageIds(
+        @Path('channelName') channelName: string,
+        @Request() request: any,
+        @Query('sort') sort?: MessageSortTypes,
+    ): Promise<string[]> {
+        return new ChannelService().getMessageIds(channelName, getMaybeUserFromRequest(request), sort);
+    }
+
     @Post('{channelName}/join')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
@@ -68,6 +92,7 @@ export class ChannelController extends Controller {
         @Path('channelName') channelName: string,
         @Request() request: any,
     ): Promise<ChannelResponse> {
+        channelLogger.info(`User ${getUserFromRequest(request)} joining channel ${channelName}`);
         return new ChannelService().joinChannel(
             channelName,
             getUserFromRequest(request),
@@ -75,22 +100,24 @@ export class ChannelController extends Controller {
             true,
         );
     }
+
     @Post('decline')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel declined')
-    public async decline(@Body() body: { messageID: string }): Promise<ISuccessMessage> {
-        await new ChannelService().deleteInviteMessage(body.messageID);
+    public async decline(@Request() request: any, @Body() body: { messageID: string }): Promise<ISuccessMessage> {
+        channelLogger.info(`User ${getUserFromRequest(request)} declining invite ${body.messageID}`);
+        await new ChannelService().deleteInviteMessage(getUserFromRequest(request), body.messageID);
         return { message: 'declined' };
     }
+
     @Post('accept')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel joined')
     public async acceptInvite(@Body() body: { messageID: string }, @Request() request: any): Promise<ChannelResponse> {
-        const content = await new ChannelService().deleteInviteMessage(body.messageID);
-        if (content.to !== getUserFromRequest(request))
-            throw new HttpError(403, 'You are not allowed to join this channel');
+        channelLogger.info(`User ${getUserFromRequest(request)} accepting invite ${body.messageID}`);
+        const content = await new ChannelService().deleteInviteMessage(getUserFromRequest(request), body.messageID);
         return new ChannelService().joinChannel(content.channel, content.to, content.permission, false);
     }
 
@@ -137,6 +164,11 @@ export class ChannelController extends Controller {
         @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
     ): Promise<PermissionType> {
+        channelLogger.info(
+            `User ${getUserFromRequest(request)} changing permission for ${body.toUser} to ${
+                body.permission
+            } in channel ${channelName}`,
+        );
         return await new ChannelService().setPermission(
             getUserFromRequest(request),
             channelName,
@@ -154,6 +186,7 @@ export class ChannelController extends Controller {
         @Body() body: { toUser: string; permission: PermissionType },
         @Request() request: any,
     ): Promise<ISuccessMessage> {
+        channelLogger.info(`User ${getUserFromRequest(request)} adding owner ${body.toUser} to channel ${channelName}`);
         return {
             message: await new ChannelService().addMember(
                 channelName,

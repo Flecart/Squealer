@@ -1,0 +1,61 @@
+@import 'Global.scss';
+@import 'Components.scss';
+
+.form-form-bs {
+    @extend .d-flex;
+    @extend .flex-column;
+    @extend .align-items-stretch;
+    @extend .container-fluid;
+    @extend .m-0;
+    @extend .p-3;
+    @extend .border;
+    @extend .rounded-3;
+}
+
+.input-form-bs {
+    @extend .mb-1;
+}
+
+.button-form-bs {
+    @extend .col-6;
+    @extend .align-self-center;
+    @extend .mt-1;
+}
+
+.button-setting-bs {
+    @extend .button-form-bs;
+    @extend .w-auto;
+}
+
+.container-form-bs {
+    @extend .d-flex;
+    @extend .flex-column;
+    @extend .align-items-center;
+}
+
+.title-form-bs {
+    @extend .m-0;
+    @extend .text-center;
+}
+
+.subtitle-form-bs {
+    @extend .text-center;
+}
+
+.image-form-bs {
+    @extend .d-inline-block;
+}
+
+.alert-form-bs {
+    @extend .m-3;
+    @extend .mb-1;
+}
+
+.spinner-form-bs {
+    @extend .m-1;
+    @extend .align-self-center;
+}
+
+.links-form-bs {
+    @extend .link-info;
+}

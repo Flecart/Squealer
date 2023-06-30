@@ -7,6 +7,9 @@ import {
     Maps,
     MapPosition,
     type ReactionResponse,
+    messageSort,
+    type MessageSortTypes,
+    IMessageWithPages,
 } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
@@ -28,14 +31,47 @@ type UserModelType = mongoose.HydratedDocument<IUser>;
 const messageServiceLog = logger.child({ label: 'messageService' });
 
 export class MessageService {
-    public async getOwnedMessages(username: string): Promise<IMessage[]> {
-        const messages = (await MessageModel.find({ creator: username })).map(async (message) => {
-            if (message.channel === null) return null;
-            const channel = await ChannelModel.findOne({ name: message.channel });
-            if (channel !== null && isPublicChannel(channel)) return message;
-            return null;
-        });
-        return (await Promise.all(messages)).filter((a) => a !== null) as IMessage[];
+    public async getUserMessagesId(username: string, sort?: MessageSortTypes): Promise<string[]> {
+        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
+            async (message) => {
+                const channel = await ChannelModel.findOne({ name: message.channel });
+                if (channel !== null && isPublicChannel(channel)) return true;
+                else return false;
+            },
+        );
+
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            messages = messages.sort(customSort);
+        }
+
+        return messages.map((message) => message._id.toString());
+    }
+
+    public async getOwnedMessages(
+        username: string,
+        page: number,
+        limit: number,
+        sort?: MessageSortTypes,
+    ): Promise<IMessageWithPages> {
+        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
+            async (message) => {
+                const channel = await ChannelModel.findOne({ name: message.channel });
+                if (channel !== null && isPublicChannel(channel)) return true;
+                else return false;
+            },
+        );
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            messages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
+        } else {
+            messages = messages.slice(page * limit, (page + 1) * limit);
+        }
+
+        return {
+            messages: messages,
+            pages: Math.ceil(messages.length / limit),
+        } as IMessageWithPages;
     }
 
     public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {
@@ -277,6 +313,20 @@ export class MessageService {
             creator.usedQuota.day += lenChar;
             creator.usedQuota.week += lenChar;
             creator.usedQuota.month += lenChar;
+
+            if (creator.usedQuota.day > creator.maxQuota.day) {
+                creator.debtQuota += creator.usedQuota.day - creator.maxQuota.day;
+                creator.usedQuota.day = creator.maxQuota.day;
+            }
+            if (creator.usedQuota.week > creator.maxQuota.week) {
+                creator.debtQuota += creator.usedQuota.week - creator.maxQuota.week;
+                creator.usedQuota.week = creator.maxQuota.week;
+            }
+            if (creator.usedQuota.month > creator.maxQuota.month) {
+                creator.debtQuota += creator.usedQuota.month - creator.maxQuota.month;
+                creator.usedQuota.month = creator.maxQuota.month;
+            }
+
             creator.markModified('usedQuota');
             await creator.save();
             messageServiceLog.info(`Daily quota updated to ${creator.usedQuota.day}`);

@@ -1,9 +1,12 @@
 import {
+    DefaultPageSize,
     IMessage,
     IReactionType,
     MapPosition,
+    MessageSortTypes,
     type MessageCreationRensponse,
     type ReactionResponse,
+    IMessageWithPages,
 } from '@model/message';
 import {
     Get,
@@ -21,10 +24,13 @@ import {
 import { MessageService } from './messageService';
 import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
 import { HttpError } from '@model/error';
+import logger from '@server/logger';
 /*
     MessageCreation is a type that is used to create a message.
     it has three fields: destination, creator and content.
 */
+
+const log = logger.child({ label: 'messageController' });
 
 @Route('/message')
 export class MessageController {
@@ -60,8 +66,27 @@ export class MessageController {
 
     @Get('/user/{username}')
     @Response<IMessage[]>(200, 'OK')
-    public async userMessage(@Path('username') user: string): Promise<IMessage[]> {
-        return new MessageService().getOwnedMessages(user);
+    public async userMessage(
+        @Path('username') user: string,
+        @Query('page') page: number,
+        @Query('limit') limit?: number,
+        @Query('sort') sort?: MessageSortTypes,
+    ): Promise<IMessageWithPages> {
+        log.info(`userMessage: user: ${user}, page: ${page}, limit: ${limit}, sort: ${sort}`);
+        if (!limit) {
+            limit = DefaultPageSize;
+        }
+        return new MessageService().getOwnedMessages(user, page, limit, sort);
+    }
+
+    @Get('/user/{username}/messageIds')
+    @Response<IMessage[]>(200, 'OK')
+    public async getMessageIds(
+        @Path('username') user: string,
+        @Query('sort') sort?: MessageSortTypes,
+    ): Promise<string[]> {
+        log.info(`userMessage: user: ${user},  sort: ${sort}`);
+        return new MessageService().getUserMessagesId(user, sort);
     }
 
     @Get('/{id}/')

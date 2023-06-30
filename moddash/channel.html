@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="Website for Squealer Moderators" />
+        <link rel="apple-touch-icon" href="/logo192.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+            integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"
+        ></script>
+
+        <link href="/moddash/sidebar.css" rel="stylesheet" />
+
+        <script src="/moddash/sidebar.js" defer></script>
+        <script src="/moddash/channels.js" defer></script>
+        <title>Moderator Dashboard</title>
+    </head>
+
+    <body>
+        <!-- Channel component -->
+        <script id="channel-component-template" type="text/x-handlebars-template">
+            {{#if first}}
+                <div class="alert alert-info">
+                    Fai una richieta per listare i canali
+                </div>
+            {{/if}}
+            {{#if loading}}
+            <div class="d-flex justify-content-center mt-6">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            {{/if}}
+            {{#if error}}
+                <div class="alert alert-danger" role="alert">
+                    {{error}}
+                </div>
+            {{/if}}
+
+            {{#if channels}}
+                <div class="container" style="display:flex;flex-wrap:wrap; gap:1rem;align-content:center;">
+                    {{#each channels}}
+                        {{> channel-card}}
+                    {{/each}}
+                </div>
+            {{/if}}
+        </script>
+
+        <!-- Channel card -->
+        <script id="channel-card-template" type="text/x-handlebars-template">
+            <div class='card text-center'>
+                <div class='card-body'>
+                    <strong>{{name}}</strong>
+                    <div>
+
+                    <span class='badge bg-info'>{{type}}</span>
+                    </div>
+                    <div>
+
+                    Users:
+                    {{users.length}}
+                    </div>
+                    <div>
+                    Message:
+                    {{messages.length}}
+                    </div>
+                    <div>
+
+                    <button
+                        type='button'
+                        class='btn btn-primary'
+                        data-bs-toggle='modal'
+                        data-bs-target='#modal-{{_id}}'
+                    >
+                        Show More
+                    </button>
+                    </div>
+                </div>
+
+                <div
+                    class='modal fade'
+                    id='modal-{{_id}}'
+                    tabindex='-1'
+                    aria-labelledby='modal information about {{name}}'
+                    aria-hidden='true'
+                >
+                    <div class='modal-dialog'>
+                        <div class='modal-content'>
+                            <div class='modal-header'>
+                                <strong>{{name}}</strong>
+                                <button
+                                    type='button'
+                                    class='btn-close'
+                                    data-bs-dismiss='modal'
+                                    aria-label='Close'
+                                ></button>
+                            </div>
+                            <div class='modal-content'>
+                                <div class='container-fluid text-center'>
+                                    {{#if description}}
+                                        <strong>description</strong>
+                                        <p>{{description}}</p>
+                                    {{/if}}
+                                    {{#if users}}
+                                        <strong>Users</strong>
+
+                                        <ul class='list-group list-group-flush'>
+                                            {{#each users}}
+                                                <li class='list-group-item d-flex justify-content-between'>
+                                                    {{this.user}}
+                                                    <div class='d-flex align-items-center'>
+                                                        <span class='badge bg-info'>{{this.privilege}}</span>
+                                                        <select
+                                                            id='privilege-{{../_id}}-{{this.user}}'
+                                                            class='form-select form-select-sm'
+                                                            aria-label='select privilege'
+                                                        >
+                                                            <option value='read'>Read</option>
+                                                            <option value='write'>Write</option>
+                                                            <option value='readwrite'>Read and Write</option>
+                                                            <option value='owner'>Owner</option>
+                                                        </select>
+                                                        <button
+                                                            class='btn btn-primary'
+                                                            onclick='updateRole("{{../_id}}","{{this.user}}")'
+                                                        >Update</button>
+                                                    </div>
+                                                </li>
+
+                                            {{/each}}
+                                        </ul>
+                                    {{/if}}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </script>
+
+        <!-- sidebar user conponent -->
+        <script id="user-sidebar-template" type="text/x-handlebars-template">
+            <div class='pb-3'>
+                <hr />
+                <div class='dropdown px-3'>
+                    <a
+                        href='/'
+                        class='d-flex align-items-center link-dark text-decoration-none dropdown-toggle'
+                        id='dropdownUser2'
+                        data-bs-toggle='dropdown'
+                        aria-expanded='false'
+                    >
+                        <img src='{{img}}' alt='' width='32' height='32' class='rounded-circle me-2' />
+                        <strong>{{name}}</strong>
+                    </a>
+                    <ul class='dropdown-menu text-small shadow' aria-labelledby='User Action'>
+                        <li><a class='dropdown-item' href='/user/{{name}}'> Me</a></li>
+                        <li><a class='dropdown-item' href='/logout'> Logout</a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </script>
+
+        <!-- sidebar component -->
+        <header class="navbar sticky-top bg-light flex-md-nowrap d-md-none d-flex justify-content-between p-0 shadow">
+            <a href="/" class="navbar-brand align-items-center d-flex ms-3 link-dark text-decoration-none">
+                <img src="logo192.png" class="bi me-2" width="40" height="32" />
+                <span class="fs-4 navbar-brand" title="Moderator Dashboard">Moderator Dashboard</span>
+            </a>
+            <!-- TODO: quando ho lo schermo largo dovrei mettere i tags corretti per accessibilità, credo aria hidden -->
+            <button
+                class="navbar-toggler navbar-dark collapsed bg-dark me-1 my-2 d-md-none"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#sidebarMenu"
+                aria-controls="sidebarMenu"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </header>
+
+        <div class="container-fluid">
+            <div class="row">
+                <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse pt-md-0 pt-5">
+                    <div class="position-sticky d-flex flex-column justify-content-between h-md-100">
+                        <div class="pt-3">
+                            <a href="/" class="align-items-center d-md-flex d-none mb-3 link-dark text-decoration-none">
+                                <img src="logo192.png" class="bi me-2" width="40" height="32" />
+                                <span class="fs-4 p-3" title="Moderator Dashboard">Moderator Dashboard</span>
+                            </a>
+                            <hr class="d-none d-md-block" />
+                            <ul class="nav flex-column mb-auto">
+                                <li>
+                                    <a href="post.html" class="nav-link active" aria-current="Manage Posts">
+                                        Manage Posts
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="index.html" class="nav-link active" aria-current="Manage User">
+                                        Manage Users
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="channel.html" class="nav-link active" aria-current="Manage Channels">
+                                        Manage Channels
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="user-sidebar"></div>
+                    </div>
+                </nav>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <form class="mt-1">
+                        <label class="form-label" for="channel"> Cerca nome canale: </label>
+                        <input type="text" id="search-channel" name="channel" class="form-control" />
+                        <label class="form-label" for="sortby-channel"> Ordina per: </label>
+                        <select class="form-select" id="sortby-channel">
+                            <option value="nuser">Utenti</option>
+                            <option value="npost">Numero di Post</option>
+                        </select>
+                        <label class="form-label" for="limit-channel"> Limite: </label>
+                        <input
+                            type="number"
+                            id="limit-channel"
+                            name="nchannel"
+                            class="form-control"
+                            value="10"
+                            min="1"
+                            max="300"
+                        />
+                        <button type="button" class="btn btn-primary" id="filter-channel">Filtra</button>
+                    </form>
+                    <div id="main-content" class="mt-2"></div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>
