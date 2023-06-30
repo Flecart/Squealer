@@ -415,8 +415,8 @@ export default function AddPost(): JSX.Element {
                         disabled={!permissions}
                         className="d-flex align-items-center me-2"
                     >
-                        <span className="d-flex align-items-center" hidden={permissions}>
-                            <LockIcon aria-hidden="true" size={19.2} className="me-1" />
+                        <span className="d-flex align-items-center">
+                            <LockIcon hidden={permissions} aria-hidden="true" size={19.2} className="me-1" />
                         </span>
                         Purchase Quota
                     </Button>
@@ -496,7 +496,7 @@ export default function AddPost(): JSX.Element {
                         label="Temporize Message"
                         name="temporize message"
                         checked={showTemporize}
-                        onClick={() => {
+                        onChange={() => {
                             setShowTemporize(!showTemporize);
                         }}
                     />

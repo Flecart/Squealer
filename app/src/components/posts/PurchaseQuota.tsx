@@ -83,9 +83,11 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                     </>
                 ) : (
                     <>
-                        <Form className="m-0 me-4 py-3 px-3 border" onSubmit={handlePurchaseQuota}>
-                            <FormGroup className="mb-3">
-                                <Form.Label>Daily Quota</Form.Label>
+                        <Form className="m-0 p-3 border rounded-3" onSubmit={handlePurchaseQuota}>
+                            <FormGroup className="group-add-post">
+                                <Form.Label className="label-add-post col-6 d-flex flex-row justify-content-center">
+                                    Daily Quota
+                                </Form.Label>
                                 <Form.Control
                                     type="number"
                                     value={dailyQuota}
@@ -96,8 +98,10 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                                     placeholder="0"
                                 />
                             </FormGroup>
-                            <FormGroup className="mb-3">
-                                <Form.Label>Weekly Quota</Form.Label>
+                            <FormGroup className="group-add-post">
+                                <Form.Label className="label-add-post col-6 d-flex flex-row justify-content-center">
+                                    Weekly Quota
+                                </Form.Label>
                                 <Form.Control
                                     type="number"
                                     value={weeklyQuota}
@@ -108,8 +112,10 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                                     placeholder="0"
                                 />
                             </FormGroup>
-                            <FormGroup className="mb-3">
-                                <Form.Label>Monthly Quota</Form.Label>
+                            <FormGroup className="group-add-post">
+                                <Form.Label className="label-add-post col-6 d-flex flex-row justify-content-center">
+                                    Monthly Quota
+                                </Form.Label>
                                 <Form.Control
                                     type="number"
                                     value={monthlyQuota}
@@ -120,9 +126,12 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                                     placeholder="0"
                                 />
                             </FormGroup>
-                            <p> Total Price: {price} &euro; </p>
+                            <p className="col-6 w-100 d-flex flex-row justify-content-center">
+                                {' '}
+                                Total Price: {price} &euro;{' '}
+                            </p>
                             <Container className="d-flex justify-content-center">
-                                <Button className="col-6 me-1" variant="warning" type="submit">
+                                <Button className="col-6" variant="warning" type="submit">
                                     Purchase
                                 </Button>
                             </Container>
