@@ -129,11 +129,12 @@ const suggestionShowed = computed(() => {
   return channelInput.value.length > 0
 })
 
+const choosedChannels = ref<string[]>([])
 const suggestions = ref<string[]>(['prova1', 'prova2'])
 const activeSuggestionIdx = ref<number>(0)
 
 const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
+  if (e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     e.preventDefault() // prevent form submission
   }
 
@@ -148,7 +149,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
         activeSuggestionIdx.value + 1
       )
     } else if (e.key === 'Enter') {
-      channelInput.value = suggestions.value[activeSuggestionIdx.value]
+      chooseSuggestion(activeSuggestionIdx.value)
     }
     if (e.key === 'Enter' && e.ctrlKey) {
       handleSubmit()
@@ -157,16 +158,25 @@ const handleKeyDown = (e: KeyboardEvent) => {
 }
 
 const chooseSuggestion = (suggestionIdx: number) => {
-  channelInput.value = suggestions.value[suggestionIdx] as string
   activeSuggestionIdx.value = suggestionIdx
+  if (!choosedChannels.value.includes(suggestions.value[suggestionIdx])) {
+    choosedChannels.value.push(suggestions.value[suggestionIdx])
+  }
+  channelInput.value = ''
+}
+
+const removeSuggestion = (index: number) => {
+  choosedChannels.value.splice(index, 1)
 }
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeyDown)
+  document.getElementById('inline-form-input-channel')!.addEventListener('keydown', handleKeyDown)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleKeyDown)
+  document
+    .getElementById('inline-form-input-channel')!
+    .removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
@@ -185,6 +195,7 @@ onBeforeUnmount(() => {
       <label class="sr-only" for="inline-form-input-channel">Channel</label>
       <b-input-group prepend="Channel" class="mb-2 mt-2 mr-sm-2 mb-sm-0">
         <b-form-input
+          autocomplete="off"
           v-model="channelInput"
           id="inline-form-input-channel"
           placeholder="Enter Channel name"
@@ -193,6 +204,7 @@ onBeforeUnmount(() => {
       <b-list-group v-if="suggestionShowed" class="position-absolute" role="listbox">
         <template v-for="(suggestion, i) in suggestions" :key="suggestion">
           <b-list-group-item
+            class="suggestion-item"
             @click="chooseSuggestion(i)"
             role="option"
             :active="i === activeSuggestionIdx"
@@ -201,6 +213,21 @@ onBeforeUnmount(() => {
           </b-list-group-item>
         </template>
       </b-list-group>
+      <div class="channels">
+        <template v-for="(channel, i) in choosedChannels" :key="channel">
+          <b-badge variant="primary" class="mx-2"
+            >{{ channel }}
+            <b-icon-x
+              tabindex="0"
+              role="button"
+              :aria-label="'remove channel ' + channel"
+              @keydown.enter="removeSuggestion(i)"
+              @click="removeSuggestion(i)"
+            >
+            </b-icon-x>
+          </b-badge>
+        </template>
+      </div>
     </div>
 
     <template v-if="choosenFile">
@@ -292,6 +319,14 @@ onBeforeUnmount(() => {
   top: 0;
   right: 0;
   z-index: 1;
+}
+
+.suggestion-item {
+  &:hover {
+    cursor: pointer;
+    color: white;
+    background-color: var(--primary);
+  }
 }
 
 @media screen and (min-width: map-get($grid-breakpoints, md)) {
