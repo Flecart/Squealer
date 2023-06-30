@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../contexts';
 import { fetchApi } from '../api/fetch';
-import { apiChannelBase } from 'src/api/routes';
+import { apiChannelAccept, apiChannelDecline } from 'src/api/routes';
 import { type ChannelResponse } from '@model/channel';
 import { type ISuccessMessage } from '@model/user';
 import { type IInvitationRensponse } from '@model/invitation';
@@ -22,7 +22,7 @@ function InviteMessage({ invitation }: PostProps): JSX.Element {
 
     const accept = (): void => {
         fetchApi<ChannelResponse>(
-            `${apiChannelBase}/accept`,
+            apiChannelAccept,
             {
                 method: 'POST',
                 body: JSON.stringify({
@@ -39,7 +39,7 @@ function InviteMessage({ invitation }: PostProps): JSX.Element {
     };
     const decline = (): void => {
         fetchApi<ISuccessMessage>(
-            `${apiChannelBase}/decline`,
+            apiChannelDecline,
             {
                 method: 'POST',
                 body: JSON.stringify({

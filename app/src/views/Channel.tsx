@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type ChannelResponse, ChannelType, type IChannel } from '@model/channel';
-import { apiChannelBase } from 'src/api/routes';
+import { apiChannelBase, apiChannelGet, apiChannelJoin, apiChannelLeave, apiChannelNotify } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { Alert, Container, Row, Spinner, Stack, Tab, Tabs } from 'react-bootstrap';
 import { AuthContext } from 'src/contexts';
@@ -10,7 +10,7 @@ import ChannelMembers from 'src/components/ChannelMembers';
 import * as Icon from 'react-bootstrap-icons';
 import { type AuthResponse } from '@model/auth';
 import MessageSortComponent from 'src/components/MessageSortComponent';
-import { getUsernameFromUserChannel } from '../utils';
+import { getUsernameFromUserChannel, stringFormat } from '../utils';
 import MessageListPageLoader from 'src/components/MessageListPagerLoader';
 
 interface HeaderChannelProps {
@@ -36,7 +36,7 @@ export default function Channel(): JSX.Element {
         if (channelId === undefined) navigate('/404');
         else
             fetchApi<IChannel>(
-                `${apiChannelBase}/${channelId.replace('#', '%23')}`,
+                stringFormat(apiChannelGet, [channelId.replace('#', '%23')]),
                 { method: 'GET' },
                 auth,
                 (channel) => {
@@ -139,7 +139,7 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
     const toggleNotification = (): void => {
         const newStatus = !notification;
         fetchApi<ChannelResponse>(
-            `${apiChannelBase}/${channel.name}/notify`,
+            stringFormat(apiChannelNotify, [channel.name]),
             {
                 method: 'POST',
                 body: JSON.stringify({
@@ -155,7 +155,7 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
     };
     const toggleJoin = (): void => {
         fetchApi<ChannelResponse>(
-            `${apiChannelBase}/${channel.name}/${!join ? 'join' : 'leave'}`,
+            stringFormat(!join ? apiChannelJoin : apiChannelLeave, [channel.name]),
             {
                 method: 'POST',
             },

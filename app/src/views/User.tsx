@@ -5,9 +5,10 @@ import { type HttpError } from '@model/error';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
-import { apiMessageBase, apiUserBase } from 'src/api/routes';
+import { apiMessageBase, apiUser } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import MessageSortComponent from 'src/components/MessageSortComponent';
+import { stringFormat } from 'src/utils';
 
 function User(): JSX.Element {
     const { username } = useParams();
@@ -22,7 +23,7 @@ function User(): JSX.Element {
     useEffect(() => {
         if (username === undefined) return;
         fetchApi<IUser>(
-            `${apiUserBase}/${username}`,
+            stringFormat(apiUser, [username]),
             { method: 'GET' },
             null,
             (user) => {

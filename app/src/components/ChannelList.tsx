@@ -4,9 +4,9 @@ import { useContext, useEffect, useReducer } from 'react';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
-import { apiChannelBase, apiUserBase } from 'src/api/routes';
+import { apiChannels, apiUser } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
-import { getUsernameFromUserChannel } from 'src/utils';
+import { getUsernameFromUserChannel, stringFormat } from 'src/utils';
 
 interface LoaderState {
     loading: boolean;
@@ -71,7 +71,7 @@ export function ChannelListLoader({ channels }: ChannelListLoaderProps): JSX.Ele
 
         const params = new URLSearchParams(channels.map((s) => ['channels', s])).toString();
         fetchApi<IChannel[]>(
-            `${apiChannelBase}/channels?${params}`,
+            `${apiChannels}?${params}`,
             { method: 'GET' },
             auth,
             (channels) => {
@@ -83,7 +83,7 @@ export function ChannelListLoader({ channels }: ChannelListLoaderProps): JSX.Ele
         );
         if (auth !== null)
             fetchApi<IUser>(
-                `${apiUserBase}/${auth.username}`,
+                stringFormat(apiUser, [auth.username]),
                 { method: 'Get' },
                 auth,
                 (user) => {

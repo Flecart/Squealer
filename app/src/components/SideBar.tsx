@@ -5,7 +5,8 @@ import { SideButton } from 'src/components/SideButton';
 import * as Icon from 'react-bootstrap-icons';
 import { fetchApi } from 'src/api/fetch';
 import { UserRoles, type IUser } from '@model/user';
-import { apiUserBase, squealerBaseUrl } from 'src/api/routes';
+import { apiUser, squealerBaseUrl } from 'src/api/routes';
+import { stringFormat } from 'src/utils';
 
 export function SideBar(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -14,7 +15,7 @@ export function SideBar(): JSX.Element {
     useEffect(() => {
         if (authState === null) return;
         fetchApi<IUser>(
-            `${apiUserBase}/${authState.username}`,
+            stringFormat(apiUser, [authState.username]),
             { method: 'GET' },
             authState,
             (user) => {

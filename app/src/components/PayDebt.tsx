@@ -28,7 +28,7 @@ export default function PayDebt({ show, onHide, debt }: PayDebtProps): JSX.Eleme
             if (authState == null) return;
             setPendingRequest(true);
             fetchApi<null>(
-                `${apiUserBase}/pay-debt`,
+                apiUserPayDebt,
                 {
                     method: 'PUT',
                 },

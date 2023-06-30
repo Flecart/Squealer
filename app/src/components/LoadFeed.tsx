@@ -13,7 +13,7 @@ export function MakeFeed(): JSX.Element {
 
     const loadFeed = (): void => {
         fetchApi<string[]>(
-            `${apiFeedBase}`,
+            apiFeedBase,
             { method: 'GET' },
             authState,
             (contents) => {
