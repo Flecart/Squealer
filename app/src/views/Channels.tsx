@@ -67,7 +67,7 @@ function AddChannelModal(): JSX.Element {
                 </Modal.Header>
                 <Modal.Body>
                     You can buy a channel, just enter the name of the channel. It will cost
-                    <span className="fw-bold"> {channelCost}$</span>
+                    <span className="fw-bold"> {channelCost}€</span>
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3" controlId="formGroupChannelName">
                             <Form.Label>Channel name:</Form.Label>
