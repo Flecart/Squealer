@@ -7,9 +7,9 @@ import {
   type IQuotas
 } from '@model/quota'
 import { inject, ref, computed } from 'vue'
-import { buyQuotaBaseRoute } from '@/routes'
+import { buyQuotaRoute } from '@/routes'
 import { authInject } from '@/keys'
-import { toEnglishString } from '@/utils'
+import { stringFormat, toEnglishString } from '@/utils'
 
 const props = defineProps<{
   username: string
@@ -53,7 +53,7 @@ function handleSubmit() {
   }
 
   loading.value = true
-  fetch(`${buyQuotaBaseRoute}/${props.username}`, {
+  fetch(stringFormat(buyQuotaRoute, [props.username]), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

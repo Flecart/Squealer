@@ -7,6 +7,7 @@ import L, { Icon } from 'leaflet'
 import { postClientMessageRoute } from '@/routes'
 import type { Maps as MapsMessage, MessageCreation } from '@model/message'
 import { type currentClientType, currentClientInject, authInject } from '@/keys'
+import { stringFormat } from '@/utils'
 
 // https://stackoverflow.com/questions/60174040/marker-icon-isnt-showing-in-leaflet
 const icon = new Icon({ iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41] })
@@ -88,7 +89,7 @@ const handleSubmit = () => {
   const formData = new FormData()
   formData.append('data', JSON.stringify(message))
 
-  fetch(`${postClientMessageRoute}/${currentClient.value.username}`, {
+  fetch(stringFormat(postClientMessageRoute, [currentClient.value.username]), {
     method: 'POST',
     headers: {
       Authorization: 'Bearer ' + authToken.token
