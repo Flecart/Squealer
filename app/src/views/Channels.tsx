@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { type IUser } from '@model/user';
 import { type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
-import { apiChannelBase, apiUser, apiUserBase } from 'src/api/routes';
+import { apiChannelBase, apiUser } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { Stack, Alert, Spinner, Container } from 'react-bootstrap';
 import { ChannelList } from 'src/components/ChannelList';

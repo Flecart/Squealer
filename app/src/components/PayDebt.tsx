@@ -1,7 +1,7 @@
 import { Alert, Button, Modal, Spinner } from 'react-bootstrap';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiUserBase } from 'src/api/routes';
+import { apiUserPayDebt } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
 import { quotaPriceExtra } from '@model/quota';
