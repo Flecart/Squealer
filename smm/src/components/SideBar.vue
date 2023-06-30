@@ -4,14 +4,10 @@ import type { IUser } from '@model/user'
 import { smmUserInject } from '@/keys'
 import { useRoute } from 'vue-router'
 import { dashboardName, geolocalizationName, buyQuotaName, sendMessageName } from '@/routes'
-import { send } from 'process'
 
 const smmUser = inject<IUser>(smmUserInject)!
 
 const show = ref(true)
-
-const route = useRoute()
-console.log(route.name)
 </script>
 
 <template>
