@@ -23,13 +23,15 @@ interface Props {
 }
 
 const ProtectedRoute = ({ children }: Props): JSX.Element => {
-    const [authState] = useContext(AuthContext);
+    const [authState, setAuth] = useContext(AuthContext);
 
-    const isTokenExpired = (token: string): boolean =>
+    const isTokenExpired = (token: string): boolean => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        Date.now() >= JSON.parse(window.atob(token.split('.')[1] as string)).exp * 1000;
+        return Date.now() >= JSON.parse(window.atob(token.split('.')[1] as string)).exp * 1000;
+    };
 
     if (authState === null || isTokenExpired(authState.token)) {
+        setAuth(null);
         return <Navigate to="/login" replace />;
     }
 

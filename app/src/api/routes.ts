@@ -8,7 +8,6 @@ export const apiQuotaBase = `${apiBase}/user/quota`;
 export const apiMessageBase = `${apiBase}/message`;
 export const apiFeedBase = `${apiBase}/feed`;
 
-export const apiFileUpload = `${apiBase}/upload`;
 export const apiTemporized = `${apiBase}/temporizzati`;
 
 export const apiLogin = `${apiBase}/auth/login`;
@@ -21,3 +20,4 @@ export const apiChannelBase = `${apiBase}/channel`;
 export const apiBuyChannel = `${apiBase}/channel/create`;
 
 export const imageBase = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
+export const apiFileUpload = `${apiBase}/file/upload`;

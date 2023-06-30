@@ -70,3 +70,7 @@ export function sortChannel(a: IChannel, b: IChannel): number {
     if (bn === undefined) return -1;
     return an - bn;
 }
+export enum ChannelSortBy {
+    POSTS = 'npost',
+    USER = 'nuser',
+}

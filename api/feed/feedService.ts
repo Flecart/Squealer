@@ -1,4 +1,3 @@
-import { IMessage } from '@model/message';
 import ChannelModel from '@db/channel';
 import { ChannelType } from '@model/channel';
 import { MessageService } from '@api/messages/messageService';
@@ -7,7 +6,7 @@ import { HttpError } from '@model/error';
 
 export class FeedService {
     // Remember to update always the views
-    public async getMessages(user: string | null): Promise<IMessage[]> {
+    public async getMessages(user: string | null): Promise<string[]> {
         const visibleChannel = await ChannelModel.find({
             $or: [{ type: ChannelType.PUBLIC }, { type: ChannelType.SQUEALER }, { type: ChannelType.HASHTAG }],
         });
@@ -27,6 +26,7 @@ export class FeedService {
         const unique = [...new Set(allMessage)];
         const messages = await new MessageService().getMessages(unique);
 
-        return user == null ? messages : messages.filter((message) => message.creator !== user);
+        const all = user == null ? messages : messages.filter((message) => message.creator !== user);
+        return all.map((message) => message._id.toString());
     }
 }
