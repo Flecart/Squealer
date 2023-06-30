@@ -67,7 +67,7 @@ export default function Channel(): JSX.Element {
             />
         );
 
-        if (channel.type === ChannelType.HASHTAG || !channel.name.startsWith('#')) {
+        if (channel.type === ChannelType.HASHTAG || channel.name.startsWith('#')) {
             return MessageSortList;
         }
 
