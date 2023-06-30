@@ -1,11 +1,13 @@
 import { HttpError } from '@model/error';
 import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
 import ChannelModel from '@db/channel';
+import MessageModel from '@db/message';
 import InvitationModel from '@db/invitation';
 import UserModel from '@db/user';
 import { UserRoles } from '@model/user';
 import { HydratedDocument } from 'mongoose';
 import { type IInvitation } from '@model/invitation';
+import { IMessage, MessageSortTypes, messageSort } from '@model/message';
 
 export class ChannelService {
     public async getChannels(channelIds: string[], user: string): Promise<IChannel[]> {
@@ -305,5 +307,18 @@ export class ChannelService {
         channel.markModified('users');
         await channel.save();
         return newPermission;
+    }
+    public async getMessageIds(
+        channelName: string,
+        user: string | null,
+        sort: MessageSortTypes | undefined,
+    ): Promise<string[]> {
+        const temp = await this.getChannel(channelName, user);
+        let messages = await MessageModel.find({ _id: { $in: temp.messages } });
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            messages = messages.sort(customSort);
+        }
+        return messages.map((m) => m._id.toString());
     }
 }

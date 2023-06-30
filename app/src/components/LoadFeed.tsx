@@ -1,18 +1,18 @@
-import { useContext, useEffect, useState, useMemo } from 'react';
-import { Spinner, Stack, Container } from 'react-bootstrap';
-import Post from './posts/Post';
-import { type IMessage } from '@model/message';
+import { useContext, useEffect, useState } from 'react';
+import { Spinner, Stack, Container, Button } from 'react-bootstrap';
 import { fetchApi } from '../api/fetch';
 import { apiFeedBase } from '../api/routes';
 import { AuthContext } from '../contexts';
+import MessageListPageLoader from './MessageListPagerLoader';
 
 export function MakeFeed(): JSX.Element {
     // TODO: gestire il caricamento etc
-    const [contents, setContents] = useState<IMessage[] | null>(null);
+    const [contents, setContents] = useState<string[] | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [authState] = useContext(AuthContext);
 
-    useEffect(() => {
-        fetchApi<IMessage[]>(
+    const loadFeed = (): void => {
+        fetchApi<string[]>(
             `${apiFeedBase}`,
             { method: 'GET' },
             authState,
@@ -20,29 +20,38 @@ export function MakeFeed(): JSX.Element {
                 setContents(() => contents);
             },
             (error) => {
-                console.log(error.message);
+                setError(() => error.message);
             },
         );
+    };
+
+    useEffect(() => {
+        loadFeed();
     }, []);
 
-    const feed = useMemo(() => {
-        return contents?.map((content: IMessage) => {
-            return <Post key={content._id.toString()} message={content} />;
-        });
-    }, [contents]);
-
-    return (
-        // xs={6} -> className="... col-xs-6 ..."
-        <Stack className="d-flex col-xs-6 flex-column-reverse p-1">
-            {contents !== null ? (
-                feed
-            ) : (
+    function Content(): JSX.Element {
+        if (contents !== null) return <MessageListPageLoader childrens={contents} />;
+        else if (error == null)
+            return (
                 <Container className="justify-content-center d-flex">
                     <Spinner animation="border" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </Spinner>
                 </Container>
-            )}
+            );
+        else
+            return (
+                <Container className="justify-content-center d-flex">
+                    <p>{error}</p>
+                    <Button onClick={loadFeed}>Retry</Button>
+                </Container>
+            );
+    }
+
+    return (
+        // xs={6} -> className="... col-xs-6 ..."
+        <Stack className="d-flex col-xs-6 flex-column-reverse p-1">
+            <Content />
         </Stack>
     );
 }
