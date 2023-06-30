@@ -5,16 +5,9 @@
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content="Website for Squealer social media managers" />
+        <meta name="description" content="Website for Squealer Moderators" />
         <link rel="apple-touch-icon" href="/logo192.png" />
         <link rel="manifest" href="/manifest.json" />
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
-            integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        ></script>
-
         <script
             src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
             integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
@@ -56,11 +49,10 @@
                 </div>
             {{/if}}
 
-            <input type="text" id="search-user"  placeholder="Search User" class="form-control m-2"/>
             {{#if users}}
                 <div class="container" style="display:flex;flex-wrap:wrap; gap:1rem;align-content:center;">
                     {{#each users}}
-                        {{> user-card}}
+            {{> user-card}}
                     {{/each}}
                 </div>
             {{/if}}
@@ -68,19 +60,20 @@
         <script id="user-card-template" type="text/x-handlebars-template">
             <div class='card text-center' style='width: 18rem;'>
 
-                <div class='card-body'>
-                    <img src='{{profile_pic}}' alt='' width='64' height='64' class='rounded-circle me-2' />
-                    <strong>{{name}}</strong>
-                    <br />
-                    {{#if suspended}}
-                        <span class='badge bg-danger'>Disabled</span>
-                    {{/if}}
-                    <span class='badge bg-primary'>{{role}}</span>
+                <div class='card-body d-flex flex-column justify-content-center align-items-center'>
+                    <img src='{{profile_pic}}' alt='' width='64' height='64' class='border rounded-circle' />
+                    <strong>@{{name}}</strong>
 
-                    <br />
+                    <div>
+                        {{#if suspended}}
+                            <span class='badge bg-danger'>Disabled</span>
+                        {{/if}}
+                        <span class='badge bg-primary'>{{role}}</span>
+                    </div>
+
                     <button
                         type='button'
-                        class='btn btn-primary'
+                        class='btn btn-primary mt-3'
                         data-bs-toggle='modal'
                         data-bs-target='#modal-{{name}}'
                     >
@@ -97,7 +90,8 @@
                         <div class='modal-dialog'>
                             <div class='modal-content'>
                                 <div class='modal-header'>
-                                    <strong>{{name}}</strong>
+                                    Change quota for
+                                    <strong>&nbsp;@{{name}}</strong>
                                     <button
                                         type='button'
                                         class='btn-close'
@@ -107,64 +101,75 @@
 
                                 </div>
                                 <div class='modal-content'>
-                                    <div class='container-fluid text-center'>
+                                    <div
+                                        class='container-fluid d-flex justify-content-center align-items-center flex-column'
+                                    >
 
                                         <img
                                             src='{{profile_pic}}'
                                             alt=''
                                             width='64'
                                             height='64'
-                                            class='rounded-circle me-2'
+                                            class='rounded-circle'
                                         />
-                                        <br />
-                                        {{#if suspended}}
-                                            <span class='badge bg-danger'>Disabled</span>
-                                        {{/if}}
-                                        <span class='badge bg-primary'>{{role}}</span>
-                                        <br />
+                                        <div>
+                                            {{#if suspended}}
+                                                <span class='badge bg-danger'>Disabled</span>
+                                            {{/if}}
+                                            <span class='badge bg-primary'>{{role}}</span>
+                                        </div>
                                         <button
                                             type='button'
                                             onclick="suspendUser('{{name}}',{{suspended}})"
-                                            class='btn btn-primary'
+                                            class='btn btn-primary my-2'
                                         >
-                                            Troggle Disable
+                                            Suspend User
                                         </button>
-                                        <br />
-                                        <strong> change quota</strong>
-                                        <br />
-                                        <form class='mb-1'>
-                                            <label for='dayquota'>Day</label>
-                                            <input
-                                                type='number'
-                                                name='dayquota'
-                                                value='{{maxQuota.day}}'
-                                                id='dayquota-{{name}}'
-                                            />
-                                            <br />
-                                            <label for='weekquota'>Week</label>
-                                            <input
-                                                type='number'
-                                                name='weekquota'
-                                                value='{{maxQuota.week}}'
-                                                id='weekquota-{{name}}'
-                                            />
+                                        <span class='fw-bold mb-2'>Change quota</span>
+                                        <form class='mb-1 d-flex flex-column'>
 
-                                            <br />
-                                            <label for='monthquota'>Month</label>
-                                            <input
-                                                type='number'
-                                                name='monthquota'
-                                                value='{{maxQuota.month}}'
-                                                id='monthquota-{{name}}'
-                                            />
-                                            <br />
+                                            <div class='input-group mb-3'>
+                                                <span class='input-group-text' id='dayquota-{{name}}'>Day</span>
+                                                <input
+                                                    type='number'
+                                                    class='form-control'
+                                                    name='dayquota'
+                                                    value='{{maxQuota.day}}'
+                                                    aria-label='Sizing example input'
+                                                    aria-describedby='dayquota-{{name}}'
+                                                />
+                                            </div>
+
+                                            <div class='input-group mb-3'>
+                                                <span class='input-group-text' id='weekquota-{{name}}'>Week</span>
+                                                <input
+                                                    type='number'
+                                                    class='form-control'
+                                                    name='weekquota'
+                                                    value='{{maxQuota.week}}'
+                                                    aria-label='Sizing example input'
+                                                    aria-describedby='weekquota-{{name}}'
+                                                />
+                                            </div>
+
+                                            <div class='input-group mb-3'>
+                                                <span class='input-group-text' id='monthquota-{{name}}'>Month</span>
+                                                <input
+                                                    type='number'
+                                                    class='form-control'
+                                                    name='monthquota'
+                                                    value='{{maxQuota.month}}'
+                                                    aria-label='Sizing example input'
+                                                    aria-describedby='monthquota-{{name}}'
+                                                />
+                                            </div>
                                             <button
                                                 type='button'
-                                                class='btn btn-primary'
+                                                class='btn btn-primary my-1'
                                                 onclick="changeQuota('{{name}}')"
                                             >Change</button>
-
                                         </form>
+
                                     </div>
                                 </div>
                                 <div class='modal-footer'>
@@ -238,7 +243,7 @@
                             <hr class="d-none d-md-block" />
                             <ul class="nav flex-column mb-auto">
                                 <li>
-                                    <a href="post.html" class="nav-link active" aria-current="Manage User">
+                                    <a href="post.html" class="nav-link active" aria-current="Manage Posts">
                                         Manage Posts
                                     </a>
                                 </li>
@@ -247,12 +252,18 @@
                                         Manage Users
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="channel.html" class="nav-link active" aria-current="Manage Channels">
+                                        Manage Channels
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div id="user-sidebar"></div>
                     </div>
                 </nav>
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <input type="text" id="search-user" placeholder="Search User" class="form-control m-2" />
                     <div id="main-content" class="mt-2"></div>
                 </main>
             </div>

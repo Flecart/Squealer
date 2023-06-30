@@ -8,19 +8,19 @@ import ChooseClientsVue from '@/components/ChooseClients.vue'
 const { currentClient, setClient: _ } = inject<currentClientType>(currentClientInject)!
 
 const quotaDay = computed<number>(() => {
-    return currentClient.value.maxQuota.day - currentClient.value.usedQuota.day
+  return currentClient.value.maxQuota.day - currentClient.value.usedQuota.day
 })
 </script>
 
 <template>
-    <ChooseClientsVue />
-    <div class="form-container">
-        <BuyModalVue :username="currentClient.username" :urgent="quotaDay < urgentThreshold" />
-    </div>
+  <ChooseClientsVue />
+  <div class="form-container">
+    <BuyModalVue :username="currentClient.username" :urgent="quotaDay < urgentThreshold" />
+  </div>
 </template>
 
 <style scoped>
 .form-container {
-    width: 70%;
+  width: 70%;
 }
 </style>

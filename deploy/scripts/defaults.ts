@@ -4,7 +4,7 @@ import { ChannelInfo, ChannelType } from '@model/channel';
 import assert from 'node:assert'
 import { randomTwits } from './readscript';
 import { IReactionType, MessageCreation, MessageCreationRensponse } from '@model/message';
-import {DEFAULT_QUOTA} from '@config/api'
+import { DEFAULT_QUOTA } from '@config/api'
 
 // the format is Name, Password,
 // Note: the name != username!!! username is always lowercase
@@ -63,8 +63,8 @@ async function createUsers() {
         [modAccounts, 'moderator'],
         [proAccounts, 'vip'],
     ]
-    
-    changeRoles.forEach(async ([accounts, role]) => {
+
+    let promise = changeRoles.map(async ([accounts, role]) => {
         await Promise.all(
             accounts.map(async ([username, _]) => {
                 await request(baseUrl)
@@ -74,22 +74,23 @@ async function createUsers() {
                         role,
                     }).expect(200)
             }));
-            console.log(`setting all ${role} roles`)
+        console.log(`setting all ${role} roles`)
 
-            if (role === 'smm') {
-                // add clients to fvsmm
-                const clients = proAccounts.map(([username, _]) => username);
-                for (const client of clients) {
-                    await request(baseUrl)
-                        .post(`/api/smm/add-client/${client.toLocaleLowerCase()}`)
-                        .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
-                        .send({
-                            role,
-                            client,
-                        }).expect(200)
-                }
+        if (role === 'smm') {
+            // add clients to fvsmm
+            const clients = proAccounts.map(([username, _]) => username);
+            for (const client of clients) {
+                await request(baseUrl)
+                    .post(`/api/smm/add-client/${client.toLocaleLowerCase()}`)
+                    .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
+                    .send({
+                        role,
+                        client,
+                    }).expect(200)
             }
-        });
+        }
+    });
+    await Promise.all(promise);
 }
 
 // END USER CREATION
@@ -164,13 +165,13 @@ async function createChannelsJoinsMessages() {
     const res = await Promise.all(
         channels.map(async (channel) => {
             const channelType = getChannelType(channel);
-        return request(baseUrl)
-            .post(channelCreateRoute)
-            .set('Authorization', `Bearer ${loginTokens.get(getUserFromChannel(channel))}`)
-            .send({
-                channelName: channel,
-                type: channelType,
-            } as ChannelInfo)
+            return request(baseUrl)
+                .post(channelCreateRoute)
+                .set('Authorization', `Bearer ${loginTokens.get(getUserFromChannel(channel))}`)
+                .send({
+                    channelName: channel,
+                    type: channelType,
+                } as ChannelInfo)
         }));
 
     res.forEach(r => {
@@ -179,76 +180,72 @@ async function createChannelsJoinsMessages() {
     })
     console.log("created all channels");
 
-    setTimeout(async () => {
 
-        loginTokens.forEach(async (token, username) => {
-            // randoom shuffle public channels
-            // join 3 random public channels;
-            const publicChannels = publicNormalChannels.sort(() => Math.random() - 0.5).slice(0, 3);
-            joinedChannels.set(username, publicChannels);
-            const res = await Promise.all(
-                publicChannels.map(async (channelName) => {
-                    return request(baseUrl)
-                        .post(`/api/channel/${channelName}/join`)
-                        .set('Authorization', `Bearer ${token}`)
-                })
-            )
-
-            res.forEach(r => {
-                if (r.status !== 200) console.log(r.error);
-                assert(r.status === 200)
+    for (const [username, token] of loginTokens.entries()) {
+        // randoom shuffle public channels
+        // join 3 random public channels;
+        const publicChannels = publicNormalChannels.sort(() => Math.random() - 0.5).slice(0, 3);
+        joinedChannels.set(username, publicChannels);
+        const res = await Promise.all(
+            publicChannels.map(async (channelName) => {
+                return request(baseUrl)
+                    .post(`/api/channel/${channelName}/join`)
+                    .set('Authorization', `Bearer ${token}`)
             })
+        )
 
-            // save joined channels into map
-        });
-        console.log("joined all channels");
-    }, 300);  // ancora non capisco perché c'è problema di concorrenza...
+        res.forEach(r => {
+            if (r.status !== 200) console.log(r.error);
+            assert(r.status === 200)
+        })
 
-    setTimeout(async () => {
-        // dai messaggi per ogni utente che ha joinato qualche canale pubblico:
-        joinedChannels.forEach(async (channel, username) => {
-            const quasiEsaurito = ["fvPro", "nomebuffo1", "nomebuffo2"].includes(username);
-            const twits = [];
+        // save joined channels into map
+    }
+    console.log("joined all channels");
 
-            if (quasiEsaurito) {
-                let currentMaxQuota = DEFAULT_QUOTA.day;
-                while (currentMaxQuota > 0) {
-                    const randomTwit = randomTwits();
-                    twits.push(randomTwit);
-                    currentMaxQuota -= randomTwit.length;
-                }
-                twits.pop(); // l'ultimo elemento che ha fatto traboccare il vado è da togliere
-            } else {
-                for (let i = 0; i < 5; i++) {
-                    twits.push(randomTwits());
-                }
+
+    for (const [username, channel] of joinedChannels.entries()) {
+        const quasiEsaurito = ["fvPro", "nomebuffo1", "nomebuffo2"].includes(username);
+        const twits = [];
+
+        if (quasiEsaurito) {
+            let currentMaxQuota = DEFAULT_QUOTA.day;
+            while (currentMaxQuota > 0) {
+                const randomTwit = randomTwits();
+                twits.push(randomTwit);
+                currentMaxQuota -= randomTwit.length;
             }
-
-            for (let i = 0; i < twits.length; i++) {
-                // select random channel
-                const channelName = channel[Math.floor(Math.random() * channel.length)] as string;
-                const message = {
-                    channel: channelName,
-                    content: {
-                        type: "text",
-                        data: twits[i],
-                    },
-                    parent: undefined,
-                } as MessageCreation
-
-                // il messaggio deve essere awaitato, in modo che le quota si aggiornino correttamente.
-                // non possiamo fare promise all.
-                const res = await request(baseUrl)
-                    .post(messageCreateRoute)
-                    .set('Authorization', `Bearer ${loginTokens.get(username)}`)
-                    .field('data', JSON.stringify(message))
-
-                if (res.status !== 200) console.log(res.error);
-                assert(res.status === 200);
-                allMessages.push(res.body as MessageCreationRensponse);
+            twits.pop(); // l'ultimo elemento che ha fatto traboccare il vado è da togliere
+        } else {
+            for (let i = 0; i < 5; i++) {
+                twits.push(randomTwits());
             }
-        });
-    }, 600);
+        }
+
+        for (let i = 0; i < twits.length; i++) {
+            // select random channel
+            const channelName = channel[Math.floor(Math.random() * channel.length)] as string;
+            const message = {
+                channel: channelName,
+                content: {
+                    type: "text",
+                    data: twits[i],
+                },
+                parent: undefined,
+            } as MessageCreation
+
+            // il messaggio deve essere awaitato, in modo che le quota si aggiornino correttamente.
+            // non possiamo fare promise all.
+            const res = await request(baseUrl)
+                .post(messageCreateRoute)
+                .set('Authorization', `Bearer ${loginTokens.get(username)}`)
+                .field('data', JSON.stringify(message))
+
+            if (res.status !== 200) console.log(res.error);
+            assert(res.status === 200);
+            allMessages.push(res.body as MessageCreationRensponse);
+        }
+    }
 }
 
 const createRandomReactionType = (): IReactionType => {
@@ -278,9 +275,9 @@ export async function createMessageReactions() {
         const res = await Promise.all(
             messagesToReact.map(async (message) => {
                 return request(baseUrl)
-                .post(`${messageCreateRoute}/${message.id}/reaction`)
-                .set('Authorization', `Bearer ${token}`)
-                .send({type: createRandomReactionType()});
+                    .post(`${messageCreateRoute}/${message.id}/reaction`)
+                    .set('Authorization', `Bearer ${token}`)
+                    .send({ type: createRandomReactionType() });
             })
         )
 
@@ -300,15 +297,7 @@ export async function createMessageReactions() {
 export async function createDefaultUsersAndChannels() {
     await createUsers();
 
-    // c'è un problema di concorrenza con mongo, questo è un hack per aspettare
-    // che mongo abbia correttamente cambiato i ruoli e creato gli utenti
-    setTimeout(async () => {
-        await createChannelsJoinsMessages();
-    }, 100);
+    await createChannelsJoinsMessages();
 
-
-    // 
-    setTimeout(async () => {
-        await createMessageReactions();
-    }, 3000);
+    await createMessageReactions();
 }

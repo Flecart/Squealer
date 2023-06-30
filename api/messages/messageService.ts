@@ -14,7 +14,7 @@ import {
 } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
-import { MessageCreation, MessageCreationRensponse } from '@model/message';
+import { MessageCreation, MessageCreationRensponse, mediaQuotaValue } from '@model/message';
 import mongoose from 'mongoose';
 import UserModel from '@db/user';
 import ChannelModel, { getUserChannelName } from '@db/channel';
@@ -33,30 +33,45 @@ type UserModelType = mongoose.HydratedDocument<IUser>;
 const messageServiceLog = logger.child({ label: 'messageService' });
 
 export class MessageService {
+    public async getUserMessagesId(username: string, sort?: MessageSortTypes): Promise<string[]> {
+        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
+            async (message) => {
+                const channel = await ChannelModel.findOne({ name: message.channel });
+                if (channel !== null && isPublicChannel(channel)) return true;
+                else return false;
+            },
+        );
+
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            messages = messages.sort(customSort);
+        }
+
+        return messages.map((message) => message._id.toString());
+    }
+
     public async getOwnedMessages(
         username: string,
         page: number,
         limit: number,
         sort?: MessageSortTypes,
     ): Promise<IMessageWithPages> {
-        const messages = await (
-            await MessageModel.find({ creator: username, channel: { $ne: null } })
-        ).filter(async (message) => {
-            const channel = await ChannelModel.findOne({ name: message.channel });
-            if (channel !== null && isPublicChannel(channel)) return true;
-            else return false;
-        });
-
-        let returnMessages: IMessage[] = [];
+        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
+            async (message) => {
+                const channel = await ChannelModel.findOne({ name: message.channel });
+                if (channel !== null && isPublicChannel(channel)) return true;
+                else return false;
+            },
+        );
         if (sort) {
             const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
-            returnMessages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
+            messages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
         } else {
-            returnMessages = messages.slice(page * limit, (page + 1) * limit);
+            messages = messages.slice(page * limit, (page + 1) * limit);
         }
 
         return {
-            messages: returnMessages,
+            messages: messages,
             pages: Math.ceil(messages.length / limit),
         } as IMessageWithPages;
     }
@@ -294,10 +309,10 @@ export class MessageService {
                     type: message.content.type,
                     data: path.path,
                 },
-                100,
+                mediaQuotaValue,
             ];
         } else if (message.content.type === 'maps') {
-            return [message.content, 100];
+            return [message.content, mediaQuotaValue];
         } else {
             throw new HttpError(400, `Message type ${message.content.type} is not supported`);
         }

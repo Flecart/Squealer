@@ -3,7 +3,13 @@ import { ref, inject } from 'vue'
 import type { IUser } from '@model/user'
 import { smmUserInject } from '@/keys'
 import { useRoute } from 'vue-router'
-import { dashboardName, geolocalizationName, buyQuotaName, graphName } from '@/routes'
+import {
+  dashboardName,
+  geolocalizationName,
+  buyQuotaName,
+  graphName,
+  sendMessageName
+} from '@/routes'
 
 const smmUser = inject<IUser>(smmUserInject)!
 
@@ -80,6 +86,15 @@ console.log(route.name)
         >
           <b-icon-graph-up aria-hidden="true"></b-icon-graph-up>
           Analytics
+        </b-list-group-item>
+
+        <b-list-group-item
+          :to="{ name: sendMessageName }"
+          class="list-nav-item"
+          :active="$route.name === sendMessageName"
+        >
+          <b-icon-messenger aria-hidden="true"></b-icon-messenger>
+          Post for client
         </b-list-group-item>
       </b-list-group>
     </nav>

@@ -1,5 +1,4 @@
 import { Get, Route, Response, Security, Request } from '@tsoa/runtime';
-import { IMessage } from '@model/message';
 import { FeedService } from './feedService';
 import { getMaybeUserFromRequest } from '@api/utils';
 
@@ -12,8 +11,8 @@ import { getMaybeUserFromRequest } from '@api/utils';
 export class FeedController {
     @Get('/')
     @Security('maybeJWT')
-    @Response<IMessage[]>(200, 'OK')
-    public async readAll(@Request() request: any): Promise<IMessage[]> {
+    @Response<string[]>(200, 'OK')
+    public async readAll(@Request() request: any): Promise<string[]> {
         return new FeedService().getMessages(getMaybeUserFromRequest(request));
     }
 }

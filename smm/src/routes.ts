@@ -3,12 +3,13 @@ import Dashboard from './components/Dashboard.vue'
 import BuyQuotaVue from './views/BuyQuotaView.vue'
 import GeolocalizationViewVue from './views/GeolocalizationView.vue'
 import GraphViewVue from './views/GraphView.vue'
+import PostMessageViewVue from '@/views/PostMessageView.vue'
 
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
 
 // TODO: mettere l'indirizzo del server di squealer se non dev, quando si saprà l'indirizzo di squealer
-export const squealerBaseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : ''
+export const squealerBaseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : ''
 
 export const getClientsRoute = `${squealerBaseURL}/api/smm/clients`
 export const buyQuotaBaseRoute = `${squealerBaseURL}/api/smm/buy-quota`
@@ -27,6 +28,7 @@ export const dashboardName = 'dashboard'
 export const buyQuotaName = 'buy-quota'
 export const geolocalizationName = 'geolocalization'
 export const graphName = 'graph'
+export const sendMessageName = 'send-message'
 
 const routes = [
   { path: `/${endpoints.SMM}`, name: dashboardName, component: Dashboard },
@@ -40,7 +42,8 @@ const routes = [
     path: `/${endpoints.SMM}/graph`,
     name: graphName,
     component: GraphViewVue
-  }
+  },
+  { path: `/${endpoints.SMM}/send-message`, name: sendMessageName, component: PostMessageViewVue }
 ]
 
 export const router = VueRouter.createRouter({
