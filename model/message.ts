@@ -20,6 +20,8 @@ export type SupportedContent = 'text' | 'image' | 'video' | 'maps';
 
 export const CriticMass = 2;
 
+export const mediaQuotaValue = 125; // un messaggio vale 100 caratteri
+
 export const DefaultPageSize = 10;
 
 export type MessageSortTypes =
