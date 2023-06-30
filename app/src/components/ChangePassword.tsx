@@ -1,4 +1,4 @@
-import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
+import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
 import React, { useCallback, useContext, useState } from 'react';
 import { AuthContext } from '../contexts';
 import { fetchApi } from '../api/fetch';
@@ -35,7 +35,7 @@ export default function ChangePassword(): JSX.Element {
                     },
                     authState,
                     () => {
-                        setSuccessMessage('Password Modificata Con Successo');
+                        setSuccessMessage('Password has been changed succesfully');
                         setPendingRequest(false);
                     },
                     (error) => {
@@ -49,45 +49,47 @@ export default function ChangePassword(): JSX.Element {
     );
 
     return (
-        <Form className="m-0 me-4 py-3 px-3 " onSubmit={handleChangePassword}>
-            <FormGroup className="mb-3">
-                <Form.Label className="text-light">Old Password</Form.Label>
+        <Form className="form-form-bs" onSubmit={handleChangePassword}>
+            <FormGroup className="input-form-bs" controlId="OldPassword">
+                <Form.Label>Old Password</Form.Label>
                 <Form.Control
                     type="text"
                     value={oldPassword}
                     onChange={(e) => {
                         setOldPassword(e.target.value);
                     }}
-                    placeholder="Inserisci il la tua vecchia password"
+                    placeholder="Insert your old password"
                 />
             </FormGroup>
-            <FormGroup className="mb-3">
-                <Form.Label className="text-light">New Password</Form.Label>
+            <FormGroup className="input-form-bs" controlId="NewPassword">
+                <Form.Label>New Password</Form.Label>
                 <Form.Control
                     type="password"
                     value={newPassword}
                     onChange={(e) => {
                         setNewPassword(e.target.value);
                     }}
-                    placeholder="Inserisci la tua nuova password"
+                    placeholder="Insert your new password"
                 />
             </FormGroup>
-            <Container className="d-flex justify-content-center">
-                <Button className="col-6 me-1" variant="outline-success" type="submit">
-                    Cambia Password
-                </Button>
-            </Container>
-            <Container className="d-flex justify-content-center">
-                {errorMessage !== null && <Alert variant="danger">{errorMessage}</Alert>}
-                {pendingRequest && (
-                    <>
-                        <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                    </>
-                )}
-                {successMessage !== null && <Alert variant="sucess">{successMessage}</Alert>}
-            </Container>
+            <Button className="button-setting-bs" variant="outline-success" type="submit">
+                Change Password
+            </Button>
+            {errorMessage !== null && (
+                <Alert className="alert-form-bs" variant="danger">
+                    {errorMessage}
+                </Alert>
+            )}
+            {pendingRequest && (
+                <Spinner className="spinner-form-bs" animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            )}
+            {successMessage !== null && (
+                <Alert className="alert-form-bs" variant="sucess">
+                    {successMessage}
+                </Alert>
+            )}
         </Form>
     );
 }

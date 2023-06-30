@@ -1,7 +1,6 @@
 import { useContext, useState, useSyncExternalStore } from 'react';
 import { SideBar } from 'src/components/SideBar';
 import { Navbar, Container, Offcanvas, Stack, Col } from 'react-bootstrap';
-// import { Nav, Form } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { NotificationStore } from 'src/notification';
@@ -21,10 +20,10 @@ function NotificationHeader(): JSX.Element {
             {notification.length > 0 ? (
                 <Stack direction="horizontal" gap={1}>
                     <span className="badge bg-danger">{notification.length}</span>
-                    <Icon.InboxFill width={notifSize} height={notifSize} className="d-flex" />
+                    <Icon.InboxFill aria-hidden="true" width={notifSize} height={notifSize} className="d-flex" />
                 </Stack>
             ) : (
-                <Icon.Inbox width={notifSize} height={notifSize} className="d-flex" />
+                <Icon.Inbox aria-hidden="true" width={notifSize} height={notifSize} className="d-flex" />
             )}
         </>
     );
@@ -60,24 +59,30 @@ export function Header(): JSX.Element {
 
             <Container fluid>
                 <Col sx={3} className="d-flex justify-content-center">
-                    <button className="btn sideButton rounded-3 d-md-none">
-                        <Icon.List width={menuSize} height={menuSize} onClick={handleShow} />
+                    <button
+                        role="menu"
+                        onClick={handleShow}
+                        tabIndex={0}
+                        aria-label="navigation - menu"
+                        className="btn sideButton rounded-3 d-md-none"
+                    >
+                        <Icon.List aria-hidden="true" width={menuSize} height={menuSize} />
                     </button>
                 </Col>
 
                 <Col sx={6}>
                     <Navbar.Brand
                         className="d-flex justify-content-center align-items-center mr-0"
-                        onClick={() => {
-                            navigator('/');
-                        }}
+                        href="/"
+                        tabIndex={0}
                     >
                         <img
                             src={LogoLight}
                             width={LogoSize}
                             height={LogoSize}
                             className="d-inline-block align-top pe-1"
-                            alt="Logo Squealer"
+                            alt=""
+                            aria-hidden="true"
                         />
                         <span className="fs-3">Squealer</span>
                     </Navbar.Brand>
@@ -85,14 +90,16 @@ export function Header(): JSX.Element {
 
                 <Col sx={3} className="d-flex justify-content-center">
                     {authState !== null && (
-                        <span
+                        <button
                             className="btn sideButton rounded-3"
+                            aria-label="notification page"
                             onClick={() => {
                                 navigator('/notification');
                             }}
+                            tabIndex={0}
                         >
                             <NotificationHeader />
-                        </span>
+                        </button>
                     )}
                 </Col>
             </Container>

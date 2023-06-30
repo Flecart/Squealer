@@ -1,8 +1,8 @@
-import Vue, { createApp } from 'vue'
+import Vue, { createApp, ref } from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import { getClientsRoute, router, redirectToLogin, getUserBaseRoute } from './routes'
-import { authInject, clientInject, smmUserInject } from './keys'
+import { authInject, clientInject, currentClientInject, smmUserInject } from './keys'
 
 import './assets/app.scss'
 import { UserRoles, type IUser } from '@model/user'
@@ -37,8 +37,19 @@ if (authState != null) {
       Authorization: 'Bearer ' + authState.token
     }
   })
-  const jsonResponse = await (response as Response).json()
-  app.provide(clientInject, jsonResponse as IUser[])
+  const clients: IUser[] = await (response as Response).json()
+  app.provide(clientInject, clients)
+
+  if (clients.length === 0) {
+    // TODO: if a smm user has no clients redirect to page that tells him
+    // how to gain clients and handle them.
+  } else {
+    let currentClient = ref<IUser>(clients[0] as IUser)
+    const setClient = (client: IUser) => {
+      currentClient.value = client
+    }
+    app.provide(currentClientInject, { currentClient, setClient })
+  }
 }
 
 // @ts-ignore

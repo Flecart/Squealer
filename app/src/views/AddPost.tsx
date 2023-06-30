@@ -1,29 +1,38 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
-import { Form, Button, Alert, Row, Image, Container } from 'react-bootstrap';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { Form, Button, Alert, Image, Collapse } from 'react-bootstrap';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
+import { type IUser, haveEnoughtQuota, getExtraQuota, UserRoles } from '@model/user';
 import Post from 'src/components/posts/Post';
-import { type IUser, haveEnoughtQuota } from '@model/user';
 import {
     type ITemporizzati,
     type ContentInput as TemporizedContentInput,
     type TempSupportedContent,
 } from '@model/temporizzati';
 import Map from 'src/components/Map';
+import PayDebt from 'src/components/PayDebt';
+import DebtWarning from 'src/components/DebtWarning';
 import { toEnglishString } from 'src/utils';
+import { quotaMaxExtra } from '@model/quota';
+import * as Icon from 'react-bootstrap-icons';
+import 'src/scss/SideButton.scss';
+import { Lock as LockIcon } from 'react-bootstrap-icons';
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
     const navigate = useNavigate();
     const { parent } = useParams();
 
+    const [payDebt, setPayDebt] = useState<boolean>(false);
     const [modalShow, setModalShow] = useState<boolean>(false);
+    const [showWarning, setShowWarning] = useState<boolean>(false);
+    const [oneTimeView, setOneTimeView] = useState<boolean>(false);
 
     const [messageText, setMessageText] = useState<string>('');
     const [destination, setDestination] = useState<string>('');
@@ -37,6 +46,64 @@ export default function AddPost(): JSX.Element {
     const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
     const [tempPeriod, setTempPeriod] = useState<number>(1);
     const [tempTimes, setTempTimes] = useState<number>(1);
+
+    const [showTemporize, setShowTemporize] = useState(false);
+
+    const hiddenFileInput = useRef<HTMLInputElement | null>(null);
+
+    function CloseButton(): JSX.Element {
+        return (
+            <Button
+                className="position-absolute rounded-circle top-0 end-0 p-1 m-1"
+                variant="danger"
+                style={{ zIndex: '1' }}
+                onClick={() => {
+                    setSelectedImage(null);
+                    setGeolocationCoord(null);
+                }}
+            >
+                <Icon.X role="button" aria-label="remove media" height={25} width={25} />
+            </Button>
+        );
+    }
+
+    function ShowQuota(props: { quota: number }): JSX.Element {
+        if (user === null) {
+            return <></>;
+        }
+        return (
+            <div className="mt-1">
+                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                    day:{' '}
+                    <span aria-label={toEnglishString(user.maxQuota.day - user.usedQuota.day - props.quota)}>
+                        {' '}
+                        {user.maxQuota.day - user.usedQuota.day - props.quota}{' '}
+                    </span>
+                </span>
+                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                    week:{' '}
+                    <span aria-label={toEnglishString(user.maxQuota.week - user.usedQuota.week - props.quota)}>
+                        {' '}
+                        {user.maxQuota.week - user.usedQuota.week - props.quota}{' '}
+                    </span>
+                </span>
+                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                    month:{' '}
+                    <span aria-label={toEnglishString(user.maxQuota.month - user.usedQuota.month - props.quota)}>
+                        {' '}
+                        {user.maxQuota.month - user.usedQuota.month - props.quota}{' '}
+                    </span>
+                </span>
+                <span className="bg-warning rounded-pill me-1 px-1 mb-1 d-inline-block">
+                    extra:{' '}
+                    <span aria-label={toEnglishString(getExtraQuota(user, props.quota))}>
+                        {' '}
+                        {getExtraQuota(user, props.quota)}{' '}
+                    </span>
+                </span>
+            </div>
+        );
+    }
 
     useEffect(() => {
         if (authState === null) {
@@ -76,6 +143,49 @@ export default function AddPost(): JSX.Element {
             },
         );
     }, [authState?.username]);
+
+    const role = useMemo<UserRoles | null>(() => {
+        if (user === null) {
+            return null;
+        }
+        return user.role;
+    }, [user]);
+
+    const permissions = useMemo<boolean>(() => {
+        return role === UserRoles.SMM || role === UserRoles.VIP || role === UserRoles.VERIFIED;
+    }, [user]);
+
+    useEffect(() => {
+        if (user !== null && !oneTimeView) {
+            if (selectedImage === null && getExtraQuota(user, messageText.length) < 50) {
+                setOneTimeView(true);
+                setShowWarning(true);
+            } else if (selectedImage !== null && getExtraQuota(user, 100) < 50) {
+                setOneTimeView(true);
+                setShowWarning(true);
+            }
+        }
+    }, [user, selectedImage, messageText]);
+
+    const debt = useMemo<number>(() => {
+        if (user !== null) {
+            return user.debtQuota;
+        }
+        return 0;
+    }, [user]);
+
+    const maxLenghtChar = useMemo<number>(() => {
+        if (user !== null) {
+            const remQuotaDay: number = user.maxQuota.day - user.usedQuota.day;
+            const remQuotaWeek: number = user.maxQuota.week - user.usedQuota.week;
+            const remQuotaMonth: number = user.maxQuota.month - user.usedQuota.month;
+            if (remQuotaDay === 0 || remQuotaWeek === 0 || remQuotaMonth === 0) {
+                return 0;
+            }
+            return Math.min(remQuotaDay, remQuotaWeek, remQuotaMonth) + quotaMaxExtra;
+        }
+        return 0;
+    }, [user?.maxQuota, user?.usedQuota]);
 
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
@@ -118,7 +228,10 @@ export default function AddPost(): JSX.Element {
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
             let channel = destination;
-            if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
+            if (debt !== 0) {
+                setPayDebt(true);
+                return;
+            } else if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
             } else if (channel === '') {
@@ -170,6 +283,8 @@ export default function AddPost(): JSX.Element {
                 authState,
                 (message) => {
                     setError(() => null);
+                    setSelectedImage(null);
+                    setGeolocationCoord(null);
                     navigate(`/message/${message.id}`);
                 },
                 (error) => {
@@ -201,31 +316,28 @@ export default function AddPost(): JSX.Element {
         if (selectedImage == null) return <></>;
 
         return (
-            <div>
-                {user !== null &&
-                    `day:${user.usedQuota.day + 100}/${user.maxQuota.day} week: ${user.usedQuota.week + 100}/${
-                        user.maxQuota.week
-                    } month:${user.usedQuota.month + 100}/${user.maxQuota.month}`}
+            <div className="d-flex flex-column align-items-center">
+                Remaining Quota: {user !== null && <ShowQuota quota={100} />}
+                <div className="d-inline-flex flex-column position-relative">
+                    {selectedImage.type.startsWith('image/') && (
+                        <Image
+                            className="mb-3 border"
+                            alt="uploaded image"
+                            src={URL.createObjectURL(selectedImage)}
+                            fluid
+                        />
+                    )}
 
-                {selectedImage.type.startsWith('image/') && (
-                    <Image className="mb-3" alt="uploaded image" src={URL.createObjectURL(selectedImage)} fluid />
-                )}
+                    {selectedImage.type.startsWith('video/') && (
+                        <>
+                            <video className="mb-3 w-100" controls>
+                                <source src={URL.createObjectURL(selectedImage)} type={selectedImage.type}></source>
+                            </video>
+                        </>
+                    )}
 
-                {selectedImage.type.startsWith('video/') && (
-                    <Container>
-                        <video className="mb-3 w-100" controls>
-                            <source src={URL.createObjectURL(selectedImage)} type={selectedImage.type}></source>
-                        </video>
-                    </Container>
-                )}
-
-                <Button
-                    onClick={() => {
-                        setSelectedImage(null);
-                    }}
-                >
-                    Remove
-                </Button>
+                    <CloseButton />
+                </div>
             </div>
         );
     }, [user, selectedImage]);
@@ -244,38 +356,28 @@ export default function AddPost(): JSX.Element {
         if (selectedImage != null) {
             return renderFilePreview();
         } else if (geolocationCoord != null) {
-            return <Map positions={geolocationCoord.positions} />;
+            return (
+                <>
+                    <div className="d-flex flex-column align-items-center">
+                        Remaining Quota: {user !== null && <ShowQuota quota={100} />}
+                    </div>
+                    <div className="position-relative">
+                        <Map positions={geolocationCoord.positions} />
+                        <CloseButton />
+                    </div>
+                </>
+            );
         } else {
             return (
                 <Form.Group className="mb-3" controlId="textareaInput">
                     <Form.Label>
-                        Message textarea, remaining quota:{' '}
-                        {user !== null && (
-                            <>
-                                day:{' '}
-                                <span aria-label={toEnglishString(user.usedQuota.day + messageText.length)}>
-                                    {' '}
-                                    {user.usedQuota.day + messageText.length}{' '}
-                                </span>
-                                /<span aria-label={toEnglishString(user.maxQuota.day)}> {user.maxQuota.day}</span>
-                                week:{' '}
-                                <span aria-label={toEnglishString(user.usedQuota.week + messageText.length)}>
-                                    {' '}
-                                    {user.usedQuota.week + messageText.length}{' '}
-                                </span>
-                                /<span aria-label={toEnglishString(user.maxQuota.week)}> {user.maxQuota.week}</span>
-                                month:{' '}
-                                <span aria-label={toEnglishString(user.usedQuota.month + messageText.length)}>
-                                    {' '}
-                                    {user.usedQuota.month + messageText.length}{' '}
-                                </span>
-                                /<span aria-label={toEnglishString(user.maxQuota.month)}> {user.maxQuota.month}</span>
-                            </>
-                        )}
+                        Remaining Quota: {user !== null && <ShowQuota quota={messageText.length} />}
                     </Form.Label>
 
                     <Form.Control
+                        aria-label="message textarea"
                         as="textarea"
+                        maxLength={maxLenghtChar}
                         rows={3}
                         onChange={(e) => {
                             setMessageText(e.target.value);
@@ -285,20 +387,20 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
             );
         }
-    }, [user, geolocationCoord, selectedImage]);
+    }, [user, messageText, geolocationCoord, selectedImage]);
 
     return (
         <SidebarSearchLayout>
             {renderParentMessage()}
             <Form>
                 {parent === undefined && (
-                    <Form.Group className="mb-3" controlId="channelInput">
-                        <Form.Label>Channel</Form.Label>
+                    <Form.Group controlId="channelInput" className="group-add-post">
+                        <Form.Label className="label-add-post">Channel</Form.Label>
                         <Form.Control
                             onChange={(e) => {
                                 setDestination(e.target.value);
                             }}
-                            placeholder="Enter Channel Name"
+                            placeholder="Enter Channel name"
                             autoFocus={true}
                         />
                     </Form.Group>
@@ -306,118 +408,201 @@ export default function AddPost(): JSX.Element {
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {renderMessagePayload()}
 
-                <Form.Group controlId="fileUploadInput">
-                    <Form.Label>File to upload: </Form.Label>
-                    <Form.Control
-                        title="upload image"
-                        type="file"
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            if (event.target.files === null || event.target.files.length < 1) return;
-                            const file: File = event.target.files[0] as File;
-                            if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-                                setError(() => 'You can only upload images or videos');
-                                return;
-                            }
-
-                            setSelectedImage(event.target.files[0] as File);
+                <div className="d-flex flex-row justify-content-center aling-items-center mb-3">
+                    <Button
+                        variant="warning"
+                        onClick={() => {
+                            setModalShow(true);
                         }}
-                    />
-                </Form.Group>
+                        disabled={!permissions}
+                        className="d-flex align-items-center me-2"
+                    >
+                        <span className="d-flex align-items-center">
+                            <LockIcon hidden={permissions} aria-hidden="true" size={19.2} className="me-1" />
+                        </span>
+                        Purchase Quota
+                    </Button>
+
+                    <Button className="me-2" type="submit" onClick={sendMessage} disabled={showTemporize}>
+                        Send
+                    </Button>
+
+                    <Button
+                        className="me-2 rounded-3 p-2"
+                        variant="dark"
+                        disabled={showTemporize}
+                        aria-label="Input Media"
+                        onClick={() => {
+                            if (hiddenFileInput !== null) {
+                                if (hiddenFileInput.current !== null) hiddenFileInput.current.click();
+                            }
+                        }}
+                    >
+                        <Form.Control
+                            tabIndex={-1}
+                            aria-hidden="true"
+                            className="visually-hidden"
+                            title="upload image"
+                            type="file"
+                            ref={hiddenFileInput}
+                            disabled={showTemporize}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                if (event.target.files === null || event.target.files.length < 1) return;
+                                const file: File = event.target.files[0] as File;
+                                if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+                                    setError(() => 'You can only upload images or videos');
+                                    return;
+                                }
+                                setSelectedImage(event.target.files[0] as File);
+                            }}
+                        />
+                        <Icon.Image aria-hidden="true" role="img" aria-label="upload media" height={25} width={25} />
+                    </Button>
+
+                    <Button
+                        variant="dark"
+                        disabled={showTemporize}
+                        className="rounded-circle p-2"
+                        aria-label="Geolocation"
+                        onClick={setGeolocation}
+                        onKeyUp={(e) => {
+                            if (e.key === ' ' || e.key === 'Enter') {
+                                e.preventDefault();
+                                setGeolocation();
+                            }
+                        }}
+                    >
+                        <Icon.GeoAltFill aria-hidden="true" role="img" height={25} width={25} />
+                    </Button>
+                </div>
+
+                <div hidden={permissions} style={{ color: 'var(--bs-yellow)' }} className="text-center mb-2">
+                    The Purchase Quota service is reserved for verified or pro users.
+                </div>
+
+                <DebtWarning
+                    show={showWarning}
+                    onClose={() => {
+                        setShowWarning(false);
+                    }}
+                />
                 {/* TODO: show geolocation button */}
 
-                <Button className="my-2" onClick={setGeolocation}>
-                    Geolocation
-                </Button>
-
-                <Button className="my-2" type="submit" onClick={sendMessage}>
-                    Send
-                </Button>
+                {error !== null && <Alert variant="danger">{error}</Alert>}
 
                 {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
-                <Form.Group className="mb-3" controlId="periodInput">
-                    <Form.Label> Period: </Form.Label>
-                    <Form.Control
-                        type="number"
-                        onChange={(e) => {
-                            let value = parseInt(e.target.value);
-                            if (isNaN(value)) {
-                                value = 0;
-                            }
-                            setTempPeriod(value);
+                <div className="d-flex flex-row justify-content-center mb-3">
+                    <Form.Check // prettier-ignore
+                        type="switch"
+                        label="Temporize Message"
+                        name="temporize message"
+                        checked={showTemporize}
+                        onChange={() => {
+                            setShowTemporize(!showTemporize);
+                            setSelectedImage(null);
+                            setGeolocationCoord(null);
                         }}
                     />
+                </div>
 
-                    <Form.Label> Times: </Form.Label>
-                    <Form.Control
-                        type="number"
-                        onChange={(e) => {
-                            let value = parseInt(e.target.value);
-                            if (isNaN(value)) {
-                                value = 0;
-                            }
-                            setTempTimes(value);
-                        }}
-                    />
+                <Collapse in={showTemporize}>
+                    <div id="temporized-section">
+                        <Form.Group controlId="periodInput" className="group-add-post m-0">
+                            <Form.Label className="label-add-post"> Period: </Form.Label>
+                            <Form.Control
+                                type="number"
+                                aria-describedby="textPeriod"
+                                min={0}
+                                onChange={(e) => {
+                                    let value = parseInt(e.target.value);
+                                    if (isNaN(value)) {
+                                        value = 0;
+                                    }
+                                    setTempPeriod(value);
+                                }}
+                            />
+                        </Form.Group>
+                        <Form.Text id="textPeriod" className="text-add-post">
+                            Set the Interval between messages
+                        </Form.Text>
 
-                    <Form.Label> Type: </Form.Label>
+                        <Form.Group controlId="timesInput" className="group-add-post m-0">
+                            <Form.Label className="label-add-post"> Times: </Form.Label>
+                            <Form.Control
+                                type="number"
+                                min={0}
+                                aria-describedby="textTimes"
+                                onChange={(e) => {
+                                    let value = parseInt(e.target.value);
+                                    if (isNaN(value)) {
+                                        value = 0;
+                                    }
+                                    setTempTimes(value);
+                                }}
+                            />
+                        </Form.Group>
+                        <Form.Text id="textTimes" className="text-add-post">
+                            Set the number of messages
+                        </Form.Text>
 
-                    <div>
-                        <Form.Check
-                            type="radio"
-                            label="Wikipedia"
-                            name="option"
-                            value="wikipedia"
-                            checked={selectedTempOption === 'wikipedia'}
-                            onChange={(e) => {
-                                setSelectedTempOption(e.target.value as TempSupportedContent);
-                            }}
-                        />
-                        <Form.Check
-                            type="radio"
-                            label="Image"
-                            name="option"
-                            value="image"
-                            checked={selectedTempOption === 'image'}
-                            onChange={(e) => {
-                                setSelectedTempOption(e.target.value as TempSupportedContent);
-                            }}
-                        />
-                        <Form.Check
-                            type="radio"
-                            label="Text"
-                            name="option"
-                            value="text"
-                            checked={selectedTempOption === 'text'}
-                            onChange={(e) => {
-                                setSelectedTempOption(e.target.value as TempSupportedContent);
-                            }}
-                        />
+                        <Form.Group className="d-flex flex-row px-1" controlId="typeTemporize">
+                            <Form.Label> Type: </Form.Label>
+                            <div className="d-flex flex-row justify-content-around w-100">
+                                <Form.Check
+                                    type="radio"
+                                    label="Wikipedia"
+                                    name="option"
+                                    value="wikipedia"
+                                    checked={selectedTempOption === 'wikipedia'}
+                                    onChange={(e) => {
+                                        setSelectedTempOption(e.target.value as TempSupportedContent);
+                                    }}
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    label="Image"
+                                    name="option"
+                                    value="image"
+                                    checked={selectedTempOption === 'image'}
+                                    onChange={(e) => {
+                                        setSelectedTempOption(e.target.value as TempSupportedContent);
+                                    }}
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    label="Text"
+                                    name="option"
+                                    value="text"
+                                    checked={selectedTempOption === 'text'}
+                                    onChange={(e) => {
+                                        setSelectedTempOption(e.target.value as TempSupportedContent);
+                                    }}
+                                />
+                            </div>
+                        </Form.Group>
+
+                        <div className="d-flex flex-row justify-content-center">
+                            <Button className="my-2" type="submit" onClick={sendTemporizedMessage}>
+                                Send Temporized
+                            </Button>
+                        </div>
                     </div>
-                </Form.Group>
-
-                <Button className="my-2" type="submit" onClick={sendTemporizedMessage}>
-                    Send Temporizzato
-                </Button>
-                {error !== null && (
-                    <Row>
-                        <Alert variant="danger">{error}</Alert>
-                    </Row>
-                )}
-                <Button
-                    variant="warning"
-                    onClick={() => {
-                        setModalShow(true);
-                    }}
-                >
-                    Acquista Quota
-                </Button>
+                </Collapse>
 
                 <PurchaseQuota
                     show={modalShow}
                     onHide={() => {
                         setModalShow(false);
                     }}
+                />
+
+                <PayDebt
+                    show={payDebt}
+                    onHide={() => {
+                        setPayDebt(false);
+                    }}
+                    debt={debt}
                 />
             </Form>
         </SidebarSearchLayout>

@@ -19,18 +19,18 @@ export function SideBar(): JSX.Element {
             authState,
             (user) => {
                 setRole(() => user.role);
-                console.log(user);
             },
             () => {},
         );
     }, [authState]);
 
     return (
-        <Navbar className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
+        <Navbar role="menubar" className="d-flex flex-column align-items-start align-content-evenly" sticky="top">
             <SideButton to="/" name="Home" SideIcon={Icon.HouseFill} />
 
             {authState !== null ? (
                 <>
+                    <SideButton to="/search" name="Search" SideIcon={Icon.Search} />
                     <SideButton to="/settings" name="Impostazioni" SideIcon={Icon.GearFill} />
 
                     <SideButton to="/logout" name="Logout" SideIcon={Icon.BoxArrowLeft} />
@@ -39,7 +39,6 @@ export function SideBar(): JSX.Element {
 
                     <SideButton to="/addpost" name="Nuovo Post" SideIcon={Icon.PencilSquare} />
 
-                    <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
                     {role === UserRoles.SMM && (
                         <SideButton
                             to={`${squealerBaseUrl}/smm`}
@@ -66,6 +65,7 @@ export function SideBar(): JSX.Element {
                     <SideButton to="/recover" name="Reset" SideIcon={Icon.ShieldLockFill} />
                 </>
             )}
+            <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
         </Navbar>
     );
 }

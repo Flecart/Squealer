@@ -7,6 +7,7 @@ export async function fetchApi<T>(
     auth: AuthResponse | null,
     success: (a: T) => void,
     error: (a: HttpError) => void,
+    forceCache?: boolean,
 ): void {
     let headers = new Headers();
     if (init.headers === undefined) {
@@ -16,6 +17,8 @@ export async function fetchApi<T>(
         if (init.headers instanceof Headers) headers = init.headers;
         else headers = new Headers(init.headers);
     }
+
+    if (forceCache !== undefined && forceCache) init.cache = 'force-cache';
 
     if (auth !== null) {
         headers.append('Authorization', 'Bearer ' + auth.token);

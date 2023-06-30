@@ -1,13 +1,10 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
-import { AuthContext } from '../contexts';
+import React, { useCallback, useState } from 'react';
+import { Alert, Button, Container, Form, FormGroup, Spinner } from 'react-bootstrap';
 import { apiResetPassword as resetPasswordEndpoint } from 'src/api/routes';
 import { fetchApi } from 'src/api/fetch';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 
 export default function Reset(): JSX.Element {
-    const [authState] = useContext(AuthContext);
-
     const [formName, setFormName] = useState('');
 
     const [otp, setOtp] = useState('');
@@ -34,7 +31,7 @@ export default function Reset(): JSX.Element {
                             username: formName,
                         }),
                     },
-                    authState,
+                    null,
                     (resetpassword) => {
                         setResetPassword(resetpassword.otp);
                         setPendingRequest(false);
@@ -51,57 +48,57 @@ export default function Reset(): JSX.Element {
 
     return (
         <SidebarSearchLayout>
-            <div>
+            <Container className="container-form-bs">
                 {resetPassword === null ? (
-                    <Form className="container-fluid m-0 p-3" onSubmit={showResetPassword}>
-                        <FormGroup className="mb-3">
-                            <Form.Label className="text-light">Username</Form.Label>
+                    <Form className="form-form-bs" onSubmit={showResetPassword}>
+                        <h5 className="subtitle-form-bs">
+                            Use your username and recovery password to Reset your password so you can access to your
+                            account.
+                        </h5>
+                        <FormGroup className="input-form-bs" controlId="UsernameForm">
+                            <Form.Label>Username</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={formName}
                                 onChange={(e) => {
                                     setFormName(e.target.value);
                                 }}
-                                placeholder="Inserisci il tuo username"
+                                placeholder="Insert your username"
                             />
                         </FormGroup>
-                        <FormGroup className="mb-3">
-                            <Form.Label className="text-light">Password di Recupero</Form.Label>
+                        <FormGroup className="input-form-bs" controlId="RecoveryPasswordForm">
+                            <Form.Label>Recovery Password</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={otp}
                                 onChange={(e) => {
                                     setOtp(e.target.value);
                                 }}
-                                placeholder="Inserisci la tua Password di Recupero"
+                                placeholder="Insert your recovery password"
                             />
                         </FormGroup>
-                        <Button className="" variant="outline-success" type="submit">
+                        <Button className="button-form-bs" variant="outline-success" type="submit">
                             Conferma
                         </Button>
+                        {errorMessage !== null && (
+                            <Alert className="alert-form-bs" variant="danger">
+                                {errorMessage}
+                            </Alert>
+                        )}
+                        {pendingRequest && (
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                        )}
                     </Form>
                 ) : (
-                    <Alert variant="success">
-                        La tua password è stata resettata con successo. <br />
-                        La tua nuova password è:
+                    <Alert className="alert-form-bs" variant="success">
+                        Your password has been resetted with success. <br />
+                        Your new password is:
                         <b>{resetPassword}</b>
                     </Alert>
                 )}
-                {errorMessage !== null && (
-                    <>
-                        <br />
-                        <p className="text-danger">{errorMessage}</p>
-                    </>
-                )}
-                {pendingRequest && (
-                    <>
-                        <br />
-                        <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                    </>
-                )}
-            </div>
+            </Container>
         </SidebarSearchLayout>
     );
 }

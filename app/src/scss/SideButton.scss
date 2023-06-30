@@ -9,7 +9,8 @@
     border: none;
 }
 
-.sideButton:active {
+.sideButton:active,
+.sideButton:focus {
     background-color: rgba($color: gray, $alpha: 0.5) !important;
     border: none;
 }

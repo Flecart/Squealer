@@ -137,7 +137,7 @@ export default function PostButtons({ messageId, reactions }: PostButtonProps): 
             {reactionsAndButtons.map((currentReaction: IReactionButton) => {
                 return (
                     <Button
-                        key={currentReaction.type}
+                        key={currentReaction.type.toString()}
                         disabled={!active}
                         onClick={() => {
                             handleReaction(

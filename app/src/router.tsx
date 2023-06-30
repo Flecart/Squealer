@@ -14,6 +14,7 @@ import Settings from './views/Settings';
 import Channel from './views/Channel';
 import Notification from './views/Notification';
 import { CreateChannel } from './views/CreateChannel';
+import SearchPage from './views/SearchPage';
 import Channels from './views/Channels';
 import Reset from './views/Reset';
 
@@ -22,13 +23,15 @@ interface Props {
 }
 
 const ProtectedRoute = ({ children }: Props): JSX.Element => {
-    const [authState] = useContext(AuthContext);
+    const [authState, setAuth] = useContext(AuthContext);
 
-    const isTokenExpired = (token: string): boolean =>
+    const isTokenExpired = (token: string): boolean => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        Date.now() >= JSON.parse(window.atob(token.split('.')[1] as string)).exp * 1000;
+        return Date.now() >= JSON.parse(window.atob(token.split('.')[1] as string)).exp * 1000;
+    };
 
     if (authState === null || isTokenExpired(authState.token)) {
+        setAuth(null);
         return <Navigate to="/login" replace />;
     }
 
@@ -39,6 +42,14 @@ const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Home />} />
+            <Route
+                path="/search"
+                element={
+                    <ProtectedRoute>
+                        <SearchPage />
+                    </ProtectedRoute>
+                }
+            />
             <Route
                 path="/settings"
                 element={
@@ -67,14 +78,7 @@ const router = createBrowserRouter(
                 }
             />
             <Route path="/user/:username" element={<User />} />
-            <Route
-                path="/recover"
-                element={
-                    <ProtectedRoute>
-                        <Reset />
-                    </ProtectedRoute>
-                }
-            />
+            <Route path="/recover" element={<Reset />} />
             <Route path="*" element={<NotFound />} />
             <Route
                 path="/addpost/"
