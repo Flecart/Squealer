@@ -92,6 +92,8 @@ export class ChannelService {
             throw new HttpError(400, 'Channel name is too long');
         } else if (channelName.length < 3) {
             throw new HttpError(400, 'Channel name is too short, minimum 3 characters');
+        } else if (channelName.match(/^[a-zA-Z0-9]+$/g) === null) {
+            throw new HttpError(400, 'Channel name can only contain alphanumeric characters');
         }
 
         const channel = new ChannelModel({
