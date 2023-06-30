@@ -283,6 +283,8 @@ export default function AddPost(): JSX.Element {
                 authState,
                 (message) => {
                     setError(() => null);
+                    setSelectedImage(null);
+                    setGeolocationCoord(null);
                     navigate(`/message/${message.id}`);
                 },
                 (error) => {
@@ -498,6 +500,8 @@ export default function AddPost(): JSX.Element {
                         checked={showTemporize}
                         onChange={() => {
                             setShowTemporize(!showTemporize);
+                            setSelectedImage(null);
+                            setGeolocationCoord(null);
                         }}
                     />
                 </div>
