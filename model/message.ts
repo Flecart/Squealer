@@ -22,16 +22,25 @@ export const CriticMass = 2;
 
 export const DefaultPageSize = 10;
 
-export type MessageSortTypes = 'reactions-desc' | 'reactions-asc' | 'popularity' | 'risk' | 'unpopularity' | 'recently';
+export type MessageSortTypes =
+    | 'reactions-desc'
+    | 'reactions-asc'
+    | 'popularity'
+    | 'risk'
+    | 'unpopularity'
+    | 'recent-asc'
+    | 'recent-desc';
 
 export function messageSort(a: IMessage, b: IMessage, type: MessageSortTypes): number {
     switch (type) {
-        case 'recently':
-            return sortRecently(a, b);
+        case 'recent-asc':
+            return sortMostRecent(a, b);
+        case 'recent-desc':
+            return -sortMostRecent(a, b);
         case 'reactions-desc':
             return -sortReactionsAsc(a, b);
         case 'reactions-asc':
-            return -sortReactionsAsc(a, b);
+            return sortReactionsAsc(a, b);
         case 'popularity':
             return sortPopularity(a, b);
         case 'unpopularity':
@@ -108,7 +117,7 @@ export interface ReactionResponse {
     category: number;
 }
 
-export function sortRecently(a: IMessage, b: IMessage): number {
+export function sortMostRecent(a: IMessage, b: IMessage): number {
     if (a.date > b.date) return -1;
     if (a.date < b.date) return 1;
     return 0;

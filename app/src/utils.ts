@@ -79,6 +79,7 @@ export function toEnglishString(n: number): string {
     const result = translate(n);
     return prefix + result.trim();
 }
+
 export function splitArrayInChunks<T>(array: T[], splitSize: number): T[][] {
     const numberPage = Math.trunc(array.length / splitSize) + (array.length % splitSize > 0 ? 1 : 0);
 

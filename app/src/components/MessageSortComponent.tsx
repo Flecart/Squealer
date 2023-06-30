@@ -24,7 +24,7 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
         loading: false,
         error: null,
         messageIds: hasMessages ? messageIds : null,
-        sortBy: 'recently',
+        sortBy: 'recent-asc',
         firstTime: hasMessages,
     };
     const [state, setState] = useState<MessageSortComponentState>(defState);
@@ -84,7 +84,8 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
                         <option value="popularity">Sort By: Popularity</option>
                         <option value="risk">Sort By: Risk</option>
                         <option value="unpopularity">Sort By: Unpopularity</option>
-                        <option value="recently">Sort By: Most recent</option>
+                        <option value="recent-asc">Sort By: Most recent</option>
+                        <option value="recent-desc">Sort By: Oldest</option>
                     </Form.Select>
                 </div>
                 {state.messageIds !== null && <MessageListPageLoader childrens={state.messageIds} />}
