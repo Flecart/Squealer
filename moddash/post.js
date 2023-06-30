@@ -1,5 +1,7 @@
 /* globals Handlebars */
 
+import { moddashPostBase, postCopyRoute, postReactionRoute, stringFormat, postWithIdRoute } from './routes.js';
+
 const global = {
     context: {
         loading: false,
@@ -77,7 +79,7 @@ function getPosts() {
         global.context.error = null;
         global.context.posts = null;
         const context = global.context;
-        fetch(`/api/moddash/posts`, {
+        fetch(moddashPostBase, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -104,10 +106,14 @@ function getPosts() {
     }
 }
 
-function copyToChannel(postId) {
+/**
+ *
+ * @param {string} postId
+ */
+export function copyToChannel(postId) {
     const copyToChannel = document.getElementById(`copy-channel-${postId}`).value;
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
-    fetch(`/api/moddash/post/${postId}/copy`, {
+    fetch(stringFormat(postCopyRoute, [postId]), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -119,14 +125,18 @@ function copyToChannel(postId) {
     });
 }
 
-function changeReaction(postId) {
+/**
+ *
+ * @param {string} postId
+ */
+export function changeReaction(postId) {
     const reactions = ['angry', 'dislike', 'like', 'love'];
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
     const body = {};
     for (const index in reactions) {
         body[reactions[index]] = document.getElementById(`${reactions[index]}-${postId}`).value;
     }
-    fetch(`/api/moddash/post/${postId}/reaction`, {
+    fetch(stringFormat(postReactionRoute, [postId]), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -136,9 +146,13 @@ function changeReaction(postId) {
     });
 }
 
-function deletePost(postId) {
+/**
+ *
+ * @param {string} postId
+ */
+export function deletePost(postId) {
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
-    fetch(`/api/moddash/post/${postId}`, {
+    fetch(stringFormat(postWithIdRoute, [postId]), {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
