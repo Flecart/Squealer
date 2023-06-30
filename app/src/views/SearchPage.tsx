@@ -1,38 +1,46 @@
 import { useContext, useState } from 'react';
 import { Alert, Spinner } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
-import MessageListLoader from 'src/components/MessageListLoader';
 import { AuthContext } from 'src/contexts';
 import type SearchResult from '@model/search';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { ChannelListLoader } from 'src/components/ChannelList';
 import { apiBase } from 'src/api/routes';
+import MessageListPageLoader from 'src/components/MessageListPagerLoader';
+
+interface SearchState {
+    searching: boolean;
+    searchResults: SearchResult | null;
+    searchError: string;
+}
 
 export default function Search(): JSX.Element {
-    const [searching, setSearching] = useState<boolean>(false);
-    const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
-    const [searchError, setSearchError] = useState<string>('');
+    const [state, setState] = useState<SearchState>({
+        searching: false,
+        searchResults: null,
+        searchError: '',
+    });
 
     const [authState] = useContext(AuthContext);
 
     function Content(): JSX.Element {
-        if (searching) {
+        if (state.searching) {
             return (
                 <div className="flex flex-col items-center justify-center h-full">
                     <Spinner animation="border" role="status" />
                 </div>
             );
         }
-        if (searchError !== '') {
+        if (state.searchError !== '') {
             return (
                 <div className="flex flex-col items-center justify-center h-full">
-                    <Alert variant="danger">{searchError}</Alert>
+                    <Alert variant="danger">{state.searchError}</Alert>
                 </div>
             );
         }
 
-        if (searchResults === null) return <></>;
-        if (searchResults.channel.length === 0 && searchResults.messages.length === 0)
+        if (state.searchResults === null) return <></>;
+        if (state.searchResults.channel.length === 0 && state.searchResults.messages.length === 0)
             return (
                 <div className="flex flex-col items-center justify-center h-full">
                     <Alert variant="info">No results found</Alert>
@@ -40,8 +48,12 @@ export default function Search(): JSX.Element {
             );
         return (
             <>
-                {searchResults.channel.length !== 0 && <ChannelListLoader channels={searchResults.channel} />}
-                {searchResults.messages.length !== 0 && <MessageListLoader childrens={searchResults.messages} />}
+                {state.searchResults.channel.length !== 0 && (
+                    <ChannelListLoader channels={state.searchResults.channel} />
+                )}
+                {state.searchResults.messages.length !== 0 && (
+                    <MessageListPageLoader childrens={state.searchResults.messages} />
+                )}
             </>
         );
     }
@@ -52,21 +64,22 @@ export default function Search(): JSX.Element {
         const [search, setSearch] = useState<string>('');
         const handleSearch = (e: React.FormEvent): void => {
             e.preventDefault();
-            setSearching(true);
-            setSearchError('');
-            setSearchResults(null);
+
+            setState({
+                searching: true,
+                searchResults: null,
+                searchError: '',
+            });
             const searchParam = new URLSearchParams(`search=${encodeURI(search)}`).toString();
             fetchApi<SearchResult>(
                 `${apiBase}/search?${searchParam}`,
                 { method: 'GET' },
                 authState,
                 (results) => {
-                    setSearchResults(results);
-                    setSearching(false);
+                    setState({ ...state, searching: false, searchResults: results });
                 },
                 (error) => {
-                    setSearchError(error.message);
-                    setSearching(false);
+                    setState({ ...state, searching: false, searchError: error.message });
                 },
             );
         };
