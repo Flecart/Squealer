@@ -16,6 +16,7 @@ function AddChannelModal(): JSX.Element {
     const [successText, setSuccessText] = useState<string>('');
     const [errorText, setErrorText] = useState<string>('');
     const [channelName, setChannelName] = useState<string>('');
+    const [channelType, setChannelType] = useState<'public' | 'private'>('public');
 
     const handleClose = (): void => {
         setShow(false);
@@ -35,8 +36,14 @@ function AddChannelModal(): JSX.Element {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        console.log(channelName);
-        console.log(auth);
+
+        if (channelName.length === 0) {
+            setErrorText('Channel name cannot be empty');
+            setTimeout(() => {
+                setErrorText('');
+            }, 2000);
+            return;
+        }
 
         fetchApi<ChannelResponse>(
             apiBuyChannel,
@@ -44,7 +51,7 @@ function AddChannelModal(): JSX.Element {
                 method: 'POST',
                 body: JSON.stringify({
                     channelName,
-                    type: 'public',
+                    type: channelType,
                 }),
             },
             auth,
@@ -69,7 +76,7 @@ function AddChannelModal(): JSX.Element {
                     You can buy a channel, just enter the name of the channel. It will cost
                     <span className="fw-bold"> {channelCost}€</span>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3" controlId="formGroupChannelName">
+                        <Form.Group className="mb-2" controlId="formGroupChannelName">
                             <Form.Label>Channel name:</Form.Label>
                             <Form.Control
                                 value={channelName}
@@ -80,7 +87,14 @@ function AddChannelModal(): JSX.Element {
                                 placeholder="Channel Name"
                             />
                         </Form.Group>
-                        <Button variant="primary" type="submit">
+                        <Form.Check
+                            type="switch"
+                            label={'Channel type: ' + channelType}
+                            onChange={() => {
+                                setChannelType((prev) => (prev === 'public' ? 'private' : 'public'));
+                            }}
+                        />
+                        <Button variant="primary" className="mt-2" type="submit">
                             {' '}
                             Buy{' '}
                         </Button>
