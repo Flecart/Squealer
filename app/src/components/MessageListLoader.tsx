@@ -30,7 +30,7 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
                 setError(error.message);
             },
         );
-    }, [childrens]);
+    }, []);
 
     function Posts(): JSX.Element {
         if (messages === null && error === null) {

@@ -15,15 +15,17 @@ interface MessageSortComponentState {
     error: string | null;
     messages: string[] | null;
     sortBy: string;
+    firstTime: boolean;
 }
 
 export default function MessageSortComponent({ def, reqInit, url }: MessageSortComponentProps): JSX.Element {
     const thereIsDefault = def !== undefined;
     const defState = {
-        loading: !thereIsDefault,
+        loading: false,
         error: null,
         messages: thereIsDefault ? def : null,
         sortBy: 'recently',
+        firstTime: thereIsDefault,
     };
     const [state, setState] = useState<MessageSortComponentState>(defState);
 
@@ -31,7 +33,7 @@ export default function MessageSortComponent({ def, reqInit, url }: MessageSortC
 
     const getMessage = (): void => {
         if (state.loading) return;
-        setState({ ...state, loading: true, error: null });
+        setState({ ...state, loading: true, error: null, firstTime: false });
 
         fetchApi<string[]>(
             url + `?sort=${state.sortBy}`,
@@ -47,7 +49,7 @@ export default function MessageSortComponent({ def, reqInit, url }: MessageSortC
     };
 
     useEffect(() => {
-        if (state.messages === null) return;
+        if (state.firstTime) return;
         getMessage();
     }, [state.sortBy]);
     function Content(): JSX.Element {
@@ -69,7 +71,7 @@ export default function MessageSortComponent({ def, reqInit, url }: MessageSortC
         }
         return (
             <Stack direction="vertical">
-                <div className="d-flex justify-content-center">
+                <div className="d-flex justify-content-center mb-4">
                     <Form.Select
                         aria-label="TODO"
                         value={state.sortBy}
