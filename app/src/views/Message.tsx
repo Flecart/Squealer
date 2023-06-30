@@ -4,7 +4,7 @@ import { Alert, Spinner, Button } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase } from 'src/api/routes';
-import MessageListLoader from 'src/components/MessageListLoader';
+import MessageListPageLoader from 'src/components/MessageListPagerLoader';
 import Post from 'src/components/posts/Post';
 import { AuthContext } from 'src/contexts';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
@@ -48,7 +48,7 @@ export default function Message(): JSX.Element {
         return (
             <>
                 <h3>Comments </h3>
-                <MessageListLoader childrens={message.children.map((id) => id.toString())} />
+                <MessageListPageLoader childrens={message.children.map((id) => id.toString())} />
             </>
         );
     }

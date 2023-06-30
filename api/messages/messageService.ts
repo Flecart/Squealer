@@ -10,6 +10,7 @@ import {
     messageSort,
     type MessageSortTypes,
     IMessageWithPages,
+    IReaction,
 } from '@model/message';
 import { HttpError } from '@model/error';
 import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
@@ -23,6 +24,7 @@ import { ChannelService } from '@api/channel/channelService';
 import logger from '@server/logger';
 import UserService from '@api/user/userService';
 import { DEFAULT_QUOTA } from '@config/api';
+import { HistoryUpdateType } from '@model/history';
 
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
@@ -31,30 +33,45 @@ type UserModelType = mongoose.HydratedDocument<IUser>;
 const messageServiceLog = logger.child({ label: 'messageService' });
 
 export class MessageService {
+    public async getUserMessagesId(username: string, sort?: MessageSortTypes): Promise<string[]> {
+        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
+            async (message) => {
+                const channel = await ChannelModel.findOne({ name: message.channel });
+                if (channel !== null && isPublicChannel(channel)) return true;
+                else return false;
+            },
+        );
+
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            messages = messages.sort(customSort);
+        }
+
+        return messages.map((message) => message._id.toString());
+    }
+
     public async getOwnedMessages(
         username: string,
         page: number,
         limit: number,
         sort?: MessageSortTypes,
     ): Promise<IMessageWithPages> {
-        const messages = await (
-            await MessageModel.find({ creator: username, channel: { $ne: null } })
-        ).filter(async (message) => {
-            const channel = await ChannelModel.findOne({ name: message.channel });
-            if (channel !== null && isPublicChannel(channel)) return true;
-            else return false;
-        });
-
-        let returnMessages: IMessage[] = [];
+        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
+            async (message) => {
+                const channel = await ChannelModel.findOne({ name: message.channel });
+                if (channel !== null && isPublicChannel(channel)) return true;
+                else return false;
+            },
+        );
         if (sort) {
             const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
-            returnMessages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
+            messages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
         } else {
-            returnMessages = messages.slice(page * limit, (page + 1) * limit);
+            messages = messages.slice(page * limit, (page + 1) * limit);
         }
 
         return {
-            messages: returnMessages,
+            messages: messages,
             pages: Math.ceil(messages.length / limit),
         } as IMessageWithPages;
     }
@@ -71,6 +88,12 @@ export class MessageService {
         else if (message.parent !== undefined) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
+            parent.historyUpdates.push({
+                type: HistoryUpdateType.REPLY,
+                value: 1, // one new reply
+            });
+            parent.markModified('historyUpdates');
+            await parent.save();
         } else {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
@@ -168,27 +191,10 @@ export class MessageService {
         let negativeReactions = 0;
         let positiveReactions = 0;
 
-        message.reaction.forEach((reaction) => {
-            switch (reaction.type) {
-                case IReactionType.ANGRY:
-                    negativeReactions += 2;
-                    break;
-
-                case IReactionType.DISLIKE:
-                    negativeReactions += 1;
-                    break;
-
-                case IReactionType.LIKE:
-                    positiveReactions += 1;
-                    break;
-
-                case IReactionType.LOVE:
-                    positiveReactions += 2;
-                    break;
-
-                default:
-                    break;
-            }
+        message.reaction.forEach((reaction: IReaction) => {
+            const reactionValue = this._getReactionValue(reaction.type);
+            if (reactionValue < 0) negativeReactions += -reactionValue;
+            else positiveReactions += reactionValue;
         });
 
         if (negativeReactions > CriticMass && positiveReactions > CriticMass) {
@@ -213,11 +219,30 @@ export class MessageService {
             message.category = ICategory.NORMAL;
         }
 
+        message.historyUpdates.push({
+            type: HistoryUpdateType.POPULARITY,
+            value: this._getReactionValue(type),
+        });
+        message.markModified('historyUpdates');
         message.markModified('reaction');
-        message.save();
-        console.info(message);
+        await message.save();
 
         return { reaction: type, category: message.category };
+    }
+
+    private _getReactionValue(reaction: IReactionType) {
+        switch (reaction) {
+            case IReactionType.ANGRY:
+                return -2;
+            case IReactionType.DISLIKE:
+                return -1;
+            case IReactionType.LIKE:
+                return 1;
+            case IReactionType.LOVE:
+                return 2;
+            default:
+                return 0;
+        }
     }
 
     private async _getChannel(username: string, channelName: string): Promise<ChannelModelType> {

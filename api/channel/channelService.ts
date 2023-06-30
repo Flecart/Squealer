@@ -1,11 +1,13 @@
 import { HttpError } from '@model/error';
 import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
 import ChannelModel from '@db/channel';
+import MessageModel from '@db/message';
 import InvitationModel from '@db/invitation';
 import UserModel from '@db/user';
 import { UserRoles } from '@model/user';
 import { HydratedDocument } from 'mongoose';
 import { type IInvitation } from '@model/invitation';
+import { IMessage, MessageSortTypes, messageSort } from '@model/message';
 
 export class ChannelService {
     public async getChannels(channelIds: string[], user: string): Promise<IChannel[]> {
@@ -86,6 +88,12 @@ export class ChannelService {
 
         if ((await ChannelModel.findOne({ name: channelName })) !== null) {
             throw new HttpError(400, 'Channel name already exists');
+        } else if (channelName.length > 30) {
+            throw new HttpError(400, 'Channel name is too long');
+        } else if (channelName.length < 3) {
+            throw new HttpError(400, 'Channel name is too short, minimum 3 characters');
+        } else if (channelName.match(/^[a-zA-Z0-9]+$/g) === null) {
+            throw new HttpError(400, 'Channel name can only contain alphanumeric characters');
         }
 
         const channel = new ChannelModel({
@@ -115,7 +123,7 @@ export class ChannelService {
                     }
                 });
         }
-        channel.save();
+        await channel.save();
         return channel;
     }
 
@@ -305,5 +313,18 @@ export class ChannelService {
         channel.markModified('users');
         await channel.save();
         return newPermission;
+    }
+    public async getMessageIds(
+        channelName: string,
+        user: string | null,
+        sort: MessageSortTypes | undefined,
+    ): Promise<string[]> {
+        const temp = await this.getChannel(channelName, user);
+        let messages = await MessageModel.find({ _id: { $in: temp.messages } });
+        if (sort) {
+            const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
+            messages = messages.sort(customSort);
+        }
+        return messages.map((m) => m._id.toString());
     }
 }

@@ -6,6 +6,7 @@ import { getMaybeUserFromRequest, getUserFromRequest } from '@api/utils';
 import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse, PermissionType } from '@model/channel';
 import { type ISuccessMessage } from '@model/user';
 import logger from '@server/logger';
+import { MessageSortTypes } from '@model/message';
 
 const channelLogger = logger.child({ label: 'channel' });
 
@@ -69,6 +70,18 @@ export class ChannelController extends Controller {
     @SuccessResponse(200)
     public async GetChannel(@Path('channelName') channelName: string, @Request() request: any): Promise<IChannel> {
         return new ChannelService().getChannel(channelName, getMaybeUserFromRequest(request));
+    }
+
+    @Get('{channelName}/messagesId')
+    @Security('maybeJWT')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200)
+    public async getMessageIds(
+        @Path('channelName') channelName: string,
+        @Request() request: any,
+        @Query('sort') sort?: MessageSortTypes,
+    ): Promise<string[]> {
+        return new ChannelService().getMessageIds(channelName, getMaybeUserFromRequest(request), sort);
     }
 
     @Post('{channelName}/join')

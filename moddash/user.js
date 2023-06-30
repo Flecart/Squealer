@@ -21,9 +21,9 @@
         context.users = filteredUsers;
 
         document.getElementById('main-content').innerHTML = template(context);
-        document.getElementById('search-user').onchange = searchUser;
     };
 
+    document.getElementById('search-user').onchange = searchUser;
     const userCardSource = document.getElementById(USERS_CARD_ID).innerHTML;
     const userCardTemplate = Handlebars.compile(userCardSource);
 
@@ -43,7 +43,6 @@
             users = jsonResponse;
             context.users = jsonResponse;
             document.getElementById('main-content').innerHTML = template(context);
-            document.getElementById('search-user').onchange = searchUser;
         })
         .catch((error) => {
             context.error = error;

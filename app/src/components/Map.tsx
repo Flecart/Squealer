@@ -59,7 +59,7 @@ function Map({ positions, className }: MapProps): JSX.Element {
                 memoPositions.length > 0 ? (
                     <MapContainer
                         className={className ?? ''}
-                        style={{ height: '15rem' }}
+                        style={{ height: '15rem', zIndex: '0' }}
                         center={memoPositions[memoPositions.length - 1]}
                         zoom={13}
                         scrollWheelZoom={false}

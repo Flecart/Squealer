@@ -1,0 +1,16 @@
+.label-add-post {
+    @extend .text-white;
+    @extend .input-group-text;
+    @extend .m-0;
+}
+
+.group-add-post {
+    @extend .input-group;
+    @extend .mb-3;
+}
+
+.text-add-post {
+    @extend .text-white;
+    @extend .mb-3;
+    @extend .d-inline-block;
+}

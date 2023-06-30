@@ -23,6 +23,8 @@ export function isPublicChannel(channel: IChannel): boolean {
     );
 }
 
+export const channelCost: number = 2;
+
 // user e public sono userchannels, altri sono ownedchannels
 export interface IChannel {
     name: string;
@@ -67,4 +69,8 @@ export function sortChannel(a: IChannel, b: IChannel): number {
     if (an === undefined) return 1;
     if (bn === undefined) return -1;
     return an - bn;
+}
+export enum ChannelSortBy {
+    POSTS = 'npost',
+    USER = 'nuser',
 }

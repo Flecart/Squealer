@@ -1,4 +1,5 @@
 import type mongoose from 'mongoose';
+import type { HistoryUpdate } from '@model/history';
 /** 
 Commento per le api
 */
@@ -24,14 +25,25 @@ export const mediaQuotaValue = 125; // un messaggio vale 100 caratteri
 
 export const DefaultPageSize = 10;
 
-export type MessageSortTypes = 'reactions-desc' | 'reactions-asc' | 'popularity' | 'risk' | 'unpopularity';
+export type MessageSortTypes =
+    | 'reactions-desc'
+    | 'reactions-asc'
+    | 'popularity'
+    | 'risk'
+    | 'unpopularity'
+    | 'recent-asc'
+    | 'recent-desc';
 
 export function messageSort(a: IMessage, b: IMessage, type: MessageSortTypes): number {
     switch (type) {
+        case 'recent-asc':
+            return sortMostRecent(a, b);
+        case 'recent-desc':
+            return -sortMostRecent(a, b);
         case 'reactions-desc':
             return -sortReactionsAsc(a, b);
         case 'reactions-asc':
-            return -sortReactionsAsc(a, b);
+            return sortReactionsAsc(a, b);
         case 'popularity':
             return sortPopularity(a, b);
         case 'unpopularity':
@@ -60,6 +72,8 @@ export interface IMessage {
     views: number; // impressions.
     reaction: IReaction[];
     category: ICategory;
+
+    historyUpdates: HistoryUpdate[];
 }
 
 export interface IMessageWithPages {
@@ -108,7 +122,7 @@ export interface ReactionResponse {
     category: number;
 }
 
-export function sortRecently(a: IMessage, b: IMessage): number {
+export function sortMostRecent(a: IMessage, b: IMessage): number {
     if (a.date > b.date) return -1;
     if (a.date < b.date) return 1;
     return 0;

@@ -79,6 +79,16 @@ export class MessageController {
         return new MessageService().getOwnedMessages(user, page, limit, sort);
     }
 
+    @Get('/user/{username}/messageIds')
+    @Response<IMessage[]>(200, 'OK')
+    public async getMessageIds(
+        @Path('username') user: string,
+        @Query('sort') sort?: MessageSortTypes,
+    ): Promise<string[]> {
+        log.info(`userMessage: user: ${user},  sort: ${sort}`);
+        return new MessageService().getUserMessagesId(user, sort);
+    }
+
     @Get('/{id}/')
     @Response<IMessage>(200, 'OK')
     public async readThread(@Path('id') id: string): Promise<IMessage> {

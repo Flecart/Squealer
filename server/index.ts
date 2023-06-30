@@ -8,10 +8,10 @@ import cors from 'cors';
 
 import swaggerUi from 'swagger-ui-express';
 import initMongo from './mongo';
-import initStorageDir from './storage';
 import { HttpError } from '@model/error';
 import logger from './logger';
 import { errors as joseErrors } from 'jose';
+import collectEvents from './history';
 
 const indexLogger = logger.child({ label: 'index' });
 
@@ -40,7 +40,7 @@ function logMiddleware(req: ExRequest, _res: ExResponse, next: Function) {
 }
 
 initMongo()
-    .then(initStorageDir)
+    .then(collectEvents)
     .then(() => {
         indexLogger.info('MongoDB and storage dir initialized');
 
