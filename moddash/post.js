@@ -1,6 +1,6 @@
 /* globals Handlebars */
 
-import { moddashPostBase, postCopyRoute, postReactionRoute, stringFormat, postWithIdRoute } from './routes.js';
+import { moddashPosts, postCopyRoute, postReactionRoute, stringFormat, postWithIdRoute } from './routes.js';
 
 const global = {
     context: {
@@ -79,7 +79,7 @@ function getPosts() {
         global.context.error = null;
         global.context.posts = null;
         const context = global.context;
-        fetch(moddashPostBase, {
+        fetch(moddashPosts, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

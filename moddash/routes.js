@@ -15,7 +15,8 @@ export function stringFormat(template, args) {
     return formatted;
 }
 const moddashBase = '/api/moddash';
-export const moddashPostBase = '/api/moddash/post';
+const moddashPostBase = '/api/moddash/post';
+export const moddashPosts = '/api/moddash/posts';
 
 export const updateRoleRoute = `${moddashBase}/updateRole/{0}/{1}}`;
 export const channelRoute = `${moddashBase}/channel`;
@@ -24,7 +25,7 @@ export const postCopyRoute = `${moddashPostBase}/{0}/copy`;
 export const postReactionRoute = `${moddashPostBase}/{0}/reaction`;
 export const postWithIdRoute = `${moddashPostBase}/{0}`;
 
-export const userRoute = `${moddashBase}/user/{0}`;
+export const userRoute = `/api/user/{0}`;
 export const usersRoute = `${moddashBase}/users`;
 
 export const changeQuotaRoute = `${moddashBase}/changeQuota/{0}`;
