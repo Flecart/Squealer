@@ -1,4 +1,4 @@
-import { stringFormat, userRoute } from './routes';
+import { stringFormat, userRoute } from './routes.js';
 
 /* globals Handlebars */
 (function () {
