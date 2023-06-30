@@ -1,5 +1,5 @@
 import { type IMessage } from '@model/message';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase } from 'src/api/routes';
@@ -15,6 +15,11 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
     const [authState] = useContext(AuthContext);
     const [messages, setMessages] = useState<IMessage[] | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        console.log('MessageListLoader: ', childrens[0]);
+    }, []);
+
     useEffect(() => {
         const params = new URLSearchParams(childrens.map((s) => ['ids', s])).toString();
         fetchApi<IMessage[]>(
@@ -32,7 +37,8 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
         );
     }, [childrens]);
 
-    function Posts(): JSX.Element {
+    const Posts = useCallback(() => {
+        console.log('running all posts');
         if (messages === null && error === null) {
             return <Spinner animation="border" role="status" />;
         } else if (messages === null) {
@@ -45,7 +51,7 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
                 })}
             </Stack>
         );
-    }
+    }, [messages, error]);
 
     return <Posts />;
 }
