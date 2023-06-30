@@ -79,22 +79,21 @@ export function toEnglishString(n: number): string {
     const result = translate(n);
     return prefix + result.trim();
 }
-export function splitArrayInChunks<T>(array: T[], split: number): T[][] {
-    const numberPage = Math.trunc(array.length / split) + (array.length % split > 0 ? 1 : 0);
-    // eslint-disable-next-line
-    const newArray = [...Array(numberPage).keys()];
-    return newArray.map((i) => {
-        // eslint-disable-next-line
-        const a = array.slice(i * split, (i + 1) * split);
-        return a;
-    });
+
+export function splitArrayInChunks<T>(array: T[], splitSize: number): T[][] {
+    const numberPage = Math.trunc(array.length / splitSize) + (array.length % splitSize > 0 ? 1 : 0);
+
+    const slicedArray: T[][] = [];
+
+    for (let i = 0; i < numberPage; i++) {
+        slicedArray.push(array.slice(i * splitSize, (i + 1) * splitSize));
+    }
+    return slicedArray;
 }
 
 export function getUsernameFromUserChannel(channelname: string, myname: string): string {
     const channel = channelname.substring(1);
     const name = channel.split('-');
-    // eslint-disable-next-line
-    if (name[0] === myname) return name[1];
-    // eslint-disable-next-line
-    else return name[0];
+    if (name[0] === myname) return name[1] as string;
+    else return name[0] as string;
 }

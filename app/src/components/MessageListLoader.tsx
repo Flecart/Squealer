@@ -17,10 +17,6 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        console.log('MessageListLoader: ', childrens[0]);
-    }, []);
-
-    useEffect(() => {
         const params = new URLSearchParams(childrens.map((s) => ['ids', s])).toString();
         fetchApi<IMessage[]>(
             `${apiMessageBase}?${params}`,

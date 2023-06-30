@@ -5,7 +5,7 @@ import { AuthContext } from 'src/contexts';
 import MessageListPageLoader from './MessageListPagerLoader';
 
 interface MessageSortComponentProps {
-    def?: string[];
+    messageIds?: string[];
     reqInit: RequestInit;
     url: string;
 }
@@ -13,19 +13,19 @@ interface MessageSortComponentProps {
 interface MessageSortComponentState {
     loading: boolean;
     error: string | null;
-    messages: string[] | null;
+    messageIds: string[] | null;
     sortBy: string;
     firstTime: boolean;
 }
 
-export default function MessageSortComponent({ def, reqInit, url }: MessageSortComponentProps): JSX.Element {
-    const thereIsDefault = def !== undefined;
+export default function MessageSortComponent({ messageIds, reqInit, url }: MessageSortComponentProps): JSX.Element {
+    const hasMessages = messageIds !== undefined;
     const defState = {
         loading: false,
         error: null,
-        messages: thereIsDefault ? def : null,
-        sortBy: 'recently',
-        firstTime: thereIsDefault,
+        messageIds: hasMessages ? messageIds : null,
+        sortBy: 'recent-asc',
+        firstTime: hasMessages,
     };
     const [state, setState] = useState<MessageSortComponentState>(defState);
 
@@ -40,7 +40,7 @@ export default function MessageSortComponent({ def, reqInit, url }: MessageSortC
             reqInit,
             auth,
             (data) => {
-                setState({ ...state, loading: false, messages: data });
+                setState({ ...state, loading: false, messageIds: data });
             },
             (error) => {
                 setState({ ...state, loading: false, error: error.message });
@@ -73,21 +73,22 @@ export default function MessageSortComponent({ def, reqInit, url }: MessageSortC
             <Stack direction="vertical">
                 <div className="d-flex justify-content-center mb-4">
                     <Form.Select
-                        aria-label="TODO"
+                        aria-label="Sort By selection"
                         value={state.sortBy}
                         onChange={(e) => {
                             setState({ ...state, sortBy: e.target.value });
                         }}
                     >
-                        <option value="reactions-desc">Reactions (desc)</option>
-                        <option value="reactions-asc">Reactions (asc)</option>
-                        <option value="popularity">Popularity</option>
-                        <option value="risk">Risk</option>
-                        <option value="unpopularity">Unpopularity</option>
-                        <option value="recently">Recently</option>
+                        <option value="reactions-desc">Sort By: Reactions (desc)</option>
+                        <option value="reactions-asc">Sort By: Reactions (asc)</option>
+                        <option value="popularity">Sort By: Popularity</option>
+                        <option value="risk">Sort By: Risk</option>
+                        <option value="unpopularity">Sort By: Unpopularity</option>
+                        <option value="recent-asc">Sort By: Most recent</option>
+                        <option value="recent-desc">Sort By: Oldest</option>
                     </Form.Select>
                 </div>
-                {state.messages !== null && <MessageListPageLoader childrens={state.messages} />}
+                {state.messageIds !== null && <MessageListPageLoader childrens={state.messageIds} />}
             </Stack>
         );
     }
