@@ -23,6 +23,8 @@ export function isPublicChannel(channel: IChannel): boolean {
     );
 }
 
+export const channelCost: number = 2;
+
 // user e public sono userchannels, altri sono ownedchannels
 export interface IChannel {
     name: string;
