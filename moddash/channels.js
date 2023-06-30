@@ -58,7 +58,7 @@
 
 function updateRole(id, user) {
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
-    const role = document.getElementById(`privilage-${id}-${user}`).value;
+    const role = document.getElementById(`privilege-${id}-${user}`).value;
     fetch(`/api/moddash/updateRole/${id}/${user}`, {
         method: 'PUT',
         headers: {

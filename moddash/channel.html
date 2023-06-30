@@ -116,7 +116,7 @@
                             <div class='modal-content'>
                                 <div class='container-fluid text-center'>
                                     {{#if description}}
-                                        <strong>description</strong>
+                                        <strong>Description</strong>
                                         <p>{{description}}</p>
                                     {{/if}}
                                     {{#if users}}
@@ -124,13 +124,14 @@
 
                                         <ul class='list-group list-group-flush'>
                                             {{#each users}}
-                                                <li class='list-group-item d-flex justify-content-between'>
-                                                    {{this.user}}
+                                                <li class='list-group-item d-flex justify-content-between flex-wrap'>
+                                                    <span aria-label="username: {{this.user}}">{{this.user}}</span>
+
                                                     <div class='d-flex align-items-center'>
-                                                        <span class='badge bg-info'>{{this.privilege}}</span>
+                                                        <span class='badge bg-info me-2'>{{this.privilege}}</span>
                                                         <select
                                                             id='privilege-{{../_id}}-{{this.user}}'
-                                                            class='form-select form-select-sm'
+                                                            class='form-select form-select-sm me-2'
                                                             aria-label='select privilege'
                                                         >
                                                             <option value='read'>Read</option>
