@@ -1,4 +1,4 @@
-import { Container, Row, Tab, Tabs } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import { type IUser } from '@model/user';
 import { type HttpError } from '@model/error';
@@ -7,23 +7,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
 import { apiMessageBase, apiUserBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { sortHighliths, sortRecently, type IMessage } from '@model/message';
-import MessageListLoader from 'src/components/MessageListLoader';
+import MessageSortComponent from 'src/components/MessageSortComponent';
 
 function User(): JSX.Element {
     const { username } = useParams();
     const navigator = useNavigate();
 
     const [user, setUser] = useState<IUser | null>(null);
-    const [messages, setMessages] = useState<IMessage[] | null>(null);
 
     const handleUserError = useCallback((error: HttpError): void => {
-        console.log(error.message);
         if (error.status === 404) navigator('/404');
-    }, []);
-
-    const handleMessageError = useCallback((error: HttpError): void => {
-        console.log(error.message);
     }, []);
 
     useEffect(() => {
@@ -37,22 +30,7 @@ function User(): JSX.Element {
             },
             handleUserError,
         );
-
-        fetchApi<IMessage[]>(
-            `${apiMessageBase}/user/${username}`,
-            { method: 'GET' },
-            null,
-            (messages) => {
-                setMessages(messages);
-            },
-            handleMessageError,
-        );
     }, [username]);
-
-    const handleTabChange = (key: string | null): void => {
-        console.log(key);
-        // TODO: set stuff of tab change...
-    };
 
     return (
         <SidebarSearchLayout>
@@ -71,36 +49,17 @@ function User(): JSX.Element {
             </Container>
 
             <Container as="main">
-                {/* TODO: refactor tab element to have li childs as elements?? */}
-                {messages !== null && messages.length === 0 ? (
-                    <h2>No Messages</h2>
-                ) : (
-                    <Tabs
-                        defaultActiveKey="hightlight" // TODO: decidere il default a seconda della route?, sarebbe bono, poi renderizzare solo tramite quello.
-                        onSelect={handleTabChange}
-                        className="mb-3"
-                    >
-                        {/* TODO: forse i tabs dovrebbero essere dei componenti? dovremmo dare chiave, elemento, poi anche funzione (che carichi le cose, quindi credo vera
-                            mente che sarebbe meglio farlo componente separato) */}
-                        <Tab eventKey="hightlight" title="Highlight">
-                            {/* Display posts in for loop if they exists */}
-
-                            {messages !== null && (
-                                <MessageListLoader
-                                    childrens={messages.map((a) => a._id.toString())}
-                                    compare={sortRecently}
-                                />
-                            )}
-                        </Tab>
-                        <Tab eventKey="posts" title="Last Posts">
-                            {messages !== null && (
-                                <MessageListLoader
-                                    childrens={messages.map((a) => a._id.toString())}
-                                    compare={sortHighliths}
-                                />
-                            )}
-                        </Tab>
-                    </Tabs>
+                {user !== null && (
+                    <>
+                        {user.messages.length === 0 ? (
+                            <h2>No Messages</h2>
+                        ) : (
+                            <MessageSortComponent
+                                reqInit={{ method: 'GET' }}
+                                url={`${apiMessageBase}/user/${user.username}/messageIds`}
+                            />
+                        )}
+                    </>
                 )}
             </Container>
         </SidebarSearchLayout>

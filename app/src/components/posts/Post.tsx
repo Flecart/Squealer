@@ -71,10 +71,10 @@ function Post({ message }: PostProps): JSX.Element {
             (user) => {
                 setUser(() => user);
             },
-            (error) => {
+            (_) => {
                 // TODO: rifare la richiesta
-                console.log(error);
             },
+            true,
         );
     }, [message.creator]);
 

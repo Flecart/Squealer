@@ -8,13 +8,10 @@ import Post from './posts/Post';
 
 interface PropsMessageIds {
     childrens: string[];
-    compare?: (a: IMessage, b: IMessage) => number;
 }
 
-export default function MessageListLoader({ childrens, compare }: PropsMessageIds): JSX.Element {
-    console.log(childrens);
+export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.Element {
     if (childrens.length === 0) return <></>;
-
     const [authState] = useContext(AuthContext);
     const [messages, setMessages] = useState<IMessage[] | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -27,7 +24,6 @@ export default function MessageListLoader({ childrens, compare }: PropsMessageId
             },
             authState,
             (messages) => {
-                if (compare !== null) messages.sort(compare);
                 setMessages(messages);
             },
             (error) => {
@@ -44,8 +40,8 @@ export default function MessageListLoader({ childrens, compare }: PropsMessageId
         }
         return (
             <Stack>
-                {messages.map((message) => {
-                    return <Post key={message._id.toString()} message={message} />;
+                {messages.map((message, i) => {
+                    return <Post key={childrens[i]} message={message} />;
                 })}
             </Stack>
         );

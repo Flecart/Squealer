@@ -22,10 +22,12 @@ export const CriticMass = 2;
 
 export const DefaultPageSize = 10;
 
-export type MessageSortTypes = 'reactions-desc' | 'reactions-asc' | 'popularity' | 'risk' | 'unpopularity';
+export type MessageSortTypes = 'reactions-desc' | 'reactions-asc' | 'popularity' | 'risk' | 'unpopularity' | 'recently';
 
 export function messageSort(a: IMessage, b: IMessage, type: MessageSortTypes): number {
     switch (type) {
+        case 'recently':
+            return sortRecently(a, b);
         case 'reactions-desc':
             return -sortReactionsAsc(a, b);
         case 'reactions-asc':

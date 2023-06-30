@@ -4,13 +4,14 @@ import { fetchApi } from 'src/api/fetch';
 import { type ChannelResponse, ChannelType, type IChannel } from '@model/channel';
 import { apiChannelBase } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import { Alert, Container, Row, Stack, Tab, Tabs } from 'react-bootstrap';
+import { Alert, Container, Row, Spinner, Stack, Tab, Tabs } from 'react-bootstrap';
 import { AuthContext } from 'src/contexts';
-import MessageListLoader from 'src/components/MessageListLoader';
 import ChannelMembers from 'src/components/ChannelMembers';
 import * as Icon from 'react-bootstrap-icons';
-import { sortHighliths, sortRecently } from '@model/message';
 import { type AuthResponse } from '@model/auth';
+import MessageSortComponent from 'src/components/MessageSortComponent';
+import { getUsernameFromUserChannel } from '../utils';
+import MessageListPageLoader from 'src/components/MessageListPagerLoader';
 
 interface HeaderChannelProps {
     channel: IChannel | null;
@@ -47,50 +48,50 @@ export default function Channel(): JSX.Element {
                 },
             );
     }, [channelId]);
-    console.log(channel);
+
+    function Content(): JSX.Element {
+        if (channel === null || channel === undefined)
+            return (
+                <div className="d-flex justify-content-center">
+                    <Spinner animation="border" variant="primary" />
+                </div>
+            );
+        if (channel.type === ChannelType.USER) {
+            return <MessageListPageLoader childrens={channel.messages.map((a) => a.toString())} />;
+        }
+        const MessageSortList = (
+            <MessageSortComponent
+                def={channel?.messages.map((a) => a.toString())}
+                reqInit={{ method: 'GET' }}
+                url={`${apiChannelBase}/${channel.name.replace('#', '%23')}/messagesId`}
+            />
+        );
+
+        if (channel.type === ChannelType.HASHTAG || !channel.name.startsWith('#')) {
+            return MessageSortList;
+        }
+
+        return (
+            <Tabs
+                defaultActiveKey="posts" // TODO: decidere il default a seconda della route?, sarebbe bono, poi renderizzare solo tramite quello.
+                className="mb-3"
+            >
+                <Tab eventKey="posts" title="Post">
+                    {MessageSortList}
+                </Tab>
+                <Tab eventKey="member" title="Members">
+                    <ChannelMembers channel={channel} />
+                </Tab>
+            </Tabs>
+        );
+    }
 
     return (
         <SidebarSearchLayout>
             <Header channel={channel} auth={auth} error={error} />
-
             <Container as="main">
                 {/* TODO: refactor tab element to have li childs as elements?? */}
-                {channel !== null && channel.type === ChannelType.USER ? (
-                    <MessageListLoader childrens={channel.messages.map((a) => a.toString())} compare={sortRecently} />
-                ) : (
-                    <Tabs
-                        defaultActiveKey="hightlight" // TODO: decidere il default a seconda della route?, sarebbe bono, poi renderizzare solo tramite quello.
-                        className="mb-3"
-                    >
-                        {/* TODO: forse i tabs dovrebbero essere dei componenti? dovremmo dare chiave, elemento, poi anche funzione (che carichi le cose, quindi credo vera
-                            mente che sarebbe meglio farlo componente separato) */}
-                        <Tab eventKey="hightlight" title="Highlight">
-                            {channel !== null && (
-                                <MessageListLoader
-                                    childrens={channel.messages.map((a) => a.toString())}
-                                    compare={sortHighliths}
-                                />
-                            )}
-                        </Tab>
-                        <Tab eventKey="new" title="Latest">
-                            {/* Display posts in for loop if they exists */}
-
-                            {channel !== null && (
-                                <MessageListLoader
-                                    childrens={channel.messages.map((a) => a.toString())}
-                                    compare={sortRecently}
-                                />
-                            )}
-                        </Tab>
-                        {/* TODO replace this */}
-                        {channel !== null && !channel.name.startsWith('#') && (
-                            <Tab eventKey="posts" title="Members">
-                                {/* TODO: aggiungere la grafica */}
-                                <ChannelMembers channel={channel} />
-                            </Tab>
-                        )}
-                    </Tabs>
-                )}
+                {channel !== null && <Content />}
             </Container>
         </SidebarSearchLayout>
     );
@@ -103,7 +104,7 @@ function Header({ channel, auth, error }: HeaderChannelProps): JSX.Element {
             <Row>
                 <h1 className="text-center">
                     {channel.type === ChannelType.USER && auth !== null
-                        ? getUserName(channel.name, auth.username)
+                        ? getUsernameFromUserChannel(channel.name, auth.username)
                         : channel.name}
                 </h1>
             </Row>
@@ -183,11 +184,4 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
             )}
         </>
     );
-}
-
-function getUserName(channelname: string, myname: string): string {
-    const channel = channelname.substring(1);
-    const name = channel.split('-');
-    if (name[0] === myname) return name[1];
-    else return name[0];
 }

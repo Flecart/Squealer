@@ -1,4 +1,4 @@
-import { type IChannel } from '@model/channel';
+import { ChannelType, type IChannel } from '@model/channel';
 import { type IUser } from '@model/user';
 import { useContext, useEffect, useReducer } from 'react';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { apiChannelBase, apiUserBase } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
+import { getUsernameFromUserChannel } from 'src/utils';
 
 interface LoaderState {
     loading: boolean;
@@ -129,8 +130,12 @@ function ChannelRow({ channel, user }: { channel: IChannel; user: IUser | null }
 
     return (
         <Stack direction="horizontal">
-            <Link to={`/ channel / ${channel.name}`}>
-                <span>{channel.name}</span>
+            <Link to={`/channel/${channel.name}`}>
+                <span>
+                    {channel.type === ChannelType.USER && user !== null
+                        ? `@${getUsernameFromUserChannel(channel.name, user.username)}`
+                        : channel.name}
+                </span>
             </Link>
             <span className="me-3 ps-3" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {channel.description}
