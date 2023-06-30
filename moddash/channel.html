@@ -29,8 +29,10 @@
 
         <link href="/moddash/sidebar.css" rel="stylesheet" />
 
-        <script type="module" src="/moddash/sidebar.js" defer></script>
-        <script type="module" src="/moddash/channels.js" defer></script>
+        <script type="module" defer>
+            import { updateRole } from '/moddash/channels.js';
+            window.updateRole = updateRole;
+        </script>
         <title>Moderator Dashboard</title>
     </head>
 

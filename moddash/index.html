@@ -27,9 +27,12 @@
         ></script>
         <link href="/moddash/sidebar.css" rel="stylesheet" />
 
-        <script type="module" src="/moddash/sidebar.js" defer></script>
-        <script type="module" src="/moddash/user.js" defer></script>
-
+        <script type="module" defer>
+            // https://stackoverflow.com/questions/69888029/how-to-call-a-function-declared-in-a-javascript-module-type-module-from-an-htm
+            import { suspendUser, changeQuota } from '/moddash/user.js';
+            window.suspendUser = suspendUser;
+            window.changeQuota = changeQuota;
+        </script>
         <title>Moderator Dashboard</title>
     </head>
 

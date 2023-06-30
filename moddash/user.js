@@ -1,4 +1,4 @@
-import { changeQuotaRoute, stringFormat, suspendRoute } from './routes.js';
+import { changeQuotaRoute, stringFormat, suspendRoute, usersRoute } from './routes.js';
 
 /* globals Handlebars */
 (function () {
