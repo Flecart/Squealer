@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import GraphPointsVue from '@/components/GraphPoints.vue'
-import { getClienthistoryBaseRoute } from '@/routes'
+import { getClienthistoryRoute } from '@/routes'
 import { inject, ref, computed, watch } from 'vue'
 import { authInject, currentClientInject, type currentClientType } from '@/keys'
 import { HistoryPoint, HistoryUpdateType } from '@model/history'
 import ChooseClients from '@/components/ChooseClients.vue'
+import { stringFormat } from '@/utils'
 
 type ChartData = {
   labels: string[]
@@ -63,7 +64,9 @@ watch(
 
 function fetchHistory() {
   fetch(
-    `${getClienthistoryBaseRoute}/${currentClient.value.username}?from=${startDate.value}&to=${endDate.value}`,
+    `${stringFormat(getClienthistoryRoute, [currentClient.value.username])}?from=${
+      startDate.value
+    }&to=${endDate.value}`,
     {
       headers: {
         Authorization: `Bearer ${auth.token}`
