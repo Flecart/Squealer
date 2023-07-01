@@ -2,7 +2,6 @@ import request from 'supertest';
 import {
     baseUrl, createUserRoute, apiRoleRoute,
     channelCreateRoute, Credentials, messageCreateRoute,
-    addClientRoute,
     joinChannelRoute,
     addReactionRoute,
     checkAndReportStatus

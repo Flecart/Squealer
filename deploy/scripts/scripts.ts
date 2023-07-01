@@ -20,7 +20,6 @@ import {
     type Credentials,
     addOwnerRoute,
     modifyUserRoleRoute,
-    addClientRoute,
     temporizzatiRoute,
     joinChannelRoute,
     geolocationRoute,

@@ -22,7 +22,7 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
     const currentInput = useRef<string>('');
     const [state, setState] = useState<State>({
         loading: true,
-        currentSmm: user.ssm !== undefined ? user.ssm : null,
+        currentSmm: user.ssm !== undefined ? user.ssm : (null as string | null),
         error: null,
         currentRequest: null,
     });
