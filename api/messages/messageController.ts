@@ -7,6 +7,8 @@ import {
     type MessageCreationRensponse,
     type ReactionResponse,
     IMessageWithPages,
+    MessageCreationMultipleChannels,
+    MessageCreation,
 } from '@model/message';
 import {
     Get,
@@ -22,13 +24,9 @@ import {
     UploadedFile,
 } from '@tsoa/runtime';
 import { MessageService } from './messageService';
-import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
+import { getUserFromRequest, parseMessageCreationWithFile, parseWithFile } from '@api/utils';
 import { HttpError } from '@model/error';
 import logger from '@server/logger';
-/*
-    MessageCreation is a type that is used to create a message.
-    it has three fields: destination, creator and content.
-*/
 
 const log = logger.child({ label: 'messageController' });
 
@@ -44,6 +42,29 @@ export class MessageController {
         @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse> {
         return await new MessageService().create(parseMessageCreationWithFile(data, file), getUserFromRequest(request));
+    }
+
+    @Post('multiple')
+    @Security('jwt')
+    @Response<MessageCreationRensponse>(204, 'Message Created')
+    @Response<HttpError>(400, 'Bad request')
+    public async createMessages(
+        @FormField() data: string,
+        @Request() request: any,
+        @UploadedFile('file') file?: Express.Multer.File,
+    ): Promise<MessageCreationRensponse[]> {
+        const messages = parseWithFile<MessageCreationMultipleChannels>(data, file);
+
+        return await new MessageService().createMultiple(
+            messages.channels.map((channelName) => {
+                return {
+                    channel: channelName,
+                    parent: messages.parent,
+                    content: messages.content,
+                } as MessageCreation;
+            }),
+            getUserFromRequest(request),
+        );
     }
 
     @Post('/geo/{id}')

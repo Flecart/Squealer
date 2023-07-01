@@ -6,15 +6,15 @@ import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import {
     type Maps,
-    type MessageCreation,
     type IMessage,
     type MessageCreationRensponse,
+    type MessageCreationMultipleChannels,
     mediaQuotaValue,
 } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import {
-    apiMessageBase,
+    apiMessageMultiple,
     apiMessageParent,
     apiTemporized,
     apiUser,
@@ -57,7 +57,6 @@ export default function AddPost(): JSX.Element {
     const [oneTimeView, setOneTimeView] = useState<boolean>(false);
 
     const [destinations, setDestinations] = useState<string[]>([]);
-    const [destination, setDestination] = useState<string>('');
     const [messageText, setMessageText] = useState<string>('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
@@ -73,6 +72,30 @@ export default function AddPost(): JSX.Element {
     const [showTemporize, setShowTemporize] = useState(false);
 
     const hiddenFileInput = useRef<HTMLInputElement | null>(null);
+
+    const usedQuotaValue = useMemo(() => {
+        if (geolocationCoord !== null || selectedImage !== null) {
+            return mediaQuotaValue;
+        } else {
+            return messageText.length;
+        }
+    }, [geolocationCoord, selectedImage, messageText]);
+
+    const remainingQuotaValue = useMemo(() => {
+        if (user === null) return { day: 0, week: 0, month: 0 };
+
+        return {
+            day: user.maxQuota.day - user.usedQuota.day - usedQuotaValue * destinations.length,
+            week: user.maxQuota.week - user.usedQuota.week - usedQuotaValue * destinations.length,
+            month: user.maxQuota.month - user.usedQuota.month - usedQuotaValue * destinations.length,
+        };
+    }, [user, destinations, usedQuotaValue]);
+
+    const extraQuotaValue = useMemo(() => {
+        if (!user) return 0;
+
+        return getExtraQuota(user, usedQuotaValue * destinations.length);
+    }, [user, usedQuotaValue, destinations]);
 
     function CloseButton(): JSX.Element {
         return (
@@ -90,43 +113,29 @@ export default function AddPost(): JSX.Element {
         );
     }
 
-    function ShowQuota(props: { quota: number }): JSX.Element {
+    const ShowQuota = useCallback(() => {
         if (user === null) {
             return <></>;
         }
         return (
             <div className="mt-1">
                 <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
-                    day:{' '}
-                    <span aria-label={toEnglishString(user.maxQuota.day - user.usedQuota.day - props.quota)}>
-                        {' '}
-                        {user.maxQuota.day - user.usedQuota.day - props.quota}{' '}
-                    </span>
+                    day: <span aria-label={toEnglishString(remainingQuotaValue.day)}> {remainingQuotaValue.day} </span>
                 </span>
                 <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
                     week:{' '}
-                    <span aria-label={toEnglishString(user.maxQuota.week - user.usedQuota.week - props.quota)}>
-                        {' '}
-                        {user.maxQuota.week - user.usedQuota.week - props.quota}{' '}
-                    </span>
+                    <span aria-label={toEnglishString(remainingQuotaValue.week)}> {remainingQuotaValue.week} </span>
                 </span>
                 <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
                     month:{' '}
-                    <span aria-label={toEnglishString(user.maxQuota.month - user.usedQuota.month - props.quota)}>
-                        {' '}
-                        {user.maxQuota.month - user.usedQuota.month - props.quota}{' '}
-                    </span>
+                    <span aria-label={toEnglishString(remainingQuotaValue.month)}> {remainingQuotaValue.month} </span>
                 </span>
                 <span className="bg-warning rounded-pill me-1 px-1 mb-1 d-inline-block">
-                    extra:{' '}
-                    <span aria-label={toEnglishString(getExtraQuota(user, props.quota))}>
-                        {' '}
-                        {getExtraQuota(user, props.quota)}{' '}
-                    </span>
+                    extra: <span aria-label={toEnglishString(extraQuotaValue)}> {extraQuotaValue} </span>
                 </span>
             </div>
         );
-    }
+    }, [user, remainingQuotaValue, extraQuotaValue]);
 
     useEffect(() => {
         if (authState === null) {
@@ -213,7 +222,7 @@ export default function AddPost(): JSX.Element {
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
-            const channel = destination;
+            const channel = destinations[0] as string;
 
             const temporizedContent: TemporizedContentInput = {
                 channel,
@@ -244,38 +253,38 @@ export default function AddPost(): JSX.Element {
                 },
             );
         },
-        [destination, selectedTempOption, tempPeriod, tempTimes, messageText, authState],
+        [destinations, selectedTempOption, tempPeriod, tempTimes, messageText, authState],
     );
 
     const sendMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
-            let channel = destination;
+            let channels = destinations;
             if (debt !== 0) {
                 setPayDebt(true);
                 return;
             } else if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
-            } else if (parent === undefined && channel === '') {
-                setError(() => 'Destination not specified');
+            } else if (parent === undefined && channels.length === 0) {
+                setError(() => 'Destinations not specified');
                 return;
             }
 
             if (parent !== undefined) {
-                if (displayParent instanceof Object) channel = displayParent.channel;
+                if (displayParent instanceof Object) channels = [displayParent.channel];
                 else {
                     setError(() => 'Parent not found');
                     return;
                 }
             }
 
-            const message: MessageCreation = {
+            const message: MessageCreationMultipleChannels = {
+                channels,
                 content: {
                     data: '',
                     type: 'text',
                 },
-                channel,
                 parent,
             };
 
@@ -296,8 +305,8 @@ export default function AddPost(): JSX.Element {
             }
             formData.append('data', JSON.stringify(message));
 
-            fetchApi<MessageCreationRensponse>(
-                `${apiMessageBase}`,
+            fetchApi<MessageCreationRensponse[]>(
+                apiMessageMultiple,
                 {
                     method: 'POST',
                     headers: {}, // so that the browser can set the content type automatically
@@ -308,14 +317,14 @@ export default function AddPost(): JSX.Element {
                     setError(() => null);
                     setSelectedImage(null);
                     setGeolocationCoord(null);
-                    navigate(`/message/${message.id}`);
+                    navigate(`/message/${(message[0] as MessageCreationRensponse).id}`);
                 },
                 (error) => {
                     setError(() => error.message);
                 },
             );
         },
-        [messageText, destination, parent, displayParent, selectedImage, authState, user, geolocationCoord],
+        [messageText, destinations, parent, displayParent, selectedImage, authState, user, geolocationCoord],
     );
 
     const RenderParentMessage = useCallback((): JSX.Element => {
@@ -338,7 +347,7 @@ export default function AddPost(): JSX.Element {
 
         return (
             <div className="d-flex flex-column align-items-center">
-                Remaining Quota: {user !== null && <ShowQuota quota={100} />}
+                Remaining Quota: {user !== null && <ShowQuota />}
                 <div className="d-inline-flex flex-column position-relative">
                     {selectedImage.type.startsWith('image/') && (
                         <Image
@@ -378,7 +387,7 @@ export default function AddPost(): JSX.Element {
             return (
                 <>
                     <div className="d-flex flex-column align-items-center">
-                        Remaining Quota: {user !== null && <ShowQuota quota={mediaQuotaValue} />}
+                        Remaining Quota: {user !== null && <ShowQuota />}
                     </div>
                     <div className="position-relative">
                         <Map positions={geolocationCoord.positions} />
@@ -389,9 +398,7 @@ export default function AddPost(): JSX.Element {
         } else {
             return (
                 <Form.Group className="mb-3" controlId="textareaInput">
-                    <Form.Label>
-                        Remaining Quota: {user !== null && <ShowQuota quota={messageText.length} />}
-                    </Form.Label>
+                    <Form.Label>Remaining Quota: {user !== null && <ShowQuota />}</Form.Label>
 
                     <Form.Control
                         aria-label="message textarea"
@@ -488,7 +495,7 @@ export default function AddPost(): JSX.Element {
                 },
                 (error: Error) => {
                     setSuggestions([]);
-                    // le suggestions non sono una feature da dare l'errore all'untente, quindi meglio solamente
+                    // le suggestions non sono una feature da dare l'errore all'utente, quindi meglio solamente
                     // un messaggio sulla console, serve solo per debug.
                     console.log(error.message ?? 'Error getting suggestions');
                 },
@@ -545,11 +552,11 @@ export default function AddPost(): JSX.Element {
                 </div>
             </div>
         );
-    }, [setDestination]);
+    }, [setDestinations]);
 
     const DisplayDestinations = useCallback(() => {
         return (
-            <div className="d-flex">
+            <div className="d-flex flex-wrap">
                 {destinations.map((destination, index) => {
                     return (
                         <div className="bg-primary rounded-pill me-1 px-2 mb-1" key={index}>
