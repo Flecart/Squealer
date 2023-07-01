@@ -116,3 +116,10 @@
     display: inline;
     font-style: italic;
 }
+
+// Add posts:
+.suggestion-list-item {
+    &:hover {
+        background-color: var(--bs-list-group-active-bg);
+    }
+}

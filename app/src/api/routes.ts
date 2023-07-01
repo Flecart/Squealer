@@ -12,6 +12,7 @@ export const apiUserInvitations = `${apiUserBase}/invitations`;
 export const apiUserPayDebt = `${apiUserBase}/pay-debt`;
 export const apiUserNotifications = `${apiUserBase}/notifications`;
 export const apiUserSetNotification = `${apiUserBase}/notification/{0}`;
+export const getUserChannelSuggestions = `${apiUserBase}/suggestions`;
 
 export const apiQuotaBase = `${apiBase}/user/quota`;
 export const apiQuota = `${apiQuotaBase}/buy`;
@@ -42,6 +43,8 @@ export const apiChannelLeave = `${apiChannelBase}/{0}/leave`;
 export const apiChannelCreate = `${apiChannelBase}/create`;
 export const apiBuyChannel = `${apiChannelBase}/create`;
 export const apiChannelChangeDescription = `${apiChannelBase}/{0}/description`;
+export const getChannelSuggestions = `${apiChannelBase}/suggestions`;
+export const getHashtabChannelSuggestions = `${apiChannelBase}/suggestions/hashtag`;
 
 export const apiTemporized = `${apiBase}/temporizzati`;
 

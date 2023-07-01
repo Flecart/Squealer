@@ -1,13 +1,27 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
-import { Form, Button, Alert, Image, Collapse } from 'react-bootstrap';
+import { Form, Button, Alert, Image, Collapse, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
-import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse, mediaQuotaValue } from '@model/message';
+import {
+    type Maps,
+    type MessageCreation,
+    type IMessage,
+    type MessageCreationRensponse,
+    mediaQuotaValue,
+} from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase, apiMessageParent, apiTemporized, apiUser } from 'src/api/routes';
+import {
+    apiMessageBase,
+    apiMessageParent,
+    apiTemporized,
+    apiUser,
+    getChannelSuggestions,
+    getHashtabChannelSuggestions,
+    getUserChannelSuggestions,
+} from 'src/api/routes';
 import { type IUser, haveEnoughtQuota, getExtraQuota, UserRoles } from '@model/user';
 import Post from 'src/components/posts/Post';
 import {
@@ -22,7 +36,15 @@ import { stringFormat, toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
 import * as Icon from 'react-bootstrap-icons';
 import 'src/scss/SideButton.scss';
+import 'src/scss/Post.scss';
 import { Lock as LockIcon } from 'react-bootstrap-icons';
+import { ISuggestion } from '@model/channel';
+
+enum SearchType {
+    Hashtag,
+    User,
+    Channel,
+}
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -296,7 +318,7 @@ export default function AddPost(): JSX.Element {
         [messageText, destination, parent, displayParent, selectedImage, authState, user, geolocationCoord],
     );
 
-    const renderParentMessage = useCallback((): JSX.Element => {
+    const RenderParentMessage = useCallback((): JSX.Element => {
         if (parent === undefined) return <> </>;
         if (displayParent == null) {
             return <> Loading Message </>;
@@ -349,7 +371,7 @@ export default function AddPost(): JSX.Element {
         });
     }, [navigator.geolocation]);
 
-    const renderMessagePayload = useCallback(() => {
+    const RenderMessagePayload = useCallback(() => {
         if (selectedImage != null) {
             return renderFilePreview();
         } else if (geolocationCoord != null) {
@@ -387,27 +409,166 @@ export default function AddPost(): JSX.Element {
     }, [user, messageText, geolocationCoord, selectedImage]);
 
     const ChannelInput = useCallback(() => {
-            return (
-                <Form.Group controlId="channelInput" className="group-add-post">
-                <Form.Label className="label-add-post">Channel</Form.Label>
-                <Form.Control
-                    onChange={(e) => {
-                        setDestination(e.target.value);
-                    }}
-                    placeholder="Enter Channel name"
-                    autoFocus={true}
-                />
-            </Form.Group>
+        const [currentChannel, setCurrentChannel] = useState<string>('');
+        const [suggestions, setSuggestions] = useState<string[]>(['prova 1', 'prova 2']);
+        const [activeSuggestionIdx, setActiveSuggestionIdx] = useState<number>(0);
+
+        const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+            if (e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+
+            if (currentChannel.length > 0) {
+                if (e.key === 'ArrowUp') {
+                    setActiveSuggestionIdx((value) => Math.max(0, value - 1));
+                } else if (e.key === 'ArrowDown') {
+                    setActiveSuggestionIdx((value) => Math.min(suggestions.length - 1, value + 1));
+                } else if (e.key === 'Enter' && activeSuggestionIdx >= 0 && activeSuggestionIdx < suggestions.length) {
+                    chooseSuggestion(activeSuggestionIdx);
+                }
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    sendMessage();
+                }
+            }
+        };
+
+        const chooseSuggestion = (suggestionIdx: number): void => {
+            setActiveSuggestionIdx(suggestionIdx);
+
+            console.log(destinations);
+            if (!destinations.includes(suggestions[suggestionIdx] as string)) {
+                setDestinations((value) => [...value, suggestions[suggestionIdx] as string]);
+            }
+            setCurrentChannel('');
+            setSuggestions([]);
+        };
+
+        useEffect(() => {
+            if (currentChannel.length <= 0) return;
+
+            let searchText = currentChannel;
+            let searchType = SearchType.Channel;
+
+            let suggestionUrl = getChannelSuggestions;
+            if (searchText.startsWith('#')) {
+                searchType = SearchType.Hashtag;
+                suggestionUrl = getHashtabChannelSuggestions;
+                searchText = searchText.substring(1);
+            } else if (searchText.startsWith('@')) {
+                searchType = SearchType.User;
+                suggestionUrl = getUserChannelSuggestions;
+                searchText = searchText.substring(1);
+            }
+
+            const searchParams = {
+                search: searchText,
+            };
+            if (searchType === SearchType.Channel) {
+                // @ts-expect-error local usage, should not warn
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                searchParams.user = currentClient.value.username;
+            }
+
+            const searchParamsString = new URLSearchParams(searchParams).toString();
+
+            fetchApi<ISuggestion[]>(
+                `${suggestionUrl}?${searchParamsString}`,
+                {
+                    method: 'GET',
+                },
+                authState,
+                (elements: ISuggestion[]) => {
+                    setSuggestions([]);
+                    if (searchText.length > 0 && searchType === SearchType.Hashtag) {
+                        setSuggestions((value) => value.concat(addChannelPrefix(searchText, searchType)));
+                    }
+                    elements.forEach((element: ISuggestion) => {
+                        setSuggestions((value) => value.concat(addChannelPrefix(element, searchType)));
+                    });
+                },
+                (error: Error) => {
+                    setSuggestions([]);
+                    // le suggestions non sono una feature da dare l'errore all'untente, quindi meglio solamente
+                    // un messaggio sulla console, serve solo per debug.
+                    console.log(error.message ?? 'Error getting suggestions');
+                },
             );
-    }, [setDestination])
+        }, [currentChannel]);
+
+        function addChannelPrefix(channel: string, type: SearchType): string {
+            switch (type) {
+                case SearchType.Hashtag:
+                    return '#' + channel;
+                case SearchType.User:
+                    return '@' + channel;
+                case SearchType.Channel:
+                    return channel;
+                default:
+                    return channel;
+            }
+        }
+
+        return (
+            <div className="position-relative">
+                <Form.Group controlId="channelInput" className="group-add-post">
+                    <Form.Label className="label-add-post">Channel</Form.Label>
+                    <Form.Control
+                        onKeyDown={handleKeyDown}
+                        onChange={(e) => {
+                            setCurrentChannel(e.target.value);
+                        }}
+                        value={currentChannel}
+                        placeholder="Enter Channel name"
+                        autoFocus={true}
+                        autoComplete="off"
+                    />
+                </Form.Group>
+                <div className="position-absolute w-50">
+                    <ListGroup role="listbox">
+                        {suggestions.map((suggestion, index) => {
+                            return (
+                                <ListGroupItem
+                                    className="suggestion-list-item"
+                                    role="option"
+                                    key={index}
+                                    active={index === activeSuggestionIdx}
+                                    onClick={() => {
+                                        chooseSuggestion(index);
+                                    }}
+                                    aria-label={'remove channel ' + suggestion}
+                                >
+                                    {suggestion}
+                                </ListGroupItem>
+                            );
+                        })}
+                    </ListGroup>
+                </div>
+            </div>
+        );
+    }, [setDestination]);
+
+    const DisplayDestinations = useCallback(() => {
+        return (
+            <>
+                {destinations.map((destination, index) => {
+                    return <div key={index}>hello {destination}</div>;
+                })}
+            </>
+        );
+    }, [destinations]);
 
     return (
         <SidebarSearchLayout>
-            {renderParentMessage()}
+            <RenderParentMessage />
             <Form>
-                {parent === undefined && <ChannelInput/>}
+                {parent === undefined && (
+                    <>
+                        <ChannelInput />
+                        <DisplayDestinations />
+                    </>
+                )}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
-                {renderMessagePayload()}
+                <RenderMessagePayload />
 
                 <div className="d-flex flex-row justify-content-center aling-items-center mb-3">
                     <Button
@@ -488,11 +649,7 @@ export default function AddPost(): JSX.Element {
                         setShowWarning(false);
                     }}
                 />
-                {/* TODO: show geolocation button */}
-
                 {error !== null && <Alert variant="danger">{error}</Alert>}
-
-                {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
                 <div className="d-flex flex-row justify-content-center mb-3">
                     <Form.Check // prettier-ignore
