@@ -42,7 +42,7 @@ export class ChannelController extends Controller {
         return new ChannelService().getChannelSuggestions(search, avoid, limit, user);
     }
 
-    @Get('suggestions/public')
+    @Get('suggestions/hashtag')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel suggestions')
     public async getChannelPublicSuggestions(

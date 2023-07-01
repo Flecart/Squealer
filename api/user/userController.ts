@@ -24,6 +24,18 @@ const userLogger = logger.child({ label: 'user' });
 
 @Route('/user')
 export class UserController extends Controller {
+    @Get('suggestions')
+    @SuccessResponse(200, 'Suggestions Retrieved')
+    public async getSuggestions(
+        @Query('search') search: string,
+        @Query('avoid') avoid: string[],
+        @Query('limit') limit?: number,
+    ): Promise<ISuggestion[]> {
+        userLogger.info(`getSuggestions for ${search} avoiding ${avoid}`);
+        if (!limit) limit = defaultSuggestionLimit;
+        return new UserService().getSuggestions(search, avoid, limit);
+    }
+
     @Get('/notification')
     @Security('jwt')
     public async getNotifications(@Request() request: any): Promise<NotificationRensponse> {
@@ -103,12 +115,5 @@ export class UserController extends Controller {
     @SuccessResponse(200, 'Role Updated')
     public async payDebt(@Request() request: any): Promise<{ message: string }> {
         return await new UserService().payDebt(getUserFromRequest(request));
-    }
-
-    @Get('suggestions')
-    @SuccessResponse(200, 'Suggestions Retrieved')
-    public async getSuggestions(@Query('user') user: string, @Query('limit') limit?: number): Promise<ISuggestion[]> {
-        if (!limit) limit = defaultSuggestionLimit;
-        return new UserService().getSuggestions(user, limit);
     }
 }

@@ -19,6 +19,10 @@ export const getClientMessageRoute = `${squealerBaseURL}/api/message/user/{0}`
 export const getUserRoute = `${squealerBaseURL}/api/user/{0}`
 export const getClienthistoryRoute = `${squealerBaseURL}/api/smm/history/{0}`
 
+export const getChannelSuggestions = `${squealerBaseURL}/api/channel/suggestions`
+export const getHashtabChannelSuggestions = `${squealerBaseURL}/api/channel/suggestions/hashtag`
+export const getUserChannelSuggestions = `${squealerBaseURL}/api/user/suggestions`
+
 // ROUTER CONFIGURATION
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
 export const redirectToLogin = () => {

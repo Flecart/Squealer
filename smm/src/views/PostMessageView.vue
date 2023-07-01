@@ -4,8 +4,17 @@ import CurrentQuotaVue from '@/components/CurrentQuota.vue'
 import { inject, ref, watch, computed, onMounted, onBeforeUnmount } from 'vue'
 import { currentClientInject, authInject, type currentClientType } from '@/keys'
 import type { IQuotas } from '@model/quota'
-import { geolocalizationName, postClientMessageRoute } from '@/routes'
+import {
+  geolocalizationName,
+  postClientMessageRoute,
+  getChannelSuggestions,
+  getHashtabChannelSuggestions,
+  getUserChannelSuggestions
+} from '@/routes'
 import { mediaQuotaValue, type MessageCreation } from '@model/message'
+import { type ISuggestion } from '@model/channel'
+import { elements } from 'chart.js'
+import { remove } from 'winston'
 
 const { currentClient, setClient } = inject<currentClientType>(currentClientInject)!
 const authToken = inject<{ token: string }>(authInject)!
@@ -130,8 +139,111 @@ const suggestionShowed = computed(() => {
 })
 
 const choosedChannels = ref<string[]>([])
-const suggestions = ref<string[]>(['prova1', 'prova2'])
+const suggestions = ref<string[]>([])
 const activeSuggestionIdx = ref<number>(0)
+
+enum SearchType {
+  Hashtag,
+  User,
+  Channel
+}
+
+watch(channelInput, () => {
+  if (channelInput.value.length <= 0) return
+
+  let searchText = channelInput.value
+
+  let searchType = SearchType.Channel
+
+  let suggestionUrl = getChannelSuggestions
+  if (searchText.startsWith('#')) {
+    searchType = SearchType.Hashtag
+    suggestionUrl = getHashtabChannelSuggestions
+    searchText = searchText.substring(1)
+  } else if (searchText.startsWith('@')) {
+    searchType = SearchType.User
+    suggestionUrl = getUserChannelSuggestions
+    searchText = searchText.substring(1)
+  }
+
+  const searchParams = {
+    search: searchText,
+    avoid: getChoosedSelectionByType(searchType).map((channel) => removeChannelPrefix(channel))
+  }
+  if (searchType === SearchType.Channel) {
+    // @ts-expect-error
+    searchParams.user = currentClient.value.username
+  }
+
+  // @ts-expect-error
+  const searchParamsString = new URLSearchParams(searchParams).toString()
+
+  console.log(searchParams)
+  fetch(`${suggestionUrl}?${searchParamsString}`, {
+    method: 'GET'
+  })
+    .then(async (response) => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        const body = await response.json()
+        throw new Error(body.message ?? 'Error getting suggestions')
+      }
+    })
+    .then((elements: ISuggestion[]) => {
+      suggestions.value = []
+      // se è pubblico vogliamo dare la possibilità di aggiungere la sua scelta stessa.
+      if (searchType === SearchType.Hashtag) {
+        suggestions.value.push(addChannelPrefix(searchText, searchType))
+      }
+      elements.forEach((element: ISuggestion) => {
+        suggestions.value.push(addChannelPrefix(element as string, searchType))
+      })
+      console.log(elements)
+    })
+    .catch((error) => {
+      suggestions.value = []
+      // le suggestions non sono una feature da dare l'errore all'untente, quindi meglio solamente
+      // un messaggio sulla console, serve solo per debug.
+      console.log(error.message ?? 'Error getting suggestions')
+      setSuccessMessage('')
+    })
+})
+
+function removeChannelPrefix(channel: string): string {
+  if (channel.startsWith('#') || channel.startsWith('@')) {
+    return channel.substring(1)
+  }
+  return channel
+}
+
+function addChannelPrefix(channel: string, type: SearchType) {
+  switch (type) {
+    case SearchType.Hashtag:
+      return '#' + channel
+    case SearchType.User:
+      return '@' + channel
+    case SearchType.Channel:
+      return channel
+    default:
+      return channel
+  }
+}
+
+function getChoosedSelectionByType(type: SearchType): string[] {
+  return choosedChannels.value.filter((suggestion) => {
+    switch (type) {
+      case SearchType.Hashtag:
+        return suggestion.startsWith('#')
+      case SearchType.User:
+        return suggestion.startsWith('@')
+      case SearchType.Channel:
+        return choosedChannels.value
+      default:
+        return false
+    }
+  })
+}
 
 const handleKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
