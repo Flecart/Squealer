@@ -23,10 +23,11 @@ interface Props {
 }
 
 const ProtectedRoute = ({ children }: Props): JSX.Element => {
-    const [authState] = useContext(AuthContext);
+    const [authState, setAuth] = useContext(AuthContext);
 
     useEffect(() => {
         if (authState === null || isTokenExpired(authState.token)) {
+            setAuth(null);
             return () => {
                 <Navigate to="/login" replace />;
             };
