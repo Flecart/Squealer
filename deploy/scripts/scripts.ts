@@ -17,10 +17,18 @@ import {
     createUserRoute,
     loginRoute,
     messageCreateRoute,
-    type Credentials
+    type Credentials,
+    addOwnerRoute,
+    modifyUserRoleRoute,
+    addClientRoute,
+    temporizzatiRoute,
+    joinChannelRoute,
+    geolocationRoute
 } from './globals';
 import {createDefaultUsersAndChannels as makeDefaults} from './defaults';
 import { ADMIN_USER } from '@config/config'
+import { stringFormat } from "@app/utils"
+
 
 dotenv.config({
     path: './.env',
@@ -186,7 +194,7 @@ async function createGeolocationMessagesPublic() {
     console.log(req.body)
     for (let position of nextPositions) {
         const req2 = await request(baseUrl)
-            .post(`${messageCreateRoute}/geo/${req.body.id}`)
+            .post(stringFormat(geolocationRoute, [req.body.id]))
             .set('Authorization', `Bearer ${tokenSender}`)
             .send(position).expect(200);
 
@@ -220,7 +228,7 @@ async function joinChannel() {
     for (let channel of publicChannel) {
         for (let token of channel.members) {
             await request(baseUrl)
-                .post(`/api/channel/${channel.nome}/join`)
+                .post(stringFormat(joinChannelRoute, [channel.nome]))
                 .set('Authorization', `Bearer ${token}`)
                 .expect(200)
         }
@@ -233,7 +241,7 @@ async function createTemporalMessage() {
     const tokenSender = publicChannel[1].members[0];
 
     await request(baseUrl)
-        .post("/api/temporizzati")
+        .post(temporizzatiRoute)
         .set('Authorization', `Bearer ${tokenSender}`)
         .send({
             channel: channel,
@@ -247,7 +255,7 @@ async function createTemporalMessage() {
 
 
     await request(baseUrl)
-        .post("/api/temporizzati")
+        .post(temporizzatiRoute)
         .set('Authorization', `Bearer ${tokenSender}`)
         .send({
             channel: channel,
@@ -260,7 +268,7 @@ async function createTemporalMessage() {
         }).expect(200);
 
     await request(baseUrl)
-        .post("/api/temporizzati")
+        .post(temporizzatiRoute)
         .set('Authorization', `Bearer ${tokenSender}`)
         .send({
             channel: channel,
@@ -305,12 +313,12 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
     console.log("SMM and VIP role created")
 
     await request(baseUrl)
-        .post(`/api/smm/add-client/${clientToken.name}`)
+        .post(stringFormat(addClientRoute, [clientToken.name]))
         .set('Authorization', `Bearer ${smmToken.token}`)
         .expect(200);
 
     await request(baseUrl)
-        .post(`/api/smm/add-client/${clientToken2.name}`)
+        .post(stringFormat(addClientRoute, [clientToken2.name]))
         .set('Authorization', `Bearer ${smmToken.token}`)
         .expect(200);
 
@@ -373,7 +381,8 @@ async function addUsersToPrivateChannel() {
             loginTockenMap.forEach((value, key) => tokenToUser.set(value, key));
             const user = tokenToUser.get(token);
             if (!token) continue;
-            request(baseUrl).post(`/api/channel/${channel.nome}/add-owner`)
+            request(baseUrl)
+                .post(stringFormat(addOwnerRoute, [channel.nome]))
                 .set('Authorization', `Bearer ${token}`).send({
                     toUser: user, permission: PermissionType.READWRITE
 
@@ -388,7 +397,7 @@ async function creatModerator() {
         .send(createCredentials(ADMIN_USER))
         .expect(201)).body.token;
     await request(baseUrl)
-        .post("/api/user/role")
+        .post(modifyUserRoleRoute)
         .set('Authorization', `Bearer ${token}`)
         .send({
             role: "moderator",
