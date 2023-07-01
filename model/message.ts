@@ -1,4 +1,5 @@
 import type mongoose from 'mongoose';
+import type { HistoryUpdate } from '@model/history';
 /** 
 Commento per le api
 */
@@ -19,6 +20,8 @@ export interface Maps {
 export type SupportedContent = 'text' | 'image' | 'video' | 'maps';
 
 export const CriticMass = 2;
+
+export const mediaQuotaValue = 125; // un messaggio vale 100 caratteri
 
 export const DefaultPageSize = 10;
 
@@ -69,6 +72,8 @@ export interface IMessage {
     views: number; // impressions.
     reaction: IReaction[];
     category: ICategory;
+
+    historyUpdates: HistoryUpdate[];
 }
 
 export interface IMessageWithPages {

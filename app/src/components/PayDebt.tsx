@@ -1,7 +1,7 @@
 import { Alert, Button, Modal, Spinner } from 'react-bootstrap';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiUserBase } from 'src/api/routes';
+import { apiUserPayDebt } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from '../api/fetch';
 import { quotaPriceExtra } from '@model/quota';
@@ -28,13 +28,13 @@ export default function PayDebt({ show, onHide, debt }: PayDebtProps): JSX.Eleme
             if (authState == null) return;
             setPendingRequest(true);
             fetchApi<null>(
-                `${apiUserBase}/pay-debt`,
+                apiUserPayDebt,
                 {
                     method: 'PUT',
                 },
                 authState,
                 () => {
-                    setSuccessMessage('Pagamento Avvenuto con Successo');
+                    setSuccessMessage('Successful Payment!');
                     setPendingRequest(false);
                     setInterval(() => {
                         navigate(0);
@@ -61,14 +61,14 @@ export default function PayDebt({ show, onHide, debt }: PayDebtProps): JSX.Eleme
                 ) : (
                     <div className="d-flex flex-column justify-content-center">
                         <div className="mb-2">
-                            Gentile utente {authState?.username},<br />
-                            Per continuare a utilizzare il nostro servizio, <br />
-                            è necessario pagare la quota extra da lei usufruita nel precedente post.
+                            Dear user {authState?.username},<br />
+                            To continue using our service, <br />
+                            is necessary pay the extra quota used in your previous post.
                             <br />
-                            L&apos;importo da pagare è di {debt * quotaPriceExtra} &euro;
+                            The amount do be paid is {debt * quotaPriceExtra} &euro;
                         </div>
                         <Button variant="danger" onClick={handlePayDebt}>
-                            Procedi al Pagamento
+                            Proceed to Payment
                         </Button>
                     </div>
                 )}

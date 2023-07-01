@@ -7,6 +7,23 @@ export enum PermissionType {
     ADMIN = 'owner',
 }
 
+export function permissionToValue(permission: PermissionType): number {
+    // gradi militari per le permission
+    // nelle chats non ha molto senso avere la write senza la lettura
+    // quindi questo è il modo che mi sembra più corretto per
+    // rappresentare le permission
+    switch (permission) {
+        case PermissionType.READ:
+            return 1;
+        case PermissionType.WRITE:
+            return 2;
+        case PermissionType.READWRITE:
+            return 3;
+        case PermissionType.ADMIN:
+            return 4;
+    }
+}
+
 export enum ChannelType {
     USER = 'user',
     PUBLIC = 'public',
@@ -22,6 +39,8 @@ export function isPublicChannel(channel: IChannel): boolean {
         channel.type === ChannelType.SQUEALER
     );
 }
+
+export const channelCost: number = 2;
 
 // user e public sono userchannels, altri sono ownedchannels
 export interface IChannel {
@@ -68,6 +87,13 @@ export function sortChannel(a: IChannel, b: IChannel): number {
     if (bn === undefined) return -1;
     return an - bn;
 }
+
+export function canUserWriteTochannel(channel: IChannel, user: string): boolean {
+    const userChannel = channel.users.find((u) => u.user === user);
+    if (!userChannel) return false;
+    return permissionToValue(userChannel.privilege) >= permissionToValue(PermissionType.WRITE);
+}
+
 export enum ChannelSortBy {
     POSTS = 'npost',
     USER = 'nuser',

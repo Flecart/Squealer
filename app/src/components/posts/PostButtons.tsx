@@ -1,12 +1,12 @@
 import { IReactionType, type IReaction, type ReactionResponse } from '@model/message';
 import { useState, useMemo, useContext, useCallback } from 'react';
 import { Button, ButtonGroup } from 'react-bootstrap';
-import { fetchApi } from '../../api/fetch';
-import { apiMessageBase } from '../../api/routes';
+import { fetchApi } from 'src/api/fetch';
+import { apiMessageReaction } from 'src/api/routes';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext, CategoryContext } from 'src/contexts';
 import 'src/scss/Post.scss';
-import { toEnglishString } from 'src/utils';
+import { stringFormat, toEnglishString } from 'src/utils';
 
 interface IReactionButton {
     clicked: JSX.Element;
@@ -66,7 +66,7 @@ export default function PostButtons({ messageId, reactions }: PostButtonProps): 
         setActive(false);
         setReaction(IReactionType.UNSET);
         fetchApi<ReactionResponse>(
-            `${apiMessageBase}/${messageId}/reaction`,
+            stringFormat(apiMessageReaction, [messageId]),
             {
                 method: 'POST',
                 body: JSON.stringify({ type }),

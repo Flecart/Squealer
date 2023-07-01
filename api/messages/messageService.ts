@@ -10,10 +10,11 @@ import {
     messageSort,
     type MessageSortTypes,
     IMessageWithPages,
+    IReaction,
 } from '@model/message';
 import { HttpError } from '@model/error';
-import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
-import { MessageCreation, MessageCreationRensponse } from '@model/message';
+import { ChannelType, IChannel, canUserWriteTochannel, isPublicChannel } from '@model/channel';
+import { MessageCreation, MessageCreationRensponse, mediaQuotaValue } from '@model/message';
 import mongoose from 'mongoose';
 import UserModel from '@db/user';
 import ChannelModel, { getUserChannelName } from '@db/channel';
@@ -23,6 +24,7 @@ import { ChannelService } from '@api/channel/channelService';
 import logger from '@server/logger';
 import UserService from '@api/user/userService';
 import { DEFAULT_QUOTA } from '@config/api';
+import { HistoryUpdateType } from '@model/history';
 
 type ChannelModelType = mongoose.HydratedDocument<IChannel>;
 type MessageModelType = mongoose.HydratedDocument<IMessage>;
@@ -86,6 +88,12 @@ export class MessageService {
         else if (message.parent !== undefined) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
+            parent.historyUpdates.push({
+                type: HistoryUpdateType.REPLY,
+                value: 1, // one new reply
+            });
+            parent.markModified('historyUpdates');
+            await parent.save();
         } else {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
@@ -183,27 +191,10 @@ export class MessageService {
         let negativeReactions = 0;
         let positiveReactions = 0;
 
-        message.reaction.forEach((reaction) => {
-            switch (reaction.type) {
-                case IReactionType.ANGRY:
-                    negativeReactions += 2;
-                    break;
-
-                case IReactionType.DISLIKE:
-                    negativeReactions += 1;
-                    break;
-
-                case IReactionType.LIKE:
-                    positiveReactions += 1;
-                    break;
-
-                case IReactionType.LOVE:
-                    positiveReactions += 2;
-                    break;
-
-                default:
-                    break;
-            }
+        message.reaction.forEach((reaction: IReaction) => {
+            const reactionValue = this._getReactionValue(reaction.type);
+            if (reactionValue < 0) negativeReactions += -reactionValue;
+            else positiveReactions += reactionValue;
         });
 
         if (negativeReactions > CriticMass && positiveReactions > CriticMass) {
@@ -228,11 +219,30 @@ export class MessageService {
             message.category = ICategory.NORMAL;
         }
 
+        message.historyUpdates.push({
+            type: HistoryUpdateType.POPULARITY,
+            value: this._getReactionValue(type),
+        });
+        message.markModified('historyUpdates');
         message.markModified('reaction');
-        message.save();
-        console.info(message);
+        await message.save();
 
         return { reaction: type, category: message.category };
+    }
+
+    private _getReactionValue(reaction: IReactionType) {
+        switch (reaction) {
+            case IReactionType.ANGRY:
+                return -2;
+            case IReactionType.DISLIKE:
+                return -1;
+            case IReactionType.LIKE:
+                return 1;
+            case IReactionType.LOVE:
+                return 2;
+            default:
+                return 0;
+        }
     }
 
     private async _getChannel(username: string, channelName: string): Promise<ChannelModelType> {
@@ -245,15 +255,10 @@ export class MessageService {
                 throw new HttpError(404, 'User not found');
             }
 
-            channel = await ChannelModel.findOne({ name: getUserChannelName(username, channelName.substring(1)) });
+            const fullChannelName = getUserChannelName(username, channelName.substring(1));
+            channel = await ChannelModel.findOne({ name: fullChannelName });
             if (!channel) {
-                channel = await new ChannelService().create(
-                    getUserChannelName(username, channelName.substring(1)),
-                    username,
-                    ChannelType.USER,
-                    '',
-                    false,
-                );
+                channel = await new ChannelService().create(fullChannelName, username, ChannelType.USER, '', false);
             }
         } else if (channelName.startsWith('#')) {
             channel = await ChannelModel.findOne({ name: channelName });
@@ -272,15 +277,7 @@ export class MessageService {
                 throw new HttpError(404, 'Channel not found');
             }
 
-            if (
-                channel.users.filter(
-                    (user) =>
-                        user.user === username &&
-                        (user.privilege === PermissionType.READWRITE ||
-                            user.privilege === PermissionType.WRITE ||
-                            user.privilege === PermissionType.ADMIN),
-                ).length === 0
-            ) {
+            if (!canUserWriteTochannel(channel, username)) {
                 throw new HttpError(403, "You don't have the permission to write in this channel");
             }
         }
@@ -299,10 +296,10 @@ export class MessageService {
                     type: message.content.type,
                     data: path.path,
                 },
-                100,
+                mediaQuotaValue,
             ];
         } else if (message.content.type === 'maps') {
-            return [message.content, 100];
+            return [message.content, mediaQuotaValue];
         } else {
             throw new HttpError(400, `Message type ${message.content.type} is not supported`);
         }

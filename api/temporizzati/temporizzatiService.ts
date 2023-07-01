@@ -93,23 +93,23 @@ export class TemporizzatiService {
         }
 
         const createMessage = async (currentIteration: number) => {
-            try {
-                const messageCreate = await TemporizzatiService.fromITemporizzatiToMessageCreation(
-                    temporizzati,
-                    currentIteration,
-                );
-                new MessageService().create(messageCreate, temporizzati.creator);
-            } catch (e) {
-                tempLogger.error(e);
-                TemporizzatiService.delete(id);
-            }
+            const messageCreate = await TemporizzatiService.fromITemporizzatiToMessageCreation(
+                temporizzati,
+                currentIteration,
+            );
+            new MessageService().create(messageCreate, temporizzati.creator);
         };
 
         createMessage(0); // primo messaggio è immediato in questo modo.
 
         const timer = setInterval(async () => {
             const current = this.jobs.get(id) as TimerCount;
-            await createMessage(current.numIter);
+            try {
+                await createMessage(current.numIter);
+            } catch (e) {
+                tempLogger.error(e);
+                TemporizzatiService.delete(id);
+            }
             if (current !== undefined) {
                 current.numIter++;
                 this.jobs.set(id, current);

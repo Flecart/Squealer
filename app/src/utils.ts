@@ -97,3 +97,14 @@ export function getUsernameFromUserChannel(channelname: string, myname: string):
     if (name[0] === myname) return name[1] as string;
     else return name[0] as string;
 }
+
+export function stringFormat(template: string, args: string[]): string {
+    let formatted = template;
+
+    args.forEach((arg, index) => {
+        const regexp = new RegExp(`\\{${index}\\}`, 'gi');
+        formatted = formatted.replace(regexp, arg);
+    });
+
+    return formatted;
+}

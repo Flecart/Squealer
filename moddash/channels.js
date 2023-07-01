@@ -1,3 +1,5 @@
+import { channelRoute, stringFormat, updateRoleRoute } from './routes.js';
+
 /* globals Handlebars */
 (function () {
     const CHANNEL_TEMPLATE_ID = 'channel-component-template';
@@ -22,7 +24,7 @@
             sortby: document.getElementById('sortby-channel').value,
             limit: document.getElementById('limit-channel').value,
         });
-        fetch(`/api/moddash/channel?${params}`, {
+        fetch(`${channelRoute}?${params}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,10 +58,10 @@
     });
 })();
 
-function updateRole(id, user) {
+export function updateRole(id, user) {
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
-    const role = document.getElementById(`privilage-${id}-${user}`).value;
-    fetch(`/api/moddash/updateRole/${id}/${user}`, {
+    const role = document.getElementById(`privilege-${id}-${user}`).value;
+    fetch(stringFormat(updateRoleRoute, [id, user]), {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

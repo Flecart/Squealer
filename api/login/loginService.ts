@@ -13,7 +13,7 @@ import { type Otp } from './loginController';
 
 export class LoginService {
     public async createUser(name: string, password: string): Promise<AuthResponse> {
-        const username = await this._createUserName(name);
+        const username = await this._checkUserName(name);
 
         const userModel = this._createDefaultUser(username, name);
         await userModel.save();
@@ -134,34 +134,17 @@ export class LoginService {
         return { otp: newPassword } as Otp;
     }
 
-    private async _createUserName(name: string): Promise<string> {
-        // TODO: simplify me
-        const usernamePref = name.toLowerCase().split(' ').join('');
-        let username = '';
-
-        const isPresent = async (username: string) => (await AuthUserModel.count({ username: username }).exec()) > 0;
-
-        if (await isPresent(usernamePref)) {
-            const lastName = await AuthUserModel.find({ username: new RegExp(`^${usernamePref}[0-9]*$`) }, 'username')
-                .sort({ username: -1 })
-                .limit(1)
-                .exec();
-
-            if (lastName !== null && lastName.length > 0) {
-                const suffix = lastName[0]?.username.replace(usernamePref, '');
-                if (suffix === '' || suffix === undefined) username = usernamePref + '1';
-                else username = usernamePref + (parseInt(suffix) + 1).toString();
-            } else {
-                username = usernamePref + '1';
-            }
-            if (await isPresent(username)) {
-                return Promise.reject(new HttpError(400, 'Username already taken'));
-            }
-        } else {
-            username = usernamePref;
+    private async _checkUserName(name: string): Promise<string> {
+        const alphaNumericalRegex = /^[a-zA-Z0-9]+$/;
+        name = name.toLocaleLowerCase();
+        if (name.length < 2) {
+            return Promise.reject(new HttpError(400, 'Username too short, minimum of 2 characters'));
+        } else if ((await AuthUserModel.count({ username: name })) > 0) {
+            return Promise.reject(new HttpError(400, 'Username already taken'));
+        } else if (!alphaNumericalRegex.test(name)) {
+            return Promise.reject(new HttpError(400, 'Username must be alphanumeric (letters and numbers, no spaces)'));
         }
-
-        return username;
+        return name;
     }
 
     private _createDefaultUser(username: string, name: string): HydratedDocument<IUser> {

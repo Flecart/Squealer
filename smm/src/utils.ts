@@ -52,3 +52,14 @@ export function toEnglishString(n: number): string {
   const result = translate(n)
   return prefix + result.trim()
 }
+
+export function stringFormat(template: string, args: string[]): string {
+  let formatted = template
+
+  args.forEach((arg, index) => {
+    const regexp = new RegExp(`\\{${index}\\}`, 'gi')
+    formatted = formatted.replace(regexp, arg)
+  })
+
+  return formatted
+}
