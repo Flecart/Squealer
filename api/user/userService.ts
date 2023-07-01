@@ -159,9 +159,9 @@ export default class UserService {
         return { message: 'Successfull Payment' };
     }
 
-    public async getSuggestions(username: string, avoid: string[], limit: number): Promise<ISuggestion[]> {
+    public async getSuggestions(username: string, limit: number): Promise<ISuggestion[]> {
         const prefixRegex = new RegExp(`^${username}`, 'i');
-        const users = await UserModel.find({ username: { $regex: prefixRegex, $nin: avoid } }, 'username').limit(limit);
+        const users = await UserModel.find({ username: { $regex: prefixRegex } }, 'username').limit(limit);
 
         return users.map((user) => {
             return user.username;

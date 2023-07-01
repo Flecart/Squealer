@@ -152,7 +152,6 @@ watch(channelInput, () => {
   if (channelInput.value.length <= 0) return
 
   let searchText = channelInput.value
-
   let searchType = SearchType.Channel
 
   let suggestionUrl = getChannelSuggestions
@@ -167,18 +166,15 @@ watch(channelInput, () => {
   }
 
   const searchParams = {
-    search: searchText,
-    avoid: getChoosedSelectionByType(searchType).map((channel) => removeChannelPrefix(channel))
+    search: searchText
   }
   if (searchType === SearchType.Channel) {
     // @ts-expect-error
     searchParams.user = currentClient.value.username
   }
 
-  // @ts-expect-error
   const searchParamsString = new URLSearchParams(searchParams).toString()
 
-  console.log(searchParams)
   fetch(`${suggestionUrl}?${searchParamsString}`, {
     method: 'GET'
   })
@@ -193,13 +189,12 @@ watch(channelInput, () => {
     .then((elements: ISuggestion[]) => {
       suggestions.value = []
       // se è pubblico vogliamo dare la possibilità di aggiungere la sua scelta stessa.
-      if (searchType === SearchType.Hashtag) {
+      if (searchText.length > 0 && searchType === SearchType.Hashtag) {
         suggestions.value.push(addChannelPrefix(searchText, searchType))
       }
       elements.forEach((element: ISuggestion) => {
         suggestions.value.push(addChannelPrefix(element as string, searchType))
       })
-      console.log(elements)
     })
     .catch((error) => {
       suggestions.value = []
@@ -209,13 +204,6 @@ watch(channelInput, () => {
       setSuccessMessage('')
     })
 })
-
-function removeChannelPrefix(channel: string): string {
-  if (channel.startsWith('#') || channel.startsWith('@')) {
-    return channel.substring(1)
-  }
-  return channel
-}
 
 function addChannelPrefix(channel: string, type: SearchType) {
   switch (type) {
@@ -230,29 +218,12 @@ function addChannelPrefix(channel: string, type: SearchType) {
   }
 }
 
-function getChoosedSelectionByType(type: SearchType): string[] {
-  return choosedChannels.value.filter((suggestion) => {
-    switch (type) {
-      case SearchType.Hashtag:
-        return suggestion.startsWith('#')
-      case SearchType.User:
-        return suggestion.startsWith('@')
-      case SearchType.Channel:
-        return choosedChannels.value
-      default:
-        return false
-    }
-  })
-}
-
 const handleKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     e.preventDefault()
   }
 
   if (suggestionShowed.value) {
-    console.log('got key input')
-
     if (e.key === 'ArrowUp') {
       activeSuggestionIdx.value = Math.max(0, activeSuggestionIdx.value - 1)
     } else if (e.key === 'ArrowDown') {

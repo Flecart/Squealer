@@ -33,13 +33,12 @@ export class ChannelController extends Controller {
     @Response<HttpError>(400, 'Bad Request')
     public async getChannelSuggestions(
         @Query('search') search: string,
-        @Query('avoid') avoid: string[],
         @Query('user') user: string,
         @Query('limit') limit?: number,
     ): Promise<ISuggestion[]> {
         if (!limit) limit = defaultSuggestionLimit;
-        channelLogger.info(`Getting channel suggestions for ${search} avoiding ${avoid} with limit ${limit}`);
-        return new ChannelService().getChannelSuggestions(search, avoid, limit, user);
+        channelLogger.info(`Getting channel suggestions for ${search} with limit ${limit}`);
+        return new ChannelService().getChannelSuggestions(search, limit, user);
     }
 
     @Get('suggestions/hashtag')
@@ -47,12 +46,11 @@ export class ChannelController extends Controller {
     @SuccessResponse(200, 'Channel suggestions')
     public async getChannelPublicSuggestions(
         @Query('search') search: string,
-        @Query('avoid') avoid: string[],
         @Query('limit') limit?: number,
     ): Promise<ISuggestion[]> {
         if (!limit) limit = defaultSuggestionLimit;
-        channelLogger.info(`Getting public channel suggestions for ${search} avoiding ${avoid} with limit ${limit}`);
-        return new ChannelService().getPublicChannelSuggestions(search, avoid, limit);
+        channelLogger.info(`Getting public channel suggestions for ${search} with limit ${limit}`);
+        return new ChannelService().getPublicChannelSuggestions(search, limit);
     }
 
     @Get()

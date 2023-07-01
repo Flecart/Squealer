@@ -64,15 +64,10 @@ export class ChannelService {
         return channel;
     }
 
-    public async getChannelSuggestions(
-        search: string,
-        avoid: string[],
-        limit: number,
-        user: string,
-    ): Promise<ISuggestion[]> {
+    public async getChannelSuggestions(search: string, limit: number, user: string): Promise<ISuggestion[]> {
         const prefixRegex = new RegExp(`^${search}`, 'i');
         const channels = await ChannelModel.find({
-            name: { $regex: prefixRegex, $nin: avoid },
+            name: { $regex: prefixRegex },
             type: { $ne: ChannelType.USER },
         });
 
@@ -84,12 +79,15 @@ export class ChannelService {
         return writableChannels.slice(0, limit).map((channel) => channel.name);
     }
 
-    public async getPublicChannelSuggestions(search: string, avoid: string[], limit: number): Promise<ISuggestion[]> {
+    public async getPublicChannelSuggestions(search: string, limit: number): Promise<ISuggestion[]> {
         const prefixRegex = new RegExp(`^${search}`, 'i');
-        const channels = await ChannelModel.find({
-            name: { $regex: prefixRegex, $nin: avoid },
-            type: ChannelType.HASHTAG,
-        }).limit(limit);
+        const channels = await ChannelModel.find(
+            {
+                name: { $regex: prefixRegex },
+                type: ChannelType.HASHTAG,
+            },
+            'name',
+        ).limit(limit);
 
         return channels.map((channel) => channel.name);
     }

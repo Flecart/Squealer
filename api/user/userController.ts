@@ -28,12 +28,11 @@ export class UserController extends Controller {
     @SuccessResponse(200, 'Suggestions Retrieved')
     public async getSuggestions(
         @Query('search') search: string,
-        @Query('avoid') avoid: string[],
         @Query('limit') limit?: number,
     ): Promise<ISuggestion[]> {
-        userLogger.info(`getSuggestions for ${search} avoiding ${avoid}`);
+        userLogger.info(`getSuggestions for ${search}`);
         if (!limit) limit = defaultSuggestionLimit;
-        return new UserService().getSuggestions(search, avoid, limit);
+        return new UserService().getSuggestions(search, limit);
     }
 
     @Get('/notification')
