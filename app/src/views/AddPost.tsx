@@ -74,6 +74,7 @@ export default function AddPost(): JSX.Element {
     const hiddenFileInput = useRef<HTMLInputElement | null>(null);
 
     const usedQuotaValue = useMemo(() => {
+        console.log('updated', messageText);
         if (geolocationCoord !== null || selectedImage !== null) {
             return mediaQuotaValue;
         } else {
@@ -82,8 +83,9 @@ export default function AddPost(): JSX.Element {
     }, [geolocationCoord, selectedImage, messageText]);
 
     const remainingQuotaValue = useMemo(() => {
-        if (user === null) return { day: 0, week: 0, month: 0 };
+        console.log('updated', usedQuotaValue);
 
+        if (user === null) return { day: 0, week: 0, month: 0 };
         return {
             day: user.maxQuota.day - user.usedQuota.day - usedQuotaValue * destinations.length,
             week: user.maxQuota.week - user.usedQuota.week - usedQuotaValue * destinations.length,
@@ -92,12 +94,12 @@ export default function AddPost(): JSX.Element {
     }, [user, destinations, usedQuotaValue]);
 
     const extraQuotaValue = useMemo(() => {
-        if (!user) return 0;
+        if (user === null) return 0;
 
         return getExtraQuota(user, usedQuotaValue * destinations.length);
     }, [user, usedQuotaValue, destinations]);
 
-    function CloseButton(): JSX.Element {
+    const CloseButton = useCallback(() => {
         return (
             <Button
                 className="position-absolute rounded-circle top-0 end-0 p-1 m-1"
@@ -111,26 +113,29 @@ export default function AddPost(): JSX.Element {
                 <Icon.X role="button" aria-label="remove media" height={25} width={25} />
             </Button>
         );
-    }
+    }, []);
 
     const ShowQuota = useCallback(() => {
+        useEffect(() => {
+            console.log('updating');
+        }, []);
         if (user === null) {
             return <></>;
         }
         return (
             <div className="mt-1">
-                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                <span className="bg-primary rounded-pill me-1 px-2 mb-1 d-inline-block">
                     day: <span aria-label={toEnglishString(remainingQuotaValue.day)}> {remainingQuotaValue.day} </span>
                 </span>
-                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                <span className="bg-primary rounded-pill me-1 px-2 mb-1 d-inline-block">
                     week:{' '}
                     <span aria-label={toEnglishString(remainingQuotaValue.week)}> {remainingQuotaValue.week} </span>
                 </span>
-                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                <span className="bg-primary rounded-pill me-1 px-2 mb-1 d-inline-block">
                     month:{' '}
                     <span aria-label={toEnglishString(remainingQuotaValue.month)}> {remainingQuotaValue.month} </span>
                 </span>
-                <span className="bg-warning rounded-pill me-1 px-1 mb-1 d-inline-block">
+                <span className="bg-warning rounded-pill me-1 px-2 mb-1 d-inline-block">
                     extra: <span aria-label={toEnglishString(extraQuotaValue)}> {extraQuotaValue} </span>
                 </span>
             </div>
@@ -207,17 +212,18 @@ export default function AddPost(): JSX.Element {
     }, [user]);
 
     const maxLenghtChar = useMemo<number>(() => {
+        console.log('maxLenghtChar', remainingQuotaValue);
         if (user !== null) {
-            const remQuotaDay: number = user.maxQuota.day - user.usedQuota.day;
-            const remQuotaWeek: number = user.maxQuota.week - user.usedQuota.week;
-            const remQuotaMonth: number = user.maxQuota.month - user.usedQuota.month;
+            const remQuotaDay: number = remainingQuotaValue.day;
+            const remQuotaWeek: number = remainingQuotaValue.week;
+            const remQuotaMonth: number = remainingQuotaValue.month;
             if (remQuotaDay === 0 || remQuotaWeek === 0 || remQuotaMonth === 0) {
                 return 0;
             }
             return Math.min(remQuotaDay, remQuotaWeek, remQuotaMonth) + quotaMaxExtra;
         }
         return 0;
-    }, [user?.maxQuota, user?.usedQuota]);
+    }, [remainingQuotaValue]);
 
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
@@ -380,7 +386,12 @@ export default function AddPost(): JSX.Element {
         });
     }, [navigator.geolocation]);
 
-    const RenderMessagePayload = useCallback(() => {
+    const RenderMessagePayload = (): JSX.Element => {
+        useEffect(() => {
+            console.log(remainingQuotaValue);
+            console.log('render');
+        }, []);
+
         if (selectedImage != null) {
             return renderFilePreview();
         } else if (geolocationCoord != null) {
@@ -406,14 +417,15 @@ export default function AddPost(): JSX.Element {
                         maxLength={maxLenghtChar}
                         rows={3}
                         onChange={(e) => {
-                            setMessageText(e.target.value);
+                            setMessageText(() => e.target.value);
                         }}
+                        value={messageText}
                         placeholder="Write your message here, you can also upload a file or send geolocation."
                     />
                 </Form.Group>
             );
         }
-    }, [user, messageText, geolocationCoord, selectedImage]);
+    };
 
     const ChannelInput = useCallback(() => {
         const [currentChannel, setCurrentChannel] = useState<string>('');
@@ -525,7 +537,7 @@ export default function AddPost(): JSX.Element {
                             setCurrentChannel(e.target.value);
                         }}
                         value={currentChannel}
-                        placeholder="Enter Channel name"
+                        placeholder="Enter Channel name, @ for users, # for hashtags"
                         autoFocus={true}
                         autoComplete="off"
                     />
