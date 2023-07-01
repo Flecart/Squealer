@@ -3,7 +3,15 @@ import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
 import { getMaybeUserFromRequest, getUserFromRequest } from '@api/utils';
-import { IChannel, ChannelInfo, ChannelDescription, ChannelResponse, PermissionType } from '@model/channel';
+import {
+    IChannel,
+    ChannelInfo,
+    ChannelDescription,
+    ChannelResponse,
+    PermissionType,
+    defaultSuggestionLimit,
+    ISuggestion,
+} from '@model/channel';
 import { type ISuccessMessage } from '@model/user';
 import logger from '@server/logger';
 import { MessageSortTypes } from '@model/message';
@@ -18,6 +26,31 @@ export class ChannelController extends Controller {
     @SuccessResponse(200)
     public async getChannels(@Request() request: any, @Query('channels') channels: string[]): Promise<IChannel[]> {
         return new ChannelService().getChannels(channels, getUserFromRequest(request));
+    }
+
+    @Get('suggestions')
+    @SuccessResponse(200, 'Channel suggestions')
+    @Response<HttpError>(400, 'Bad Request')
+    public async getChannelSuggestions(
+        @Query('search') search: string,
+        @Query('user') user: string,
+        @Query('limit') limit?: number,
+    ): Promise<ISuggestion[]> {
+        if (!limit) limit = defaultSuggestionLimit;
+        channelLogger.info(`Getting channel suggestions for ${search} with limit ${limit}`);
+        return new ChannelService().getChannelSuggestions(search, limit, user);
+    }
+
+    @Get('suggestions/hashtag')
+    @Response<HttpError>(400, 'Bad Request')
+    @SuccessResponse(200, 'Channel suggestions')
+    public async getChannelPublicSuggestions(
+        @Query('search') search: string,
+        @Query('limit') limit?: number,
+    ): Promise<ISuggestion[]> {
+        if (!limit) limit = defaultSuggestionLimit;
+        channelLogger.info(`Getting public channel suggestions for ${search} with limit ${limit}`);
+        return new ChannelService().getPublicChannelSuggestions(search, limit);
     }
 
     @Get()

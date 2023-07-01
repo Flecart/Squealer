@@ -1,5 +1,14 @@
 import { HttpError } from '@model/error';
-import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
+import {
+    IChannel,
+    ChannelType,
+    PermissionType,
+    ChannelResponse,
+    sortChannel,
+    isPublicChannel,
+    canUserWriteTochannel,
+    ISuggestion,
+} from '@model/channel';
 import ChannelModel from '@db/channel';
 import MessageModel from '@db/message';
 import InvitationModel from '@db/invitation';
@@ -53,6 +62,34 @@ export class ChannelService {
             }
         }
         return channel;
+    }
+
+    public async getChannelSuggestions(search: string, limit: number, user: string): Promise<ISuggestion[]> {
+        const prefixRegex = new RegExp(`^${search}`, 'i');
+        const channels = await ChannelModel.find({
+            name: { $regex: prefixRegex },
+            type: { $ne: ChannelType.USER },
+        });
+
+        // ritorno solamente i canali in cui l'utente può scrivere.
+        const writableChannels = channels.filter((channel) => {
+            return canUserWriteTochannel(channel, user);
+        });
+
+        return writableChannels.slice(0, limit).map((channel) => channel.name);
+    }
+
+    public async getPublicChannelSuggestions(search: string, limit: number): Promise<ISuggestion[]> {
+        const prefixRegex = new RegExp(`^${search}`, 'i');
+        const channels = await ChannelModel.find(
+            {
+                name: { $regex: prefixRegex },
+                type: ChannelType.HASHTAG,
+            },
+            'name',
+        ).limit(limit);
+
+        return channels.map((channel) => channel.name);
     }
 
     public async create(

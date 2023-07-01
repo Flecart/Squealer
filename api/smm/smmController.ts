@@ -12,10 +12,10 @@ import {
     Response,
 } from '@tsoa/runtime';
 import { SmmService } from './smmService';
-import { getUserFromRequest, parseMessageCreationWithFile } from '@api/utils';
+import { getUserFromRequest, parseMessageCreationWithFile, parseWithFile } from '@api/utils';
 import { type IUser, type ISuccessMessage } from '@model/user';
 import { HistoryPoint } from '@model/history';
-import { MessageCreationRensponse } from '@model/message';
+import { MessageCreationMultipleChannels, MessageCreationRensponse } from '@model/message';
 import logger from '@server/logger';
 import { IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
@@ -68,6 +68,22 @@ export class SmmController {
             getUserFromRequest(request),
             clientUsername,
             parseMessageCreationWithFile(data, file),
+        );
+    }
+
+    @Post('/messages/{clientUsername}')
+    @Security('jwt')
+    @Response<HttpError>(404, 'Not found')
+    public async sendMessages(
+        @Request() request: any,
+        @Path() clientUsername: string,
+        @FormField() data: string,
+        @UploadedFile('file') file?: Express.Multer.File,
+    ): Promise<MessageCreationRensponse[]> {
+        return new SmmService().sendMessages(
+            getUserFromRequest(request),
+            clientUsername,
+            parseWithFile<MessageCreationMultipleChannels>(data, file),
         );
     }
 
