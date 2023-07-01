@@ -1,4 +1,5 @@
 import {PORT} from "@config/config"
+import assert from 'node:assert'
 
 export const baseUrl = `http://localhost:${PORT}`
 export const createUserRoute = "/api/auth/create"
@@ -20,4 +21,12 @@ export const geolocationRoute = "/api/message/geo/{0}"
 export type Credentials = {
     username: string
     password: string
+}
+
+export function checkAndReportStatus(res: any, code: number, msg?: string) {
+    if (res.status !== code) {
+        console.log(res.text);
+        console.log(res.body);
+        assert(false, msg || `Expected status ${code}, got ${res.status}`);
+    }
 }

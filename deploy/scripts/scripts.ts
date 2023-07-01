@@ -23,7 +23,8 @@ import {
     addClientRoute,
     temporizzatiRoute,
     joinChannelRoute,
-    geolocationRoute
+    geolocationRoute,
+    checkAndReportStatus
 } from './globals';
 import {createDefaultUsersAndChannels as makeDefaults} from './defaults';
 import { ADMIN_USER } from '@config/config'
@@ -125,11 +126,12 @@ async function createChannels(loginToken: string[]) {
 }
 
 async function createChannel(loginToken: string, channel: ChannelInfo) {
-    return await request(baseUrl)
+    const res = await request(baseUrl)
         .post(channelCreateRoute)
         .set('Authorization', `Bearer ${loginToken}`)
-        .send(channel)
-        .expect(201)
+        .send(channel);
+
+        checkAndReportStatus(res, 201);
 }
 
 async function createMessagesPublic(): Promise<MessageCreate[]> {
@@ -296,12 +298,18 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
         }).expect(200);
 
 
-    await request(baseUrl)
+    const res = await request(baseUrl)
         .post(apiRoleRoute)
         .set('Authorization', `Bearer ${clientToken.token}`)
         .send({
             role: "vip",
-        }).expect(200);
+        });
+        // }).expect(200);
+
+    if (res.status !== 200) {
+        console.log(res.text);
+        assert(false, "Error creating VIP role");
+    }
 
     await request(baseUrl)
     .post(apiRoleRoute)
@@ -340,10 +348,12 @@ async function createPrivateMessage() {
             const token = loginTockenMap.get(from);
             if (!token) continue;
 
-            await request(baseUrl)
+            const res = await request(baseUrl)
                 .post(messageCreateRoute)
                 .set('Authorization', `Bearer ${token}`)
-                .field('data', JSON.stringify(message)).expect(200);
+                .field('data', JSON.stringify(message));
+
+                checkAndReportStatus(res, 200, "Error creating private message");
         }
     }
 }
