@@ -4,7 +4,7 @@ import { Form, Button, Alert, Image, Collapse } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
-import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
+import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse, mediaQuotaValue } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import { apiMessageBase, apiMessageParent, apiTemporized, apiUser } from 'src/api/routes';
@@ -34,8 +34,9 @@ export default function AddPost(): JSX.Element {
     const [showWarning, setShowWarning] = useState<boolean>(false);
     const [oneTimeView, setOneTimeView] = useState<boolean>(false);
 
-    const [messageText, setMessageText] = useState<string>('');
+    const [destinations, setDestinations] = useState<string[]>([]);
     const [destination, setDestination] = useState<string>('');
+    const [messageText, setMessageText] = useState<string>('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
@@ -311,8 +312,6 @@ export default function AddPost(): JSX.Element {
     const renderFilePreview = useCallback((): JSX.Element => {
         // FIXME:, stranamente ogni volta che scrivo qualcosa, l'URL della src cambia, prova a
         // tenere l'ispector aperto quando scrivi qualcosa e vedi cosa succede.
-
-        // TODO: effetti sconosciuti quando provo a caricare un file e non un immagine.
         if (selectedImage == null) return <></>;
 
         return (
@@ -342,15 +341,13 @@ export default function AddPost(): JSX.Element {
         );
     }, [user, selectedImage]);
 
-    const setGeolocation = (): void => {
-        console.log('geoclicked');
+    const setGeolocation = useCallback((): void => {
         navigator.geolocation.getCurrentPosition(function (position) {
-            console.log('setting geolocation');
             setGeolocationCoord({
                 positions: [{ lat: position.coords.latitude, lng: position.coords.longitude }],
             });
         });
-    };
+    }, [navigator.geolocation]);
 
     const renderMessagePayload = useCallback(() => {
         if (selectedImage != null) {
@@ -359,7 +356,7 @@ export default function AddPost(): JSX.Element {
             return (
                 <>
                     <div className="d-flex flex-column align-items-center">
-                        Remaining Quota: {user !== null && <ShowQuota quota={100} />}
+                        Remaining Quota: {user !== null && <ShowQuota quota={mediaQuotaValue} />}
                     </div>
                     <div className="position-relative">
                         <Map positions={geolocationCoord.positions} />
@@ -389,22 +386,26 @@ export default function AddPost(): JSX.Element {
         }
     }, [user, messageText, geolocationCoord, selectedImage]);
 
+    const ChannelInput = useCallback(() => {
+            return (
+                <Form.Group controlId="channelInput" className="group-add-post">
+                <Form.Label className="label-add-post">Channel</Form.Label>
+                <Form.Control
+                    onChange={(e) => {
+                        setDestination(e.target.value);
+                    }}
+                    placeholder="Enter Channel name"
+                    autoFocus={true}
+                />
+            </Form.Group>
+            );
+    }, [setDestination])
+
     return (
         <SidebarSearchLayout>
             {renderParentMessage()}
             <Form>
-                {parent === undefined && (
-                    <Form.Group controlId="channelInput" className="group-add-post">
-                        <Form.Label className="label-add-post">Channel</Form.Label>
-                        <Form.Control
-                            onChange={(e) => {
-                                setDestination(e.target.value);
-                            }}
-                            placeholder="Enter Channel name"
-                            autoFocus={true}
-                        />
-                    </Form.Group>
-                )}
+                {parent === undefined && <ChannelInput/>}
                 {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
                 {renderMessagePayload()}
 
@@ -418,6 +419,7 @@ export default function AddPost(): JSX.Element {
                         className="d-flex align-items-center me-2"
                     >
                         <span className="d-flex align-items-center">
+                            {/* @ts-expect-error hidden should exist */}
                             <LockIcon hidden={permissions} aria-hidden="true" size={19.2} className="me-1" />
                         </span>
                         Purchase Quota
