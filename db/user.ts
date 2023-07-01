@@ -23,6 +23,7 @@ const UserSchema = new mongoose.Schema<IUser>({
     channel: { type: [String], required: true },
     role: { type: String, required: true },
     invitations: { type: [mongoose.Schema.Types.ObjectId], required: true },
+    ssm: { type: String, required: false },
 });
 
 export default mongoose.model<IUser>(UserModelName, UserSchema);

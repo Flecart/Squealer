@@ -1,6 +1,7 @@
 import {
     Request,
     Route,
+    Delete,
     Get,
     Post,
     Body,
@@ -28,6 +29,36 @@ export class SmmController {
     @Security('jwt')
     public async getClients(@Request() request: any): Promise<IUser[]> {
         return new SmmService().getClients(getUserFromRequest(request));
+    }
+
+    @Get('/my-request')
+    @Security('jwt')
+    @Response<HttpError>(404, 'Not found')
+    @Response<HttpError>(401, 'Unauthorized')
+    public async getMyRequest(@Request() request: any): Promise<ISuccessMessage> {
+        return new SmmService().getMyRequest(getUserFromRequest(request));
+    }
+    // this api is used by vip account
+    @Post('/send-request/{user}')
+    @Security('jwt')
+    @Response<HttpError>(404, 'Not found')
+    @Response<HttpError>(401, 'Unauthorized')
+    public async sendRequest(@Request() request: any, @Path() user: string): Promise<ISuccessMessage> {
+        return new SmmService().sendRequest(getUserFromRequest(request), user);
+    }
+    // this api is used by vip account
+    @Delete('/delete-request/')
+    @Security('jwt')
+    @Response<HttpError>(404, 'Not found')
+    @Response<HttpError>(401, 'Unauthorized')
+    public async deleteRequest(@Request() request: any): Promise<ISuccessMessage> {
+        return new SmmService().deleteRequest(getUserFromRequest(request));
+    }
+
+    @Get('/requests')
+    @Security('jwt')
+    public async getRequests(@Request() request: any): Promise<IUser[]> {
+        return new SmmService().getRequests(getUserFromRequest(request));
     }
 
     @Post('/add-client/{user}')

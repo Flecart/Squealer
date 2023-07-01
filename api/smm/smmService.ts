@@ -7,8 +7,41 @@ import { MessageService } from '@api/messages/messageService';
 import { type IQuotas } from '@model/quota';
 import UserService from '@api/user/userService';
 import { HistoryService } from '@api/history/historyService';
+import SmmRequestModel from '@db/smmRequest';
 
 export class SmmService {
+    public async sendRequest(clientUsername: string, user: string): Promise<ISuccessMessage> {
+        const ssmMenager = await this._getSmm(user);
+        await this.deleteRequest(clientUsername);
+        const newRequest = await SmmRequestModel.create({ from: clientUsername, to: ssmMenager.username });
+        await newRequest.save();
+        return { message: `Request sent to ${ssmMenager.username}` };
+    }
+
+    public async getMyRequest(clientUsername: string): Promise<ISuccessMessage> {
+        const client = await this._getVip(clientUsername);
+        const currentRequest = await SmmRequestModel.findOne({ from: client.username });
+        if (currentRequest) {
+            return { message: currentRequest.to };
+        }
+        return { message: '' };
+    }
+
+    public async deleteRequest(clientUsername: string): Promise<ISuccessMessage> {
+        const client = await this._getVip(clientUsername);
+        if (client.ssm) {
+            const ssm = await this._getSmm(client.ssm);
+            if (ssm.clients) {
+                ssm.clients = ssm.clients.filter((c) => c !== clientUsername);
+                await ssm.save();
+            }
+            client.set('ssm', null);
+            await client.save();
+        }
+        await SmmRequestModel.deleteMany({ from: client.username });
+        return { message: `Request deleted` };
+    }
+
     public async getClients(smmUsername: string): Promise<IUser[]> {
         const user = await this._getSmm(smmUsername);
         if (user.clients) {
@@ -19,20 +52,22 @@ export class SmmService {
         return [];
     }
 
+    public async getRequests(smmUsername: string): Promise<IUser[]> {
+        await this._getSmm(smmUsername);
+        const requests = await SmmRequestModel.find({ to: smmUsername });
+        const clients = await UserModel.find({ username: { $in: requests.map((r) => r.from) } });
+        return clients;
+    }
+
     public async addClient(clientUsername: string, smmUsername: string): Promise<ISuccessMessage> {
         const user = await this._getSmm(smmUsername);
 
-        const client = await UserModel.findOne({ username: clientUsername });
-        if (client === null) {
-            throw new HttpError(401, 'Client does not exist');
-        }
-        if (client.role !== UserRoles.VIP) {
-            throw new HttpError(401, 'Client is not a VIP user');
-        }
+        const client = await this._getVip(clientUsername);
         if (user.clients !== undefined && user.clients.includes(clientUsername)) {
             throw new HttpError(401, 'Client already added');
         }
-
+        client.ssm = smmUsername;
+        await client.save();
         if (user.clients === undefined) {
             user.clients = [clientUsername];
         } else {
@@ -89,6 +124,17 @@ export class SmmService {
             return user.clients.includes(clientUsername);
         }
         return false;
+    }
+
+    private async _getVip(client: string): Promise<HydratedDocument<IUser>> {
+        const user = await UserModel.findOne({ username: client });
+        if (user === null) {
+            throw new HttpError(401, 'User does not exist');
+        }
+        if (user.role !== UserRoles.VIP) {
+            throw new HttpError(401, 'User is not a VIP');
+        }
+        return user;
     }
 
     private async _getSmm(smmUsername: string): Promise<HydratedDocument<IUser>> {

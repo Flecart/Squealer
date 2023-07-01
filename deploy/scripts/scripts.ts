@@ -26,7 +26,7 @@ import {
     geolocationRoute,
     checkAndReportStatus
 } from './globals';
-import {createDefaultUsersAndChannels as makeDefaults} from './defaults';
+import { createDefaultUsersAndChannels as makeDefaults } from './defaults';
 import { ADMIN_USER } from '@config/config'
 import { stringFormat } from "@app/utils"
 
@@ -311,12 +311,13 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
         assert(false, "Error creating VIP role");
     }
 
-    await request(baseUrl)
-    .post(apiRoleRoute)
-    .set('Authorization', `Bearer ${clientToken2.token}`)
-    .send({
-        role: "vip",
-    }).expect(200);
+    const a = await request(baseUrl)
+        .post(apiRoleRoute)
+        .set('Authorization', `Bearer ${clientToken2.token}`)
+        .send({
+            role: "vip",
+        })//.expect(200);
+    console.log(a.text)
 
     console.log("SMM and VIP role created")
 

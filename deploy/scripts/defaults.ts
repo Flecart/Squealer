@@ -1,11 +1,12 @@
 import request from 'supertest';
-import { baseUrl, createUserRoute, apiRoleRoute, 
+import {
+    baseUrl, createUserRoute, apiRoleRoute,
     channelCreateRoute, Credentials, messageCreateRoute,
     addClientRoute,
     joinChannelRoute,
     addReactionRoute,
     checkAndReportStatus
- } from './globals';
+} from './globals';
 import { ChannelInfo, ChannelType } from '@model/channel';
 import assert from 'node:assert'
 import { randomTwits } from './readscript';
@@ -90,19 +91,29 @@ async function createUsers() {
             // add clients to fvsmm
             const clients = proAccounts.map(([username, _]) => username);
             for (const client of clients) {
-                console.log()
-                const res = await request(baseUrl)
-                    .post(stringFormat(addClientRoute, [client.toLocaleLowerCase()]))
+                // console.log()
+                // const res = await request(baseUrl)
+                //     .post(stringFormat(addClientRoute, [client.toLocaleLowerCase()]))
+                //     .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
+                //     .send({
+                //         role,
+                //         client,
+                //     })
+                // 
+                // checkAndReportStatus(res, 200, `Error adding client ${client.toLocaleLowerCase()} to fvSMM`);
+                await request(baseUrl)
+                    .post(`/api/smm/send-request/${'fvSMM'}`)
+                    .set('Authorization', `Bearer ${loginTokens.get(client)}`)
+                    .send().expect(200)
+                await request(baseUrl)
+                    .post(`/api/smm/add-client/${client.toLocaleLowerCase()}`)
                     .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
-                    .send({
-                        role,
-                        client,
-                    })
-                
-                checkAndReportStatus(res, 200, `Error adding client ${client.toLocaleLowerCase()} to fvSMM`);
+                    .send().expect(200)
             }
+            console.log(`added all clients to fvsmm`)
         }
     });
+
     await Promise.all(promise);
 }
 
