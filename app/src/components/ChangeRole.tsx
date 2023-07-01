@@ -1,10 +1,11 @@
 import { Alert, Button, Container, Spinner, Stack, Form } from 'react-bootstrap';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../contexts';
-import { apiUserBase } from 'src/api/routes';
+import { apiUser, apiUserRole } from 'src/api/routes';
 import { fetchApi } from 'src/api/fetch';
 import { type IUser, UserRoles } from '@model/user';
 import { useNavigate } from 'react-router-dom';
+import { stringFormat } from 'src/utils';
 
 export default function DeleteAccount(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -20,7 +21,7 @@ export default function DeleteAccount(): JSX.Element {
             return;
         }
         fetchApi<IUser>(
-            `${apiUserBase}/${authState.username}`,
+            stringFormat(apiUser, [authState.username]),
             {
                 method: 'GET',
             },
@@ -41,7 +42,7 @@ export default function DeleteAccount(): JSX.Element {
         if (!pendingRequest) {
             setPendingRequest(true);
             fetchApi<IUser>(
-                `${apiUserBase}/role`,
+                apiUserRole,
                 {
                     method: 'POST',
                     body: JSON.stringify({

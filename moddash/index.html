@@ -27,8 +27,13 @@
         ></script>
         <link href="/moddash/sidebar.css" rel="stylesheet" />
 
-        <script src="/moddash/sidebar.js" defer></script>
-        <script src="/moddash/user.js" defer></script>
+        <script type="module" defer>
+            // https://stackoverflow.com/questions/69888029/how-to-call-a-function-declared-in-a-javascript-module-type-module-from-an-htm
+            import { suspendUser, changeQuota } from '/moddash/user.js';
+            window.suspendUser = suspendUser;
+            window.changeQuota = changeQuota;
+        </script>
+        <script type="module" src="/moddash/sidebar.js" defer></script>
 
         <title>Moderator Dashboard</title>
     </head>
@@ -129,8 +134,9 @@
                                         <form class='mb-1 d-flex flex-column'>
 
                                             <div class='input-group mb-3'>
-                                                <span class='input-group-text' id='dayquota-{{name}}'>Day</span>
+                                                <span class='input-group-text'>Day</span>
                                                 <input
+                                                    id='dayquota-{{name}}'
                                                     type='number'
                                                     class='form-control'
                                                     name='dayquota'
@@ -141,8 +147,9 @@
                                             </div>
 
                                             <div class='input-group mb-3'>
-                                                <span class='input-group-text' id='weekquota-{{name}}'>Week</span>
+                                                <span class='input-group-text'>Week</span>
                                                 <input
+                                                    id='weekquota-{{name}}'
                                                     type='number'
                                                     class='form-control'
                                                     name='weekquota'
@@ -153,8 +160,9 @@
                                             </div>
 
                                             <div class='input-group mb-3'>
-                                                <span class='input-group-text' id='monthquota-{{name}}'>Month</span>
+                                                <span class='input-group-text'>Month</span>
                                                 <input
+                                                    id='monthquota-{{name}}'
                                                     type='number'
                                                     class='form-control'
                                                     name='monthquota'

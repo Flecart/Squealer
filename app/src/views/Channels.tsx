@@ -4,10 +4,11 @@ import { useContext, useEffect, useState } from 'react';
 import { type IUser } from '@model/user';
 import { type ChannelResponse, type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
-import { apiChannelBase, apiUserBase, apiBuyChannel } from 'src/api/routes';
+import { apiChannelBase, apiUser, apiBuyChannel } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { Stack, Alert, Spinner, Container, Button, Modal, Form } from 'react-bootstrap';
 import { ChannelList } from 'src/components/ChannelList';
+import { stringFormat } from 'src/utils';
 import { channelCost } from '@model/channel';
 
 function AddChannelModal(): JSX.Element {
@@ -133,7 +134,7 @@ export default function Channels(): JSX.Element {
     useEffect(() => {
         if (auth != null) {
             fetchApi<IUser>(
-                `${apiUserBase}/${auth.username}`,
+                stringFormat(apiUser, [auth.username]),
                 { method: 'Get' },
                 auth,
                 (user) => {

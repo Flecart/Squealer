@@ -1,3 +1,5 @@
+import { stringFormat, userRoute } from './routes.js';
+
 /* globals Handlebars */
 (function () {
     const USER_SIDEBAR_ID = 'user-sidebar-template';
@@ -14,7 +16,7 @@
         window.location.replace(`/login?redirect=${encodeURIComponent(window.location)}`);
     }
 
-    fetch(`/api/user/${authState.username}`, {
+    fetch(stringFormat(userRoute, [authState.username]), {
         headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + authState.token,

@@ -19,7 +19,7 @@ export default function EnebleReset(): JSX.Element {
 
     useEffect(() => {
         fetchApi<{ enableReset: boolean }>(
-            `${settingResetEndpoint}`,
+            settingResetEndpoint,
             {
                 method: 'GET',
             },
@@ -44,7 +44,7 @@ export default function EnebleReset(): JSX.Element {
                 if (authState == null) return;
                 setPendingRequest(true);
                 fetchApi<{ otp: string }>(
-                    `${settingResetEndpoint}`,
+                    settingResetEndpoint,
                     {
                         method: 'POST',
                         body: JSON.stringify({
