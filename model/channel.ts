@@ -89,8 +89,7 @@ export function sortChannel(a: IChannel, b: IChannel): number {
     return an - bn;
 }
 
-export function canUserWriteTochannel(channel: IChannel, user: string) {
-    if (isPublicChannel(channel)) return true;
+export function canUserWriteTochannel(channel: IChannel, user: string): boolean {
     const userChannel = channel.users.find((u) => u.user === user);
     if (!userChannel) return false;
     return permissionToValue(userChannel.privilege) >= permissionToValue(PermissionType.WRITE);
