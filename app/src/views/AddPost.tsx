@@ -74,29 +74,26 @@ export default function AddPost(): JSX.Element {
     const hiddenFileInput = useRef<HTMLInputElement | null>(null);
 
     const usedQuotaValue = useMemo(() => {
-        console.log('updated', messageText);
         if (geolocationCoord !== null || selectedImage !== null) {
-            return mediaQuotaValue;
+            return mediaQuotaValue * destinations.length;
         } else {
-            return messageText.length;
+            return messageText.length * destinations.length;
         }
-    }, [geolocationCoord, selectedImage, messageText]);
+    }, [geolocationCoord, selectedImage, messageText, destinations]);
 
     const remainingQuotaValue = useMemo(() => {
-        console.log('updated', usedQuotaValue);
-
         if (user === null) return { day: 0, week: 0, month: 0 };
         return {
-            day: user.maxQuota.day - user.usedQuota.day - usedQuotaValue * destinations.length,
-            week: user.maxQuota.week - user.usedQuota.week - usedQuotaValue * destinations.length,
-            month: user.maxQuota.month - user.usedQuota.month - usedQuotaValue * destinations.length,
+            day: user.maxQuota.day - user.usedQuota.day - usedQuotaValue,
+            week: user.maxQuota.week - user.usedQuota.week - usedQuotaValue,
+            month: user.maxQuota.month - user.usedQuota.month - usedQuotaValue,
         };
     }, [user, destinations, usedQuotaValue]);
 
     const extraQuotaValue = useMemo(() => {
         if (user === null) return 0;
 
-        return getExtraQuota(user, usedQuotaValue * destinations.length);
+        return getExtraQuota(user, usedQuotaValue);
     }, [user, usedQuotaValue, destinations]);
 
     const CloseButton = useCallback(() => {
@@ -116,9 +113,6 @@ export default function AddPost(): JSX.Element {
     }, []);
 
     const ShowQuota = useCallback(() => {
-        useEffect(() => {
-            console.log('updating');
-        }, []);
         if (user === null) {
             return <></>;
         }
@@ -212,7 +206,6 @@ export default function AddPost(): JSX.Element {
     }, [user]);
 
     const maxLenghtChar = useMemo<number>(() => {
-        console.log('maxLenghtChar', remainingQuotaValue);
         if (user !== null) {
             const remQuotaDay: number = remainingQuotaValue.day;
             const remQuotaWeek: number = remainingQuotaValue.week;
@@ -346,7 +339,7 @@ export default function AddPost(): JSX.Element {
         }
     }, [parent, displayParent]);
 
-    const renderFilePreview = useCallback((): JSX.Element => {
+    const RenderFilePreview = useCallback((): JSX.Element => {
         // FIXME:, stranamente ogni volta che scrivo qualcosa, l'URL della src cambia, prova a
         // tenere l'ispector aperto quando scrivi qualcosa e vedi cosa succede.
         if (selectedImage == null) return <></>;
@@ -386,14 +379,9 @@ export default function AddPost(): JSX.Element {
         });
     }, [navigator.geolocation]);
 
-    const RenderMessagePayload = (): JSX.Element => {
-        useEffect(() => {
-            console.log(remainingQuotaValue);
-            console.log('render');
-        }, []);
-
+    const RenderMessagePayload = useCallback(() => {
         if (selectedImage != null) {
-            return renderFilePreview();
+            return <RenderFilePreview />;
         } else if (geolocationCoord != null) {
             return (
                 <>
@@ -425,7 +413,7 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
             );
         }
-    };
+    }, [selectedImage, geolocationCoord, user, maxLenghtChar, messageText]);
 
     const ChannelInput = useCallback(() => {
         const [currentChannel, setCurrentChannel] = useState<string>('');
@@ -454,8 +442,10 @@ export default function AddPost(): JSX.Element {
         const chooseSuggestion = (suggestionIdx: number): void => {
             setActiveSuggestionIdx(suggestionIdx);
 
-            console.log(destinations);
-            if (!destinations.includes(suggestions[suggestionIdx] as string)) {
+            // con i temporized vorremmo al massimo un singolo canale.
+            if (showTemporize) {
+                setDestinations([suggestions[suggestionIdx] as string]);
+            } else if (!destinations.includes(suggestions[suggestionIdx] as string)) {
                 setDestinations((value) => [...value, suggestions[suggestionIdx] as string]);
             }
             setCurrentChannel('');
@@ -554,6 +544,7 @@ export default function AddPost(): JSX.Element {
                                     onClick={() => {
                                         chooseSuggestion(index);
                                     }}
+                                    style={{ zIndex: 2 }}
                                     aria-label={'add channel ' + suggestion}
                                 >
                                     {suggestion}
@@ -564,7 +555,7 @@ export default function AddPost(): JSX.Element {
                 </div>
             </div>
         );
-    }, [setDestinations]);
+    }, [setDestinations, showTemporize]);
 
     const DisplayDestinations = useCallback(() => {
         return (
@@ -604,8 +595,7 @@ export default function AddPost(): JSX.Element {
                         <DisplayDestinations />
                     </>
                 )}
-                {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
-                <RenderMessagePayload />
+                {RenderMessagePayload()}
 
                 <div className="d-flex flex-row justify-content-center aling-items-center mb-3">
                     <Button
@@ -664,10 +654,14 @@ export default function AddPost(): JSX.Element {
                         disabled={showTemporize}
                         className="rounded-circle p-2"
                         aria-label="Geolocation"
-                        onClick={setGeolocation}
+                        onClick={() => {
+                            setSelectedImage(null);
+                            setGeolocation();
+                        }}
                         onKeyUp={(e) => {
                             if (e.key === ' ' || e.key === 'Enter') {
                                 e.preventDefault();
+                                setSelectedImage(null);
                                 setGeolocation();
                             }
                         }}
@@ -696,6 +690,7 @@ export default function AddPost(): JSX.Element {
                         checked={showTemporize}
                         onChange={() => {
                             setShowTemporize(!showTemporize);
+                            setDestinations((value) => value.splice(0, 1));
                             setSelectedImage(null);
                             setGeolocationCoord(null);
                         }}
