@@ -1,10 +1,17 @@
 import request from 'supertest';
-import { baseUrl, createUserRoute, apiRoleRoute, channelCreateRoute, Credentials, messageCreateRoute } from './globals';
+import { baseUrl, createUserRoute, apiRoleRoute, 
+    channelCreateRoute, Credentials, messageCreateRoute,
+    addClientRoute,
+    joinChannelRoute,
+    addReactionRoute
+ } from './globals';
 import { ChannelInfo, ChannelType } from '@model/channel';
 import assert from 'node:assert'
 import { randomTwits } from './readscript';
 import { IReactionType, MessageCreation, MessageCreationRensponse } from '@model/message';
 import { DEFAULT_QUOTA } from '@config/api'
+import { stringFormat } from "@app/utils"
+
 
 // the format is Name, Password,
 // Note: the name != username!!! username is always lowercase
@@ -81,7 +88,7 @@ async function createUsers() {
             const clients = proAccounts.map(([username, _]) => username);
             for (const client of clients) {
                 await request(baseUrl)
-                    .post(`/api/smm/add-client/${client.toLocaleLowerCase()}`)
+                    .post(stringFormat(addClientRoute, [client.toLocaleLowerCase()]))
                     .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
                     .send({
                         role,
@@ -189,7 +196,7 @@ async function createChannelsJoinsMessages() {
         const res = await Promise.all(
             publicChannels.map(async (channelName) => {
                 return request(baseUrl)
-                    .post(`/api/channel/${channelName}/join`)
+                    .post(stringFormat(joinChannelRoute, [channelName]))
                     .set('Authorization', `Bearer ${token}`)
             })
         )
@@ -275,7 +282,7 @@ export async function createMessageReactions() {
         const res = await Promise.all(
             messagesToReact.map(async (message) => {
                 return request(baseUrl)
-                    .post(`${messageCreateRoute}/${message.id}/reaction`)
+                    .post(stringFormat(addReactionRoute, [message.id]))
                     .set('Authorization', `Bearer ${token}`)
                     .send({ type: createRandomReactionType() });
             })
