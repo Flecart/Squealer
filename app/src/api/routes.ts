@@ -41,6 +41,7 @@ export const apiChannelJoin = `${apiChannelBase}/{0}/join`;
 export const apiChannelLeave = `${apiChannelBase}/{0}/leave`;
 export const apiChannelCreate = `${apiChannelBase}/create`;
 export const apiBuyChannel = `${apiChannelBase}/create`;
+export const apiChannelChangeDescription = `${apiChannelBase}/{0}/description`;
 
 export const apiTemporized = `${apiBase}/temporizzati`;
 
