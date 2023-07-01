@@ -92,15 +92,6 @@ const show = ref(true)
           <b-icon-messenger aria-hidden="true"></b-icon-messenger>
           Post for client
         </b-list-group-item>
-
-        <b-list-group-item
-          :to="{ name: sendMessageName }"
-          class="list-nav-item"
-          :active="$route.name === sendMessageName"
-        >
-          <b-icon-messenger aria-hidden="true"></b-icon-messenger>
-          Post for client
-        </b-list-group-item>
       </b-list-group>
     </nav>
     <template #footer>
