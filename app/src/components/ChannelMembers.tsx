@@ -2,7 +2,7 @@ import { PermissionType, type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
 import { apiChannelAddOwner, apiChannelSetPermission, apiUser } from 'src/api/routes';
 import { useContext, useEffect, useState } from 'react';
-import { Alert, Button, Card, Form, Image, Row, Stack } from 'react-bootstrap';
+import { Alert, Button, Card, Form, Image, Stack } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext } from 'src/contexts';
 import { type ISuccessMessage, type IUser } from '@model/user';
@@ -34,7 +34,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
         fetchApi<ISuccessMessage>(
             stringFormat(apiChannelAddOwner, [channel.name]),
             {
-                method: 'Post',
+                method: 'POST',
                 body: JSON.stringify({
                     toUser: user,
                     permission: PermissionType.READWRITE,
@@ -42,7 +42,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
             },
             auth,
             (a) => {
-                setInfo(`mandata la richiesta a ${a.message}`);
+                setInfo(`request sent to ${a.message}`);
                 setPending(false);
             },
             (e) => {
@@ -57,39 +57,39 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
         <>
             {isAdmin && (
                 <Card body>
-                    <Form.Group>
-                        <Form.Label>Aggiungi una persona</Form.Label>
+                    <Form.Group controlId="userAdd" className="d-flex flex-column align-items-center">
+                        <Form.Label>Invite an user</Form.Label>
                         <Form.Control
-                            id="userAdd"
                             type="text"
                             disabled={pending}
                             onChange={(e) => {
                                 setUser(e.target.value);
                             }}
+                            placeholder="Insert username here"
+                            className="mb-2"
                         />
 
                         <Button
                             onClick={() => {
                                 sendInvite();
                             }}
+                            className="d-flex flex-row align-items-center"
                         >
-                            Aggiungi{' '}
-                            <Icon.PersonAdd style={{ marginRight: '1rem', height: '1.5rem', width: '1.5rem' }} />
+                            Invite
+                            <Icon.PersonAdd aria-hidden={true} size={19.2} className="w-50 ms-1" />
                         </Button>
                     </Form.Group>
-                    {info !== null && (
-                        <Row>
-                            <Alert variant="info">{info}</Alert>
-                        </Row>
-                    )}
-                    {error !== null && (
-                        <Row>
-                            <Alert variant="danger">{error}</Alert>
-                        </Row>
-                    )}
+                    {info !== null && <Alert variant="info">{info}</Alert>}
+                    {error !== null && <Alert variant="danger">{error}</Alert>}
                 </Card>
             )}
             <Stack>
+                <div className="d-flex flex-row justify-content-between mt-2">
+                    <span className="ms-5">username</span>
+                    <label id="label-set-role" className="me-5">
+                        {isAdmin ? 'set' : ''} members role
+                    </label>
+                </div>
                 {channel.users.map((member) => (
                     <ChannelMember key={member.user} member={member} admin={isAdmin} channel={channel.name} />
                 ))}
@@ -123,7 +123,12 @@ function ChannelMember({
     }, [member.user]);
 
     function PrivilegeIcon({ privilege }: { privilege: PermissionType }): JSX.Element {
-        if (!admin) return <PrivilegeToIcon privilage={privilege} />;
+        if (!admin)
+            return (
+                <span className="d-flex flex-row align-items-center">
+                    {privilege} <PrivilegeToIcon privilage={privilege} />
+                </span>
+            );
 
         const [priv, setPriv] = useState(privilege);
         const [pending, setPending] = useState(false);
@@ -160,6 +165,8 @@ function ChannelMember({
                         setPriv(e.target.value as PermissionType);
                     }}
                     disabled={pending}
+                    className="text-center w-50"
+                    aria-aria-labelledby="label-set-role"
                 >
                     {Object.values(PermissionType).map((value: PermissionType) => (
                         <option key={value} value={value}>
@@ -192,9 +199,14 @@ function ChannelMember({
                 <div className="ms-auto">
                     <Stack gap={1} direction="horizontal">
                         {member.notification ? (
-                            <Icon.Bell aria-label="notifica" />
+                            <Icon.Bell className="me-1" width={16} height={16} aria-label="enabled notification" />
                         ) : (
-                            <Icon.BellSlash aria-label="notifica spenta" />
+                            <Icon.BellSlash
+                                className="me-1"
+                                width={16}
+                                height={16}
+                                aria-label="disabled notification"
+                            />
                         )}
                         <PrivilegeIcon privilege={member.privilege} />
                     </Stack>
@@ -208,13 +220,13 @@ function ChannelMember({
 function PrivilegeToIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
     switch (privilage) {
         case PermissionType.WRITE:
-            return <Icon.Pencil aria-label={privilage} title={privilage} />;
+            return <Icon.Pencil className="ms-1" width={20} height={20} aria-hidden={true} />;
         case PermissionType.READ:
-            return <Icon.Eyeglasses aria-label={privilage} title={privilage} />;
+            return <Icon.Eyeglasses className="ms-1" width={20} height={20} aria-hidden={true} />;
         case PermissionType.READWRITE:
-            return <Icon.Pencil aria-label={privilage} title={privilage} />;
+            return <Icon.Pencil className="ms-1" width={20} height={20} aria-hidden={true} />;
         case PermissionType.ADMIN:
-            return <Icon.PersonCheck aria-label={privilage} title={privilage} />;
+            return <Icon.PersonCheck className="ms-1" width={20} height={20} aria-hidden={true} />;
     }
     return <></>;
 }
