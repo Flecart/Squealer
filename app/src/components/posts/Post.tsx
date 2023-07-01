@@ -5,8 +5,8 @@ import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext, CategoryContext } from 'src/contexts';
 import { fetchApi } from 'src/api/fetch';
-import { toEnglishString, toHumanReadableDate } from 'src/utils';
-import { imageBase, apiUserBase } from 'src/api/routes';
+import { stringFormat, toEnglishString, toHumanReadableDate } from 'src/utils';
+import { imageBase, apiUser } from 'src/api/routes';
 import Map from 'src/components/Map';
 import PostButtons from './PostButtons';
 import 'src/scss/Post.scss';
@@ -66,7 +66,7 @@ function Post({ message }: PostProps): JSX.Element {
 
     useEffect(() => {
         fetchApi<IUser>(
-            `${apiUserBase}/${message.creator}`,
+            stringFormat(apiUser, [message.creator]),
             { method: 'GET' },
             null,
             (user) => {

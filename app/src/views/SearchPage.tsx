@@ -5,7 +5,7 @@ import { AuthContext } from 'src/contexts';
 import type SearchResult from '@model/search';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { ChannelListLoader } from 'src/components/ChannelList';
-import { apiBase } from 'src/api/routes';
+import { apiSearch } from 'src/api/routes';
 import MessageListPageLoader from 'src/components/MessageListPagerLoader';
 
 interface SearchState {
@@ -72,7 +72,7 @@ export default function Search(): JSX.Element {
             });
             const searchParam = new URLSearchParams(`search=${encodeURI(search)}`).toString();
             fetchApi<SearchResult>(
-                `${apiBase}/search?${searchParam}`,
+                `${apiSearch}?${searchParam}`,
                 { method: 'GET' },
                 authState,
                 (results) => {
