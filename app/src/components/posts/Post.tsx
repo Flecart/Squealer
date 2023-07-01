@@ -1,5 +1,5 @@
 import { ICategory, type Maps, type IMessage } from '@model/message';
-import { type IUser } from '@model/user';
+import { type IUser, UserRoles } from '@model/user';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import Map from 'src/components/Map';
 import PostButtons from './PostButtons';
 import 'src/scss/Post.scss';
 import { Eye as EyeIcon } from 'react-bootstrap-icons';
+import * as Icon from 'react-bootstrap-icons';
 
 interface PostProps {
     message: IMessage;
@@ -158,6 +159,7 @@ function Post({ message }: PostProps): JSX.Element {
                             <a href={profiloUrl} className="text-decoration-none ">
                                 <address className="fw-light post-address"> @{user?.username} </address>
                             </a>
+                            {user?.role === UserRoles.VIP && <Icon.PatchCheckFill />}
                             <time dateTime={message.date.toString()}>
                                 <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>
                             </time>
