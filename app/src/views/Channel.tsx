@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useCallback, useRef } from 'react';
+import { useEffect, useState, useContext, useCallback, useRef, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { type ChannelResponse, ChannelType, type IChannel, PermissionType } from '@model/channel';
@@ -106,12 +106,17 @@ export default function Channel(): JSX.Element {
 
 function Header({ channel, auth, error }: HeaderChannelProps): JSX.Element {
     if (channel === null) return <></>;
-    let currentUser = null;
-    if (auth !== null) {
-        currentUser = channel.users.find((user) => user.user === auth.username);
-        if (currentUser === undefined) currentUser = null;
-    }
-    const peopleChannel = channel.type !== ChannelType.USER && channel.type !== ChannelType.HASHTAG;
+
+    const currentUser = useMemo(() => {
+        if (auth === null) return null;
+        return channel.users.find((user) => user.user === auth.username);
+    }, []);
+
+    const canChangeDescription = useMemo(() => {
+        if (currentUser === null) return false;
+        const isGeneralChannel = channel.type !== ChannelType.USER && channel.type !== ChannelType.HASHTAG;
+        return currentUser?.privilege === PermissionType.ADMIN && isGeneralChannel;
+    }, [currentUser]);
 
     return (
         <Container className="d-flex justify-content-center flex-column pb-4">
@@ -127,9 +132,7 @@ function Header({ channel, auth, error }: HeaderChannelProps): JSX.Element {
                     <Row>
                         <h4 className="text-center">{channel?.description}</h4>
                     </Row>
-                    {peopleChannel && currentUser !== null && currentUser.privilege === PermissionType.ADMIN && (
-                        <ChangeDescription channel={channel} auth={auth} error={error} />
-                    )}
+                    {canChangeDescription && <ChangeDescription channel={channel} auth={auth} error={error} />}
                 </>
             )}
 
@@ -210,7 +213,7 @@ function ChangeDescription({ channel, auth }: HeaderChannelProps): JSX.Element {
     if (auth === null) return <></>;
     if (channel === null) return <></>;
 
-    const [show, setShow] = useState(false);
+    const [show, setShow] = useState<boolean>(false);
     const [stateSubmission, setStateSubmission] = useState<{
         loading: boolean;
         success: boolean;
@@ -223,7 +226,8 @@ function ChangeDescription({ channel, auth }: HeaderChannelProps): JSX.Element {
     const handleShow = (): void => {
         setShow(true);
     };
-    const desctiption = useRef<string>(channel.description);
+
+    const description = useRef<string>(channel.description);
     const navigator = useNavigate();
 
     const makeRequest = (): void => {
@@ -233,7 +237,7 @@ function ChangeDescription({ channel, auth }: HeaderChannelProps): JSX.Element {
             {
                 method: 'PUT',
                 body: JSON.stringify({
-                    description: desctiption.current,
+                    description: description.current,
                 }),
             },
             auth,
@@ -259,18 +263,18 @@ function ChangeDescription({ channel, auth }: HeaderChannelProps): JSX.Element {
 
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Change Descriptiont</Modal.Title>
+                    <Modal.Title>Change Description</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                            <Form.Label aria-label="Change Desctiprion">Change Desctiprion</Form.Label>
+                            <Form.Label>Change channel description</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={3}
                                 defaultValue={channel.description}
                                 onChange={(e): void => {
-                                    desctiption.current = e.target.value;
+                                    description.current = e.target.value;
                                 }}
                             />
                         </Form.Group>
