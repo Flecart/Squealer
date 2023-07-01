@@ -15,7 +15,7 @@ export class SmmService {
         await this.deleteRequest(clientUsername);
         const newRequest = await SmmRequestModel.create({ from: clientUsername, to: ssmMenager.username });
         await newRequest.save();
-        return { message: `Request sent to ${ssmMenager.username}` };
+        return { message: ssmMenager.username };
     }
 
     public async getMyRequest(clientUsername: string): Promise<ISuccessMessage> {
@@ -35,7 +35,7 @@ export class SmmService {
                 ssm.clients = ssm.clients.filter((c) => c !== clientUsername);
                 await ssm.save();
             }
-            client.set('ssm', null);
+            client.set('ssm', undefined);
             await client.save();
         }
         await SmmRequestModel.deleteMany({ from: client.username });
@@ -65,6 +65,11 @@ export class SmmService {
         const client = await this._getVip(clientUsername);
         if (user.clients !== undefined && user.clients.includes(clientUsername)) {
             throw new HttpError(401, 'Client already added');
+        }
+
+        const currentRequest = await SmmRequestModel.deleteMany({ from: clientUsername, to: smmUsername });
+        if (currentRequest.deletedCount !== 1) {
+            throw new HttpError(404, 'Request not found');
         }
         client.ssm = smmUsername;
         await client.save();

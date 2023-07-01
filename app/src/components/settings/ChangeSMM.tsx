@@ -22,7 +22,7 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
     const currentInput = useRef<string>('');
     const [state, setState] = useState<State>({
         loading: true,
-        currentSmm: (user.ssm !== undefined ? user.ssm : null) as string | null,
+        currentSmm: user.ssm !== undefined ? user.ssm : null,
         error: null,
         currentRequest: null,
     });
@@ -42,15 +42,20 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
     }, []);
 
     const updateCurrentRequest = (): void => {
-        setState((s) => ({ ...s, loading: true }));
+        setState((s) => ({ ...s, loading: true, error: null }));
         fetchApi<ISuccessMessage>(
             stringFormat(apiSmmSendRequest, [currentInput.current]),
             {
                 method: 'POST',
             },
             auth,
-            (_) => {
-                setState((s) => ({ ...s, loading: false, currentRequest: currentInput.current }));
+            (m) => {
+                setState({
+                    error: null,
+                    loading: false,
+                    currentRequest: m.message,
+                    currentSmm: null,
+                });
             },
             (error) => {
                 setState((s) => ({ ...s, loading: false, error: error.message }));
@@ -59,13 +64,18 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
     };
 
     const deleteRequest = (): void => {
-        setState((s) => ({ ...s, loading: true }));
+        setState((s) => ({ ...s, loading: true, error: null }));
         fetchApi<ISuccessMessage>(
             apiSmmDeleteRequest,
             { method: 'DELETE' },
             auth,
             (_) => {
-                setState((s) => ({ ...s, loading: false, currentRequest: null }));
+                setState({
+                    error: null,
+                    loading: false,
+                    currentRequest: null,
+                    currentSmm: null,
+                });
             },
             (error) => {
                 setState((s) => ({ ...s, loading: false, error: error.message }));
@@ -80,7 +90,7 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
                     <Spinner animation="border" role="status" />
                 ) : (
                     <>
-                        {state.currentRequest !== null && <h5>Pending Request To: {state.currentSmm}</h5>}
+                        {state.currentRequest !== null && <h5>Pending Request To: {state.currentRequest}</h5>}
                         {state.currentSmm !== null && <h5>Current Smm is:{state.currentSmm}</h5>}
                         <Form>
                             <Form.Group className="mb-3">

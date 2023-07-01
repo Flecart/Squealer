@@ -13,6 +13,7 @@ import { randomTwits } from './readscript';
 import { IReactionType, MessageCreation, MessageCreationRensponse } from '@model/message';
 import { DEFAULT_QUOTA } from '@config/api'
 import { stringFormat } from "@app/utils"
+import { addClientToSmm } from './general';
 
 // the format is Name, Password,
 // Note: the name != username!!! username is always lowercase
@@ -89,27 +90,11 @@ async function createUsers() {
 
         if (role === 'smm') {
             // add clients to fvsmm
-            const clients = proAccounts.map(([username, _]) => username);
-            for (const client of clients) {
-                // console.log()
-                // const res = await request(baseUrl)
-                //     .post(stringFormat(addClientRoute, [client.toLocaleLowerCase()]))
-                //     .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
-                //     .send({
-                //         role,
-                //         client,
-                //     })
-                // 
-                // checkAndReportStatus(res, 200, `Error adding client ${client.toLocaleLowerCase()} to fvSMM`);
-                await request(baseUrl)
-                    .post(`/api/smm/send-request/${'fvSMM'}`)
-                    .set('Authorization', `Bearer ${loginTokens.get(client)}`)
-                    .send().expect(200)
-                await request(baseUrl)
-                    .post(`/api/smm/add-client/${client.toLocaleLowerCase()}`)
-                    .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
-                    .send().expect(200)
-            }
+            await addClientToSmm(
+                proAccounts.map(([username, _]) => username),
+                'fvSMM',
+                loginTokens
+            )
             console.log(`added all clients to fvsmm`)
         }
     });

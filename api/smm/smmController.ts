@@ -36,6 +36,7 @@ export class SmmController {
     @Response<HttpError>(404, 'Not found')
     @Response<HttpError>(401, 'Unauthorized')
     public async getMyRequest(@Request() request: any): Promise<ISuccessMessage> {
+        smmLogger.info(`User ${getUserFromRequest(request)} is getting his request`);
         return new SmmService().getMyRequest(getUserFromRequest(request));
     }
     // this api is used by vip account
@@ -44,6 +45,7 @@ export class SmmController {
     @Response<HttpError>(404, 'Not found')
     @Response<HttpError>(401, 'Unauthorized')
     public async sendRequest(@Request() request: any, @Path() user: string): Promise<ISuccessMessage> {
+        smmLogger.info(`User ${getUserFromRequest(request)} is sending request to ${user}`);
         return new SmmService().sendRequest(getUserFromRequest(request), user);
     }
     // this api is used by vip account
@@ -52,6 +54,7 @@ export class SmmController {
     @Response<HttpError>(404, 'Not found')
     @Response<HttpError>(401, 'Unauthorized')
     public async deleteRequest(@Request() request: any): Promise<ISuccessMessage> {
+        smmLogger.info(`User ${getUserFromRequest(request)} is deleting his request`);
         return new SmmService().deleteRequest(getUserFromRequest(request));
     }
 
@@ -66,6 +69,7 @@ export class SmmController {
     @Response<HttpError>(404, 'Not found')
     @Response<HttpError>(401, 'Unauthorized')
     public async addClient(@Request() request: any, @Path() user: string): Promise<ISuccessMessage> {
+        smmLogger.info(`User ${getUserFromRequest(request)} is adding client ${user}`);
         return new SmmService().addClient(user, getUserFromRequest(request));
     }
     @Get('/clients/{user}')

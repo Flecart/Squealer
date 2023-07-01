@@ -106,7 +106,6 @@ export default function Channel(): JSX.Element {
 
 function Header({ channel, auth, error }: HeaderChannelProps): JSX.Element {
     if (channel === null) return <></>;
-<<<<<<< HEAD
 
     const currentUser = useMemo(() => {
         if (auth === null) return null;
@@ -118,14 +117,6 @@ function Header({ channel, auth, error }: HeaderChannelProps): JSX.Element {
         const isGeneralChannel = channel.type !== ChannelType.USER && channel.type !== ChannelType.HASHTAG;
         return currentUser?.privilege === PermissionType.ADMIN && isGeneralChannel;
     }, [currentUser]);
-=======
-    let currentUser = null;
-    if (auth !== null) {
-        currentUser = channel.users.find((user) => user.user === auth.username);
-        if (currentUser === undefined) currentUser = null;
-    }
-    const peopleChannel = channel.type !== ChannelType.USER && channel.type !== ChannelType.HASHTAG;
->>>>>>> 6c10916 (feat(app): change channel description)
 
     return (
         <Container className="d-flex justify-content-center flex-column pb-4">
@@ -141,28 +132,19 @@ function Header({ channel, auth, error }: HeaderChannelProps): JSX.Element {
                     <Row>
                         <h4 className="text-center">{channel?.description}</h4>
                     </Row>
-<<<<<<< HEAD
-    { canChangeDescription && <ChangeDescription channel={channel} auth={auth} error={error} /> }
-=======
-                    {peopleChannel && currentUser !== null && currentUser.privilege === PermissionType.ADMIN && (
-                        <ChangeDescription channel={channel} auth={auth} error={error} />
-                    )}
->>>>>>> 6c10916 (feat(app): change channel description)
+                    {canChangeDescription && <ChangeDescription channel={channel} auth={auth} error={error} />}
                 </>
-            )
-}
+            )}
 
-{
-    error !== null && (
-        <Row>
-            <Alert variant="danger">{error}</Alert>
-        </Row>
-    )
-}
-<Stack direction="horizontal" className="justify-content-center" gap={3}>
-    <JoinAndNotify channel={channel} auth={auth} error={error} />
-</Stack>
-        </Container >
+            {error !== null && (
+                <Row>
+                    <Alert variant="danger">{error}</Alert>
+                </Row>
+            )}
+            <Stack direction="horizontal" className="justify-content-center" gap={3}>
+                <JoinAndNotify channel={channel} auth={auth} error={error} />
+            </Stack>
+        </Container>
     );
 }
 
@@ -191,7 +173,7 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
             (_) => {
                 setNotification(() => newStatus);
             },
-            (_) => { },
+            (_) => {},
         );
     };
     const toggleJoin = (): void => {
@@ -204,7 +186,7 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
             (_) => {
                 navigate(0);
             },
-            (_) => { },
+            (_) => {},
         );
     };
 
