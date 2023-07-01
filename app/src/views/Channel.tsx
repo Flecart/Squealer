@@ -267,8 +267,8 @@ function ChangeDescription({ channel, auth }: HeaderChannelProps): JSX.Element {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                            <Form.Label aria-label="Change Desctiprion">Change Desctiprion</Form.Label>
+                        <Form.Group className="mb-3" controlId="ChangeDescription">
+                            <Form.Label>Change Desctiprion</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={3}

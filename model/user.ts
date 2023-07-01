@@ -30,7 +30,7 @@ export interface IUser {
     channel: string[];
     role: UserRoles;
     invitations: mongoose.Types.ObjectId[];
-    ssm?: string;
+    smm?: string;
 }
 
 export function haveEnoughtQuota(user: IUser, lenChar: number): boolean {

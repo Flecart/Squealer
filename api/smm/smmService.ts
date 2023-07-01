@@ -11,11 +11,11 @@ import SmmRequestModel from '@db/smmRequest';
 
 export class SmmService {
     public async sendRequest(clientUsername: string, user: string): Promise<ISuccessMessage> {
-        const ssmMenager = await this._getSmm(user);
+        const smmMenager = await this._getSmm(user);
         await this.deleteRequest(clientUsername);
-        const newRequest = await SmmRequestModel.create({ from: clientUsername, to: ssmMenager.username });
+        const newRequest = await SmmRequestModel.create({ from: clientUsername, to: smmMenager.username });
         await newRequest.save();
-        return { message: ssmMenager.username };
+        return { message: smmMenager.username };
     }
 
     public async getMyRequest(clientUsername: string): Promise<ISuccessMessage> {
@@ -29,13 +29,13 @@ export class SmmService {
 
     public async deleteRequest(clientUsername: string): Promise<ISuccessMessage> {
         const client = await this._getVip(clientUsername);
-        if (client.ssm) {
-            const ssm = await this._getSmm(client.ssm);
-            if (ssm.clients) {
-                ssm.clients = ssm.clients.filter((c) => c !== clientUsername);
-                await ssm.save();
+        if (client.smm) {
+            const smm = await this._getSmm(client.smm);
+            if (smm.clients) {
+                smm.clients = smm.clients.filter((c) => c !== clientUsername);
+                await smm.save();
             }
-            client.set('ssm', undefined);
+            client.set('smm', undefined);
             await client.save();
         }
         await SmmRequestModel.deleteMany({ from: client.username });
@@ -71,7 +71,7 @@ export class SmmService {
         if (currentRequest.deletedCount !== 1) {
             throw new HttpError(404, 'Request not found');
         }
-        client.ssm = smmUsername;
+        client.smm = smmUsername;
         await client.save();
         if (user.clients === undefined) {
             user.clients = [clientUsername];

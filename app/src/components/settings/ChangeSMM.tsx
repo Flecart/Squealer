@@ -1,10 +1,6 @@
 import { Button, Container, Stack, Spinner, Form, Alert } from 'react-bootstrap';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
-// import { fetchApi } from 'src/api/fetch';
-// import { apiChangeUsername } from 'src/api/routes';
-// import { useNavigate } from 'react-router-dom';
-// import { stringFormat } from 'src/utils';
 import { type ISuccessMessage, type IUser } from '@model/user';
 import { apiSmmDeleteRequest, apiSmmMyRequests, apiSmmSendRequest } from 'src/api/routes';
 import { fetchApi } from 'src/api/fetch';
@@ -22,7 +18,7 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
     const currentInput = useRef<string>('');
     const [state, setState] = useState<State>({
         loading: true,
-        currentSmm: user.ssm !== undefined ? user.ssm : (null as string | null),
+        currentSmm: user.smm !== undefined ? user.smm : (null as string | null),
         error: null,
         currentRequest: null,
     });
@@ -93,12 +89,13 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
                         {state.currentRequest !== null && <h5>Pending Request To: {state.currentRequest}</h5>}
                         {state.currentSmm !== null && <h5>Current Smm is:{state.currentSmm}</h5>}
                         <Form>
-                            <Form.Group className="mb-3">
+                            <Form.Group className="mb-3" controlId="ChangeSmm">
                                 <Form.Label>Change SMM</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Enter new SMM"
                                     onChange={(e): void => {
+                                        e.preventDefault();
                                         currentInput.current = e.target.value;
                                     }}
                                 />
