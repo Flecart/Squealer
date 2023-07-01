@@ -38,7 +38,7 @@ import * as Icon from 'react-bootstrap-icons';
 import 'src/scss/SideButton.scss';
 import 'src/scss/Post.scss';
 import { Lock as LockIcon } from 'react-bootstrap-icons';
-import { ISuggestion } from '@model/channel';
+import { type ISuggestion } from '@model/channel';
 
 enum SearchType {
     Hashtag,
@@ -410,7 +410,7 @@ export default function AddPost(): JSX.Element {
 
     const ChannelInput = useCallback(() => {
         const [currentChannel, setCurrentChannel] = useState<string>('');
-        const [suggestions, setSuggestions] = useState<string[]>(['prova 1', 'prova 2']);
+        const [suggestions, setSuggestions] = useState<string[]>([]);
         const [activeSuggestionIdx, setActiveSuggestionIdx] = useState<number>(0);
 
         const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
@@ -466,7 +466,7 @@ export default function AddPost(): JSX.Element {
             if (searchType === SearchType.Channel) {
                 // @ts-expect-error local usage, should not warn
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                searchParams.user = currentClient.value.username;
+                searchParams.user = authState?.username;
             }
 
             const searchParamsString = new URLSearchParams(searchParams).toString();
@@ -535,7 +535,7 @@ export default function AddPost(): JSX.Element {
                                     onClick={() => {
                                         chooseSuggestion(index);
                                     }}
-                                    aria-label={'remove channel ' + suggestion}
+                                    aria-label={'add channel ' + suggestion}
                                 >
                                     {suggestion}
                                 </ListGroupItem>
@@ -549,11 +549,29 @@ export default function AddPost(): JSX.Element {
 
     const DisplayDestinations = useCallback(() => {
         return (
-            <>
+            <div className="d-flex">
                 {destinations.map((destination, index) => {
-                    return <div key={index}>hello {destination}</div>;
+                    return (
+                        <div className="bg-primary rounded-pill me-1 px-2 mb-1" key={index}>
+                            {destination}
+                            <Icon.X
+                                className="ms-1"
+                                tabIndex={0}
+                                role="button"
+                                aria-label={'remove channel ' + destination}
+                                onClick={() => {
+                                    setDestinations((value) => value.filter((val) => val !== destination));
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        setDestinations((value) => value.filter((val) => val !== destination));
+                                    }
+                                }}
+                            />
+                        </div>
+                    );
                 })}
-            </>
+            </div>
         );
     }, [destinations]);
 
