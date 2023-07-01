@@ -1,4 +1,4 @@
-import { PermissionType } from './channel';
+import type { PermissionType } from './channel';
 
 export interface IInvitation {
     issuer: string;

@@ -8,10 +8,11 @@ export enum PermissionType {
 }
 
 export function permissionToValue(permission: PermissionType): number {
-    // gradi militari per le permission
-    // nelle chats non ha molto senso avere la write senza la lettura
-    // quindi questo è il modo che mi sembra più corretto per
-    // rappresentare le permission
+    // questa funzione è fatta pensando ai gradi militari:
+    // il numero successivo ha tutti i permessi del precedente.
+    // questo invalida il significato del readwrite, perché write
+    // avrebbe già il read, ma secondo me per una applicazione di chat
+    // non ha senso avere il write senza lettura.
     switch (permission) {
         case PermissionType.READ:
             return 1;
@@ -98,3 +99,6 @@ export enum ChannelSortBy {
     POSTS = 'npost',
     USER = 'nuser',
 }
+
+export type ISuggestion = string;
+export const defaultSuggestionLimit = 5;

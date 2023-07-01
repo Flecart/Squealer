@@ -1,7 +1,7 @@
 import { ISuccessMessage, IUser, UserRoles } from '@model/user';
 import UserModel from '@db/user';
 import { HttpError } from '@model/error';
-import { type MessageCreation, type MessageCreationRensponse } from '@model/message';
+import { MessageCreationMultipleChannels, type MessageCreation, type MessageCreationRensponse } from '@model/message';
 import { HydratedDocument } from 'mongoose';
 import { MessageService } from '@api/messages/messageService';
 import { type IQuotas } from '@model/quota';
@@ -74,6 +74,26 @@ export class SmmService {
             throw new HttpError(404, 'Client not found');
         }
         return await new MessageService().create(message, clientUsername);
+    }
+
+    public async sendMessages(
+        _smmUsername: string,
+        clientUsername: string,
+        messages: MessageCreationMultipleChannels,
+    ): Promise<MessageCreationRensponse[]> {
+        if (!(await this._checkClient(clientUsername, _smmUsername))) {
+            throw new HttpError(404, 'Client not found');
+        }
+
+        const messagesToCreate: MessageCreation[] = messages.channels.map((channel) => {
+            return {
+                channel,
+                parent: messages.parent,
+                content: messages.content,
+            } as MessageCreation;
+        });
+
+        return await new MessageService().createMultiple(messagesToCreate, clientUsername);
     }
 
     public async getClientHistory(smmUsername: string, clientUsername: string, from?: string, to?: string) {
