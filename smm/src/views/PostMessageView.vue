@@ -231,7 +231,11 @@ const handleKeyDown = (e: KeyboardEvent) => {
         suggestions.value.length - 1,
         activeSuggestionIdx.value + 1
       )
-    } else if (e.key === 'Enter') {
+    } else if (
+      e.key === 'Enter' &&
+      activeSuggestionIdx.value >= 0 &&
+      activeSuggestionIdx.value < suggestions.value.length
+    ) {
       chooseSuggestion(activeSuggestionIdx.value)
     }
     if (e.key === 'Enter' && e.ctrlKey) {
