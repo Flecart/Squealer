@@ -13,7 +13,7 @@ import {
     IReaction,
 } from '@model/message';
 import { HttpError } from '@model/error';
-import { ChannelType, IChannel, PermissionType, isPublicChannel } from '@model/channel';
+import { ChannelType, IChannel, canUserWriteTochannel, isPublicChannel } from '@model/channel';
 import { MessageCreation, MessageCreationRensponse, mediaQuotaValue } from '@model/message';
 import mongoose from 'mongoose';
 import UserModel from '@db/user';
@@ -255,15 +255,10 @@ export class MessageService {
                 throw new HttpError(404, 'User not found');
             }
 
-            channel = await ChannelModel.findOne({ name: getUserChannelName(username, channelName.substring(1)) });
+            const fullChannelName = getUserChannelName(username, channelName.substring(1));
+            channel = await ChannelModel.findOne({ name: fullChannelName });
             if (!channel) {
-                channel = await new ChannelService().create(
-                    getUserChannelName(username, channelName.substring(1)),
-                    username,
-                    ChannelType.USER,
-                    '',
-                    false,
-                );
+                channel = await new ChannelService().create(fullChannelName, username, ChannelType.USER, '', false);
             }
         } else if (channelName.startsWith('#')) {
             channel = await ChannelModel.findOne({ name: channelName });
@@ -282,15 +277,7 @@ export class MessageService {
                 throw new HttpError(404, 'Channel not found');
             }
 
-            if (
-                channel.users.filter(
-                    (user) =>
-                        user.user === username &&
-                        (user.privilege === PermissionType.READWRITE ||
-                            user.privilege === PermissionType.WRITE ||
-                            user.privilege === PermissionType.ADMIN),
-                ).length === 0
-            ) {
+            if (!canUserWriteTochannel(channel, username)) {
                 throw new HttpError(403, "You don't have the permission to write in this channel");
             }
         }

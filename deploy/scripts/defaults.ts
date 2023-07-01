@@ -1,10 +1,17 @@
 import request from 'supertest';
-import { baseUrl, createUserRoute, apiRoleRoute, channelCreateRoute, Credentials, messageCreateRoute } from './globals';
+import { baseUrl, createUserRoute, apiRoleRoute, 
+    channelCreateRoute, Credentials, messageCreateRoute,
+    addClientRoute,
+    joinChannelRoute,
+    addReactionRoute,
+    checkAndReportStatus
+ } from './globals';
 import { ChannelInfo, ChannelType } from '@model/channel';
 import assert from 'node:assert'
 import { randomTwits } from './readscript';
 import { IReactionType, MessageCreation, MessageCreationRensponse } from '@model/message';
 import { DEFAULT_QUOTA } from '@config/api'
+import { stringFormat } from "@app/utils"
 
 // the format is Name, Password,
 // Note: the name != username!!! username is always lowercase
@@ -49,11 +56,14 @@ async function createUsers() {
                 .send({
                     username,
                     password,
-                } as Credentials).expect(201)
+                } as Credentials)
+
+            checkAndReportStatus(res, 201, `Error creating user ${username}`);
             return [username, res.body.token];
         }
         )
     );
+    console.log("created all users");
 
     loginTokens = new Map(logins);
 
@@ -80,13 +90,16 @@ async function createUsers() {
             // add clients to fvsmm
             const clients = proAccounts.map(([username, _]) => username);
             for (const client of clients) {
-                await request(baseUrl)
-                    .post(`/api/smm/add-client/${client.toLocaleLowerCase()}`)
+                console.log()
+                const res = await request(baseUrl)
+                    .post(stringFormat(addClientRoute, [client.toLocaleLowerCase()]))
                     .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
                     .send({
                         role,
                         client,
-                    }).expect(200)
+                    })
+                
+                checkAndReportStatus(res, 200, `Error adding client ${client.toLocaleLowerCase()} to fvSMM`);
             }
         }
     });
@@ -175,8 +188,7 @@ async function createChannelsJoinsMessages() {
         }));
 
     res.forEach(r => {
-        if (r.status !== 201) console.log(r.error);
-        assert(r.status === 201)
+        checkAndReportStatus(r, 201, `Error creating channel ${r.body.channelName}`);
     })
     console.log("created all channels");
 
@@ -189,7 +201,7 @@ async function createChannelsJoinsMessages() {
         const res = await Promise.all(
             publicChannels.map(async (channelName) => {
                 return request(baseUrl)
-                    .post(`/api/channel/${channelName}/join`)
+                    .post(stringFormat(joinChannelRoute, [channelName]))
                     .set('Authorization', `Bearer ${token}`)
             })
         )
@@ -275,7 +287,7 @@ export async function createMessageReactions() {
         const res = await Promise.all(
             messagesToReact.map(async (message) => {
                 return request(baseUrl)
-                    .post(`${messageCreateRoute}/${message.id}/reaction`)
+                    .post(stringFormat(addReactionRoute, [message.id]))
                     .set('Authorization', `Bearer ${token}`)
                     .send({ type: createRandomReactionType() });
             })
