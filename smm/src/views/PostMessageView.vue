@@ -6,15 +6,14 @@ import { currentClientInject, authInject, type currentClientType } from '@/keys'
 import type { IQuotas } from '@model/quota'
 import {
   geolocalizationName,
-  postClientMessageRoute,
+  postClientMultipleMessagesRoute,
   getChannelSuggestions,
   getHashtabChannelSuggestions,
   getUserChannelSuggestions
 } from '@/routes'
-import { mediaQuotaValue, type MessageCreation } from '@model/message'
-import { type ISuggestion } from '@model/channel'
-import { elements } from 'chart.js'
-import { remove } from 'winston'
+import { mediaQuotaValue, type MessageCreationMultipleChannels } from '@model/message'
+import type { ISuggestion } from '@model/channel'
+import { stringFormat } from '@/utils'
 
 const { currentClient, setClient } = inject<currentClientType>(currentClientInject)!
 const authToken = inject<{ token: string }>(authInject)!
@@ -40,12 +39,12 @@ const channelInput = ref<string>('')
 const textInput = ref<string>('')
 
 watch(textInput, (newValue, _oldValue) => {
-  usedQuota.value = newValue.length
+  usedQuota.value = newValue.length * choosedChannels.value.length
 })
 
 watch(choosenFile, (newValue) => {
   if (newValue) {
-    usedQuota.value = mediaQuotaValue
+    usedQuota.value = mediaQuotaValue * choosedChannels.value.length
   } else {
     usedQuota.value = 0
   }
@@ -75,12 +74,12 @@ const handleSubmit = () => {
     return
   }
 
-  const message: MessageCreation = {
+  const message: MessageCreationMultipleChannels = {
     content: {
       type: 'text',
       data: textInput.value
     },
-    channel: channelInput.value,
+    channels: choosedChannels.value,
     parent: undefined
   }
 
@@ -92,11 +91,7 @@ const handleSubmit = () => {
 
   formData.append('data', JSON.stringify(message))
 
-  removeImage()
-  textInput.value = ''
-  channelInput.value = ''
-
-  fetch(`${postClientMessageRoute}/${currentClient.value.username}`, {
+  fetch(stringFormat(postClientMultipleMessagesRoute, [currentClient.value.username]), {
     method: 'POST',
     headers: {
       Authorization: 'Bearer ' + authToken.token
@@ -105,7 +100,7 @@ const handleSubmit = () => {
   })
     .then(async (response) => {
       if (response.ok) {
-        setSuccessMessage('Message sent successfully')
+        setSuccessMessage('Messages sent successfully')
         setErrorMessage('')
       } else {
         const body = await response.json()
@@ -116,6 +111,11 @@ const handleSubmit = () => {
       setErrorMessage(error.message ?? 'Error sending message')
       setSuccessMessage('')
     })
+
+  choosedChannels.value = []
+  removeImage()
+  textInput.value = ''
+  channelInput.value = ''
 }
 
 const setErrorMessage = (message: string) => {
