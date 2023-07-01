@@ -6,6 +6,7 @@ import { type IQuotas } from '@model/quota';
 import { HttpError } from '@model/error';
 import { type IInvitationRensponse } from '@model/invitation';
 import InvitationModel from '@db/invitation';
+import { type ISuggestion } from '@model/channel';
 
 type UserModelType = mongoose.HydratedDocument<IUser>;
 
@@ -122,6 +123,7 @@ export default class UserService {
         await user.save();
         return user;
     }
+
     public async getInvitations(username: string): Promise<IInvitationRensponse[]> {
         const user = await UserModel.findOne({ username: username });
 
@@ -146,6 +148,7 @@ export default class UserService {
         });
         return invitationsResponse;
     }
+
     public async payDebt(username: string): Promise<{ message: string }> {
         const user = await UserModel.findOne({ username: username });
         if (!user) {
@@ -154,5 +157,13 @@ export default class UserService {
         user.debtQuota = 0;
         await user.save();
         return { message: 'Successfull Payment' };
+    }
+
+    public async getSuggestions(username: string, limit: number): Promise<ISuggestion[]> {
+        const users = await UserModel.find({ username: { $regex: username, $options: 'i' } }, 'username').limit(limit);
+
+        return users.map((user) => {
+            return user.username;
+        });
     }
 }

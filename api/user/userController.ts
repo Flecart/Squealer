@@ -10,6 +10,7 @@ import {
     Path,
     Delete,
     Body,
+    Query,
 } from '@tsoa/runtime';
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
@@ -17,30 +18,24 @@ import { type IUser, type UserRoles } from '@model/user';
 import { NotificationRensponse } from '@model/user';
 
 import logger from '@server/logger';
+import { ISuggestion, defaultSuggestionLimit } from '@model/channel';
 
 const userLogger = logger.child({ label: 'user' });
 
 @Route('/user')
 export class UserController extends Controller {
-    @Post('/upgrade')
-    @Security('jwt')
-    public async upgradeAccount(@Request() _request: any) {
-        // Bisogna decidere chi può fare l'upgrade
-        // e se ha senso fare un endpoint per upgrade.
-        return false;
-        // return new UserService().upgradeAccount(getUserFromRequest(request));
-    }
-
     @Get('/notification')
     @Security('jwt')
     public async getNotifications(@Request() request: any): Promise<NotificationRensponse> {
         return await new UserService().getNotifications(getUserFromRequest(request));
     }
+
     @Delete('/notifications')
     @Security('jwt')
     public async deleteNotifications(@Request() request: any) {
         return new UserService().delNotifications(getUserFromRequest(request));
     }
+
     @Delete('/notification/{id}')
     @Security('jwt')
     public async deleteNotification(@Request() request: any, @Path() id: string) {
@@ -59,6 +54,7 @@ export class UserController extends Controller {
         userLogger.info(`User ${getUserFromRequest(request)} get invitations`);
         return new UserService().getInvitations(getUserFromRequest(request));
     }
+
     @Get('{username}')
     public async getUser(@Path() username: string) {
         return new UserService().getUser(username);
@@ -107,5 +103,12 @@ export class UserController extends Controller {
     @SuccessResponse(200, 'Role Updated')
     public async payDebt(@Request() request: any): Promise<{ message: string }> {
         return await new UserService().payDebt(getUserFromRequest(request));
+    }
+
+    @Get('suggestions')
+    @SuccessResponse(200, 'Suggestions Retrieved')
+    public async getSuggestions(@Query('user') user: string, @Query('limit') limit?: number): Promise<ISuggestion[]> {
+        if (!limit) limit = defaultSuggestionLimit;
+        return new UserService().getSuggestions(user, limit);
     }
 }
