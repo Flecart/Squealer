@@ -6,7 +6,7 @@ import {
   acceptVipClientRequestRoute
 } from '@/routes'
 import { ref, watch } from 'vue'
-import { IUser } from '@model/user'
+import type { IUser } from '@model/user'
 import { stringFormat } from '@/utils'
 
 const authState = injectAuth()!

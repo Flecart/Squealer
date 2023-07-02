@@ -18,21 +18,23 @@ watch(show, () => {
   <main>
     <ClientSmmRequestVue />
     <header>
-      <b-button
-        variant="dark"
-        title="open sidebar"
-        aria-label="open sidebar"
-        class="outside-sidebar-toggler mr-2"
-        v-b-toggle.sidebar-no-header
-        :hidden="show"
-        :aria-hidden="show ? 'true' : 'false'"
-        aria-expanded="false"
-        aria-controls="sidebar-no-header"
-        tabindex="0"
-      >
-        <b-icon-caret-right-fill></b-icon-caret-right-fill>
-      </b-button>
-      <router-view name="title"></router-view>
+      <div class="content d-flex">
+        <b-button
+          variant="dark"
+          title="open sidebar"
+          aria-label="open sidebar"
+          class="outside-sidebar-toggler mr-2"
+          v-b-toggle.sidebar-no-header
+          :hidden="show"
+          :aria-hidden="show ? 'true' : 'false'"
+          aria-expanded="false"
+          aria-controls="sidebar-no-header"
+          tabindex="0"
+        >
+          <b-icon-caret-right-fill></b-icon-caret-right-fill>
+        </b-button>
+        <router-view name="title"></router-view>
+      </div>
     </header>
     <router-view></router-view>
   </main>
@@ -67,5 +69,12 @@ main {
   main {
     margin-left: v-bind(sidebarMargin);
   }
+}
+</style>
+
+<style>
+.content {
+  width: 70%;
+  margin: auto;
 }
 </style>

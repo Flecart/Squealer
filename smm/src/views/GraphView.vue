@@ -158,38 +158,40 @@ function compactHistoriesByHour(historyPoints: HistoryPoint[]) {
 </script>
 
 <template>
-  <ChooseClients />
-  <div class="d-md-flex mb-3">
-    <div class="form-date mt-3">
-      <label :for="`date-start`">Start time: </label>
-      <b-form-input :id="`date-start`" type="date" v-model="startDate"></b-form-input>
+  <div class="content">
+    <ChooseClients />
+    <div class="d-md-flex mb-3">
+      <div class="form-date mt-3">
+        <label :for="`date-start`">Start time: </label>
+        <b-form-input :id="`date-start`" type="date" v-model="startDate"></b-form-input>
+      </div>
+      <div class="form-date ml-md-5 mt-3">
+        <label :for="`date-end`">End date: </label>
+        <b-form-input :id="`date-end`" type="date" v-model="endDate"></b-form-input>
+      </div>
     </div>
-    <div class="form-date ml-md-5 mt-3">
-      <label :for="`date-end`">End date: </label>
-      <b-form-input :id="`date-end`" type="date" v-model="endDate"></b-form-input>
-    </div>
-  </div>
-  <template v-if="analiticsData.length > 0">
-    <div>
-      <b-tabs content-class="mt-3" v-model="tabIndex">
-        <template v-for="view in views" :key="view.type">
-          <b-tab :title="view.title">
-            <GraphPointsVue :chartData="chartData.get(view.type)" :chartOptions="options" />
-          </b-tab>
-        </template>
-      </b-tabs>
-    </div>
-  </template>
-  <template v-else>
-    <p>
-      There are still no history points for client
-      <span class="font-weight-bold">{{ currentClient.username }}</span> in this time range.
-    </p>
-  </template>
+    <template v-if="analiticsData.length > 0">
+      <div>
+        <b-tabs content-class="mt-3" v-model="tabIndex">
+          <template v-for="view in views" :key="view.type">
+            <b-tab :title="view.title">
+              <GraphPointsVue :chartData="chartData.get(view.type)" :chartOptions="options" />
+            </b-tab>
+          </template>
+        </b-tabs>
+      </div>
+    </template>
+    <template v-else>
+      <p>
+        There are still no history points for client
+        <span class="font-weight-bold">{{ currentClient.username }}</span> in this time range.
+      </p>
+    </template>
 
-  <b-alert variant="warning" :show="errorMessage.length > 0" class="mt-3">
-    {{ errorMessage }}</b-alert
-  >
+    <b-alert variant="warning" :show="errorMessage.length > 0" class="mt-3">
+      {{ errorMessage }}</b-alert
+    >
+  </div>
 </template>
 
 <style scoped>

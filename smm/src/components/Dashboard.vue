@@ -100,90 +100,92 @@ const setPageNumber = (page: number) => {
 }
 </script>
 <template>
-  <ChooseClientsVue />
+  <div class="content">
+    <ChooseClientsVue />
 
-  <div class="quota-groups me-2">
-    <BuyModalVue class="me-2 mb-1" :username="selectedClient.username" :urgent="isUrgentQuota" />
-    <template v-if="isUrgentQuota">
-      <b-alert variant="danger" show>
-        You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
-      </b-alert>
-    </template>
-  </div>
-
-  <CurrentQuota :client="selectedClient" :remaining-quota="remainingQuota" />
-
-  <!-- TODO: questo dovrebbe essere sostituito da b-pagination, però la cosa buona è che si può usare anch ein moddash questo quasi. -->
-  <nav aria-label="Post pagination">
-    <ul class="pagination">
-      <li class="page-item">
-        <div
-          role="button"
-          class="page-link"
-          aria-label="Previous"
-          :disabled="currentPage == 0"
-          @click="setPreviousPage"
-        >
-          <span aria-hidden="true">&laquo;</span>
-          <span class="sr-only">Previous</span>
-        </div>
-      </li>
-
-      <li class="page-item" v-if="currentPage > 1" aria-label="First page">
-        <div role="button" class="page-link" @click="setPageNumber(0)">1...</div>
-      </li>
-      <li class="page-item" v-if="currentPage != 0">
-        <div role="button" class="page-link" @click="setPreviousPage">{{ currentPage }}</div>
-      </li>
-
-      <li class="page-item active" aria-label="Current Page">
-        <div role="button" class="page-link" active>{{ currentPage + 1 }}</div>
-      </li>
-      <li class="page-item" v-if="currentPage != totalPages - 1">
-        <div role="button" class="page-link" @click="setNextPage">
-          {{ currentPage + 2 }}
-        </div>
-      </li>
-      <li class="page-item" v-if="currentPage < totalPages - 2" aria-label="Last Page">
-        <div role="button" class="page-link" @click="setPageNumber(totalPages - 1)">
-          ...{{ totalPages }}
-        </div>
-      </li>
-      <li class="page-item">
-        <div
-          role="button"
-          class="page-link"
-          aria-label="Next"
-          :disabled="currentPage == totalPages - 1"
-          @click="setNextPage"
-        >
-          <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Next</span>
-        </div>
-      </li>
-    </ul>
-  </nav>
-
-  <b-card no-body>
-    <b-tabs v-model="tabIndex" card>
-      <template v-for="sortMode in messageSortModes" :key="sortMode.value">
-        <b-tab :title="sortMode.title"></b-tab>
-      </template>
-    </b-tabs>
-    <div class="posts">
-      <template v-if="messages.length === 0">
-        <b-alert variant="info" show> No posts found for this client. </b-alert>
-      </template>
-      <template v-else>
-        <PostVue
-          v-for="message in messages"
-          :key="message._id.toString()"
-          :message="message"
-          :author="selectedClient"
-        />
+    <div class="quota-groups me-2">
+      <BuyModalVue class="me-2 mb-1" :username="selectedClient.username" :urgent="isUrgentQuota" />
+      <template v-if="isUrgentQuota">
+        <b-alert variant="danger" show>
+          You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
+        </b-alert>
       </template>
     </div>
-  </b-card>
+
+    <CurrentQuota :client="selectedClient" :remaining-quota="remainingQuota" />
+
+    <!-- TODO: questo dovrebbe essere sostituito da b-pagination, però la cosa buona è che si può usare anch ein moddash questo quasi. -->
+    <nav aria-label="Post pagination">
+      <ul class="pagination">
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Previous"
+            :disabled="currentPage == 0"
+            @click="setPreviousPage"
+          >
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+          </div>
+        </li>
+
+        <li class="page-item" v-if="currentPage > 1" aria-label="First page">
+          <div role="button" class="page-link" @click="setPageNumber(0)">1...</div>
+        </li>
+        <li class="page-item" v-if="currentPage != 0">
+          <div role="button" class="page-link" @click="setPreviousPage">{{ currentPage }}</div>
+        </li>
+
+        <li class="page-item active" aria-label="Current Page">
+          <div role="button" class="page-link" active>{{ currentPage + 1 }}</div>
+        </li>
+        <li class="page-item" v-if="currentPage != totalPages - 1">
+          <div role="button" class="page-link" @click="setNextPage">
+            {{ currentPage + 2 }}
+          </div>
+        </li>
+        <li class="page-item" v-if="currentPage < totalPages - 2" aria-label="Last Page">
+          <div role="button" class="page-link" @click="setPageNumber(totalPages - 1)">
+            ...{{ totalPages }}
+          </div>
+        </li>
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Next"
+            :disabled="currentPage == totalPages - 1"
+            @click="setNextPage"
+          >
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <b-card no-body>
+      <b-tabs v-model="tabIndex" card>
+        <template v-for="sortMode in messageSortModes" :key="sortMode.value">
+          <b-tab :title="sortMode.title"></b-tab>
+        </template>
+      </b-tabs>
+      <div class="posts">
+        <template v-if="messages.length === 0">
+          <b-alert variant="info" show> No posts found for this client. </b-alert>
+        </template>
+        <template v-else>
+          <PostVue
+            v-for="message in messages"
+            :key="message._id.toString()"
+            :message="message"
+            :author="selectedClient"
+          />
+        </template>
+      </div>
+    </b-card>
+  </div>
 </template>
 
 <style scoped>

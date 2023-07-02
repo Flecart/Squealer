@@ -120,7 +120,7 @@ const handleSubmit = () => {
 }
 </script>
 <template>
-  <div class="main">
+  <div class="content">
     <ChooseClientsVue />
 
     <p class="info">
@@ -143,10 +143,6 @@ const handleSubmit = () => {
 
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap.scss';
-
-.main {
-  width: 80%;
-}
 
 .map-container {
   height: 15rem;
