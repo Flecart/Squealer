@@ -269,7 +269,7 @@ export class ChannelService {
                 name: channelName,
                 users: { $elemMatch: { user: username, privilege: PermissionType.ADMIN } },
             });
-            if (res) {
+            if (res === null) {
                 throw new HttpError(403, `User ${username} is not authorized to delete channel ${channelName}`);
             }
         }
