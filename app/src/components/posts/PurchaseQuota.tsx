@@ -2,7 +2,7 @@ import { Alert, Button, Container, Form, FormGroup, Modal, Spinner } from 'react
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { quotaPriceDay, quotaPriceMonth, quotaPriceWeek } from '@model/quota';
-import { apiQuotaBase } from 'src/api/routes';
+import { apiQuota } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
 import { fetchApi } from 'src/api/fetch';
 
@@ -45,7 +45,7 @@ export default function PurchaseQuota({ show, onHide }: PurchaseQuotaProps): JSX
                 if (authState == null) return;
                 setPendingRequest(true);
                 fetchApi<null>(
-                    `${apiQuotaBase}/buy`,
+                    apiQuota,
                     {
                         method: 'PUT',
                         body: JSON.stringify({

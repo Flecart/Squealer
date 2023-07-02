@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase, apiUserBase, apiTemporized } from 'src/api/routes';
+import { apiMessageBase, apiMessageParent, apiTemporized, apiUser } from 'src/api/routes';
 import { type IUser, haveEnoughtQuota, getExtraQuota, UserRoles } from '@model/user';
 import Post from 'src/components/posts/Post';
 import {
@@ -18,7 +18,7 @@ import {
 import Map from 'src/components/Map';
 import PayDebt from 'src/components/PayDebt';
 import DebtWarning from 'src/components/DebtWarning';
-import { toEnglishString } from 'src/utils';
+import { stringFormat, toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
 import * as Icon from 'react-bootstrap-icons';
 import 'src/scss/SideButton.scss';
@@ -116,7 +116,7 @@ export default function AddPost(): JSX.Element {
     useEffect(() => {
         if (parent == null) return;
         fetchApi<IMessage>(
-            `${apiMessageBase}/${parent}/`,
+            stringFormat(apiMessageParent, [parent]),
             { method: 'GET' },
             authState,
             (messaggio) => {
@@ -132,7 +132,7 @@ export default function AddPost(): JSX.Element {
     useEffect(() => {
         if (authState === null) return;
         fetchApi<IUser>(
-            `${apiUserBase}/${authState.username}/`,
+            stringFormat(apiUser, [authState.username]),
             { method: 'GET' },
             authState,
             (user) => {
@@ -234,7 +234,7 @@ export default function AddPost(): JSX.Element {
             } else if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
-            } else if (channel === '') {
+            } else if (parent === undefined && channel === '') {
                 setError(() => 'Destination not specified');
                 return;
             }

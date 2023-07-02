@@ -1,9 +1,10 @@
 import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
 import React, { useCallback, useContext, useState } from 'react';
-import { AuthContext } from '../contexts';
-import { fetchApi } from '../api/fetch';
-import { apiAuthUserBase } from 'src/api/routes';
+import { AuthContext } from 'src/contexts';
+import { fetchApi } from 'src/api/fetch';
+import { apiChangeUsername } from 'src/api/routes';
 import { useNavigate } from 'react-router-dom';
+import { stringFormat } from 'src/utils';
 
 export default function ChangeUsername(): JSX.Element {
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function ChangeUsername(): JSX.Element {
                 if (authState == null) return;
                 setPendingRequest(true);
                 fetchApi<null>(
-                    `${apiAuthUserBase}/${authState?.username}/change-username`,
+                    stringFormat(apiChangeUsername, [authState?.username]),
                     {
                         method: 'POST',
                         body: JSON.stringify({

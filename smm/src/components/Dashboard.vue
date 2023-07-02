@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, inject, watch, computed } from 'vue'
-import { getClientMessageBaseRoute } from '@/routes'
+import { getClientMessageRoute } from '@/routes'
 import { currentClientInject, type currentClientType } from '@/keys'
 import type { IMessage, IMessageWithPages, MessageSortTypes } from '@model/message'
 import { type IQuotas, urgentThreshold } from '@model/quota'
@@ -8,6 +8,7 @@ import BuyModalVue from './BuyModal.vue'
 import PostVue from './Post.vue'
 import ChooseClientsVue from './ChooseClients.vue'
 import CurrentQuota from './CurrentQuota.vue'
+import { stringFormat } from '@/utils'
 
 const { currentClient: selectedClient, setClient: _ } =
   inject<currentClientType>(currentClientInject)!
@@ -62,7 +63,7 @@ watch(
 const messages = ref<IMessage[]>([])
 
 function fetchMessages(currentClient: string, page: number, sort: MessageSortTypes = 'popularity') {
-  return fetch(`${getClientMessageBaseRoute}/${currentClient}?page=${page}&sort=${sort}`)
+  return fetch(`${stringFormat(getClientMessageRoute, [currentClient])}?page=${page}&sort=${sort}`)
     .then((response) => response.json())
     .then((data: IMessageWithPages) => {
       messages.value = data.messages

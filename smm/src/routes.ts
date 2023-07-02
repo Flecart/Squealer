@@ -11,13 +11,20 @@ import endpoints from '../../config/endpoints.json'
 // TODO: mettere l'indirizzo del server di squealer se non dev, quando si saprà l'indirizzo di squealer
 export const squealerBaseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : ''
 
+// API routes
 export const getClientsRoute = `${squealerBaseURL}/api/smm/clients`
-export const buyQuotaBaseRoute = `${squealerBaseURL}/api/smm/buy-quota`
-export const postClientMessageRoute = `${squealerBaseURL}/api/smm/message`
-export const getClientMessageBaseRoute = `${squealerBaseURL}/api/message/user`
-export const getUserBaseRoute = `${squealerBaseURL}/api/user`
-export const getClienthistoryBaseRoute = `${squealerBaseURL}/api/smm/history`
+export const buyQuotaRoute = `${squealerBaseURL}/api/smm/buy-quota/{0}`
+export const postClientMessageRoute = `${squealerBaseURL}/api/smm/message/{0}`
+export const postClientMultipleMessagesRoute = `${squealerBaseURL}/api/smm/messages/{0}`
+export const getClientMessageRoute = `${squealerBaseURL}/api/message/user/{0}`
+export const getUserRoute = `${squealerBaseURL}/api/user/{0}`
+export const getClienthistoryRoute = `${squealerBaseURL}/api/smm/history/{0}`
 
+export const getChannelSuggestions = `${squealerBaseURL}/api/channel/suggestions`
+export const getHashtabChannelSuggestions = `${squealerBaseURL}/api/channel/suggestions/hashtag`
+export const getUserChannelSuggestions = `${squealerBaseURL}/api/user/suggestions`
+
+// ROUTER CONFIGURATION
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : squealerBaseURL
 export const redirectToLogin = () => {
   // in dev mode set the auth by hand, localstorage won't work with different ports

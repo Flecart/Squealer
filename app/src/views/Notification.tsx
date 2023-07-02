@@ -1,12 +1,13 @@
 import { useContext, useState, useSyncExternalStore } from 'react';
 import { Button, Row, Spinner } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
-import { apiUserBase } from 'src/api/routes';
+import { apiUserNotifications, apiUserSetNotification } from 'src/api/routes';
 import InvitationListLoader from 'src/components/InvitationListLoader';
 import NotificationListLoader from 'src/components/NotificationListLoader';
 import { AuthContext } from 'src/contexts';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import { NotificationStore } from 'src/notification';
+import { stringFormat } from 'src/utils';
 
 export default function Notification(): JSX.Element {
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -17,7 +18,7 @@ export default function Notification(): JSX.Element {
     const clearAll = (): void => {
         setLoading(() => true);
         fetchApi<string>(
-            `${apiUserBase}/notifications`,
+            apiUserNotifications,
             { method: 'DELETE' },
             authState,
             (_) => {
@@ -34,7 +35,7 @@ export default function Notification(): JSX.Element {
     };
     const delteNotification = (id: string): void => {
         fetchApi<string>(
-            `${apiUserBase}/notification/${id}`,
+            stringFormat(apiUserSetNotification, [id]),
             { method: 'DELETE' },
             authState,
             (_) => {

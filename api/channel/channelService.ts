@@ -1,5 +1,14 @@
 import { HttpError } from '@model/error';
-import { IChannel, ChannelType, PermissionType, ChannelResponse, sortChannel, isPublicChannel } from '@model/channel';
+import {
+    IChannel,
+    ChannelType,
+    PermissionType,
+    ChannelResponse,
+    sortChannel,
+    isPublicChannel,
+    canUserWriteTochannel,
+    ISuggestion,
+} from '@model/channel';
 import ChannelModel from '@db/channel';
 import MessageModel from '@db/message';
 import InvitationModel from '@db/invitation';
@@ -55,6 +64,34 @@ export class ChannelService {
         return channel;
     }
 
+    public async getChannelSuggestions(search: string, limit: number, user: string): Promise<ISuggestion[]> {
+        const prefixRegex = new RegExp(`^${search}`, 'i');
+        const channels = await ChannelModel.find({
+            name: { $regex: prefixRegex },
+            type: { $ne: ChannelType.USER },
+        });
+
+        // ritorno solamente i canali in cui l'utente può scrivere.
+        const writableChannels = channels.filter((channel) => {
+            return canUserWriteTochannel(channel, user);
+        });
+
+        return writableChannels.slice(0, limit).map((channel) => channel.name);
+    }
+
+    public async getPublicChannelSuggestions(search: string, limit: number): Promise<ISuggestion[]> {
+        const prefixRegex = new RegExp(`^${search}`, 'i');
+        const channels = await ChannelModel.find(
+            {
+                name: { $regex: prefixRegex },
+                type: ChannelType.HASHTAG,
+            },
+            'name',
+        ).limit(limit);
+
+        return channels.map((channel) => channel.name);
+    }
+
     public async create(
         channelName: string,
         owner: string,
@@ -68,6 +105,9 @@ export class ChannelService {
         if (ownerUser === null) {
             throw new HttpError(400, `User with username ${owner} does not exist`);
         }
+
+        // TODO: (low priority) è difficile capire la logica di questa funzione
+        // perché ha il doppio stato fromApi o meno, e non dovrebbe essere così.
 
         if (!fromApi && !(type === ChannelType.USER)) {
             // TODO(gio): aggingere il check descritto nei commenti della PR #138
@@ -86,14 +126,19 @@ export class ChannelService {
             channelName = channelName.toLowerCase();
         }
 
+        const publicChannelRegex = /^[#§]?[a-zA-Z0-9_]+$/g; // eg. #channel1, §channel2, channel3, CHANNEL
+        const userChannelRegex = /^@[a-z0-9_]+-[a-z0-9_]+$/g; // eg. @user1-user2 @us_1-us_2
+
         if ((await ChannelModel.findOne({ name: channelName })) !== null) {
             throw new HttpError(400, 'Channel name already exists');
         } else if (channelName.length > 30) {
             throw new HttpError(400, 'Channel name is too long');
         } else if (channelName.length < 3) {
             throw new HttpError(400, 'Channel name is too short, minimum 3 characters');
-        } else if (channelName.match(/^[a-zA-Z0-9]+$/g) === null) {
-            throw new HttpError(400, 'Channel name can only contain alphanumeric characters');
+        } else if (channelName.match(publicChannelRegex) === null && type !== ChannelType.USER) {
+            throw new HttpError(400, 'Channel name can only contain alphanumeric characters and begin with a #§');
+        } else if (channelName.match(userChannelRegex) === null && type === ChannelType.USER) {
+            throw new HttpError(400, 'Channel name format not satisfied with user type');
         }
 
         const channel = new ChannelModel({

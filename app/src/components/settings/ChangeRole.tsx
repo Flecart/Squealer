@@ -1,16 +1,17 @@
 import { Alert, Button, Container, Spinner, Stack, Form } from 'react-bootstrap';
 import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../contexts';
-import { apiUserBase } from 'src/api/routes';
+import { AuthContext } from 'src/contexts';
+import { apiUser, apiUserRole } from 'src/api/routes';
 import { fetchApi } from 'src/api/fetch';
 import { type IUser, UserRoles } from '@model/user';
 import { useNavigate } from 'react-router-dom';
+import { stringFormat } from 'src/utils';
 
 export default function DeleteAccount(): JSX.Element {
     const [authState] = useContext(AuthContext);
     const [pendingRequest, setPendingRequest] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [rule, setRule] = useState<string>(UserRoles.NORMAL as string);
+    const [role, setRole] = useState<string>(UserRoles.NORMAL as string);
     const [defaultRule, setDefaultRule] = useState<string>(UserRoles.NORMAL as string);
 
     const navigate = useNavigate();
@@ -20,13 +21,14 @@ export default function DeleteAccount(): JSX.Element {
             return;
         }
         fetchApi<IUser>(
-            `${apiUserBase}/${authState.username}`,
+            stringFormat(apiUser, [authState.username]),
             {
                 method: 'GET',
             },
             authState,
             (u) => {
                 setDefaultRule(u.role);
+                setRole(u.role);
                 setPendingRequest(false);
             },
             (error) => {
@@ -41,11 +43,11 @@ export default function DeleteAccount(): JSX.Element {
         if (!pendingRequest) {
             setPendingRequest(true);
             fetchApi<IUser>(
-                `${apiUserBase}/role`,
+                apiUserRole,
                 {
                     method: 'POST',
                     body: JSON.stringify({
-                        role: rule,
+                        role,
                     }),
                 },
                 authState,
@@ -69,14 +71,15 @@ export default function DeleteAccount(): JSX.Element {
 
                 <Form.Select
                     aria-label="Role User"
+                    value={role}
                     onChange={(e) => {
                         e.preventDefault();
-                        setRule(e.currentTarget.value as UserRoles);
+                        setRole(e.currentTarget.value as UserRoles);
                     }}
                 >
-                    {roles.map((role) => (
-                        <option key={role} value={role}>
-                            {role}
+                    {roles.map((cRole) => (
+                        <option key={cRole} value={cRole}>
+                            {cRole}
                         </option>
                     ))}
                 </Form.Select>

@@ -8,7 +8,7 @@ interface PropsMessageIds {
 }
 
 export default function MessageListPageLoader({ childrens }: PropsMessageIds): JSX.Element {
-    if (childrens.length === 0) return <Alert>No Message</Alert>;
+    if (childrens.length === 0) return <Alert>There are no messages to load here</Alert>;
     const chunks = splitArrayInChunks(childrens, 10);
     function Inside(): JSX.Element {
         const [pageShow, setPageShow] = useState(0);

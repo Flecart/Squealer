@@ -1,8 +1,9 @@
 import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
 import React, { useCallback, useContext, useState } from 'react';
-import { AuthContext } from '../contexts';
-import { fetchApi } from '../api/fetch';
-import { apiAuthUserBase } from 'src/api/routes';
+import { AuthContext } from 'src/contexts';
+import { fetchApi } from 'src/api/fetch';
+import { apiChangePassword } from 'src/api/routes';
+import { stringFormat } from 'src/utils';
 
 export default function ChangePassword(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -25,7 +26,7 @@ export default function ChangePassword(): JSX.Element {
                 if (authState == null) return;
                 setPendingRequest(true);
                 fetchApi<null>(
-                    `${apiAuthUserBase}/${authState?.username}/change-password`,
+                    stringFormat(apiChangePassword, [authState?.username]),
                     {
                         method: 'POST',
                         body: JSON.stringify({

@@ -1,3 +1,5 @@
+import { changeQuotaRoute, stringFormat, suspendRoute, usersRoute } from './routes.js';
+
 /* globals Handlebars */
 (function () {
     const USERS_TEMPLATE_ID = 'users-page-template';
@@ -31,7 +33,7 @@
         return userCardTemplate(a);
     });
 
-    fetch(`/api/moddash/users`, {
+    fetch(usersRoute, {
         headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + authState.token,
@@ -50,12 +52,17 @@
         });
 })();
 
-function changeQuota(username) {
+/**
+ *
+ * @param {string} username
+ */
+export function changeQuota(username) {
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
     const dayquota = document.getElementById(`dayquota-${username}`).value;
     const weekquota = document.getElementById(`weekquota-${username}`).value;
     const monthquota = document.getElementById(`monthquota-${username}`).value;
-    fetch(`/api/moddash/changeQuota/${username}`, {
+
+    fetch(stringFormat(changeQuotaRoute, [username]), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -70,10 +77,16 @@ function changeQuota(username) {
             console.log(error);
         });
 }
-function suspendUser(username, suspended) {
+
+/**
+ *
+ * @param {string} username
+ * @param {boolean} suspended
+ */
+export function suspendUser(username, suspended) {
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
     suspended = !suspended;
-    fetch(`/api/moddash/suspend/${username}`, {
+    fetch(stringFormat(suspendRoute, [username]), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

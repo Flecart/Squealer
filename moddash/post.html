@@ -40,9 +40,14 @@
             crossorigin=""
         ></script>
 
-        <script src="/moddash/sidebar.js" defer></script>
-        <script src="/moddash/post.js" defer></script>
+        <script type="module" defer>
+            import { copyToChannel, deletePost, changeReaction } from '/moddash/post.js';
 
+            window.copyToChannel = copyToChannel;
+            window.deletePost = deletePost;
+            window.changeReaction = changeReaction;
+        </script>
+        <script type="module" src="/moddash/sidebar.js" defer></script>
         <style>
             .post {
                 border: 1px solid #ccc;

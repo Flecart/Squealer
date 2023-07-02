@@ -3,7 +3,7 @@ import { type IMessage } from '@model/message';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
-import { apiUserBase } from 'src/api/routes';
+import { apiUserInvitations } from 'src/api/routes';
 import { AuthContext } from 'src/contexts';
 import InviteMessage from './InviteMessage';
 
@@ -21,7 +21,7 @@ export default function MessageListLoader({ invitations }: PropsMessageIds): JSX
     const [error, setError] = useState<string | null>(null);
     useEffect(() => {
         fetchApi<IInvitationRensponse[]>(
-            `${apiUserBase}/invitations`,
+            apiUserInvitations,
             {
                 method: 'GET',
             },

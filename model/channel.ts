@@ -7,6 +7,24 @@ export enum PermissionType {
     ADMIN = 'owner',
 }
 
+export function permissionToValue(permission: PermissionType): number {
+    // questa funzione è fatta pensando ai gradi militari:
+    // il numero successivo ha tutti i permessi del precedente.
+    // questo invalida il significato del readwrite, perché write
+    // avrebbe già il read, ma secondo me per una applicazione di chat
+    // non ha senso avere il write senza lettura.
+    switch (permission) {
+        case PermissionType.READ:
+            return 1;
+        case PermissionType.WRITE:
+            return 2;
+        case PermissionType.READWRITE:
+            return 3;
+        case PermissionType.ADMIN:
+            return 4;
+    }
+}
+
 export enum ChannelType {
     USER = 'user',
     PUBLIC = 'public',
@@ -70,7 +88,17 @@ export function sortChannel(a: IChannel, b: IChannel): number {
     if (bn === undefined) return -1;
     return an - bn;
 }
+
+export function canUserWriteTochannel(channel: IChannel, user: string): boolean {
+    const userChannel = channel.users.find((u) => u.user === user);
+    if (!userChannel) return false;
+    return permissionToValue(userChannel.privilege) >= permissionToValue(PermissionType.WRITE);
+}
+
 export enum ChannelSortBy {
     POSTS = 'npost',
     USER = 'nuser',
 }
+
+export type ISuggestion = string;
+export const defaultSuggestionLimit = 5;

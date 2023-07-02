@@ -1,11 +1,12 @@
 import { PermissionType, type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
-import { apiChannelBase, apiUserBase } from 'src/api/routes';
+import { apiChannelAddOwner, apiChannelSetPermission, apiUser } from 'src/api/routes';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Button, Card, Form, Image, Row, Stack } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext } from 'src/contexts';
 import { type ISuccessMessage, type IUser } from '@model/user';
+import { stringFormat } from 'src/utils';
 
 interface PrompsChannelMembers {
     channel: IChannel;
@@ -31,7 +32,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
         setError(null);
         setInfo(null);
         fetchApi<ISuccessMessage>(
-            `${apiChannelBase}/${channel.name}/add-owner`,
+            stringFormat(apiChannelAddOwner, [channel.name]),
             {
                 method: 'Post',
                 body: JSON.stringify({
@@ -111,13 +112,13 @@ function ChannelMember({
 
     useEffect(() => {
         fetchApi<IUser>(
-            `${apiUserBase}/${member.user}`,
+            stringFormat(apiUser, [member.user]),
             { method: 'GET' },
             null,
             (user) => {
                 setUser(() => user);
             },
-            (_) => { },
+            (_) => {},
         );
     }, [member.user]);
 
@@ -129,7 +130,7 @@ function ChannelMember({
         const onClick = (): void => {
             setPending(true);
             fetchApi<PermissionType>(
-                `${apiChannelBase}/${channel}/set-permission`,
+                stringFormat(apiChannelSetPermission, [channel]),
                 {
                     method: 'POST',
                     body: JSON.stringify({

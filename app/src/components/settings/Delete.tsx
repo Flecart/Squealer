@@ -1,6 +1,6 @@
 import { Alert, Button, Container, Spinner } from 'react-bootstrap';
 import { useContext, useState } from 'react';
-import { AuthContext } from '../contexts';
+import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import { apiDelete as deleteEndpoint } from 'src/api/routes';
 import { fetchApi } from 'src/api/fetch';

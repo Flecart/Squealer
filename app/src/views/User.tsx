@@ -1,13 +1,15 @@
 import { Container, Row } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
-import { type IUser } from '@model/user';
+import { UserRoles, type IUser } from '@model/user';
 import { type HttpError } from '@model/error';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from '../api/fetch';
-import { apiMessageBase, apiUserBase } from 'src/api/routes';
+import { apiMessageBase, apiUser } from 'src/api/routes';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import MessageSortComponent from 'src/components/MessageSortComponent';
+import { stringFormat } from 'src/utils';
+import * as Icon from 'react-bootstrap-icons';
 
 function User(): JSX.Element {
     const { username } = useParams();
@@ -22,7 +24,7 @@ function User(): JSX.Element {
     useEffect(() => {
         if (username === undefined) return;
         fetchApi<IUser>(
-            `${apiUserBase}/${username}`,
+            stringFormat(apiUser, [username]),
             { method: 'GET' },
             null,
             (user) => {
@@ -40,10 +42,15 @@ function User(): JSX.Element {
                 </Row>
                 {/* TODO: mettere schermata di loading, tipo scheletons */}
                 <Row>
-                    <h1 className="text-center">{user?.name ?? ' '}</h1>
+                    <h2 className="text-center">
+                        {user?.name ?? ' '}
+                        <span className="ps-2" style={{ fontSize: '0.7em' }}>
+                            {user?.role === UserRoles.VIP && <Icon.PatchCheckFill />}
+                        </span>
+                    </h2>
                 </Row>
                 <Row>
-                    <h2 className="text-center">@{username}</h2>
+                    <h3 className="text-center">@{username}</h3>
                 </Row>
                 {/* TODO: edit profile button if the user is him self */}
             </Container>

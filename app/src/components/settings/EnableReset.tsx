@@ -1,7 +1,7 @@
 import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../contexts';
-import { fetchApi } from '../api/fetch';
+import { AuthContext } from 'src/contexts';
+import { fetchApi } from 'src/api/fetch';
 import { apiSettingReset as settingResetEndpoint } from 'src/api/routes';
 
 export default function EnebleReset(): JSX.Element {
@@ -19,7 +19,7 @@ export default function EnebleReset(): JSX.Element {
 
     useEffect(() => {
         fetchApi<{ enableReset: boolean }>(
-            `${settingResetEndpoint}`,
+            settingResetEndpoint,
             {
                 method: 'GET',
             },
@@ -44,7 +44,7 @@ export default function EnebleReset(): JSX.Element {
                 if (authState == null) return;
                 setPendingRequest(true);
                 fetchApi<{ otp: string }>(
-                    `${settingResetEndpoint}`,
+                    settingResetEndpoint,
                     {
                         method: 'POST',
                         body: JSON.stringify({

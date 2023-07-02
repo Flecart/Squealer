@@ -136,9 +136,9 @@ export class LoginService {
 
     private async _checkUserName(name: string): Promise<string> {
         const alphaNumericalRegex = /^[a-zA-Z0-9]+$/;
-
-        if (name.length < 3) {
-            return Promise.reject(new HttpError(400, 'Username too short, minimum of 3 characters'));
+        name = name.toLocaleLowerCase();
+        if (name.length < 2) {
+            return Promise.reject(new HttpError(400, 'Username too short, minimum of 2 characters'));
         } else if ((await AuthUserModel.count({ username: name })) > 0) {
             return Promise.reject(new HttpError(400, 'Username already taken'));
         } else if (!alphaNumericalRegex.test(name)) {

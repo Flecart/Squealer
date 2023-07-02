@@ -1,11 +1,12 @@
 import Vue, { createApp, ref } from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import { getClientsRoute, router, redirectToLogin, getUserBaseRoute } from './routes'
+import { getClientsRoute, router, redirectToLogin, getUserRoute } from './routes'
 import { authInject, clientInject, currentClientInject, smmUserInject } from './keys'
 
 import './assets/app.scss'
 import { UserRoles, type IUser } from '@model/user'
+import { stringFormat } from './utils'
 
 // gently provided by https://stackoverflow.com/questions/51292406/check-if-token-expired-using-this-jwt-library
 const isTokenExpired = (token: string) =>
@@ -19,7 +20,7 @@ if (authState != null) {
     redirectToLogin()
   }
 
-  fetch(`${getUserBaseRoute}/${authState.username}`)
+  fetch(stringFormat(getUserRoute, [authState.username]))
     .then((response) => response.json())
     .then((data: IUser) => {
       if (data.role !== UserRoles.SMM) {
@@ -30,7 +31,6 @@ if (authState != null) {
     })
 
   app.provide(authInject, authState)
-  console.log(authState)
   const response = await fetch(getClientsRoute, {
     headers: {
       'Content-Type': 'application/json',

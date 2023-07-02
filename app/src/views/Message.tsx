@@ -1,13 +1,14 @@
 import { type IMessage } from '@model/message';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Spinner, Button } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase } from 'src/api/routes';
+import { apiMessageParent } from 'src/api/routes';
 import MessageListPageLoader from 'src/components/MessageListPagerLoader';
 import Post from 'src/components/posts/Post';
 import { AuthContext } from 'src/contexts';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
+import { stringFormat } from 'src/utils';
 
 export default function Message(): JSX.Element {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function Message(): JSX.Element {
         if (id === undefined) navigate('/404');
         else
             fetchApi<IMessage>(
-                `${apiMessageBase}/${id}`,
+                stringFormat(apiMessageParent, [id]),
                 { method: 'GET' },
                 auth,
                 (message) => {
@@ -43,7 +44,7 @@ export default function Message(): JSX.Element {
     }
 
     // TODO: maybe this can be a component
-    function Comments(): JSX.Element {
+    const Comments = useCallback(() => {
         if (message === null) return <></>;
         return (
             <>
@@ -51,15 +52,15 @@ export default function Message(): JSX.Element {
                 <MessageListPageLoader childrens={message.children.map((id) => id.toString())} />
             </>
         );
-    }
+    }, [message]);
 
-    function Parent(): JSX.Element {
-        // TODO: refactor me
+    const Parent = useCallback(() => {
         if (message !== null)
             if (message.parent !== undefined && message.parent !== null)
                 return (
                     <Button
                         onClick={() => {
+                            // @ts-expect-error parent check is above.
                             navigate(`/message/${message.parent.toString()}`);
                         }}
                     >
@@ -67,7 +68,7 @@ export default function Message(): JSX.Element {
                     </Button>
                 );
         return <></>;
-    }
+    }, [message]);
 
     return (
         <SidebarSearchLayout>
