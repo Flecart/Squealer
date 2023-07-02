@@ -108,16 +108,18 @@ export class MessageService {
 
         let channel = null;
         let parent = null;
-        if (message.channel !== undefined) channel = await this._getChannel(username, message.channel);
-        if (message.parent !== undefined) {
-            parent = await MessageModel.findOne({ _id: message.parent });
-            if (parent === null) throw new HttpError(404, 'Parent not found');
-            parent.historyUpdates.push({
-                type: HistoryUpdateType.REPLY,
-                value: 1, // one new reply
-            });
-            parent.markModified('historyUpdates');
-            await parent.save();
+        if (message.channel !== undefined) {
+            channel = await this._getChannel(username, message.channel);
+            if (message.parent !== undefined) {
+                parent = await MessageModel.findOne({ _id: message.parent });
+                if (parent === null) throw new HttpError(404, 'Parent not found');
+                parent.historyUpdates.push({
+                    type: HistoryUpdateType.REPLY,
+                    value: 1, // one new reply
+                });
+                parent.markModified('historyUpdates');
+                await parent.save();
+            }
         } else {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
@@ -287,7 +289,15 @@ export class MessageService {
                 throw new HttpError(404, 'User not found');
             }
 
-            const fullChannelName = getUserChannelName(username, channelName.substring(1));
+            const userChannelRegex = /^@[a-z0-9_]+-[a-z0-9_]+$/g;
+            let fullChannelName = '';
+
+            if (channelName.match(userChannelRegex)) {
+                fullChannelName = channelName;
+            } else {
+                fullChannelName = getUserChannelName(username, channelName.substring(1));
+            }
+
             channel = await ChannelModel.findOne({ name: fullChannelName });
             if (!channel) {
                 channel = await new ChannelService().create(fullChannelName, username, ChannelType.USER, '', false);
