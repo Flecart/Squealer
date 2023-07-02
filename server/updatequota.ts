@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import UserModel from '@db/user';
 import logger from './logger';
 import GlobalModel from '@db/global';
@@ -73,8 +72,6 @@ function DateToMilliseconds(date: Date): number {
 
 async function updateQuota(category: UpdateCategory) {
     loggerQuota.info('Updating quota');
-    const session = await mongoose.startSession();
-    session.startTransaction();
     const users = await UserModel.find({});
     for (const user of users) {
         // because every time i call this funciton i want to reset the day quota
@@ -86,15 +83,8 @@ async function updateQuota(category: UpdateCategory) {
             user.usedQuota.month = 0;
         }
         user.markModified('usedQuota');
-        await user.save({ session: session });
+        await user.save({});
     }
-    try {
-        await session.commitTransaction();
-    } catch (err) {
-        loggerQuota.error('Error updating quota');
-        loggerQuota.error(err);
-    }
-    session.endSession();
     loggerQuota.info('Quota updated');
 }
 
