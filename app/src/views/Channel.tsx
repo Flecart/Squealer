@@ -211,6 +211,7 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
                     className="btn rounded-pill sideButton d-flex d-row align-items-center justify-content-evenly"
                     onClick={toggleNotification}
                     aria-label={`Toggle notification ${notification ? 'on' : 'off'}`}
+                    title={`Toggle notification ${notification ? 'on' : 'off'}`}
                 >
                     {notification ? <Icon.Bell aria-hidden /> : <Icon.BellSlash aria-hidden />}
                 </button>
