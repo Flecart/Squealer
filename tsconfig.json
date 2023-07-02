@@ -123,11 +123,7 @@
         "config/endpoints.json",
         "model/**/*.ts", 
         "deploy/scripts/scripts.ts",
-        "db/**/*.ts",
-        "moddash/**/*.html",
-        "moddash/**/*.js",
-        "moddash/**/*.css",
-        "moddash/logo192.png"
+        "db/**/*.ts"
     ],
     "exclude": [
         "api/**/*.spec.ts",
