@@ -109,7 +109,7 @@ export class MessageService {
         let channel = null;
         let parent = null;
         if (message.channel !== undefined) channel = await this._getChannel(username, message.channel);
-        else if (message.parent !== undefined) {
+        if (message.parent !== undefined) {
             parent = await MessageModel.findOne({ _id: message.parent });
             if (parent === null) throw new HttpError(404, 'Parent not found');
             parent.historyUpdates.push({
@@ -141,6 +141,11 @@ export class MessageService {
             negativeReactions: 0,
         });
         await savedMessage.save();
+        if (parent !== null) {
+            parent.children.push(savedMessage.id);
+            parent.markModified('children');
+            await parent.save();
+        }
 
         await this._sendNotification(savedMessage, channel, parent);
 
