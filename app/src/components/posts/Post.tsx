@@ -152,7 +152,7 @@ function Post({ message }: PostProps): JSX.Element {
             <Col xs={10}>
                 <Container className="d-flex justify-content-center flex-column pb-4">
                     <Row>
-                        <div className="d-flex justify-content-between">
+                        <div className="d-flex justify-content-between align-items-center">
                             <div>
                                 <a href={profiloUrl} className="text-decoration-none ">
                                     <span className="fs-4 fw-bolder"> {user?.name}</span>

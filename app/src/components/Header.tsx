@@ -20,7 +20,7 @@ function NotificationHeader(): JSX.Element {
             {' '}
             {len > 0 ? (
                 <Stack direction="horizontal" gap={1}>
-                    <span className="badge bg-danger">{len}</span>
+                    <span className="badge bg-danger">{}</span>
                     <Icon.InboxFill aria-hidden="true" width={notifSize} height={notifSize} className="d-flex" />
                 </Stack>
             ) : (

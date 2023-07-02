@@ -197,12 +197,12 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
                 {!join ? (
                     <>
                         <span className="pe-2">Entra</span>
-                        <Icon.BoxArrowInLeft />
+                        <Icon.BoxArrowInLeft aria-hidden />
                     </>
                 ) : (
                     <>
                         <span className="pe-2">Esci</span>
-                        <Icon.BoxArrowLeft />
+                        <Icon.BoxArrowLeft aria-hidden />
                     </>
                 )}
             </Button>
@@ -210,8 +210,9 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
                 <button
                     className="btn rounded-pill sideButton d-flex d-row align-items-center justify-content-evenly"
                     onClick={toggleNotification}
+                    aria-label={`Toggle notification ${notification ? 'on' : 'off'}`}
                 >
-                    {notification ? <Icon.Bell /> : <Icon.BellSlash />}
+                    {notification ? <Icon.Bell aria-hidden /> : <Icon.BellSlash aria-hidden />}
                 </button>
             )}
         </>
