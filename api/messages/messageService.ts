@@ -110,16 +110,15 @@ export class MessageService {
         let parent = null;
         if (message.channel !== undefined) {
             channel = await this._getChannel(username, message.channel);
-            if (message.parent !== undefined) {
-                parent = await MessageModel.findOne({ _id: message.parent });
-                if (parent === null) throw new HttpError(404, 'Parent not found');
-                parent.historyUpdates.push({
-                    type: HistoryUpdateType.REPLY,
-                    value: 1, // one new reply
-                });
-                parent.markModified('historyUpdates');
-                await parent.save();
-            }
+        } else if (message.parent !== undefined) {
+            parent = await MessageModel.findOne({ _id: message.parent });
+            if (parent === null) throw new HttpError(404, 'Parent not found');
+            parent.historyUpdates.push({
+                type: HistoryUpdateType.REPLY,
+                value: 1, // one new reply
+            });
+            parent.markModified('historyUpdates');
+            await parent.save();
         } else {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
@@ -143,13 +142,8 @@ export class MessageService {
             negativeReactions: 0,
         });
         await savedMessage.save();
-        if (parent !== null) {
-            parent.children.push(savedMessage.id);
-            parent.markModified('children');
-            await parent.save();
-        }
 
-        await this._sendNotification(savedMessage, channel, parent);
+        await this._sendNotificationAndSaveOnChannelParent(savedMessage, channel, parent);
 
         if (savedMessage.channel !== null) {
             messageServiceLog.info(`Message created on ${savedMessage.channel}`);
@@ -182,7 +176,6 @@ export class MessageService {
     }
 
     public async getMessages(ids: string[], countView?: boolean): Promise<IMessage[]> {
-        //TODO: va tolta per metterci il feed al suo posto
         return await Promise.all(
             ids.map(async (id) => {
                 const rens = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
@@ -393,7 +386,7 @@ export class MessageService {
         new UserService().changeQuota(user, quotaDay, quotaWeek, quotaMonth);
     }
 
-    private async _sendNotification(
+    private async _sendNotificationAndSaveOnChannelParent(
         savedMessage: MessageModelType,
         channel: ChannelModelType | null,
         parent: MessageModelType | null,
@@ -405,17 +398,20 @@ export class MessageService {
                     user = await UserModel.findOne({ username: user.user });
                     if (user) {
                         user.messages.push({ message: savedMessage._id, viewed: false });
+                        user.markModified('messages');
                         await user.save();
                     }
                 });
             channel.messages.push(savedMessage._id);
             await channel.save();
         } else if (parent !== null) {
-            parent.children.push(savedMessage._id);
+            parent.children.push(savedMessage.id);
+            parent.markModified('children');
             await parent.save();
             const parentUser = await UserModel.findOne({ username: parent.creator });
             if (parentUser) {
                 parentUser.messages.push({ message: savedMessage._id, viewed: false });
+                parentUser.markModified('messages');
                 await parentUser.save();
             }
         }
