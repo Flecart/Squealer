@@ -55,7 +55,7 @@ export default function Channel(): JSX.Element {
                             setChannel({
                                 name: channelId,
                                 type: ChannelType.HASHTAG,
-                                description: '',
+                                description: `Messages with ${channelId} as destination will appear here`,
                                 users: [],
                                 messages: [],
                             });
