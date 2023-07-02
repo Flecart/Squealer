@@ -18,12 +18,11 @@ watch(show, () => {
   <main>
     <ClientSmmRequestVue />
     <header>
-      <router-view name="title"></router-view>
       <b-button
         variant="dark"
         title="open sidebar"
         aria-label="open sidebar"
-        class="outside-sidebar-toggler"
+        class="outside-sidebar-toggler mr-2"
         v-b-toggle.sidebar-no-header
         :hidden="show"
         :aria-hidden="show ? 'true' : 'false'"
@@ -33,6 +32,7 @@ watch(show, () => {
       >
         <b-icon-caret-right-fill></b-icon-caret-right-fill>
       </b-button>
+      <router-view name="title"></router-view>
     </header>
     <router-view></router-view>
   </main>
@@ -45,6 +45,15 @@ header {
   display: flex;
   align-items: center;
   margin-top: 1rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 0;
 }
 
 main {

@@ -1,4 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { injectClients } from '@/keys'
+import { router, dashboardName } from '@/routes'
+
+const clients = injectClients()
+if (clients !== undefined && clients.length > 0) {
+  router.push({ name: dashboardName })
+}
+</script>
 
 <template>
   <div class="container">

@@ -5,6 +5,7 @@ import GeolocalizationViewVue from './views/GeolocalizationView.vue'
 import GraphViewVue from './views/GraphView.vue'
 import PostMessageViewVue from '@/views/PostMessageView.vue'
 import NoClientsViewVue from '@/views/NoClientsView.vue'
+import Vue from 'vue'
 
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
@@ -50,7 +51,7 @@ const routes = [
     name: dashboardName,
     components: {
       default: Dashboard,
-      title: '<h1>SMM Dashboard</h1>'
+      title: Vue.h('h1', { innerHTML: 'SMM DashBoard' })
     }
   },
   {
@@ -65,7 +66,7 @@ const routes = [
     name: geolocalizationName,
     components: {
       default: GeolocalizationViewVue,
-      title: '<h2>Geolocalization</h2>'
+      title: Vue.h('h2', { innerHTML: 'Geolocalization' })
     }
   },
   {
@@ -73,7 +74,7 @@ const routes = [
     name: graphName,
     components: {
       default: GraphViewVue,
-      title: '<h2>Analytics</h2>'
+      title: Vue.h('h2', { innerHTML: 'Analytics' })
     }
   },
   {
