@@ -1,7 +1,7 @@
-import fs from 'fs';
 import mongoose from 'mongoose';
 import UserModel from '@db/user';
 import logger from './logger';
+import GlobalModel from '@db/global';
 
 const loggerQuota = logger.child({ label: 'updateQuota' });
 
@@ -20,18 +20,17 @@ const mondayDayCode = 1;
 const monthDayCode = 1;
 
 export async function periodicUpdateQuota(): Promise<void> {
-    try {
-        const data = await fs.promises.readFile('lastUpdate.json', 'utf8');
-        loggerQuota.info('Reading lastUpdate.json');
-        const json = JSON.parse(data);
-        const lastUpdate = new Date(json.lastUpdate);
+    const global = await GlobalModel.find({});
+    if (global.length == 0 || global[0] == undefined) {
+        loggerQuota.info('First time update quota');
+        createNewTimeout(0, updateCategory(new Date()));
+    } else {
+        loggerQuota.info('Update quota last update was ' + global[0].lastUpdate);
+        const lastUpdate = global[0].lastUpdate;
         const next = nextUpdate(lastUpdate);
         const nextUpdateDate = new Date(new Date().getTime() + next);
+        loggerQuota.info('Next update in ' + next + ' milliseconds');
         createNewTimeout(next, updateCategory(nextUpdateDate));
-    } catch (err) {
-        loggerQuota.error('Error writing lastUpdate.json');
-        loggerQuota.error(err);
-        createNewTimeout(0, UpdateCategory.Month);
     }
 }
 
@@ -51,19 +50,17 @@ function createNewTimeout(milliseconds: number, updateCat: UpdateCategory): void
         const current_time = new Date();
         const nextUpdateMill = nextUpdate(current_time);
         const nextUpdateDate = new Date(current_time.getTime() + nextUpdateMill);
+        loggerQuota.info('Next update in ' + nextUpdateMill + ' milliseconds');
         // it goes in recursion until the next day
         createNewTimeout(nextUpdateMill, updateCategory(nextUpdateDate));
     }, milliseconds);
 }
 
 async function writeNextUpdate(): Promise<void> {
-    try {
-        await fs.promises.writeFile('lastUpdate.json', JSON.stringify({ lastUpdate: new Date() }));
-        loggerQuota.info('lastUpdate.json written');
-    } catch (err) {
-        loggerQuota.error('Error writing lastUpdate.json');
-        loggerQuota.error(err);
-    }
+    const current_time = new Date();
+    await GlobalModel.deleteMany({});
+    await GlobalModel.create({ lastUpdate: current_time });
+    loggerQuota.info('Update "last update"');
 }
 
 function DateToMilliseconds(date: Date): number {
