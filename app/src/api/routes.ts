@@ -40,6 +40,7 @@ export const apiChannelNotify = `${apiChannelBase}/{0}/notify`;
 export const apiChannelJoin = `${apiChannelBase}/{0}/join`;
 export const apiChannelLeave = `${apiChannelBase}/{0}/leave`;
 export const apiChannelCreate = `${apiChannelBase}/create`;
+export const apiChannelDelete = `${apiChannelBase}/{0}/delete`;
 export const apiBuyChannel = `${apiChannelBase}/create`;
 export const apiChannelChangeDescription = `${apiChannelBase}/{0}/description`;
 

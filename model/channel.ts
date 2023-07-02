@@ -2,7 +2,6 @@ import type mongoose from 'mongoose';
 
 export enum PermissionType {
     READ = 'read',
-    WRITE = 'write',
     READWRITE = 'readwrite',
     ADMIN = 'owner',
 }
@@ -16,8 +15,6 @@ export function permissionToValue(permission: PermissionType): number {
     switch (permission) {
         case PermissionType.READ:
             return 1;
-        case PermissionType.WRITE:
-            return 2;
         case PermissionType.READWRITE:
             return 3;
         case PermissionType.ADMIN:
@@ -92,7 +89,7 @@ export function sortChannel(a: IChannel, b: IChannel): number {
 export function canUserWriteTochannel(channel: IChannel, user: string): boolean {
     const userChannel = channel.users.find((u) => u.user === user);
     if (!userChannel) return false;
-    return permissionToValue(userChannel.privilege) >= permissionToValue(PermissionType.WRITE);
+    return permissionToValue(userChannel.privilege) >= permissionToValue(PermissionType.READWRITE);
 }
 
 export enum ChannelSortBy {

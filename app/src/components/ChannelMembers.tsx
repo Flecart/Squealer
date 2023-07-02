@@ -1,12 +1,13 @@
 import { PermissionType, type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
-import { apiChannelAddOwner, apiChannelSetPermission, apiUser } from 'src/api/routes';
+import { apiChannelAddOwner, apiChannelDelete, apiChannelSetPermission, apiUser } from 'src/api/routes';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Button, Card, Form, Image, Row, Stack } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext } from 'src/contexts';
 import { type ISuccessMessage, type IUser } from '@model/user';
 import { stringFormat } from 'src/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface PrompsChannelMembers {
     channel: IChannel;
@@ -26,6 +27,24 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
     const [error, setError] = useState<null | string>(null);
     const [pending, setPending] = useState(false);
     const [info, setInfo] = useState<null | string>(null);
+
+    const navigator = useNavigate();
+
+    const handleDelete = (): void => {
+        fetchApi<ISuccessMessage>(
+            stringFormat(apiChannelDelete, [channel.name]),
+            {
+                method: 'DELETE',
+            },
+            auth,
+            (_) => {
+                navigator('/');
+            },
+            (e) => {
+                setError(e.message);
+            },
+        );
+    };
 
     const sendInvite = (): void => {
         setPending(true);
@@ -58,7 +77,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
             {isAdmin && (
                 <Card body>
                     <Form.Group>
-                        <Form.Label>Aggiungi una persona</Form.Label>
+                        <Form.Label htmlFor="useAdd">Aggiungi una persona</Form.Label>
                         <Form.Control
                             id="userAdd"
                             type="text"
@@ -68,14 +87,19 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                             }}
                         />
 
-                        <Button
-                            onClick={() => {
-                                sendInvite();
-                            }}
-                        >
-                            Aggiungi{' '}
-                            <Icon.PersonAdd style={{ marginRight: '1rem', height: '1.5rem', width: '1.5rem' }} />
-                        </Button>
+                        <div className="d-flex flex-row justify-content-evenly pt-2">
+                            <Button
+                                onClick={() => {
+                                    sendInvite();
+                                }}
+                            >
+                                Aggiungi{' '}
+                                <Icon.PersonAdd
+                                    aria-hidden
+                                    style={{ marginRight: '1rem', height: '1.5rem', width: '1.5rem' }}
+                                />
+                            </Button>
+                        </div>
                     </Form.Group>
                     {info !== null && (
                         <Row>
@@ -94,6 +118,21 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                     <ChannelMember key={member.user} member={member} admin={isAdmin} channel={channel.name} />
                 ))}
             </Stack>
+            {isAdmin && (
+                <div>
+                    <Alert variant="dark" className="mt-4">
+                        <p>
+                            In quanto Owner del canale puoi eliminarlo.
+                            <br />
+                            <strong>ATTENZIONE: questa azione non è reversibile</strong>
+                        </p>
+
+                        <Button variant="danger" onClick={handleDelete}>
+                            Delete Channel
+                        </Button>
+                    </Alert>
+                </div>
+            )}
         </>
     );
 }
@@ -207,8 +246,6 @@ function ChannelMember({
 
 function PrivilegeToIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
     switch (privilage) {
-        case PermissionType.WRITE:
-            return <Icon.Pencil aria-label={privilage} title={privilage} />;
         case PermissionType.READ:
             return <Icon.Eyeglasses aria-label={privilage} title={privilage} />;
         case PermissionType.READWRITE:

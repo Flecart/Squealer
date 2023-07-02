@@ -17,6 +17,7 @@ import { UserRoles } from '@model/user';
 import { HydratedDocument } from 'mongoose';
 import { type IInvitation } from '@model/invitation';
 import { IMessage, MessageSortTypes, messageSort } from '@model/message';
+import TemporizzatiModel from '@db/temporizzati';
 
 export class ChannelService {
     public async getChannels(channelIds: string[], user: string): Promise<IChannel[]> {
@@ -262,8 +263,30 @@ export class ChannelService {
         };
     }
 
-    public async deleteChannel(channelName: string, username: string): Promise<ChannelResponse> {
-        return { message: `TODO: User ${username} deleted channel ${channelName}`, channel: channelName };
+    public async deleteChannel(channelName: string, username: string, fromAPI: boolean): Promise<ChannelResponse> {
+        if (fromAPI) {
+            const res = await ChannelModel.findOne({
+                name: channelName,
+                users: { $elemMatch: { user: username, privilege: PermissionType.ADMIN } },
+            });
+            if (res) {
+                throw new HttpError(403, `User ${username} is not authorized to delete channel ${channelName}`);
+            }
+        }
+
+        await MessageModel.deleteMany({ channel: channelName });
+        await ChannelModel.deleteOne({ name: channelName });
+        const a = await UserModel.find({ channel: { $elemMatch: { channelName } } });
+        await Promise.all(
+            a.map(async (u) => {
+                u.channel = u.channel.filter((c) => c !== channelName);
+                u.markModified('channel');
+                return u.save();
+            }),
+        );
+        await InvitationModel.deleteMany({ channel: channelName });
+        await TemporizzatiModel.deleteMany({ channel: channelName });
+        return { message: `Channel ${channelName} deleted`, channel: channelName };
     }
 
     public async addMember(
