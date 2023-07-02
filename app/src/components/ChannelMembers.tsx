@@ -122,9 +122,8 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                 <div>
                     <Alert variant="dark" className="mt-4">
                         <p>
-                            In quanto Owner del canale puoi eliminarlo.
                             <br />
-                            <strong>ATTENZIONE: questa azione non è reversibile</strong>
+                            <strong>DANGER: this action is inreversable</strong>
                         </p>
 
                         <Button variant="danger" onClick={handleDelete}>

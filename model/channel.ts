@@ -16,9 +16,9 @@ export function permissionToValue(permission: PermissionType): number {
         case PermissionType.READ:
             return 1;
         case PermissionType.READWRITE:
-            return 3;
+            return 2;
         case PermissionType.ADMIN:
-            return 4;
+            return 3;
     }
 }
 
