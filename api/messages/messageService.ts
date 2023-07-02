@@ -174,14 +174,16 @@ export class MessageService {
         };
     }
 
-    public async getMessages(ids: string[]): Promise<IMessage[]> {
+    public async getMessages(ids: string[], countView?: boolean): Promise<IMessage[]> {
         //TODO: va tolta per metterci il feed al suo posto
         return await Promise.all(
             ids.map(async (id) => {
                 const rens = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
                 if (rens === null) throw new HttpError(404, 'Message not found');
-                rens.views++;
-                rens.save();
+                if (countView === null || countView === undefined || countView === true) {
+                    rens.views++;
+                    rens.save();
+                }
                 return rens;
             }),
         );
