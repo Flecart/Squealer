@@ -11,15 +11,21 @@ import SmmRequestModel from '@db/smmRequest';
 
 export class SmmService {
     public async sendRequest(clientUsername: string, user: string): Promise<ISuccessMessage> {
-        const smmMenager = await this._getSmm(user);
+        const smmManager = await this._checkAndGetSmm(user);
+        const clientAccount = await this._checkAndGetVip(clientUsername);
+
+        if (clientAccount.smm == smmManager.username) {
+            throw new HttpError(400, 'You are already a client to this SMM');
+        }
+
         await this.deleteRequest(clientUsername);
-        const newRequest = await SmmRequestModel.create({ from: clientUsername, to: smmMenager.username });
+        const newRequest = await SmmRequestModel.create({ from: clientUsername, to: smmManager.username });
         await newRequest.save();
-        return { message: smmMenager.username };
+        return { message: smmManager.username };
     }
 
     public async getMyRequest(clientUsername: string): Promise<ISuccessMessage> {
-        const client = await this._getVip(clientUsername);
+        const client = await this._checkAndGetVip(clientUsername);
         const currentRequest = await SmmRequestModel.findOne({ from: client.username });
         if (currentRequest) {
             return { message: currentRequest.to };
@@ -28,9 +34,9 @@ export class SmmService {
     }
 
     public async deleteRequest(clientUsername: string): Promise<ISuccessMessage> {
-        const client = await this._getVip(clientUsername);
+        const client = await this._checkAndGetVip(clientUsername);
         if (client.smm) {
-            const smm = await this._getSmm(client.smm);
+            const smm = await this._checkAndGetSmm(client.smm);
             if (smm.clients) {
                 smm.clients = smm.clients.filter((c) => c !== clientUsername);
                 await smm.save();
@@ -42,8 +48,15 @@ export class SmmService {
         return { message: `Request deleted` };
     }
 
+    public async rejectRequest(smmUsername: string, clientUsername: string): Promise<ISuccessMessage> {
+        await this._checkAndGetSmm(smmUsername);
+        // dovrebbe essere che se esiste una richiesta il clientUsername non è sicuramtne un cliente di smm.
+        await SmmRequestModel.deleteMany({ from: clientUsername, to: smmUsername }); // should delete only 1
+        return { message: `Request rejected` };
+    }
+
     public async getClients(smmUsername: string): Promise<IUser[]> {
-        const user = await this._getSmm(smmUsername);
+        const user = await this._checkAndGetSmm(smmUsername);
         if (user.clients) {
             user.clients;
             const clients = UserModel.find({ username: { $in: user.clients } });
@@ -53,16 +66,16 @@ export class SmmService {
     }
 
     public async getRequests(smmUsername: string): Promise<IUser[]> {
-        await this._getSmm(smmUsername);
+        await this._checkAndGetSmm(smmUsername);
         const requests = await SmmRequestModel.find({ to: smmUsername });
         const clients = await UserModel.find({ username: { $in: requests.map((r) => r.from) } });
         return clients;
     }
 
     public async addClient(clientUsername: string, smmUsername: string): Promise<ISuccessMessage> {
-        const user = await this._getSmm(smmUsername);
+        const user = await this._checkAndGetSmm(smmUsername);
 
-        const client = await this._getVip(clientUsername);
+        const client = await this._checkAndGetVip(clientUsername);
         if (user.clients !== undefined && user.clients.includes(clientUsername)) {
             throw new HttpError(401, 'Client already added');
         }
@@ -144,14 +157,14 @@ export class SmmService {
     }
 
     private async _checkClient(clientUsername: string, smmUsername: string): Promise<boolean> {
-        const user = await this._getSmm(smmUsername);
+        const user = await this._checkAndGetSmm(smmUsername);
         if (user.clients) {
             return user.clients.includes(clientUsername);
         }
         return false;
     }
 
-    private async _getVip(client: string): Promise<HydratedDocument<IUser>> {
+    private async _checkAndGetVip(client: string): Promise<HydratedDocument<IUser>> {
         const user = await UserModel.findOne({ username: client });
         if (user === null) {
             throw new HttpError(401, 'User does not exist');
@@ -162,7 +175,7 @@ export class SmmService {
         return user;
     }
 
-    private async _getSmm(smmUsername: string): Promise<HydratedDocument<IUser>> {
+    private async _checkAndGetSmm(smmUsername: string): Promise<HydratedDocument<IUser>> {
         const user = await UserModel.findOne({ username: smmUsername });
         if (user === null) {
             throw new HttpError(401, 'User does not exist');

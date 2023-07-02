@@ -39,6 +39,7 @@ export class SmmController {
         smmLogger.info(`User ${getUserFromRequest(request)} is getting his request`);
         return new SmmService().getMyRequest(getUserFromRequest(request));
     }
+
     // this api is used by vip account
     @Post('/send-request/{user}')
     @Security('jwt')
@@ -48,6 +49,7 @@ export class SmmController {
         smmLogger.info(`User ${getUserFromRequest(request)} is sending request to ${user}`);
         return new SmmService().sendRequest(getUserFromRequest(request), user);
     }
+
     // this api is used by vip account
     @Delete('/delete-request/')
     @Security('jwt')
@@ -56,6 +58,15 @@ export class SmmController {
     public async deleteRequest(@Request() request: any): Promise<ISuccessMessage> {
         smmLogger.info(`User ${getUserFromRequest(request)} is deleting his request`);
         return new SmmService().deleteRequest(getUserFromRequest(request));
+    }
+
+    @Delete('/reject-request/{user}')
+    @Security('jwt')
+    @Response<HttpError>(404, 'Not found')
+    @Response<HttpError>(401, 'Unauthorized')
+    public async rejectRequest(@Request() request: any, @Path() user: string): Promise<ISuccessMessage> {
+        smmLogger.info(`User ${getUserFromRequest(request)} is reject the request from ${user}`);
+        return new SmmService().rejectRequest(getUserFromRequest(request), user);
     }
 
     @Get('/requests')
