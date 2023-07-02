@@ -65,17 +65,17 @@ initMongo()
         server.use(`/${endpoint.DASHBOARD}`, express.static(endpoint.DASHBOARD));
 
         indexLogger.info(
-            'smm path is ',
-            path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'),
-            'endpoint is: ',
-            endpoint.SMM,
+            `smm path is
+            ${path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html')},
+            endpoint is:
+            ${endpoint.SMM}`,
         );
 
         server.use(`/${endpoint.SMM}`, express.static(path.resolve(__dirname, '../', endpoint.SMM)));
         server.all(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
             indexLogger.info(
-                'serving smm path is ',
-                path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'),
+                `serving smm path is 
+                ${path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html')}`,
             );
             res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'));
         });
