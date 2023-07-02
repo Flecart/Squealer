@@ -9,6 +9,8 @@ export const clientInject = Symbol('clients')
 export const smmUserInject = Symbol('smmUser')
 
 export const currentClientInject = Symbol('client')
+export const sidebarShowInject = Symbol('sidebarShow')
+
 export type currentClientType = {
   currentClient: Ref<IUser>
   setClient: (client: IUser) => void
@@ -28,4 +30,8 @@ export const injectSmmUser = () => {
 
 export const injectCurrentClient = () => {
   return inject<currentClientType>(currentClientInject)
+}
+
+export const injectSidebarShow = () => {
+  return inject<Ref<boolean>>(sidebarShowInject)
 }
