@@ -4,9 +4,11 @@ import BuyQuotaVue from './views/BuyQuotaView.vue'
 import GeolocalizationViewVue from './views/GeolocalizationView.vue'
 import GraphViewVue from './views/GraphView.vue'
 import PostMessageViewVue from '@/views/PostMessageView.vue'
+import NoClientsViewVue from '@/views/NoClientsView.vue'
 
 // @ts-ignore outside of root directory
 import endpoints from '../../config/endpoints.json'
+import { injectAuth, injectClients } from './keys'
 
 // TODO: mettere l'indirizzo del server di squealer se non dev, quando si saprà l'indirizzo di squealer
 export const squealerBaseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : ''
@@ -36,6 +38,7 @@ export const buyQuotaName = 'buy-quota'
 export const geolocalizationName = 'geolocalization'
 export const graphName = 'graph'
 export const sendMessageName = 'send-message'
+export const noClientsErrorName = 'no-clients'
 
 const routes = [
   { path: `/${endpoints.SMM}`, name: dashboardName, component: Dashboard },
@@ -50,7 +53,12 @@ const routes = [
     name: graphName,
     component: GraphViewVue
   },
-  { path: `/${endpoints.SMM}/send-message`, name: sendMessageName, component: PostMessageViewVue }
+  { path: `/${endpoints.SMM}/send-message`, name: sendMessageName, component: PostMessageViewVue },
+  {
+    path: `/${endpoints.SMM}/no-clients`,
+    name: noClientsErrorName,
+    component: NoClientsViewVue
+  }
 ]
 
 export const router = VueRouter.createRouter({
@@ -60,9 +68,15 @@ export const router = VueRouter.createRouter({
 
 router.beforeEach((to, _) => {
   const targetPath = to.path
-  const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
+  const authState = injectAuth()
+  const injectedClients = injectClients()
 
-  if (authState == null) {
+  if (to.name != noClientsErrorName && (!injectedClients || injectedClients.length == 0)) {
+    console.log(injectedClients)
+    router.push({ name: noClientsErrorName })
+  }
+
+  if (authState == undefined) {
     redirectToLogin()
   }
 

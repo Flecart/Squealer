@@ -23,6 +23,9 @@ const show = ref(true)
     class="outside-sidebar-toggler"
     v-b-toggle.sidebar-no-header
     :aria-hidden="show ? 'true' : 'false'"
+    aria-expanded="false"
+    aria-controls="sidebar-no-header"
+    tabindex="0"
   >
     <b-icon-caret-right-fill></b-icon-caret-right-fill>
   </b-button>
@@ -44,6 +47,9 @@ const show = ref(true)
           aria-label="close sidebar"
           role="button"
           v-b-toggle.sidebar-no-header
+          aria-expanded="true"
+          aria-controls="sidebar-no-header"
+          tabindex="0"
         >
           <b-icon-caret-left-fill></b-icon-caret-left-fill>
         </div>
