@@ -59,6 +59,8 @@ h6 {
 main {
   margin-left: 1rem;
   margin-right: 1rem;
+
+  transition: margin-left 0.3s ease-in-out;
 }
 
 @media screen and (min-width: map-get($grid-breakpoints, md)) {
