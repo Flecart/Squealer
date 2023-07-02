@@ -50,8 +50,21 @@ export default function Channel(): JSX.Element {
                     setChannel(() => channel);
                 },
                 (error) => {
-                    if (error.status === 404) navigate('/404');
-                    setError(() => error.message);
+                    if (error.status === 404) {
+                        if (channelId?.startsWith('#') === true) {
+                            setChannel({
+                                name: channelId,
+                                type: ChannelType.HASHTAG,
+                                description: '',
+                                users: [],
+                                messages: [],
+                            });
+                        } else {
+                            navigate('/404');
+                        }
+                    } else {
+                        setError(() => error.message);
+                    }
                 },
             );
     }, [channelId]);
