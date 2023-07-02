@@ -403,6 +403,7 @@ export class MessageService {
                     }
                 });
             channel.messages.push(savedMessage._id);
+            channel.markModified('messages');
             await channel.save();
         } else if (parent !== null) {
             parent.children.push(savedMessage.id);
