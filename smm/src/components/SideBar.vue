@@ -26,7 +26,9 @@ const show = injectSidebarShow()!
   >
     <b-navbar type="dark" variant="dark">
       <header class="sidebar-header">
-        <b-navbar-brand id="sidebar-no-header-title" href="/">Squealer SMM</b-navbar-brand>
+        <b-navbar-brand id="sidebar-no-header-title" href="/" tabindex="-1"
+          >Squealer SMM</b-navbar-brand
+        >
         <div
           class="icon-container"
           title="close sidebar"
