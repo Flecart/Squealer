@@ -2,6 +2,7 @@
 import SideBar from './components/SideBar.vue'
 import { injectSidebarShow } from '@/keys'
 import { ref, watch } from 'vue'
+import ClientSmmRequestVue from './components/ClientSmmRequest.vue'
 
 const show = injectSidebarShow()!
 
@@ -15,6 +16,7 @@ watch(show, () => {
 <template>
   <SideBar> </SideBar>
   <main>
+    <ClientSmmRequestVue />
     <header>
       <router-view name="title"></router-view>
       <b-button

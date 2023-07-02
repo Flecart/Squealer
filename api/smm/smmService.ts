@@ -45,14 +45,18 @@ export class SmmService {
             await client.save();
         }
         await SmmRequestModel.deleteMany({ from: client.username });
-        return { message: `Request deleted` };
+        return { message: `Request deleted successfully` };
     }
 
     public async rejectRequest(smmUsername: string, clientUsername: string): Promise<ISuccessMessage> {
         await this._checkAndGetSmm(smmUsername);
-        // dovrebbe essere che se esiste una richiesta il clientUsername non è sicuramtne un cliente di smm.
-        await SmmRequestModel.deleteMany({ from: clientUsername, to: smmUsername }); // should delete only 1
-        return { message: `Request rejected` };
+        // dovrebbe essere che se esiste una richiesta il clientUsername non è sicuramente un cliente di smm.
+
+        const currentRequest = await SmmRequestModel.deleteMany({ from: clientUsername, to: smmUsername });
+        if (currentRequest.deletedCount !== 1) {
+            throw new HttpError(404, 'Request not found');
+        }
+        return { message: `Request from @${clientUsername} rejected successfully` };
     }
 
     public async getClients(smmUsername: string): Promise<IUser[]> {
@@ -94,7 +98,7 @@ export class SmmService {
         user.markModified('clients');
         await user.save();
 
-        return { message: `Client ${clientUsername} added to ${smmUsername}` };
+        return { message: `Client 2${clientUsername} added to @${smmUsername} successfully` };
     }
 
     public async buyQuota(client: string, smmUsername: string, quota: IQuotas): Promise<ISuccessMessage> {

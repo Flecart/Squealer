@@ -18,9 +18,13 @@ export const getClientsRoute = `${squealerBaseURL}/api/smm/clients`
 export const buyQuotaRoute = `${squealerBaseURL}/api/smm/buy-quota/{0}`
 export const postClientMessageRoute = `${squealerBaseURL}/api/smm/message/{0}`
 export const postClientMultipleMessagesRoute = `${squealerBaseURL}/api/smm/messages/{0}`
+export const getClienthistoryRoute = `${squealerBaseURL}/api/smm/history/{0}`
+export const getVipClientRequestRoute = `${squealerBaseURL}/api/smm/requests`
+export const rejectVipClientRequestRoute = `${squealerBaseURL}/api/smm/reject-request/{0}`
+export const acceptVipClientRequestRoute = `${squealerBaseURL}/api/smm/add-client/{0}`
+
 export const getClientMessageRoute = `${squealerBaseURL}/api/message/user/{0}`
 export const getUserRoute = `${squealerBaseURL}/api/user/{0}`
-export const getClienthistoryRoute = `${squealerBaseURL}/api/smm/history/{0}`
 
 export const getChannelSuggestions = `${squealerBaseURL}/api/channel/suggestions`
 export const getHashtabChannelSuggestions = `${squealerBaseURL}/api/channel/suggestions/hashtag`
