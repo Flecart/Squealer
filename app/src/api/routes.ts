@@ -43,6 +43,11 @@ export const apiChannelCreate = `${apiChannelBase}/create`;
 export const apiBuyChannel = `${apiChannelBase}/create`;
 export const apiChannelChangeDescription = `${apiChannelBase}/{0}/description`;
 
+export const apiSmmBase = `${apiBase}/smm`;
+export const apiSmmDeleteRequest = `${apiSmmBase}/delete-request`;
+export const apiSmmSendRequest = `${apiSmmBase}/send-request/{0}`;
+export const apiSmmMyRequests = `${apiSmmBase}/my-request`;
+
 export const apiTemporized = `${apiBase}/temporizzati`;
 
 export const imageBase = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
