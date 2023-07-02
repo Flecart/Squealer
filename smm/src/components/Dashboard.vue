@@ -100,7 +100,6 @@ const setPageNumber = (page: number) => {
 }
 </script>
 <template>
-  <h1>SMM Dashboard</h1>
   <ChooseClientsVue />
 
   <div class="quota-groups me-2">

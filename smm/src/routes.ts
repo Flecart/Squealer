@@ -41,28 +41,56 @@ export const sendMessageName = 'send-message'
 export const noClientsErrorName = 'no-clients'
 
 const routes = [
-  { path: `/${endpoints.SMM}`, name: dashboardName, component: Dashboard },
-  { path: `/${endpoints.SMM}/buy-quota`, name: buyQuotaName, component: BuyQuotaVue },
+  {
+    path: `/${endpoints.SMM}`,
+    name: dashboardName,
+    components: {
+      default: Dashboard,
+      title: '<h1>SMM Dashboard</h1>'
+    }
+  },
+  {
+    path: `/${endpoints.SMM}/buy-quota`,
+    name: buyQuotaName,
+    components: {
+      default: BuyQuotaVue
+    }
+  },
   {
     path: `/${endpoints.SMM}/geolocalization`,
     name: geolocalizationName,
-    component: GeolocalizationViewVue
+    components: {
+      default: GeolocalizationViewVue,
+      title: '<h2>Geolocalization</h2>'
+    }
   },
   {
     path: `/${endpoints.SMM}/graph`,
     name: graphName,
-    component: GraphViewVue
+    components: {
+      default: GraphViewVue,
+      title: '<h2>Analytics</h2>'
+    }
   },
-  { path: `/${endpoints.SMM}/send-message`, name: sendMessageName, component: PostMessageViewVue },
+  {
+    path: `/${endpoints.SMM}/send-message`,
+    name: sendMessageName,
+    components: {
+      default: PostMessageViewVue
+    }
+  },
   {
     path: `/${endpoints.SMM}/no-clients`,
     name: noClientsErrorName,
-    component: NoClientsViewVue
+    components: {
+      default: NoClientsViewVue
+    }
   }
 ]
 
 export const router = VueRouter.createRouter({
   history: VueRouter.createWebHistory(),
+  // @ts-expect-error after the using named components we get ad ts error.
   routes
 })
 

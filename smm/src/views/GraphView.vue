@@ -158,7 +158,6 @@ function compactHistoriesByHour(historyPoints: HistoryPoint[]) {
 </script>
 
 <template>
-  <h1>Analytics</h1>
   <ChooseClients />
   <div class="d-md-flex mb-3">
     <div class="form-date mt-3">

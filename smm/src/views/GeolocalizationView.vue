@@ -121,7 +121,6 @@ const handleSubmit = () => {
 </script>
 <template>
   <div class="main">
-    <h2>Geolocalization</h2>
     <ChooseClientsVue />
 
     <p class="info">

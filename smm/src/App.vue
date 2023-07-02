@@ -16,7 +16,7 @@ watch(show, () => {
   <SideBar> </SideBar>
   <main>
     <header>
-      <h1>prova prova</h1>
+      <router-view name="title"></router-view>
       <b-button
         variant="dark"
         title="open sidebar"
@@ -32,16 +32,17 @@ watch(show, () => {
         <b-icon-caret-right-fill></b-icon-caret-right-fill>
       </b-button>
     </header>
-    <router-view name="ContentView"></router-view>
+    <router-view></router-view>
   </main>
 </template>
 
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap.scss';
 
-.header {
+header {
   display: flex;
   align-items: center;
+  margin-top: 1rem;
 }
 
 main {
