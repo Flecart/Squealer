@@ -198,7 +198,6 @@ export class MessageService {
     }
 
     public async reactMessage(id: string, type: IReactionType, username: string): Promise<ReactionResponse> {
-        // get message from mongo
         const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
         if (message == null) throw new HttpError(404, 'Message not found');
         const userReaction = message.reaction.find((reaction) => reaction.id === username);
