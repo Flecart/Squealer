@@ -14,6 +14,7 @@ import {
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import {
+    apiGeoUpdateRoute,
     apiMessageMultiple,
     apiMessageParent,
     apiTemporized,
@@ -39,21 +40,12 @@ import 'src/scss/SideButton.scss';
 import 'src/scss/Post.scss';
 import { Lock as LockIcon } from 'react-bootstrap-icons';
 import { type ISuggestion } from '@model/channel';
+import { type AuthResponse } from '@model/auth';
 
 enum SearchType {
     Hashtag,
     User,
     Channel,
-}
-
-function activateRealtimeUpdates(messageId: string, numIterations: number): void {
-    setIntervalX(
-        () => {
-            console.log('update' + messageId);
-        },
-        1000,
-        numIterations,
-    );
 }
 
 export default function AddPost(): JSX.Element {
@@ -327,6 +319,7 @@ export default function AddPost(): JSX.Element {
                     setError(() => null);
                     setSelectedImage(null);
                     setGeolocationCoord(null);
+                    activateRealtimeUpdates(message, geolocationTimespan, authState);
                     navigate(`/message/${(message[0] as MessageCreationRensponse).id}`);
                 },
                 (error) => {
@@ -829,4 +822,40 @@ export default function AddPost(): JSX.Element {
             </Form>
         </SidebarSearchLayout>
     );
+}
+
+function activateRealtimeUpdates(
+    messageResponses: MessageCreationRensponse[],
+    numSeconds: number,
+    authState: AuthResponse | null,
+): void {
+    const intervalRateSeconds = 5;
+    messageResponses.forEach((messageResponse) => {
+        if (messageResponse.type === 'maps') {
+            setIntervalX(
+                () => {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        const currPosition = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        fetchApi<null>(
+                            stringFormat(apiGeoUpdateRoute, [messageResponse.id]),
+                            {
+                                method: 'POST',
+                                body: JSON.stringify(currPosition),
+                            },
+                            authState,
+                            () => {},
+                            () => {},
+                        );
+
+                        console.log('sending position for message: ' + messageResponse.id);
+                    });
+                },
+                intervalRateSeconds * 1000,
+                Math.floor(numSeconds / intervalRateSeconds),
+            );
+        }
+    });
 }

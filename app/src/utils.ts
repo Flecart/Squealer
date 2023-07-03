@@ -110,8 +110,16 @@ export function stringFormat(template: string, args: string[]): string {
 }
 
 export function setIntervalX(callback: () => void, delay: number, repetitions: number): void {
+    if (repetitions <= 0) return;
+
     const intervalID = window.setInterval(() => {
-        const x = parseInt(localStorage.getItem(`${intervalID}-intervals`) as string);
+        const storageItem = localStorage.getItem(`${intervalID}-intervals`);
+        if (storageItem === null) {
+            window.clearInterval(intervalID);
+            return;
+        }
+
+        const x = parseInt(storageItem);
         callback();
         if (x - 1 === 0) {
             localStorage.removeItem(`${intervalID}-intervals`);
