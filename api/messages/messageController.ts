@@ -27,6 +27,7 @@ import { MessageService } from './messageService';
 import { getUserFromRequest, parseMessageCreationWithFile, parseWithFile } from '@api/utils';
 import { HttpError } from '@model/error';
 import logger from '@server/logger';
+import message from '@db/message';
 
 const log = logger.child({ label: 'messageController' });
 
@@ -54,6 +55,15 @@ export class MessageController {
         @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse[]> {
         const messages = parseWithFile<MessageCreationMultipleChannels>(data, file);
+        if (messages.parent != undefined) {
+            // nel caso sia un messaggio di reply, si comporta in modo simile a un post per messaggio singolo.
+            return [
+                await new MessageService().create(
+                    parseMessageCreationWithFile(data, file),
+                    getUserFromRequest(request),
+                ),
+            ];
+        }
 
         return await new MessageService().createMultiple(
             messages.channels.map((channelName) => {
