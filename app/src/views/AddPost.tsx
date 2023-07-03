@@ -74,10 +74,11 @@ export default function AddPost(): JSX.Element {
     const hiddenFileInput = useRef<HTMLInputElement | null>(null);
 
     const usedQuotaValue = useMemo(() => {
+        const lenDest = destinations.length + (parent === undefined ? 0 : 1);
         if (geolocationCoord !== null || selectedImage !== null) {
-            return mediaQuotaValue * destinations.length;
+            return mediaQuotaValue * lenDest;
         } else {
-            return messageText.length * destinations.length;
+            return messageText.length * lenDest;
         }
     }, [geolocationCoord, selectedImage, messageText, destinations]);
 

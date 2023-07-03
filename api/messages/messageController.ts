@@ -54,6 +54,18 @@ export class MessageController {
         @UploadedFile('file') file?: Express.Multer.File,
     ): Promise<MessageCreationRensponse[]> {
         const messages = parseWithFile<MessageCreationMultipleChannels>(data, file);
+        if (messages.parent !== undefined) {
+            return [
+                await new MessageService().create(
+                    {
+                        channel: undefined,
+                        parent: messages.parent,
+                        content: messages.content,
+                    } as MessageCreation,
+                    getUserFromRequest(request),
+                ),
+            ];
+        }
 
         return await new MessageService().createMultiple(
             messages.channels.map((channelName) => {
