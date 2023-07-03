@@ -305,7 +305,10 @@ export class MessageService {
             }
 
             if (!canUserWriteTochannel(channel, username)) {
-                throw new HttpError(403, "You don't have the permission to write in this channel");
+                throw new HttpError(
+                    403,
+                    `You don't have the permission to write in ${channel.name}, join the channel first!`,
+                );
             }
         }
         return channel;
