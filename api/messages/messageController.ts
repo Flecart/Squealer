@@ -27,7 +27,6 @@ import { MessageService } from './messageService';
 import { getUserFromRequest, parseMessageCreationWithFile, parseWithFile } from '@api/utils';
 import { HttpError } from '@model/error';
 import logger from '@server/logger';
-import message from '@db/message';
 
 const log = logger.child({ label: 'messageController' });
 
