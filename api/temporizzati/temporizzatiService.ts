@@ -138,7 +138,7 @@ export class TemporizzatiService {
         });
     }
 
-    private static async _getWikipediaContent(): Promise<string> {
+    public static async _getWikipediaContent(): Promise<string> {
         const randomElements = ['births', 'deaths', 'events', 'holidays']; // from https://en.wikipedia.org/api/rest_v1/#/Feed/onThisDay
         const randomElement: string = randomElements[Math.floor(Math.random() * randomElements.length)] as string;
 
@@ -174,7 +174,7 @@ export class TemporizzatiService {
         return messageText;
     }
 
-    private static async _getImageContent(): Promise<Express.Multer.File> {
+    public static async _getImageContent(): Promise<Express.Multer.File> {
         const response = await fetch('https://picsum.photos/1000');
         const buffer = Buffer.from(await response.arrayBuffer());
 
