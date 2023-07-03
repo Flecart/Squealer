@@ -60,10 +60,14 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
         } else if (state.error !== null) {
             return (
                 <div className="d-flex justify-content-center">
-                    <p>{state.error}</p>
-                    <Button variant="primary" onClick={getMessage}>
-                        Try again
-                    </Button>
+                    <div className="row">
+                        <p>{state.error}</p>
+                    </div>
+                    <div className="row">
+                        <Button variant="primary" onClick={getMessage}>
+                            Try again
+                        </Button>
+                    </div>
                 </div>
             );
         }

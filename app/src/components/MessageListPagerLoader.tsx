@@ -21,13 +21,15 @@ export default function MessageListPageLoader({ childrens }: PropsMessageIds): J
                         return <MessageListLoader childrens={arr} key={i} />;
                     })}
                 {pageShow < chunks.length - 1 && (
-                    <Button
-                        onClick={(): void => {
-                            setPageShow(pageShow + 1);
-                        }}
-                    >
-                        Load more
-                    </Button>
+                    <div className="d-flex justify-content-center m-4">
+                        <Button
+                            onClick={(): void => {
+                                setPageShow(pageShow + 1);
+                            }}
+                        >
+                            Load more
+                        </Button>
+                    </div>
                 )}
             </Stack>
         );
