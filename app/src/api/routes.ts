@@ -22,7 +22,7 @@ export const apiCreate = `${apiBase}/auth/create`;
 export const apiSettingReset = `${apiBase}/auth/setting-reset`;
 export const apiResetPassword = `${apiBase}/auth/reset-password`;
 export const apiChangePassword = `${apiAuthUserBase}/{0}/change-password`;
-export const apiChangeUsername = `${apiAuthUserBase}/{0}/change-username`;
+export const apiChangeUsername = `${apiAuthUserBase}/{0}/change-name`;
 
 export const apiMessageBase = `${apiBase}/message`;
 export const apiFeedBase = `${apiBase}/feed`;

@@ -2,7 +2,7 @@ import { Accordion, Container, Stack } from 'react-bootstrap';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts';
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
-import ChangeUsername from 'src/components/ChangeUsername';
+import ChangeName from 'src/components/ChangeName';
 import ChangePassword from 'src/components/ChangePassword';
 import ChangeRole from 'src/components/ChangeRole';
 import DeleteAccount from 'src/components/Delete';
@@ -19,7 +19,7 @@ export default function Settings(): JSX.Element {
                             <Accordion.Item eventKey="0">
                                 <Accordion.Header>Change Username</Accordion.Header>
                                 <Accordion.Body>
-                                    <ChangeUsername />
+                                    <ChangeName />
                                 </Accordion.Body>
                             </Accordion.Item>
                             <Accordion.Item eventKey="1">
