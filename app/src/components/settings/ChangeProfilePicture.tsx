@@ -63,6 +63,7 @@ export default function ChangeProfilePicture({ user }: { user: IUser }): JSX.Ele
                         <Image
                             src={state.file === null ? user.profile_pic : URL.createObjectURL(state.file)}
                             alt="profile image "
+                            style={{ maxWidth: '500px', aspectRatio: '1/1' }}
                             roundedCircle
                             onClick={() => {
                                 if (hiddenFileInput !== null) {
