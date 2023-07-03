@@ -151,8 +151,7 @@ const getChannelType = (channelName: string) => {
     }
 }
 
-const getUserFromChannel = (channelName: string): string => {
-    // return a random choice from users
+const getUserFromChannel = (_: string): string => {
     return Array.from(users.keys())[Math.floor(Math.random() * users.size)] as string;
 }
 

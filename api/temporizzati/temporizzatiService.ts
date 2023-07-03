@@ -72,10 +72,10 @@ export class TemporizzatiService {
             content.data = data;
         } else if (temporizzati.content.type === 'wikipedia') {
             content.type = 'text';
-            content.data = await TemporizzatiService._getWikipediaContent();
+            content.data = await TemporizzatiService.getWikipediaContent();
         } else if (temporizzati.content.type === 'image') {
             content.type = 'image';
-            content.data = await TemporizzatiService._getImageContent();
+            content.data = await TemporizzatiService.getImageContent();
         } else if (temporizzati.content.type === 'maps') {
             throw new HttpError(400, 'Not implemented');
         }
@@ -138,7 +138,7 @@ export class TemporizzatiService {
         });
     }
 
-    public static async _getWikipediaContent(): Promise<string> {
+    public static async getWikipediaContent(): Promise<string> {
         const randomElements = ['births', 'deaths', 'events', 'holidays']; // from https://en.wikipedia.org/api/rest_v1/#/Feed/onThisDay
         const randomElement: string = randomElements[Math.floor(Math.random() * randomElements.length)] as string;
 
@@ -174,7 +174,7 @@ export class TemporizzatiService {
         return messageText;
     }
 
-    public static async _getImageContent(): Promise<Express.Multer.File> {
+    public static async getImageContent(): Promise<Express.Multer.File> {
         const response = await fetch('https://picsum.photos/1000');
         const buffer = Buffer.from(await response.arrayBuffer());
 

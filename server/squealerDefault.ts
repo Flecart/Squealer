@@ -16,7 +16,13 @@ enum Channels {
     RANDOMIMG = 'RANDOMIMG',
 }
 
-const squealerChannels = [Channels.NEWS, Channels.EMERGENCY, Channels.CONTROVERSIAL, Channels.RANDOM];
+const squealerChannels = [
+    Channels.NEWS,
+    Channels.EMERGENCY,
+    Channels.CONTROVERSIAL,
+    Channels.RANDOMWIKI,
+    Channels.RANDOMIMG,
+];
 
 const mapChannelToContent = new Map<Channels, (channel: string) => Promise<MessageCreation | null>>([
     [Channels.CONTROVERSIAL, controversialMessageCreation],
@@ -25,9 +31,9 @@ const mapChannelToContent = new Map<Channels, (channel: string) => Promise<Messa
 ]);
 
 const mapChannelToNextMessage = new Map<Channels, () => number>([
-    [Channels.CONTROVERSIAL, nextDay()],
-    [Channels.RANDOMWIKI, randomMaxHour()],
-    [Channels.RANDOMIMG, randomMaxHour()],
+    [Channels.CONTROVERSIAL, nextDay],
+    [Channels.RANDOMWIKI, randomMaxHour],
+    [Channels.RANDOMIMG, randomMaxHour],
 ]);
 
 const squealerUser = 'squealer';
@@ -99,7 +105,7 @@ async function createMessage(channel: Channels): Promise<void> {
 }
 
 async function randomImageMessageCreation(channel: string): Promise<MessageCreation | null> {
-    const testo = await TemporizzatiService._getImageContent();
+    const testo = await TemporizzatiService.getImageContent();
     return {
         parent: undefined,
         content: {
@@ -111,7 +117,7 @@ async function randomImageMessageCreation(channel: string): Promise<MessageCreat
 }
 
 async function wikipediaMessageCreation(channel: string): Promise<MessageCreation | null> {
-    const testo = await TemporizzatiService._getWikipediaContent();
+    const testo = await TemporizzatiService.getWikipediaContent();
     return {
         parent: undefined,
         content: {
