@@ -104,10 +104,18 @@ export enum ICategory {
 export interface MessageCreation {
     channel: string | undefined; // il canale a cui appartiene il messaggio
     parent: string | undefined; // il messaggio a cui risponde
-    content: {
-        type: SupportedContent;
-        data: string | Img | Maps;
-    };
+    content: MessageContent;
+}
+
+export interface MessageContent {
+    type: SupportedContent;
+    data: string | Img | Maps;
+}
+
+export interface MessageCreationMultipleChannels {
+    channels: string[];
+    parent: string | undefined; // il messaggio a cui risponde
+    content: MessageContent;
 }
 
 export const MessageModelName = 'Message';

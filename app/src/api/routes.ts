@@ -12,6 +12,7 @@ export const apiUserInvitations = `${apiUserBase}/invitations`;
 export const apiUserPayDebt = `${apiUserBase}/pay-debt`;
 export const apiUserNotifications = `${apiUserBase}/notifications`;
 export const apiUserSetNotification = `${apiUserBase}/notification/{0}`;
+export const getUserChannelSuggestions = `${apiUserBase}/suggestions`;
 
 export const apiQuotaBase = `${apiBase}/user/quota`;
 export const apiQuota = `${apiQuotaBase}/buy`;
@@ -25,9 +26,10 @@ export const apiChangePassword = `${apiAuthUserBase}/{0}/change-password`;
 export const apiChangeUsername = `${apiAuthUserBase}/{0}/change-username`;
 
 export const apiMessageBase = `${apiBase}/message`;
-export const apiFeedBase = `${apiBase}/feed`;
+export const apiMessageMultiple = `${apiMessageBase}/multiple`;
 export const apiMessageReaction = `${apiMessageBase}/{0}/reaction`;
 export const apiMessageParent = `${apiMessageBase}/{0}`;
+export const apiFeedBase = `${apiBase}/feed`;
 
 export const apiChannelBase = `${apiBase}/channel`;
 export const apiChannels = `${apiChannelBase}/channels`;
@@ -40,8 +42,16 @@ export const apiChannelNotify = `${apiChannelBase}/{0}/notify`;
 export const apiChannelJoin = `${apiChannelBase}/{0}/join`;
 export const apiChannelLeave = `${apiChannelBase}/{0}/leave`;
 export const apiChannelCreate = `${apiChannelBase}/create`;
+export const apiChannelDelete = `${apiChannelBase}/{0}/delete`;
 export const apiBuyChannel = `${apiChannelBase}/create`;
 export const apiChannelChangeDescription = `${apiChannelBase}/{0}/description`;
+export const getChannelSuggestions = `${apiChannelBase}/suggestions`;
+export const getHashtabChannelSuggestions = `${apiChannelBase}/suggestions/hashtag`;
+
+export const apiSmmBase = `${apiBase}/smm`;
+export const apiSmmDeleteRequest = `${apiSmmBase}/delete-request`;
+export const apiSmmSendRequest = `${apiSmmBase}/send-request/{0}`;
+export const apiSmmMyRequests = `${apiSmmBase}/my-request`;
 
 export const apiTemporized = `${apiBase}/temporizzati`;
 

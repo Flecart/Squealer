@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import { type Img, type Maps, type SupportedContent } from '@model/message';
+import type * as mongoose from 'mongoose';
+import type { Img, Maps, SupportedContent } from '@model/message';
 
 export type TempSupportedContent = SupportedContent | 'wikipedia';
 

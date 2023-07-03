@@ -1,6 +1,7 @@
 {
-    "short_name": "React App",
-    "name": "Create React App Sample",
+    "short_name": "Squealer",
+    "name": "Squealer social media application",
+    "description": "A social media application for sharing your thoughts and opinions",
     "icons": [
         {
             "src": "drib_vulture-rounded.png",
@@ -11,15 +12,24 @@
             "src": "drib_vulture-rounded.png",
             "type": "image/png",
             "sizes": "192x192"
-        },
-        {
-            "src": "logo512.png",
-            "type": "image/png",
-            "sizes": "512x512"
         }
     ],
     "start_url": ".",
     "display": "standalone",
     "theme_color": "#000000",
-    "background_color": "#ffffff"
+    "background_color": "#000000",
+    "shortcuts": [
+        {
+            "name": "Moderator dashboard for Squealer",
+            "short_name": "Moddash",
+            "description": "Website for Squealer moderators to manage the application",
+            "url": "/moddash"
+        },
+        {
+            "name": "Social media managers application",
+            "short_name": "SMM",
+            "description": "Website for Squealer social media managers to manage his clients",
+            "url": "/smm"
+        }
+    ]
 }

@@ -1,17 +1,18 @@
 import request from 'supertest';
-import { baseUrl, createUserRoute, apiRoleRoute, 
+import {
+    baseUrl, createUserRoute, apiRoleRoute,
     channelCreateRoute, Credentials, messageCreateRoute,
-    addClientRoute,
     joinChannelRoute,
     addReactionRoute,
     checkAndReportStatus
- } from './globals';
+} from './globals';
 import { ChannelInfo, ChannelType } from '@model/channel';
 import assert from 'node:assert'
 import { randomTwits } from './readscript';
 import { IReactionType, MessageCreation, MessageCreationRensponse } from '@model/message';
 import { DEFAULT_QUOTA } from '@config/api'
 import { stringFormat } from "@app/utils"
+import { addClientToSmm } from './general';
 
 // the format is Name, Password,
 // Note: the name != username!!! username is always lowercase
@@ -88,21 +89,15 @@ async function createUsers() {
 
         if (role === 'smm') {
             // add clients to fvsmm
-            const clients = proAccounts.map(([username, _]) => username);
-            for (const client of clients) {
-                console.log()
-                const res = await request(baseUrl)
-                    .post(stringFormat(addClientRoute, [client.toLocaleLowerCase()]))
-                    .set('Authorization', `Bearer ${loginTokens.get('fvSMM')}`)
-                    .send({
-                        role,
-                        client,
-                    })
-                
-                checkAndReportStatus(res, 200, `Error adding client ${client.toLocaleLowerCase()} to fvSMM`);
-            }
+            await addClientToSmm(
+                proAccounts.map(([username, _]) => username),
+                'fvSMM',
+                loginTokens
+            )
+            console.log(`added all clients to fvsmm`)
         }
     });
+
     await Promise.all(promise);
 }
 
@@ -110,12 +105,6 @@ async function createUsers() {
 
 // Create default channels
 
-const squealerChannels = [
-    "NEWS",
-    "EMERGENCY",
-    "CONTROVERSIAL",
-    "RANDOM"
-]
 
 const publicNormalChannels = [
     "rai_tv",
@@ -143,7 +132,6 @@ const hashTagChannels = [
 ]
 
 const channels = [
-    ...squealerChannels,
     ...publicNormalChannels,
     ...privateNormalChannels,
     ...hashTagChannels,
@@ -152,9 +140,7 @@ const channels = [
 const allMessages: MessageCreationRensponse[] = [];
 
 const getChannelType = (channelName: string) => {
-    if (squealerChannels.includes(channelName)) {
-        return ChannelType.SQUEALER;
-    } else if (publicNormalChannels.includes(channelName)) {
+    if (publicNormalChannels.includes(channelName)) {
         return ChannelType.PUBLIC;
     } else if (privateNormalChannels.includes(channelName)) {
         return ChannelType.PRIVATE;
@@ -165,13 +151,8 @@ const getChannelType = (channelName: string) => {
     }
 }
 
-const getUserFromChannel = (channelName: string): string => {
-    if (squealerChannels.includes(channelName)) {
-        return 'fvMod';
-    } else {
-        // return a random choice from users
-        return Array.from(users.keys())[Math.floor(Math.random() * users.size)] as string;
-    }
+const getUserFromChannel = (_: string): string => {
+    return Array.from(users.keys())[Math.floor(Math.random() * users.size)] as string;
 }
 
 async function createChannelsJoinsMessages() {

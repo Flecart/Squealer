@@ -7,7 +7,7 @@ import Logout from './views/Logout';
 import Register from './views/Register';
 import { AuthContext } from './contexts';
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import AddPost from './views/AddPost';
 import Message from './views/Message';
 import Settings from './views/Settings';
@@ -25,15 +25,21 @@ interface Props {
 const ProtectedRoute = ({ children }: Props): JSX.Element => {
     const [authState, setAuth] = useContext(AuthContext);
 
+    useEffect(() => {
+        if (authState === null || isTokenExpired(authState.token)) {
+            setAuth(null);
+            return () => {
+                <Navigate to="/login" replace />;
+            };
+        }
+
+        return () => {};
+    }, [authState]);
+
     const isTokenExpired = (token: string): boolean => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return Date.now() >= JSON.parse(window.atob(token.split('.')[1] as string)).exp * 1000;
     };
-
-    if (authState === null || isTokenExpired(authState.token)) {
-        setAuth(null);
-        return <Navigate to="/login" replace />;
-    }
 
     return children;
 };

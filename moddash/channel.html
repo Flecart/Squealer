@@ -30,8 +30,9 @@
         <link href="/moddash/sidebar.css" rel="stylesheet" />
 
         <script type="module" defer>
-            import { updateRole } from '/moddash/channels.js';
+            import { updateRole, deleteChannel } from '/moddash/channels.js';
             window.updateRole = updateRole;
+            window.deleteChannel = deleteChannel;
         </script>
         <script type="module" src="/moddash/sidebar.js" defer></script>
 
@@ -43,7 +44,7 @@
         <script id="channel-component-template" type="text/x-handlebars-template">
             {{#if first}}
                 <div class="alert alert-info">
-                    Fai una richieta per listare i canali
+                    Make a request in order to list the channels
                 </div>
             {{/if}}
             {{#if loading}}
@@ -139,7 +140,6 @@
                                                             aria-label='select privilege'
                                                         >
                                                             <option value='read'>Read</option>
-                                                            <option value='write'>Write</option>
                                                             <option value='readwrite'>Read and Write</option>
                                                             <option value='owner'>Owner</option>
                                                         </select>
@@ -153,7 +153,16 @@
                                             {{/each}}
                                         </ul>
                                     {{/if}}
-
+                                    <div class=''>
+                                        <button
+                                            type='button'
+                                            class='btn btn-danger'
+                                            data-bs-dismiss='modal'
+                                            onclick='deleteChannel("{{name}}")'
+                                        >
+                                            Delete Channel
+                                        </button>
+                                        </div>
                                 </div>
                             </div>
                         </div>
@@ -240,14 +249,14 @@
                 </nav>
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                     <form class="mt-1">
-                        <label class="form-label" for="channel"> Cerca nome canale: </label>
+                        <label class="form-label" for="channel"> Channel Name: </label>
                         <input type="text" id="search-channel" name="channel" class="form-control" />
-                        <label class="form-label" for="sortby-channel"> Ordina per: </label>
+                        <label class="form-label" for="sortby-channel"> Sort by: </label>
                         <select class="form-select" id="sortby-channel">
-                            <option value="nuser">Utenti</option>
-                            <option value="npost">Numero di Post</option>
+                            <option value="nuser">Number of users</option>
+                            <option value="npost">Number of posts</option>
                         </select>
-                        <label class="form-label" for="limit-channel"> Limite: </label>
+                        <label class="form-label" for="limit-channel"> Limit: </label>
                         <input
                             type="number"
                             id="limit-channel"
@@ -257,7 +266,7 @@
                             min="1"
                             max="300"
                         />
-                        <button type="button" class="btn btn-primary" id="filter-channel">Filtra</button>
+                        <button type="button" class="btn btn-primary mt-2" id="filter-channel">Search channels</button>
                     </form>
                     <div id="main-content" class="mt-2"></div>
                 </main>

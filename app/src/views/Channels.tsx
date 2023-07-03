@@ -174,7 +174,7 @@ export default function Channels(): JSX.Element {
         if (error !== null)
             return (
                 <Stack className="text-center justify-content-center">
-                    <h1>Errore</h1>
+                    <h1>Error</h1>
                     <Alert variant="danger">{error}</Alert>
                 </Stack>
             );

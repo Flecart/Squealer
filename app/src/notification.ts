@@ -8,6 +8,9 @@ let notification: NotificationRensponse = {
 let listeners: Array<() => void> = [];
 
 export const NotificationStore = {
+    getLength() {
+        return notification.message.length + notification.invitation.length;
+    },
     setNotification(newNotification: NotificationRensponse) {
         if (
             notification.message.length === newNotification.message.length &&

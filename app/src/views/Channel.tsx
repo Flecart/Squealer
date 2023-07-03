@@ -19,6 +19,7 @@ import { type AuthResponse } from '@model/auth';
 import MessageSortComponent from 'src/components/MessageSortComponent';
 import { getUsernameFromUserChannel, stringFormat } from '../utils';
 import MessageListPageLoader from 'src/components/MessageListPagerLoader';
+import 'src/scss/Post.scss';
 
 interface HeaderChannelProps {
     channel: IChannel | null;
@@ -50,8 +51,21 @@ export default function Channel(): JSX.Element {
                     setChannel(() => channel);
                 },
                 (error) => {
-                    if (error.status === 404) navigate('/404');
-                    setError(() => error.message);
+                    if (error.status === 404) {
+                        if (channelId?.startsWith('#') === true) {
+                            setChannel({
+                                name: channelId,
+                                type: ChannelType.HASHTAG,
+                                description: `Messages with ${channelId} as destination will appear here`,
+                                users: [],
+                                messages: [],
+                            });
+                        } else {
+                            navigate('/404');
+                        }
+                    } else {
+                        setError(() => error.message);
+                    }
                 },
             );
     }, [channelId]);
@@ -192,18 +206,28 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
 
     return (
         <>
-            {!join ? (
-                <span className="gap-2" onClick={toggleJoin}>
-                    Entra
-                    <Icon.BoxArrowInLeft />
-                </span>
-            ) : (
-                <>
-                    <span className="gap-2" onClick={toggleJoin}>
-                        Esci <Icon.BoxArrowLeft />
-                    </span>
-                    <span onClick={toggleNotification}>{notification ? <Icon.Bell /> : <Icon.BellSlash />}</span>
-                </>
+            <Button variant="outline-light" className="gap-2 reaction-button" onClick={toggleJoin}>
+                {!join ? (
+                    <>
+                        <span className="pe-2">Enter</span>
+                        <Icon.BoxArrowInLeft aria-hidden />
+                    </>
+                ) : (
+                    <>
+                        <span className="pe-2">Exit</span>
+                        <Icon.BoxArrowLeft aria-hidden />
+                    </>
+                )}
+            </Button>
+            {join && (
+                <button
+                    className="btn rounded-pill sideButton d-flex d-row align-items-center justify-content-evenly"
+                    onClick={toggleNotification}
+                    aria-label={`Toggle notification ${notification ? 'on' : 'off'}`}
+                    title={`Toggle notification ${notification ? 'on' : 'off'}`}
+                >
+                    {notification ? <Icon.Bell aria-hidden /> : <Icon.BellSlash aria-hidden />}
+                </button>
             )}
         </>
     );
@@ -267,8 +291,8 @@ function ChangeDescription({ channel, auth }: HeaderChannelProps): JSX.Element {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                            <Form.Label>Change channel description</Form.Label>
+                        <Form.Group className="mb-3" controlId="ChangeDescription">
+                            <Form.Label>Change Description</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={3}

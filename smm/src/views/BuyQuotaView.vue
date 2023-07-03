@@ -13,14 +13,8 @@ const quotaDay = computed<number>(() => {
 </script>
 
 <template>
-  <ChooseClientsVue />
-  <div class="form-container">
+  <div class="content">
+    <ChooseClientsVue />
     <BuyModalVue :username="currentClient.username" :urgent="quotaDay < urgentThreshold" />
   </div>
 </template>
-
-<style scoped>
-.form-container {
-  width: 70%;
-}
-</style>

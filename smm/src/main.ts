@@ -1,8 +1,20 @@
 import Vue, { createApp, ref } from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import { getClientsRoute, router, redirectToLogin, getUserRoute } from './routes'
-import { authInject, clientInject, currentClientInject, smmUserInject } from './keys'
+import {
+  getClientsRoute,
+  router,
+  redirectToLogin,
+  getUserRoute,
+  noClientsErrorName
+} from './routes'
+import {
+  authInject,
+  clientInject,
+  currentClientInject,
+  sidebarShowInject,
+  smmUserInject
+} from './keys'
 
 import './assets/app.scss'
 import { UserRoles, type IUser } from '@model/user'
@@ -13,6 +25,9 @@ const isTokenExpired = (token: string) =>
   Date.now() >= JSON.parse(window.atob(token.split('.')[1])).exp * 1000
 
 const app = createApp(App)
+
+const sidebarShow = ref(true)
+app.provide(sidebarShowInject, sidebarShow)
 
 const authState = JSON.parse(localStorage.getItem('auth') ?? 'null')
 if (authState != null) {
@@ -31,7 +46,6 @@ if (authState != null) {
     })
 
   app.provide(authInject, authState)
-  console.log(authState)
   const response = await fetch(getClientsRoute, {
     headers: {
       'Content-Type': 'application/json',
@@ -42,10 +56,9 @@ if (authState != null) {
   app.provide(clientInject, clients)
 
   if (clients.length === 0) {
-    // TODO: if a smm user has no clients redirect to page that tells him
-    // how to gain clients and handle them.
+    router.push({ name: noClientsErrorName })
   } else {
-    let currentClient = ref<IUser>(clients[0] as IUser)
+    const currentClient = ref<IUser>(clients[0] as IUser)
     const setClient = (client: IUser) => {
       currentClient.value = client
     }

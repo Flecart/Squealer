@@ -1,12 +1,13 @@
 import { PermissionType, type IChannel } from '@model/channel';
 import { fetchApi } from 'src/api/fetch';
-import { apiChannelAddOwner, apiChannelSetPermission, apiUser } from 'src/api/routes';
+import { apiChannelAddOwner, apiChannelDelete, apiChannelSetPermission, apiUser } from 'src/api/routes';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Button, Card, Form, Image, Stack } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { AuthContext } from 'src/contexts';
 import { type ISuccessMessage, type IUser } from '@model/user';
 import { stringFormat } from 'src/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface PrompsChannelMembers {
     channel: IChannel;
@@ -26,6 +27,24 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
     const [error, setError] = useState<null | string>(null);
     const [pending, setPending] = useState(false);
     const [info, setInfo] = useState<null | string>(null);
+
+    const navigator = useNavigate();
+
+    const handleDelete = (): void => {
+        fetchApi<ISuccessMessage>(
+            stringFormat(apiChannelDelete, [channel.name]),
+            {
+                method: 'DELETE',
+            },
+            auth,
+            (_) => {
+                navigator('/');
+            },
+            (e) => {
+                setError(e.message);
+            },
+        );
+    };
 
     const sendInvite = (): void => {
         setPending(true);
@@ -78,6 +97,7 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                             Invite
                             <Icon.PersonAdd aria-hidden={true} size={19.2} className="w-50 ms-1" />
                         </Button>
+
                     </Form.Group>
                     {info !== null && <Alert variant="info">{info}</Alert>}
                     {error !== null && <Alert variant="danger">{error}</Alert>}
@@ -94,6 +114,20 @@ export default function ChannelMembers({ channel }: PrompsChannelMembers): JSX.E
                     <ChannelMember key={member.user} member={member} admin={isAdmin} channel={channel.name} />
                 ))}
             </Stack>
+            {isAdmin && (
+                <div>
+                    <Alert variant="dark" className="mt-4">
+                        <p>
+                            <br />
+                            <strong>DANGER: this action is inreversable</strong>
+                        </p>
+
+                        <Button variant="danger" onClick={handleDelete}>
+                            Delete Channel
+                        </Button>
+                    </Alert>
+                </div>
+            )}
         </>
     );
 }
@@ -219,8 +253,6 @@ function ChannelMember({
 
 function PrivilegeToIcon({ privilage }: { privilage: PermissionType }): JSX.Element {
     switch (privilage) {
-        case PermissionType.WRITE:
-            return <Icon.Pencil className="ms-1" width={20} height={20} aria-hidden={true} />;
         case PermissionType.READ:
             return <Icon.Eyeglasses className="ms-1" width={20} height={20} aria-hidden={true} />;
         case PermissionType.READWRITE:

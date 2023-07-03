@@ -1,5 +1,5 @@
 import { ICategory, type Maps, type IMessage } from '@model/message';
-import { type IUser } from '@model/user';
+import { type IUser, UserRoles } from '@model/user';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import Map from 'src/components/Map';
 import PostButtons from './PostButtons';
 import 'src/scss/Post.scss';
 import { Eye as EyeIcon } from 'react-bootstrap-icons';
+import * as Icon from 'react-bootstrap-icons';
 
 interface PostProps {
     message: IMessage;
@@ -124,7 +125,11 @@ function Post({ message }: PostProps): JSX.Element {
                             );
                         } else if (channelsRegex.test(part)) {
                             return (
-                                <a className="post-channel-link" href={`/channel/${part.slice(1)}`} key={index}>
+                                <a
+                                    className="post-channel-link"
+                                    href={`/channel/${part.startsWith('#') ? part : part.slice(1)}`}
+                                    key={index}
+                                >
                                     {part + ' '}
                                 </a>
                             );
@@ -151,26 +156,33 @@ function Post({ message }: PostProps): JSX.Element {
             <Col xs={10}>
                 <Container className="d-flex justify-content-center flex-column pb-4">
                     <Row>
-                        <div>
-                            <a href={profiloUrl} className="text-decoration-none ">
-                                <span className="fs-4 fw-bolder"> {user?.name}</span>
-                            </a>
-                            <a href={profiloUrl} className="text-decoration-none ">
-                                <address className="fw-light post-address"> @{user?.username} </address>
-                            </a>
-                            <time dateTime={message.date.toString()}>
-                                <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>
-                            </time>
-                            {message.channel !== undefined && (
-                                <span className="fw-light">
-                                    <Link to={`/channel/${message.channel}`}>{message.channel}</Link>
-                                </span>
-                            )}
-                            {categoryState !== 0 && (
-                                <span className={`container-fluid ${getCategoryClass(categoryState) ?? ''}`}>
-                                    {getCategoryText(categoryState)}
-                                </span>
-                            )}
+                        <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href={profiloUrl} className="text-decoration-none ">
+                                    <span className="fs-4 fw-bolder"> {user?.name}</span>
+                                </a>
+                                <a href={profiloUrl} className="text-decoration-none ">
+                                    <address className="fw-light post-address"> @{user?.username} </address>
+                                </a>
+                                {user?.role === UserRoles.VIP && <Icon.PatchCheckFill />}
+                                <time dateTime={message.date.toString()}>
+                                    <span className="fw-light"> {toHumanReadableDate(message.date.toString())} </span>
+                                </time>
+                                {message.channel !== undefined && (
+                                    <span className="fw-light">
+                                        <Link to={`/channel/${message.channel}`}>{message.channel}</Link>
+                                    </span>
+                                )}
+                                {categoryState !== 0 && (
+                                    <span className={`container-fluid ${getCategoryClass(categoryState) ?? ''}`}>
+                                        {getCategoryText(categoryState)}
+                                    </span>
+                                )}
+                            </div>
+                            <div title="total views">
+                                <span aria-label={toEnglishString(message.views) + ' views'}>{message.views}</span>{' '}
+                                <EyeIcon aria-hidden="true" />
+                            </div>
                         </div>
                     </Row>
                     <Row
@@ -197,12 +209,6 @@ function Post({ message }: PostProps): JSX.Element {
                                     Reply
                                 </Link>
                             )}
-                        </Col>
-                        <Col className="d-flex align-items-center">
-                            <div title="total views">
-                                <span aria-label={toEnglishString(message.views) + ' views'}>{message.views}</span>{' '}
-                                <EyeIcon aria-hidden="true" />
-                            </div>
                         </Col>
                     </Row>
                 </Container>

@@ -76,6 +76,30 @@ export class MessageService {
         } as IMessageWithPages;
     }
 
+    public async createMultiple(messages: MessageCreation[], username: string): Promise<MessageCreationRensponse[]> {
+        if (messages.length === 0) throw new HttpError(400, 'There should be at least one message');
+        const creator = await UserModel.findOne({ username: username });
+        if (!creator) {
+            throw new HttpError(404, 'Username not found');
+        }
+
+        let neededQuota = 0;
+        messages.forEach((message) => {
+            neededQuota += this._calculateMessageQuota(message.content);
+        });
+
+        if (!haveEnoughtQuota(creator, neededQuota)) {
+            throw new HttpError(400, 'Not enought quota for all messages');
+        }
+
+        let responses: MessageCreationRensponse[] = [];
+        for (let i = 0; i < messages.length; i++) {
+            responses.push(await this.create(messages[i] as MessageCreation, username));
+        }
+
+        return responses;
+    }
+
     public async create(message: MessageCreation, username: string): Promise<MessageCreationRensponse> {
         const creator = await UserModel.findOne({ username: username });
         if (!creator) {
@@ -98,9 +122,10 @@ export class MessageService {
             throw new HttpError(400, 'Invalid no parent nor channel');
         }
 
-        let [messageContent, lenChar] = await this._getMessageContent(message);
+        const messageContent = await this._getMessageContent(message);
+        const quotaUtilization = this._calculateMessageQuota(message.content);
 
-        await this._updateQuota(creator, lenChar);
+        await this._updateQuota(creator, quotaUtilization);
 
         const savedMessage = new MessageModel({
             channel: channel?.name,
@@ -149,14 +174,16 @@ export class MessageService {
         };
     }
 
-    public async getMessages(ids: string[]): Promise<IMessage[]> {
+    public async getMessages(ids: string[], countView?: boolean): Promise<IMessage[]> {
         //TODO: va tolta per metterci il feed al suo posto
         return await Promise.all(
             ids.map(async (id) => {
                 const rens = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
                 if (rens === null) throw new HttpError(404, 'Message not found');
-                rens.views++;
-                rens.save();
+                if (countView === null || countView === undefined || countView === true) {
+                    rens.views++;
+                    rens.save();
+                }
                 return rens;
             }),
         );
@@ -278,28 +305,25 @@ export class MessageService {
             }
 
             if (!canUserWriteTochannel(channel, username)) {
-                throw new HttpError(403, "You don't have the permission to write in this channel");
+                throw new HttpError(
+                    403,
+                    `You don't have the permission to write in ${channel.name}, join the channel first!`,
+                );
             }
         }
         return channel;
     }
 
-    private async _getMessageContent(message: MessageCreation): Promise<[IMessage['content'], number]> {
-        if (message.content.type === 'text') {
-            const data: string = message.content.data as string;
-            return [message.content, data.length];
+    private async _getMessageContent(message: MessageCreation): Promise<IMessage['content']> {
+        if (message.content.type === 'text' || message.content.type === 'maps') {
+            return message.content;
         } else if (message.content.type === 'image' || message.content.type === 'video') {
             const data: Express.Multer.File = message.content.data as Express.Multer.File;
             const path = await new UploadService().uploadFile(data);
-            return [
-                {
-                    type: message.content.type,
-                    data: path.path,
-                },
-                mediaQuotaValue,
-            ];
-        } else if (message.content.type === 'maps') {
-            return [message.content, mediaQuotaValue];
+            return {
+                type: message.content.type,
+                data: path.path,
+            };
         } else {
             throw new HttpError(400, `Message type ${message.content.type} is not supported`);
         }
@@ -330,6 +354,22 @@ export class MessageService {
         } else {
             throw new HttpError(403, 'Quota exceeded');
         }
+    }
+
+    private _calculateMessageQuota(messageContent: MessageCreation['content']): number {
+        let value = 0;
+        if (messageContent.type === 'text') {
+            const data: string = messageContent.data as string;
+            value = data.length;
+        } else if (
+            messageContent.type === 'image' ||
+            messageContent.type === 'video' ||
+            messageContent.type === 'maps'
+        ) {
+            value = mediaQuotaValue;
+        }
+
+        return value;
     }
 
     private async _addMaxQuota(username: string, quota: number): Promise<void> {
