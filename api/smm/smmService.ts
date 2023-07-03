@@ -39,6 +39,7 @@ export class SmmService {
             const smm = await this._checkAndGetSmm(client.smm);
             if (smm.clients) {
                 smm.clients = smm.clients.filter((c) => c !== clientUsername);
+                smm.markModified('clients');
                 await smm.save();
             }
             client.set('smm', undefined);

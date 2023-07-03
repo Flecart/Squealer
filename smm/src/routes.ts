@@ -105,7 +105,6 @@ router.beforeEach((to, _) => {
   const injectedClients = injectClients()
 
   if (to.name != noClientsErrorName && (!injectedClients || injectedClients.length == 0)) {
-    console.log(injectedClients)
     router.push({ name: noClientsErrorName })
   }
 
