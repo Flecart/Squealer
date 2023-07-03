@@ -14,12 +14,13 @@ const menuSize = (parseInt(LogoSize) - 10).toString();
 function NotificationHeader(): JSX.Element {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const notification = useSyncExternalStore(NotificationStore.subscribe, NotificationStore.getSnapshot);
+    const len = notification.message.length + notification.invitation.length;
     return (
         <>
             {' '}
-            {notification.length > 0 ? (
+            {len > 0 ? (
                 <Stack direction="horizontal" gap={1}>
-                    <span className="badge bg-danger">{notification.length}</span>
+                    <span className="badge bg-danger">{}</span>
                     <Icon.InboxFill aria-hidden="true" width={notifSize} height={notifSize} className="d-flex" />
                 </Stack>
             ) : (

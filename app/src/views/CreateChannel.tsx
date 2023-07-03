@@ -79,7 +79,7 @@ export function CreateChannel(): JSX.Element {
                     <Form.Label>Channel Type</Form.Label>
                     <Form.Select
                         onChange={(e) => {
-                            setChannelType(e.target.value);
+                            setChannelType(e.target.value as ChannelType);
                         }}
                     >
                         {type.map((t) => (
