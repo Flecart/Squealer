@@ -10,6 +10,7 @@ import { IMessage, IReactionType } from '@model/message';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { ADMIN_USER } from '@config/config';
 import { ChannelSortBy, ChannelType, IChannel, PermissionType } from '@model/channel';
+import { ChannelService } from '@api/channel/channelService';
 
 export interface FilterPosts {
     username?: string;
@@ -201,5 +202,10 @@ export class ModdashService {
         await channel.save();
 
         return;
+    }
+
+    public async deleteChannel(username: string, channelName: string): Promise<any> {
+        this._checkModerator(username);
+        return await new ChannelService().deleteChannel(channelName, username, false);
     }
 }

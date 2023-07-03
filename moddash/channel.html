@@ -30,8 +30,9 @@
         <link href="/moddash/sidebar.css" rel="stylesheet" />
 
         <script type="module" defer>
-            import { updateRole } from '/moddash/channels.js';
+            import { updateRole, deleteChannel } from '/moddash/channels.js';
             window.updateRole = updateRole;
+            window.deleteChannel = deleteChannel;
         </script>
         <script type="module" src="/moddash/sidebar.js" defer></script>
 
@@ -139,7 +140,6 @@
                                                             aria-label='select privilege'
                                                         >
                                                             <option value='read'>Read</option>
-                                                            <option value='write'>Write</option>
                                                             <option value='readwrite'>Read and Write</option>
                                                             <option value='owner'>Owner</option>
                                                         </select>
@@ -153,7 +153,16 @@
                                             {{/each}}
                                         </ul>
                                     {{/if}}
-
+                                    <div class=''>
+                                        <button
+                                            type='button'
+                                            class='btn btn-danger'
+                                            data-bs-dismiss='modal'
+                                            onclick='deleteChannel("{{name}}")'
+                                        >
+                                            Delete Channel
+                                        </button>
+                                        </div>
                                 </div>
                             </div>
                         </div>

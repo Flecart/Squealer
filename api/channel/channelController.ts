@@ -1,4 +1,4 @@
-import { Query, Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@tsoa/runtime';
+import { Delete, Query, Body, Post, Route, Get, Response, SuccessResponse, Controller } from '@tsoa/runtime';
 import { ChannelService } from './channelService';
 import { HttpError } from '@model/error';
 import { Path, Put, Security, Request } from '@tsoa/runtime';
@@ -177,7 +177,7 @@ export class ChannelController extends Controller {
         return new ChannelService().leaveChannel(channelName, getUserFromRequest(request));
     }
 
-    @Post('{channelName}/delete')
+    @Delete('{channelName}/delete')
     @Security('jwt')
     @Response<HttpError>(400, 'Bad Request')
     @SuccessResponse(200, 'Channel deleted')
@@ -185,7 +185,8 @@ export class ChannelController extends Controller {
         @Path('channelName') channelName: string,
         @Request() request: any,
     ): Promise<ChannelResponse> {
-        return new ChannelService().deleteChannel(channelName, getUserFromRequest(request));
+        channelLogger.info(`User ${getUserFromRequest(request)} deleting channel ${channelName}`);
+        return new ChannelService().deleteChannel(channelName, getUserFromRequest(request), true);
     }
 
     @Post('{channelName}/set-permission')
