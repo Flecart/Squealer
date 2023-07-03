@@ -37,7 +37,7 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
         if (messages === null && error === null) {
             return (
                 <div className="d-flex justify-content-center">
-                    <Spinner animation="border" role="status" />
+                    <Spinner className="m-1" animation="border" role="status" />
                 </div>
             );
         } else if (messages === null) {

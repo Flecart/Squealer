@@ -34,7 +34,7 @@ export function MakeFeed(): JSX.Element {
         else if (error == null)
             return (
                 <Container className="justify-content-center d-flex">
-                    <Spinner animation="border" role="status">
+                    <Spinner className="m-1" animation="border" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </Spinner>
                 </Container>
