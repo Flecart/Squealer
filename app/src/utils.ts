@@ -11,7 +11,7 @@ export function toHumanReadableDate(datestring: string): string {
     const diff = currentDate.getTime() - date.getTime();
 
     if (diff < hour) {
-        const minutes = Math.floor(diff / minute);
+        const minutes = Math.max(Math.floor(diff / minute), 0);
         if (minutes === 0) {
             return 'ora';
         }
