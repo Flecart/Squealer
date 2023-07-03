@@ -18,6 +18,7 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
     const currentInput = useRef<string>('');
     const [state, setState] = useState<State>({
         loading: true,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         currentSmm: user.smm !== undefined ? user.smm : (null as string | null),
         error: null,
         currentRequest: null,
