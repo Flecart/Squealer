@@ -319,23 +319,23 @@
                 </nav>
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                     <form class="mt-1">
-                        <label class="form-label" for="channel"> Filtra per canale: </label>
+                        <label class="form-label" for="channel"> Filter by channel: </label>
                         <input type="text" id="channel" name="channel" class="form-control" />
-                        <label class="form-label" for="author"> Filtra per autore: </label>
+                        <label class="form-label" for="author"> Filter by author: </label>
                         <input type="text" id="author" name="author" class="form-control" />
-                        <label class="form-label" for="from-date"> Dalla data </label>
+                        <label class="form-label" for="from-date"> From date </label>
                         <input type="date" id="from-date" name="from-date" class="form-control" />
-                        <label class="form-label" for="to-date"> Alla data </label>
+                        <label class="form-label" for="to-date"> To date </label>
                         <input type="date" id="to-date" name="to-date" class="form-control" />
-                        <label class="form-label" for="message-type"> Filtra per tipo di messaggio: </label>
+                        <label class="form-label" for="message-type"> Filter by message type: </label>
                         <select id="message-type" class="form-select" aria-label="message-type">
                             <option selected value="all">All</option>
-                            <option value="text">Testo</option>
-                            <option value="image">Immagine</option>
+                            <option value="text">Text</option>
+                            <option value="image">Image</option>
                             <option value="video">Video</option>
-                            <option value="maps">Mappa</option>
+                            <option value="maps">Maps</option>
                         </select>
-                        <label class="form-label" id="limit"> Limitere i risultati a </label>
+                        <label class="form-label" id="limit"> Limit of results is: </label>
                         <input
                             type="number"
                             id="limit"
@@ -345,7 +345,7 @@
                             value="20"
                             class="form-control"
                         />
-                        <button type="button" class="btn btn-primary" id="filter-user">Filtra</button>
+                        <button type="button" class="btn btn-primary mt-2" id="filter-user">Filter messages</button>
                     </form>
                     <div id="main-content" class="mt-2"></div>
                 </main>

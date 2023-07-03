@@ -32,18 +32,18 @@ export function SideBar(): JSX.Element {
             {authState !== null ? (
                 <>
                     <SideButton to="/search" name="Search" SideIcon={Icon.Search} />
-                    <SideButton to="/settings" name="Impostazioni" SideIcon={Icon.GearFill} />
+                    <SideButton to="/settings" name="Settings" SideIcon={Icon.GearFill} />
 
                     <SideButton to="/logout" name="Logout" SideIcon={Icon.BoxArrowLeft} />
 
-                    <SideButton to={`/user/${authState.username}`} name="Profilo" SideIcon={Icon.PersonFill} />
+                    <SideButton to={`/user/${authState.username}`} name="Profile" SideIcon={Icon.PersonFill} />
 
-                    <SideButton to="/addpost" name="Nuovo Post" SideIcon={Icon.PencilSquare} />
+                    <SideButton to="/addpost" name="New Post" SideIcon={Icon.PencilSquare} />
 
                     {role === UserRoles.SMM && (
                         <SideButton
                             to={`${squealerBaseUrl}/smm`}
-                            name="Smm page"
+                            name="To SMM App"
                             SideIcon={Icon.ClipboardData}
                             isExternal={true}
                         />
@@ -51,7 +51,7 @@ export function SideBar(): JSX.Element {
                     {role === UserRoles.MODERATOR && (
                         <SideButton
                             to={`${squealerBaseUrl}/moddash`}
-                            name="Moddash"
+                            name="To Mod Dashboard"
                             SideIcon={Icon.ClipboardData}
                             isExternal={true}
                         />
@@ -61,12 +61,12 @@ export function SideBar(): JSX.Element {
                 <>
                     <SideButton to="/login" name="Login" SideIcon={Icon.BoxArrowInLeft} />
 
-                    <SideButton to="/create" name="Registrati" SideIcon={Icon.FileTextFill} />
+                    <SideButton to="/create" name="Register" SideIcon={Icon.FileTextFill} />
 
                     <SideButton to="/recover" name="Reset" SideIcon={Icon.ShieldLockFill} />
                 </>
             )}
-            <SideButton to="/channels" name="Esplora Canali" SideIcon={Icon.People} />
+            <SideButton to="/channels" name="Explore Channels" SideIcon={Icon.People} />
         </Navbar>
     );
 }
