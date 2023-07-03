@@ -105,12 +105,6 @@ async function createUsers() {
 
 // Create default channels
 
-const squealerChannels = [
-    "NEWS",
-    "EMERGENCY",
-    "CONTROVERSIAL",
-    "RANDOM"
-]
 
 const publicNormalChannels = [
     "rai_tv",
@@ -138,7 +132,6 @@ const hashTagChannels = [
 ]
 
 const channels = [
-    ...squealerChannels,
     ...publicNormalChannels,
     ...privateNormalChannels,
     ...hashTagChannels,
@@ -147,9 +140,7 @@ const channels = [
 const allMessages: MessageCreationRensponse[] = [];
 
 const getChannelType = (channelName: string) => {
-    if (squealerChannels.includes(channelName)) {
-        return ChannelType.SQUEALER;
-    } else if (publicNormalChannels.includes(channelName)) {
+    if (publicNormalChannels.includes(channelName)) {
         return ChannelType.PUBLIC;
     } else if (privateNormalChannels.includes(channelName)) {
         return ChannelType.PRIVATE;
@@ -160,13 +151,8 @@ const getChannelType = (channelName: string) => {
     }
 }
 
-const getUserFromChannel = (channelName: string): string => {
-    if (squealerChannels.includes(channelName)) {
-        return 'fvMod';
-    } else {
-        // return a random choice from users
-        return Array.from(users.keys())[Math.floor(Math.random() * users.size)] as string;
-    }
+const getUserFromChannel = (_: string): string => {
+    return Array.from(users.keys())[Math.floor(Math.random() * users.size)] as string;
 }
 
 async function createChannelsJoinsMessages() {
