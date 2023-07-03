@@ -35,7 +35,11 @@ export default function Message(): JSX.Element {
 
     function MainPost(): JSX.Element {
         if (message === null && error === null) {
-            return <Spinner animation="border" role="status" />;
+            return (
+                <div className="d-flex justify-content-center">
+                    <Spinner animation="border" role="status" />;
+                </div>
+            );
         } else if (message === null) {
             return <Alert variant="danger">{error}</Alert>;
         } else {
