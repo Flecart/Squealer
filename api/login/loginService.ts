@@ -46,6 +46,16 @@ export class LoginService {
         throw new HttpError(401, 'Invalid username or password, cant login');
     }
 
+    public async changeImage(user: string, img: string): Promise<string> {
+        const userRes = await UserModel.findOne({ username: user });
+        if (userRes === null) {
+            throw new HttpError(400, 'User not found');
+        }
+        userRes.profile_pic = img;
+        await userRes.save();
+        return 'success';
+    }
+
     public async changePassword(
         old_password: string,
         new_password: string,

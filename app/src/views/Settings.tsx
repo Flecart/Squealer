@@ -13,6 +13,7 @@ import { stringFormat } from 'src/utils';
 import { UserRoles, type IUser } from '@model/user';
 import { apiUser } from 'src/api/routes';
 import ChangeSMM from 'src/components/settings/ChangeSMM';
+import ChangeProfilePicture from 'src/components/settings/ChangeProfilePicture';
 
 export default function Settings(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -43,6 +44,14 @@ export default function Settings(): JSX.Element {
                 {authState !== null && (
                     <Stack className="d-flex rounded  p-2">
                         <Accordion>
+                            {user !== null && (
+                                <Accordion.Item eventKey="6">
+                                    <Accordion.Header>Change Profile Picture</Accordion.Header>
+                                    <Accordion.Body>
+                                        <ChangeProfilePicture user={user} />
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                            )}
                             <Accordion.Item eventKey="0">
                                 <Accordion.Header>Change Name</Accordion.Header>
                                 <Accordion.Body>
@@ -75,7 +84,7 @@ export default function Settings(): JSX.Element {
                             </Accordion.Item>
                             {user !== null && user.role === UserRoles.VIP && (
                                 <Accordion.Item eventKey="5">
-                                    <Accordion.Header>Set SMM</Accordion.Header>
+                                    <Accordion.Header>Set Your SMM</Accordion.Header>
                                     <Accordion.Body>
                                         <ChangeSMM user={user} />
                                     </Accordion.Body>

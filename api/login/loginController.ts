@@ -1,10 +1,22 @@
-import { Body, Get, Post, Route, Request, Response, SuccessResponse, Controller, Security } from '@tsoa/runtime';
+import {
+    UploadedFile,
+    Body,
+    Get,
+    Post,
+    Route,
+    Request,
+    Response,
+    SuccessResponse,
+    Controller,
+    Security,
+} from '@tsoa/runtime';
 import { LoginService } from './loginService';
 import { type AuthResponse } from '@model/auth';
 import { HttpError } from '@model/error';
 import { getUserFromRequest } from '@api/utils';
 
 import logger from '@server/logger';
+import { UploadService } from '@api/upload/uploadService';
 
 const loginLogger = logger.child({ label: 'login' });
 
@@ -67,6 +79,21 @@ export class LoginController extends Controller {
             password_change.new_password,
             getUserFromRequest(request),
         );
+    }
+
+    @Post('user/{username}/change-image')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(200, 'Image changed')
+    public async changeImage(
+        @Request() request: any,
+        @UploadedFile('file') file?: Express.Multer.File,
+    ): Promise<string> {
+        loginLogger.info(`[changeImage] with username '${getUserFromRequest(request)}'`);
+        console.log(file);
+        if (file == null) throw new HttpError(400, 'No file provided');
+        const path = await new UploadService().uploadFile(file);
+        return new LoginService().changeImage(getUserFromRequest(request), '/' + path.path);
     }
 
     @Post('user/{username}/change-name')
