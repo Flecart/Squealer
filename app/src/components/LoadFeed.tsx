@@ -6,7 +6,7 @@ import { AuthContext } from '../contexts';
 import MessageListPageLoader from './MessageListPagerLoader';
 
 export function MakeFeed(): JSX.Element {
-    // TODO: gestire il caricamento etc
+    // TODO: gestire il caricamento etc ??
     const [contents, setContents] = useState<string[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [authState] = useContext(AuthContext);
@@ -41,9 +41,9 @@ export function MakeFeed(): JSX.Element {
             );
         else
             return (
-                <Container className="justify-content-center d-flex">
+                <Container className="justify-content-center d-flex flex-column">
                     <p>{error}</p>
-                    <Button onClick={loadFeed}>Retry</Button>
+                    <Button onClick={loadFeed}>Retry Loading messages</Button>
                 </Container>
             );
     }

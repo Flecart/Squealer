@@ -64,7 +64,7 @@ export default function Message(): JSX.Element {
                             navigate(`/message/${message.parent.toString()}`);
                         }}
                     >
-                        Commento Padre
+                        Go to Main message
                     </Button>
                 );
         return <></>;

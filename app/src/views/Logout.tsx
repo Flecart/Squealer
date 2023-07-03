@@ -22,19 +22,19 @@ export default function Logout(): JSX.Element {
             <Container className="d-flex text-center flex-column justify-content-center p-4">
                 {authState === null ? (
                     <Container>
-                        <h3>Non sei loggato</h3>
+                        <h3>You are not logged</h3>
                         <Button
                             onClick={() => {
                                 navigate('/login');
                             }}
                         >
-                            Login
+                            To Login
                         </Button>
                     </Container>
                 ) : (
                     <Container className="d-flex text-center flex-column justify-content-center p-4">
-                        <h3>Attualmente sei loggato come {authState?.username}</h3>
-                        <Button onClick={handleLogout}>LogOut</Button>
+                        <h3>In this moment you are logged as {authState?.username}</h3>
+                        <Button onClick={handleLogout}>Logout</Button>
                     </Container>
                 )}
             </Container>
