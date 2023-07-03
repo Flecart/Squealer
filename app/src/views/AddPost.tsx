@@ -258,7 +258,7 @@ export default function AddPost(): JSX.Element {
     const sendMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
-            let channels = destinations;
+            const channels = destinations;
             if (debt !== 0) {
                 setPayDebt(true);
                 return;
@@ -271,8 +271,7 @@ export default function AddPost(): JSX.Element {
             }
 
             if (parent !== undefined) {
-                if (displayParent instanceof Object) channels = [displayParent.channel];
-                else {
+                if (!(displayParent instanceof Object)) {
                     setError(() => 'Parent not found');
                     return;
                 }
@@ -425,7 +424,7 @@ export default function AddPost(): JSX.Element {
                 e.preventDefault();
             }
 
-            if (currentChannel.length > 0) {
+            if (suggestions.length > 0) {
                 if (e.key === 'ArrowUp') {
                     setActiveSuggestionIdx((value) => Math.max(0, value - 1));
                 } else if (e.key === 'ArrowDown') {
@@ -482,9 +481,7 @@ export default function AddPost(): JSX.Element {
 
             fetchApi<ISuggestion[]>(
                 `${suggestionUrl}?${searchParamsString}`,
-                {
-                    method: 'GET',
-                },
+                { method: 'GET' },
                 authState,
                 (elements: ISuggestion[]) => {
                     setSuggestions([]);
