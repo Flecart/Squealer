@@ -97,7 +97,12 @@ export function ChannelListLoader({ channels }: ChannelListLoaderProps): JSX.Ele
 
     function Content(): JSX.Element {
         if (state.error !== null) return <Alert variant="danger">{state.error}</Alert>;
-        if (state.loading) return <Spinner animation="border" variant="primary" />;
+        if (state.loading)
+            return (
+                <div className="d-flex justify-content-center">
+                    <Spinner animation="border" variant="primary" />;
+                </div>
+            );
         if (state.channel !== null && state.user !== null)
             return <ChannelList channels={state.channel} user={state.user} />;
 

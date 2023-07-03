@@ -35,7 +35,11 @@ export default function MessageListLoader({ childrens }: PropsMessageIds): JSX.E
 
     const Posts = useCallback(() => {
         if (messages === null && error === null) {
-            return <Spinner animation="border" role="status" />;
+            return (
+                <div className="d-flex justify-content-center">
+                    <Spinner className="m-1" animation="border" role="status" />
+                </div>
+            );
         } else if (messages === null) {
             return <Alert variant="danger">{error}</Alert>;
         }
