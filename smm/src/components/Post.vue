@@ -12,8 +12,6 @@ const props = defineProps<{
   showType: ShowType
 }>()
 
-console.log(props.showType)
-
 const negativeScore = computed(() => {
   return props.message.reaction.reduce((acc: number, curr: IReaction) => {
     switch (curr.type) {
