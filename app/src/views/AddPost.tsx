@@ -529,16 +529,23 @@ export default function AddPost(): JSX.Element {
         }, [currentChannel]);
 
         function addChannelPrefix(channel: string, type: SearchType): string {
+            let finalString = channel;
             switch (type) {
                 case SearchType.Hashtag:
-                    return '#' + channel;
+                    if (!channel.startsWith('#')) {
+                        finalString = '#' + channel;
+                    }
+                    break;
                 case SearchType.User:
-                    return '@' + channel;
+                    if (!channel.startsWith('@')) {
+                        finalString = '@' + channel;
+                    }
+                    break;
                 case SearchType.Channel:
-                    return channel;
                 default:
-                    return channel;
+                    break;
             }
+            return finalString;
         }
 
         return (
