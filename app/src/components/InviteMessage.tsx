@@ -62,13 +62,18 @@ function InviteMessage({ invitation }: PostProps): JSX.Element {
                     <Stack className="" as="article" role="article" gap={3}>
                         <Container className="d-flex justify-content-center ">
                             <span>
-                                {"L'utente "} <Link to={userUrl}>{invitation.issuer}</Link> ti ha invitato in ad unirti
-                                al canale
+                                User <Link to={userUrl}>{invitation.issuer}</Link>
+                                invited you to join th channel
                                 <Link to={channelUrl}> {invitation.channel} </Link>
                             </span>
                         </Container>
                         <Stack direction="horizontal" gap={4} className="justify-content-center">
-                            <Button onClick={accept}>Accetto</Button> <Button onClick={decline}>Declino</Button>{' '}
+                            <Button variant="success" onClick={accept}>
+                                Accept
+                            </Button>{' '}
+                            <Button variant="danger" onClick={decline}>
+                                Decline
+                            </Button>{' '}
                         </Stack>
                     </Stack>
                 </Card>
