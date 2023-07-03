@@ -108,3 +108,16 @@ export function stringFormat(template: string, args: string[]): string {
 
     return formatted;
 }
+
+export function setIntervalX(callback: () => void, delay: number, repetitions: number): void {
+    const intervalID = window.setInterval(() => {
+        const x = parseInt(localStorage.getItem(`${intervalID}-intervals`) as string);
+        callback();
+        if (x - 1 === 0) {
+            localStorage.removeItem(`${intervalID}-intervals`);
+            window.clearInterval(intervalID);
+        }
+        localStorage.setItem(`${intervalID}-intervals`, (x - 1).toString());
+    }, delay);
+    localStorage.setItem(`${intervalID}-intervals`, repetitions.toString());
+}

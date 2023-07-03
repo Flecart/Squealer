@@ -32,7 +32,7 @@ import {
 import Map from 'src/components/Map';
 import PayDebt from 'src/components/PayDebt';
 import DebtWarning from 'src/components/DebtWarning';
-import { stringFormat, toEnglishString } from 'src/utils';
+import { setIntervalX, stringFormat, toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
 import * as Icon from 'react-bootstrap-icons';
 import 'src/scss/SideButton.scss';
@@ -44,6 +44,16 @@ enum SearchType {
     Hashtag,
     User,
     Channel,
+}
+
+function activateRealtimeUpdates(messageId: string, numIterations: number): void {
+    setIntervalX(
+        () => {
+            console.log('update' + messageId);
+        },
+        1000,
+        numIterations,
+    );
 }
 
 export default function AddPost(): JSX.Element {
@@ -61,6 +71,7 @@ export default function AddPost(): JSX.Element {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
+    const [geolocationTimespan, setGeolocationTimespan] = useState<number>(0);
 
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<IUser | null>(null);
@@ -323,7 +334,17 @@ export default function AddPost(): JSX.Element {
                 },
             );
         },
-        [messageText, destinations, parent, displayParent, selectedImage, authState, user, geolocationCoord],
+        [
+            messageText,
+            destinations,
+            parent,
+            displayParent,
+            selectedImage,
+            authState,
+            user,
+            geolocationCoord,
+            geolocationTimespan,
+        ],
     );
 
     const RenderParentMessage = useCallback((): JSX.Element => {
@@ -392,6 +413,18 @@ export default function AddPost(): JSX.Element {
                         <Map positions={geolocationCoord.positions} />
                         <CloseButton />
                     </div>
+                    <Form.Select
+                        aria-label="Realtime geolocalization timespan"
+                        onChange={(e) => {
+                            setGeolocationTimespan(parseInt(e.target.value));
+                        }}
+                        className="my-2"
+                    >
+                        <option value="0">One Time</option>
+                        <option value={5 * 60}>5 minutes</option>
+                        <option value={15 * 60}>15 minutes</option>
+                        <option value={60 * 60}>1 hour</option>
+                    </Form.Select>
                 </>
             );
         } else {
@@ -413,7 +446,7 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
             );
         }
-    }, [selectedImage, geolocationCoord, user, maxLenghtChar, messageText]);
+    }, [selectedImage, geolocationCoord, user, maxLenghtChar, messageText, geolocationTimespan]);
 
     const ChannelInput = useCallback(() => {
         const [currentChannel, setCurrentChannel] = useState<string>('');
