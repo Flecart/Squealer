@@ -55,13 +55,10 @@ export class MessageController {
     ): Promise<MessageCreationRensponse[]> {
         const messages = parseWithFile<MessageCreationMultipleChannels>(data, file);
         if (messages.parent !== undefined) {
+            // nel caso sia un messaggio di reply, si comporta in modo simile a un post per messaggio singolo.
             return [
                 await new MessageService().create(
-                    {
-                        channel: undefined,
-                        parent: messages.parent,
-                        content: messages.content,
-                    } as MessageCreation,
+                    parseMessageCreationWithFile(data, file),
                     getUserFromRequest(request),
                 ),
             ];
