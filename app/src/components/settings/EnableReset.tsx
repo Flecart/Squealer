@@ -1,7 +1,7 @@
 import { Alert, Button, Form, FormGroup, Spinner } from 'react-bootstrap';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../contexts';
-import { fetchApi } from '../api/fetch';
+import { AuthContext } from 'src/contexts';
+import { fetchApi } from 'src/api/fetch';
 import { apiSettingReset as settingResetEndpoint } from 'src/api/routes';
 
 export default function EnebleReset(): JSX.Element {

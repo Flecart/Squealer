@@ -1,4 +1,4 @@
-import {PORT} from "@config/config"
+import { PORT } from "@config/config"
 import assert from 'node:assert'
 
 export const baseUrl = `http://localhost:${PORT}`
@@ -8,6 +8,7 @@ export const modifyUserRoleRoute = "/api/user/role"
 export const apiRoleRoute = "/api/user/role"
 
 export const addClientRoute = `/api/smm/add-client/{0}`
+export const sendClientRequestRoute = `/api/smm/send-request/{0}`
 
 export const channelCreateRoute = "/api/channel/create"
 export const joinChannelRoute = `/api/channel/{0}/join`

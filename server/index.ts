@@ -12,6 +12,7 @@ import { HttpError } from '@model/error';
 import logger from './logger';
 import { errors as joseErrors } from 'jose';
 import collectEvents from './history';
+import { startDefault } from './squealerDefault';
 
 const indexLogger = logger.child({ label: 'index' });
 
@@ -40,6 +41,7 @@ function logMiddleware(req: ExRequest, _res: ExResponse, next: Function) {
 }
 
 initMongo()
+    .then(async () => await startDefault())
     .then(collectEvents)
     .then(() => {
         indexLogger.info('MongoDB and storage dir initialized');
@@ -62,10 +64,13 @@ initMongo()
             return res.send(swaggerUi.generateHTML(await import(`../${DEV_DIR}swagger.json`)));
         });
 
-        server.use(`/${endpoint.DASHBOARD}`, express.static(endpoint.DASHBOARD));
+        server.use(`/${endpoint.DASHBOARD}`, express.static(path.resolve(__dirname, '../', endpoint.DASHBOARD)));
+        server.get(`/${endpoint.DASHBOARD}`, (_req: ExRequest, res: ExResponse) => {
+            res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.DASHBOARD, 'index.html'));
+        });
 
         server.use(`/${endpoint.SMM}`, express.static(path.resolve(__dirname, '../', endpoint.SMM)));
-        server.all(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
+        server.get(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
             res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'));
         });
 

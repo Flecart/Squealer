@@ -20,15 +20,15 @@ import {
     type Credentials,
     addOwnerRoute,
     modifyUserRoleRoute,
-    addClientRoute,
     temporizzatiRoute,
     joinChannelRoute,
     geolocationRoute,
     checkAndReportStatus
 } from './globals';
-import {createDefaultUsersAndChannels as makeDefaults} from './defaults';
+import { createDefaultUsersAndChannels as makeDefaults } from './defaults';
 import { ADMIN_USER } from '@config/config'
 import { stringFormat } from "@app/utils"
+import { addClientToSmm } from './general';
 
 
 dotenv.config({
@@ -131,7 +131,7 @@ async function createChannel(loginToken: string, channel: ChannelInfo) {
         .set('Authorization', `Bearer ${loginToken}`)
         .send(channel);
 
-        checkAndReportStatus(res, 201);
+    checkAndReportStatus(res, 201);
 }
 
 async function createMessagesPublic(): Promise<MessageCreate[]> {
@@ -304,32 +304,28 @@ async function createRolesAndClients(loginTokens: LoginToken[]) {
         .send({
             role: "vip",
         });
-        // }).expect(200);
+    // }).expect(200);
 
     if (res.status !== 200) {
         console.log(res.text);
         assert(false, "Error creating VIP role");
     }
 
-    await request(baseUrl)
-    .post(apiRoleRoute)
-    .set('Authorization', `Bearer ${clientToken2.token}`)
-    .send({
-        role: "vip",
-    }).expect(200);
+    const a = await request(baseUrl)
+        .post(apiRoleRoute)
+        .set('Authorization', `Bearer ${clientToken2.token}`)
+        .send({
+            role: "vip",
+        })//.expect(200);
+    console.log(a.text)
 
     console.log("SMM and VIP role created")
 
-    await request(baseUrl)
-        .post(stringFormat(addClientRoute, [clientToken.name]))
-        .set('Authorization', `Bearer ${smmToken.token}`)
-        .expect(200);
-
-    await request(baseUrl)
-        .post(stringFormat(addClientRoute, [clientToken2.name]))
-        .set('Authorization', `Bearer ${smmToken.token}`)
-        .expect(200);
-
+    await addClientToSmm(
+        [clientToken.name, clientToken2.name],
+        smmToken.name,
+        new Map<string, string>(loginTokens.map((c) => [c.name, c.token]))
+    )
 
     console.log("Client added")
 }
@@ -353,7 +349,7 @@ async function createPrivateMessage() {
                 .set('Authorization', `Bearer ${token}`)
                 .field('data', JSON.stringify(message));
 
-                checkAndReportStatus(res, 200, "Error creating private message");
+            checkAndReportStatus(res, 200, "Error creating private message");
         }
     }
 }

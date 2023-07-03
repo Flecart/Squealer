@@ -24,7 +24,7 @@ export class FeedService {
             allMessage = unseen.concat(allMessage);
         }
         const unique = [...new Set(allMessage)];
-        const messages = await new MessageService().getMessages(unique);
+        const messages = await new MessageService().getMessages(unique, false);
 
         const all = user == null ? messages : messages.filter((message) => message.creator !== user);
         return all.map((message) => message._id.toString());

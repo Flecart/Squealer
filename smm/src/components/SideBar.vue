@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
+import { inject } from 'vue'
 import type { IUser } from '@model/user'
-import { smmUserInject } from '@/keys'
+import { injectSidebarShow, smmUserInject } from '@/keys'
 import {
   dashboardName,
   geolocalizationName,
@@ -12,21 +12,10 @@ import {
 
 const smmUser = inject<IUser>(smmUserInject)!
 
-const show = ref(true)
+const show = injectSidebarShow()!
 </script>
 
 <template>
-  <b-button
-    variant="primary"
-    title="open sidebar"
-    aria-label="open sidebar"
-    class="outside-sidebar-toggler"
-    v-b-toggle.sidebar-no-header
-    :aria-hidden="show ? 'true' : 'false'"
-  >
-    <b-icon-caret-right-fill></b-icon-caret-right-fill>
-  </b-button>
-
   <b-sidebar
     id="sidebar-no-header"
     aria-labelledby="sidebar-no-header-title"
@@ -37,13 +26,18 @@ const show = ref(true)
   >
     <b-navbar type="dark" variant="dark">
       <header class="sidebar-header">
-        <b-navbar-brand id="sidebar-no-header-title" href="/">Squealer SMM</b-navbar-brand>
+        <b-navbar-brand id="sidebar-no-header-title" href="/" tabindex="-1"
+          >Squealer SMM</b-navbar-brand
+        >
         <div
           class="icon-container"
           title="close sidebar"
           aria-label="close sidebar"
           role="button"
           v-b-toggle.sidebar-no-header
+          aria-expanded="true"
+          aria-controls="sidebar-no-header"
+          tabindex="0"
         >
           <b-icon-caret-left-fill></b-icon-caret-left-fill>
         </div>

@@ -1,13 +1,27 @@
 import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
-import { Form, Button, Alert, Image, Collapse } from 'react-bootstrap';
+import { Form, Button, Alert, Image, Collapse, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
-import { type Maps, type MessageCreation, type IMessage, type MessageCreationRensponse } from '@model/message';
+import {
+    type Maps,
+    type IMessage,
+    type MessageCreationRensponse,
+    type MessageCreationMultipleChannels,
+    mediaQuotaValue,
+} from '@model/message';
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
-import { apiMessageBase, apiMessageParent, apiTemporized, apiUser } from 'src/api/routes';
+import {
+    apiMessageMultiple,
+    apiMessageParent,
+    apiTemporized,
+    apiUser,
+    getChannelSuggestions,
+    getHashtabChannelSuggestions,
+    getUserChannelSuggestions,
+} from 'src/api/routes';
 import { type IUser, haveEnoughtQuota, getExtraQuota, UserRoles } from '@model/user';
 import Post from 'src/components/posts/Post';
 import {
@@ -22,7 +36,15 @@ import { stringFormat, toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
 import * as Icon from 'react-bootstrap-icons';
 import 'src/scss/SideButton.scss';
+import 'src/scss/Post.scss';
 import { Lock as LockIcon } from 'react-bootstrap-icons';
+import { type ISuggestion } from '@model/channel';
+
+enum SearchType {
+    Hashtag,
+    User,
+    Channel,
+}
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
@@ -34,8 +56,8 @@ export default function AddPost(): JSX.Element {
     const [showWarning, setShowWarning] = useState<boolean>(false);
     const [oneTimeView, setOneTimeView] = useState<boolean>(false);
 
+    const [destinations, setDestinations] = useState<string[]>([]);
     const [messageText, setMessageText] = useState<string>('');
-    const [destination, setDestination] = useState<string>('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
@@ -51,7 +73,31 @@ export default function AddPost(): JSX.Element {
 
     const hiddenFileInput = useRef<HTMLInputElement | null>(null);
 
-    function CloseButton(): JSX.Element {
+    const usedQuotaValue = useMemo(() => {
+        const lenDest = destinations.length + (parent === undefined ? 0 : 1);
+        if (geolocationCoord !== null || selectedImage !== null) {
+            return mediaQuotaValue * lenDest;
+        } else {
+            return messageText.length * lenDest;
+        }
+    }, [geolocationCoord, selectedImage, messageText, destinations]);
+
+    const remainingQuotaValue = useMemo(() => {
+        if (user === null) return { day: 0, week: 0, month: 0 };
+        return {
+            day: user.maxQuota.day - user.usedQuota.day - usedQuotaValue,
+            week: user.maxQuota.week - user.usedQuota.week - usedQuotaValue,
+            month: user.maxQuota.month - user.usedQuota.month - usedQuotaValue,
+        };
+    }, [user, destinations, usedQuotaValue]);
+
+    const extraQuotaValue = useMemo(() => {
+        if (user === null) return 0;
+
+        return getExtraQuota(user, usedQuotaValue);
+    }, [user, usedQuotaValue, destinations]);
+
+    const CloseButton = useCallback(() => {
         return (
             <Button
                 className="position-absolute rounded-circle top-0 end-0 p-1 m-1"
@@ -65,45 +111,31 @@ export default function AddPost(): JSX.Element {
                 <Icon.X role="button" aria-label="remove media" height={25} width={25} />
             </Button>
         );
-    }
+    }, []);
 
-    function ShowQuota(props: { quota: number }): JSX.Element {
+    const ShowQuota = useCallback(() => {
         if (user === null) {
             return <></>;
         }
         return (
             <div className="mt-1">
-                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
-                    day:{' '}
-                    <span aria-label={toEnglishString(user.maxQuota.day - user.usedQuota.day - props.quota)}>
-                        {' '}
-                        {user.maxQuota.day - user.usedQuota.day - props.quota}{' '}
-                    </span>
+                <span className="bg-primary rounded-pill me-1 px-2 mb-1 d-inline-block">
+                    day: <span aria-label={toEnglishString(remainingQuotaValue.day)}> {remainingQuotaValue.day} </span>
                 </span>
-                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                <span className="bg-primary rounded-pill me-1 px-2 mb-1 d-inline-block">
                     week:{' '}
-                    <span aria-label={toEnglishString(user.maxQuota.week - user.usedQuota.week - props.quota)}>
-                        {' '}
-                        {user.maxQuota.week - user.usedQuota.week - props.quota}{' '}
-                    </span>
+                    <span aria-label={toEnglishString(remainingQuotaValue.week)}> {remainingQuotaValue.week} </span>
                 </span>
-                <span className="bg-primary rounded-pill me-1 px-1 mb-1 d-inline-block">
+                <span className="bg-primary rounded-pill me-1 px-2 mb-1 d-inline-block">
                     month:{' '}
-                    <span aria-label={toEnglishString(user.maxQuota.month - user.usedQuota.month - props.quota)}>
-                        {' '}
-                        {user.maxQuota.month - user.usedQuota.month - props.quota}{' '}
-                    </span>
+                    <span aria-label={toEnglishString(remainingQuotaValue.month)}> {remainingQuotaValue.month} </span>
                 </span>
-                <span className="bg-warning rounded-pill me-1 px-1 mb-1 d-inline-block">
-                    extra:{' '}
-                    <span aria-label={toEnglishString(getExtraQuota(user, props.quota))}>
-                        {' '}
-                        {getExtraQuota(user, props.quota)}{' '}
-                    </span>
+                <span className="bg-warning rounded-pill me-1 px-2 mb-1 d-inline-block">
+                    extra: <span aria-label={toEnglishString(extraQuotaValue)}> {extraQuotaValue} </span>
                 </span>
             </div>
         );
-    }
+    }, [user, remainingQuotaValue, extraQuotaValue]);
 
     useEffect(() => {
         if (authState === null) {
@@ -176,21 +208,21 @@ export default function AddPost(): JSX.Element {
 
     const maxLenghtChar = useMemo<number>(() => {
         if (user !== null) {
-            const remQuotaDay: number = user.maxQuota.day - user.usedQuota.day;
-            const remQuotaWeek: number = user.maxQuota.week - user.usedQuota.week;
-            const remQuotaMonth: number = user.maxQuota.month - user.usedQuota.month;
+            const remQuotaDay: number = remainingQuotaValue.day;
+            const remQuotaWeek: number = remainingQuotaValue.week;
+            const remQuotaMonth: number = remainingQuotaValue.month;
             if (remQuotaDay === 0 || remQuotaWeek === 0 || remQuotaMonth === 0) {
                 return 0;
             }
             return Math.min(remQuotaDay, remQuotaWeek, remQuotaMonth) + quotaMaxExtra;
         }
         return 0;
-    }, [user?.maxQuota, user?.usedQuota]);
+    }, [remainingQuotaValue]);
 
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
-            const channel = destination;
+            const channel = destinations[0] as string;
 
             const temporizedContent: TemporizedContentInput = {
                 channel,
@@ -221,38 +253,37 @@ export default function AddPost(): JSX.Element {
                 },
             );
         },
-        [destination, selectedTempOption, tempPeriod, tempTimes, messageText, authState],
+        [destinations, selectedTempOption, tempPeriod, tempTimes, messageText, authState],
     );
 
     const sendMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
-            let channel = destination;
+            const channels = destinations;
             if (debt !== 0) {
                 setPayDebt(true);
                 return;
             } else if (user !== null && !haveEnoughtQuota(user, messageText.length)) {
                 setError(() => 'Not enought quota');
                 return;
-            } else if (parent === undefined && channel === '') {
-                setError(() => 'Destination not specified');
+            } else if (parent === undefined && channels.length === 0) {
+                setError(() => 'Destinations not specified');
                 return;
             }
 
             if (parent !== undefined) {
-                if (displayParent instanceof Object) channel = displayParent.channel;
-                else {
+                if (!(displayParent instanceof Object)) {
                     setError(() => 'Parent not found');
                     return;
                 }
             }
 
-            const message: MessageCreation = {
+            const message: MessageCreationMultipleChannels = {
+                channels,
                 content: {
                     data: '',
                     type: 'text',
                 },
-                channel,
                 parent,
             };
 
@@ -273,8 +304,8 @@ export default function AddPost(): JSX.Element {
             }
             formData.append('data', JSON.stringify(message));
 
-            fetchApi<MessageCreationRensponse>(
-                `${apiMessageBase}`,
+            fetchApi<MessageCreationRensponse[]>(
+                apiMessageMultiple,
                 {
                     method: 'POST',
                     headers: {}, // so that the browser can set the content type automatically
@@ -285,17 +316,17 @@ export default function AddPost(): JSX.Element {
                     setError(() => null);
                     setSelectedImage(null);
                     setGeolocationCoord(null);
-                    navigate(`/message/${message.id}`);
+                    navigate(`/message/${(message[0] as MessageCreationRensponse).id}`);
                 },
                 (error) => {
                     setError(() => error.message);
                 },
             );
         },
-        [messageText, destination, parent, displayParent, selectedImage, authState, user, geolocationCoord],
+        [messageText, destinations, parent, displayParent, selectedImage, authState, user, geolocationCoord],
     );
 
-    const renderParentMessage = useCallback((): JSX.Element => {
+    const RenderParentMessage = useCallback((): JSX.Element => {
         if (parent === undefined) return <> </>;
         if (displayParent == null) {
             return <> Loading Message </>;
@@ -308,16 +339,14 @@ export default function AddPost(): JSX.Element {
         }
     }, [parent, displayParent]);
 
-    const renderFilePreview = useCallback((): JSX.Element => {
+    const RenderFilePreview = useCallback((): JSX.Element => {
         // FIXME:, stranamente ogni volta che scrivo qualcosa, l'URL della src cambia, prova a
         // tenere l'ispector aperto quando scrivi qualcosa e vedi cosa succede.
-
-        // TODO: effetti sconosciuti quando provo a caricare un file e non un immagine.
         if (selectedImage == null) return <></>;
 
         return (
             <div className="d-flex flex-column align-items-center">
-                Remaining Quota: {user !== null && <ShowQuota quota={100} />}
+                Remaining Quota: {user !== null && <ShowQuota />}
                 <div className="d-inline-flex flex-column position-relative">
                     {selectedImage.type.startsWith('image/') && (
                         <Image
@@ -342,24 +371,22 @@ export default function AddPost(): JSX.Element {
         );
     }, [user, selectedImage]);
 
-    const setGeolocation = (): void => {
-        console.log('geoclicked');
+    const setGeolocation = useCallback((): void => {
         navigator.geolocation.getCurrentPosition(function (position) {
-            console.log('setting geolocation');
             setGeolocationCoord({
                 positions: [{ lat: position.coords.latitude, lng: position.coords.longitude }],
             });
         });
-    };
+    }, [navigator.geolocation]);
 
-    const renderMessagePayload = useCallback(() => {
+    const RenderMessagePayload = useCallback(() => {
         if (selectedImage != null) {
-            return renderFilePreview();
+            return <RenderFilePreview />;
         } else if (geolocationCoord != null) {
             return (
                 <>
                     <div className="d-flex flex-column align-items-center">
-                        Remaining Quota: {user !== null && <ShowQuota quota={100} />}
+                        Remaining Quota: {user !== null && <ShowQuota />}
                     </div>
                     <div className="position-relative">
                         <Map positions={geolocationCoord.positions} />
@@ -370,9 +397,7 @@ export default function AddPost(): JSX.Element {
         } else {
             return (
                 <Form.Group className="mb-3" controlId="textareaInput">
-                    <Form.Label>
-                        Remaining Quota: {user !== null && <ShowQuota quota={messageText.length} />}
-                    </Form.Label>
+                    <Form.Label>Remaining Quota: {user !== null && <ShowQuota />}</Form.Label>
 
                     <Form.Control
                         aria-label="message textarea"
@@ -380,33 +405,195 @@ export default function AddPost(): JSX.Element {
                         maxLength={maxLenghtChar}
                         rows={3}
                         onChange={(e) => {
-                            setMessageText(e.target.value);
+                            setMessageText(() => e.target.value);
                         }}
+                        value={messageText}
                         placeholder="Write your message here, you can also upload a file or send geolocation."
                     />
                 </Form.Group>
             );
         }
-    }, [user, messageText, geolocationCoord, selectedImage]);
+    }, [selectedImage, geolocationCoord, user, maxLenghtChar, messageText]);
+
+    const ChannelInput = useCallback(() => {
+        const [currentChannel, setCurrentChannel] = useState<string>('');
+        const [suggestions, setSuggestions] = useState<string[]>([]);
+        const [activeSuggestionIdx, setActiveSuggestionIdx] = useState<number>(0);
+
+        const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+            if (e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+
+            if (suggestions.length > 0) {
+                if (e.key === 'ArrowUp') {
+                    setActiveSuggestionIdx((value) => Math.max(0, value - 1));
+                } else if (e.key === 'ArrowDown') {
+                    setActiveSuggestionIdx((value) => Math.min(suggestions.length - 1, value + 1));
+                } else if (e.key === 'Enter' && activeSuggestionIdx >= 0 && activeSuggestionIdx < suggestions.length) {
+                    chooseSuggestion(activeSuggestionIdx);
+                }
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    sendMessage();
+                }
+            }
+        };
+
+        const chooseSuggestion = (suggestionIdx: number): void => {
+            setActiveSuggestionIdx(suggestionIdx);
+
+            // con i temporized vorremmo al massimo un singolo canale.
+            if (showTemporize) {
+                setDestinations([suggestions[suggestionIdx] as string]);
+            } else if (!destinations.includes(suggestions[suggestionIdx] as string)) {
+                setDestinations((value) => [...value, suggestions[suggestionIdx] as string]);
+            }
+            setCurrentChannel('');
+            setSuggestions([]);
+        };
+
+        useEffect(() => {
+            if (currentChannel.length <= 0) return;
+
+            let searchText = currentChannel;
+            let searchType = SearchType.Channel;
+
+            let suggestionUrl = getChannelSuggestions;
+            if (searchText.startsWith('#')) {
+                searchType = SearchType.Hashtag;
+                suggestionUrl = getHashtabChannelSuggestions;
+                searchText = searchText.substring(1);
+            } else if (searchText.startsWith('@')) {
+                searchType = SearchType.User;
+                suggestionUrl = getUserChannelSuggestions;
+                searchText = searchText.substring(1);
+            }
+
+            const searchParams = {
+                search: searchText,
+            };
+            if (searchType === SearchType.Channel) {
+                // @ts-expect-error local usage, should not warn
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                searchParams.user = authState?.username;
+            }
+
+            const searchParamsString = new URLSearchParams(searchParams).toString();
+
+            fetchApi<ISuggestion[]>(
+                `${suggestionUrl}?${searchParamsString}`,
+                { method: 'GET' },
+                authState,
+                (elements: ISuggestion[]) => {
+                    setSuggestions([]);
+                    if (searchText.length > 0 && searchType === SearchType.Hashtag) {
+                        setSuggestions((value) => value.concat(addChannelPrefix(searchText, searchType)));
+                    }
+                    elements.forEach((element: ISuggestion) => {
+                        setSuggestions((value) => value.concat(addChannelPrefix(element, searchType)));
+                    });
+                },
+                (error: Error) => {
+                    setSuggestions([]);
+                    // le suggestions non sono una feature da dare l'errore all'utente, quindi meglio solamente
+                    // un messaggio sulla console, serve solo per debug.
+                    console.log(error.message ?? 'Error getting suggestions');
+                },
+            );
+        }, [currentChannel]);
+
+        function addChannelPrefix(channel: string, type: SearchType): string {
+            switch (type) {
+                case SearchType.Hashtag:
+                    return '#' + channel;
+                case SearchType.User:
+                    return '@' + channel;
+                case SearchType.Channel:
+                    return channel;
+                default:
+                    return channel;
+            }
+        }
+
+        return (
+            <div className="position-relative">
+                <Form.Group controlId="channelInput" className="group-add-post">
+                    <Form.Label className="label-add-post">Channel</Form.Label>
+                    <Form.Control
+                        onKeyDown={handleKeyDown}
+                        onChange={(e) => {
+                            setCurrentChannel(e.target.value);
+                        }}
+                        value={currentChannel}
+                        placeholder="Enter Channel name, @ for users, # for hashtags"
+                        autoFocus={true}
+                        autoComplete="off"
+                    />
+                </Form.Group>
+                <div className="position-absolute w-50">
+                    <ListGroup role="listbox">
+                        {suggestions.map((suggestion, index) => {
+                            return (
+                                <ListGroupItem
+                                    className="suggestion-list-item"
+                                    role="option"
+                                    key={index}
+                                    active={index === activeSuggestionIdx}
+                                    onClick={() => {
+                                        chooseSuggestion(index);
+                                    }}
+                                    style={{ zIndex: 2 }}
+                                    aria-label={'add channel ' + suggestion}
+                                >
+                                    {suggestion}
+                                </ListGroupItem>
+                            );
+                        })}
+                    </ListGroup>
+                </div>
+            </div>
+        );
+    }, [setDestinations, showTemporize]);
+
+    const DisplayDestinations = useCallback(() => {
+        return (
+            <div className="d-flex flex-wrap">
+                {destinations.map((destination, index) => {
+                    return (
+                        <div className="bg-primary rounded-pill me-1 px-2 mb-1" key={index}>
+                            {destination}
+                            <Icon.X
+                                className="ms-1"
+                                tabIndex={0}
+                                role="button"
+                                aria-label={'remove channel ' + destination}
+                                onClick={() => {
+                                    setDestinations((value) => value.filter((val) => val !== destination));
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        setDestinations((value) => value.filter((val) => val !== destination));
+                                    }
+                                }}
+                            />
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    }, [destinations]);
 
     return (
         <SidebarSearchLayout>
-            {renderParentMessage()}
+            <RenderParentMessage />
             <Form>
                 {parent === undefined && (
-                    <Form.Group controlId="channelInput" className="group-add-post">
-                        <Form.Label className="label-add-post">Channel</Form.Label>
-                        <Form.Control
-                            onChange={(e) => {
-                                setDestination(e.target.value);
-                            }}
-                            placeholder="Enter Channel name"
-                            autoFocus={true}
-                        />
-                    </Form.Group>
+                    <>
+                        <ChannelInput />
+                        <DisplayDestinations />
+                    </>
                 )}
-                {/*  TODO: questa cosa dovrebbe essere molto pesante dal punto di vista dell'accessibilità, fixare */}
-                {renderMessagePayload()}
+                {RenderMessagePayload()}
 
                 <div className="d-flex flex-row justify-content-center aling-items-center mb-3">
                     <Button
@@ -418,6 +605,7 @@ export default function AddPost(): JSX.Element {
                         className="d-flex align-items-center me-2"
                     >
                         <span className="d-flex align-items-center">
+                            {/* @ts-expect-error hidden should exist */}
                             <LockIcon hidden={permissions} aria-hidden="true" size={19.2} className="me-1" />
                         </span>
                         Purchase Quota
@@ -464,10 +652,14 @@ export default function AddPost(): JSX.Element {
                         disabled={showTemporize}
                         className="rounded-circle p-2"
                         aria-label="Geolocation"
-                        onClick={setGeolocation}
+                        onClick={() => {
+                            setSelectedImage(null);
+                            setGeolocation();
+                        }}
                         onKeyUp={(e) => {
                             if (e.key === ' ' || e.key === 'Enter') {
                                 e.preventDefault();
+                                setSelectedImage(null);
                                 setGeolocation();
                             }
                         }}
@@ -486,11 +678,7 @@ export default function AddPost(): JSX.Element {
                         setShowWarning(false);
                     }}
                 />
-                {/* TODO: show geolocation button */}
-
                 {error !== null && <Alert variant="danger">{error}</Alert>}
-
-                {/*  TODO: poi la parte qui sotto dovremmo spostarla in un altro tab o qualcosa del genere */}
 
                 <div className="d-flex flex-row justify-content-center mb-3">
                     <Form.Check // prettier-ignore
@@ -500,6 +688,7 @@ export default function AddPost(): JSX.Element {
                         checked={showTemporize}
                         onChange={() => {
                             setShowTemporize(!showTemporize);
+                            setDestinations((value) => value.splice(0, 1));
                             setSelectedImage(null);
                             setGeolocationCoord(null);
                         }}
