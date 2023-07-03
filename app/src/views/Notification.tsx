@@ -68,7 +68,10 @@ export default function Notification(): JSX.Element {
                     {notification.message.length === 0 ? (
                         <p>No more notifications</p>
                     ) : (
-                        <NotificationListLoader childrens={notification.message} notification={delteNotification} />
+                        <NotificationListLoader
+                            childrens={notification.message}
+                            notificationClear={delteNotification}
+                        />
                     )}
                 </>
             )}

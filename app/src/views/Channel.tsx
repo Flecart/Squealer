@@ -19,6 +19,7 @@ import { type AuthResponse } from '@model/auth';
 import MessageSortComponent from 'src/components/MessageSortComponent';
 import { getUsernameFromUserChannel, stringFormat } from '../utils';
 import MessageListPageLoader from 'src/components/MessageListPagerLoader';
+import 'src/scss/Post.scss';
 
 interface HeaderChannelProps {
     channel: IChannel | null;
@@ -205,18 +206,28 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
 
     return (
         <>
-            {!join ? (
-                <span className="gap-2" onClick={toggleJoin}>
-                    Entra
-                    <Icon.BoxArrowInLeft />
-                </span>
-            ) : (
-                <>
-                    <span className="gap-2" onClick={toggleJoin}>
-                        Esci <Icon.BoxArrowLeft />
-                    </span>
-                    <span onClick={toggleNotification}>{notification ? <Icon.Bell /> : <Icon.BellSlash />}</span>
-                </>
+            <Button className="gap-2 reaction-button" onClick={toggleJoin}>
+                {!join ? (
+                    <>
+                        <span className="pe-2">Entra</span>
+                        <Icon.BoxArrowInLeft aria-hidden />
+                    </>
+                ) : (
+                    <>
+                        <span className="pe-2">Esci</span>
+                        <Icon.BoxArrowLeft aria-hidden />
+                    </>
+                )}
+            </Button>
+            {join && (
+                <button
+                    className="btn rounded-pill sideButton d-flex d-row align-items-center justify-content-evenly"
+                    onClick={toggleNotification}
+                    aria-label={`Toggle notification ${notification ? 'on' : 'off'}`}
+                    title={`Toggle notification ${notification ? 'on' : 'off'}`}
+                >
+                    {notification ? <Icon.Bell aria-hidden /> : <Icon.BellSlash aria-hidden />}
+                </button>
             )}
         </>
     );
