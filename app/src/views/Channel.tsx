@@ -206,15 +206,15 @@ function JoinAndNotify({ channel, auth }: HeaderChannelProps): JSX.Element {
 
     return (
         <>
-            <Button className="gap-2 reaction-button" onClick={toggleJoin}>
+            <Button variant="outline-light" className="gap-2 reaction-button" onClick={toggleJoin}>
                 {!join ? (
                     <>
-                        <span className="pe-2">Entra</span>
+                        <span className="pe-2">Enter</span>
                         <Icon.BoxArrowInLeft aria-hidden />
                     </>
                 ) : (
                     <>
-                        <span className="pe-2">Esci</span>
+                        <span className="pe-2">Exit</span>
                         <Icon.BoxArrowLeft aria-hidden />
                     </>
                 )}
@@ -292,7 +292,7 @@ function ChangeDescription({ channel, auth }: HeaderChannelProps): JSX.Element {
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3" controlId="ChangeDescription">
-                            <Form.Label>Change Desctiprion</Form.Label>
+                            <Form.Label>Change Description</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={3}

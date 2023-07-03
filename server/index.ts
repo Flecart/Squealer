@@ -11,6 +11,7 @@ import initMongo from './mongo';
 import { HttpError } from '@model/error';
 import logger from './logger';
 import { errors as joseErrors } from 'jose';
+import { periodicUpdateQuota } from './updatequota';
 import collectEvents from './history';
 import { startDefault } from './squealerDefault';
 
@@ -41,6 +42,7 @@ function logMiddleware(req: ExRequest, _res: ExResponse, next: Function) {
 }
 
 initMongo()
+    .then(async () => await periodicUpdateQuota())
     .then(async () => await startDefault())
     .then(collectEvents)
     .then(() => {

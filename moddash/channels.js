@@ -1,4 +1,4 @@
-import { channelRoute, stringFormat, updateRoleRoute } from './routes.js';
+import { channelRoute, moddashDelete, stringFormat, updateRoleRoute } from './routes.js';
 
 /* globals Handlebars */
 (function () {
@@ -70,6 +70,23 @@ export function updateRole(id, user) {
         body: JSON.stringify({ role }),
     })
         .then((res) => {
+            window.location.reload();
+        })
+        .catch((e) => {
+            window.location.reload();
+        });
+}
+
+export function deleteChannel(name) {
+    const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
+    fetch(stringFormat(moddashDelete, [name]), {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + authState.token,
+        },
+    })
+        .then(() => {
             window.location.reload();
         })
         .catch((e) => {

@@ -95,4 +95,11 @@ export class ModdashController {
         );
         return new ModdashService().updateRole(getUserFromRequest(request), channelID, username, body.role);
     }
+
+    @Delete('deleteChannel/{channelName}')
+    @Security('jwt')
+    public async deleteChannel(@Request() request: any, @Path() channelName: string): Promise<any> {
+        moddashLog.info(`Deleting channel ${channelName} requested by ${getUserFromRequest(request)}`);
+        return new ModdashService().deleteChannel(getUserFromRequest(request), channelName);
+    }
 }

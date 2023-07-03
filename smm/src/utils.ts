@@ -63,3 +63,10 @@ export function stringFormat(template: string, args: string[]): string {
 
   return formatted
 }
+
+// utilizzato dai post per capire alcune informazioni da mostrare in base al tipo di post
+export enum ShowType {
+  POPULARITY,
+  REACTIONS,
+  CONTROVERSY
+}

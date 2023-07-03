@@ -35,7 +35,11 @@ export default function Message(): JSX.Element {
 
     function MainPost(): JSX.Element {
         if (message === null && error === null) {
-            return <Spinner animation="border" role="status" />;
+            return (
+                <div className="d-flex justify-content-center">
+                    <Spinner className="my-1" animation="border" role="status" />;
+                </div>
+            );
         } else if (message === null) {
             return <Alert variant="danger">{error}</Alert>;
         } else {
@@ -64,7 +68,7 @@ export default function Message(): JSX.Element {
                             navigate(`/message/${message.parent.toString()}`);
                         }}
                     >
-                        Commento Padre
+                        Go to Main message
                     </Button>
                 );
         return <></>;

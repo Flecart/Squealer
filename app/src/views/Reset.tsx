@@ -78,7 +78,7 @@ export default function Reset(): JSX.Element {
                             />
                         </FormGroup>
                         <Button className="button-form-bs" variant="outline-success" type="submit">
-                            Conferma
+                            Confirm
                         </Button>
                         {errorMessage !== null && (
                             <Alert className="alert-form-bs" variant="danger">

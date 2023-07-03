@@ -8,7 +8,7 @@ import BuyModalVue from './BuyModal.vue'
 import PostVue from './Post.vue'
 import ChooseClientsVue from './ChooseClients.vue'
 import CurrentQuota from './CurrentQuota.vue'
-import { stringFormat } from '@/utils'
+import { stringFormat, ShowType } from '@/utils'
 
 const { currentClient: selectedClient, setClient: _ } =
   inject<currentClientType>(currentClientInject)!
@@ -16,34 +16,41 @@ const { currentClient: selectedClient, setClient: _ } =
 interface SortMode {
   title: string
   value: MessageSortTypes
+  type: ShowType
 }
 
 const messageSortModes: SortMode[] = [
   {
     title: 'By Popularity',
-    value: 'popularity'
+    value: 'popularity',
+    type: ShowType.POPULARITY
   },
   {
     title: 'By Unpopularity',
-    value: 'unpopularity'
+    value: 'unpopularity',
+    type: ShowType.POPULARITY
   },
   {
     title: 'By Reaction Number Asc',
-    value: 'reactions-asc'
+    value: 'reactions-asc',
+    type: ShowType.REACTIONS
   },
   {
     title: 'By Reaction Number Desc',
-    value: 'reactions-desc'
+    value: 'reactions-desc',
+    type: ShowType.REACTIONS
   },
   {
     title: 'By Controvery Risk',
-    value: 'risk'
+    value: 'risk',
+    type: ShowType.CONTROVERSY
   }
 ]
 
 const currentPage = ref<number>(0)
 const totalPages = ref<number>(1)
 const tabIndex = ref<number>(0)
+const showType = ref<ShowType>(ShowType.POPULARITY)
 
 fetchMessages(selectedClient.value.username, currentPage.value)
 watch(
@@ -51,6 +58,7 @@ watch(
   ([newValue, newPage, newPageIndex], [oldValue, oldPage, oldPageIndex]) => {
     if (newValue !== oldValue || newPage !== oldPage || newPageIndex !== oldPageIndex) {
       const sort = messageSortModes[newPageIndex].value
+      showType.value = messageSortModes[newPageIndex].type
       fetchMessages(newValue.username, newPage, sort)
     }
 
@@ -100,91 +108,93 @@ const setPageNumber = (page: number) => {
 }
 </script>
 <template>
-  <h1>SMM Dashboard</h1>
-  <ChooseClientsVue />
+  <div class="content">
+    <ChooseClientsVue />
 
-  <div class="quota-groups me-2">
-    <BuyModalVue class="me-2 mb-1" :username="selectedClient.username" :urgent="isUrgentQuota" />
-    <template v-if="isUrgentQuota">
-      <b-alert variant="danger" show>
-        You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
-      </b-alert>
-    </template>
-  </div>
-
-  <CurrentQuota :client="selectedClient" :remaining-quota="remainingQuota" />
-
-  <!-- TODO: questo dovrebbe essere sostituito da b-pagination, però la cosa buona è che si può usare anch ein moddash questo quasi. -->
-  <nav aria-label="Post pagination">
-    <ul class="pagination">
-      <li class="page-item">
-        <div
-          role="button"
-          class="page-link"
-          aria-label="Previous"
-          :disabled="currentPage == 0"
-          @click="setPreviousPage"
-        >
-          <span aria-hidden="true">&laquo;</span>
-          <span class="sr-only">Previous</span>
-        </div>
-      </li>
-
-      <li class="page-item" v-if="currentPage > 1" aria-label="First page">
-        <div role="button" class="page-link" @click="setPageNumber(0)">1...</div>
-      </li>
-      <li class="page-item" v-if="currentPage != 0">
-        <div role="button" class="page-link" @click="setPreviousPage">{{ currentPage }}</div>
-      </li>
-
-      <li class="page-item active" aria-label="Current Page">
-        <div role="button" class="page-link" active>{{ currentPage + 1 }}</div>
-      </li>
-      <li class="page-item" v-if="currentPage != totalPages - 1">
-        <div role="button" class="page-link" @click="setNextPage">
-          {{ currentPage + 2 }}
-        </div>
-      </li>
-      <li class="page-item" v-if="currentPage < totalPages - 2" aria-label="Last Page">
-        <div role="button" class="page-link" @click="setPageNumber(totalPages - 1)">
-          ...{{ totalPages }}
-        </div>
-      </li>
-      <li class="page-item">
-        <div
-          role="button"
-          class="page-link"
-          aria-label="Next"
-          :disabled="currentPage == totalPages - 1"
-          @click="setNextPage"
-        >
-          <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Next</span>
-        </div>
-      </li>
-    </ul>
-  </nav>
-
-  <b-card no-body>
-    <b-tabs v-model="tabIndex" card>
-      <template v-for="sortMode in messageSortModes" :key="sortMode.value">
-        <b-tab :title="sortMode.title"></b-tab>
-      </template>
-    </b-tabs>
-    <div class="posts">
-      <template v-if="messages.length === 0">
-        <b-alert variant="info" show> No posts found for this client. </b-alert>
-      </template>
-      <template v-else>
-        <PostVue
-          v-for="message in messages"
-          :key="message._id.toString()"
-          :message="message"
-          :author="selectedClient"
-        />
+    <div class="quota-groups me-2">
+      <BuyModalVue class="me-2 mb-1" :username="selectedClient.username" :urgent="isUrgentQuota" />
+      <template v-if="isUrgentQuota">
+        <b-alert variant="danger" show>
+          You have less than {{ urgentThreshold }} characters left for today. Please buy more quota.
+        </b-alert>
       </template>
     </div>
-  </b-card>
+
+    <CurrentQuota :client="selectedClient" :remaining-quota="remainingQuota" />
+
+    <!-- TODO: questo dovrebbe essere sostituito da b-pagination, però la cosa buona è che si può usare anch ein moddash questo quasi. -->
+    <nav aria-label="Post pagination">
+      <ul class="pagination">
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Previous"
+            :disabled="currentPage == 0"
+            @click="setPreviousPage"
+          >
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+          </div>
+        </li>
+
+        <li class="page-item" v-if="currentPage > 1" aria-label="First page">
+          <div role="button" class="page-link" @click="setPageNumber(0)">1...</div>
+        </li>
+        <li class="page-item" v-if="currentPage != 0">
+          <div role="button" class="page-link" @click="setPreviousPage">{{ currentPage }}</div>
+        </li>
+
+        <li class="page-item active" aria-label="Current Page">
+          <div role="button" class="page-link" active>{{ currentPage + 1 }}</div>
+        </li>
+        <li class="page-item" v-if="currentPage != totalPages - 1">
+          <div role="button" class="page-link" @click="setNextPage">
+            {{ currentPage + 2 }}
+          </div>
+        </li>
+        <li class="page-item" v-if="currentPage < totalPages - 2" aria-label="Last Page">
+          <div role="button" class="page-link" @click="setPageNumber(totalPages - 1)">
+            ...{{ totalPages }}
+          </div>
+        </li>
+        <li class="page-item">
+          <div
+            role="button"
+            class="page-link"
+            aria-label="Next"
+            :disabled="currentPage == totalPages - 1"
+            @click="setNextPage"
+          >
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <b-card no-body>
+      <b-tabs v-model="tabIndex" card>
+        <template v-for="sortMode in messageSortModes" :key="sortMode.value">
+          <b-tab :title="sortMode.title"></b-tab>
+        </template>
+      </b-tabs>
+      <div class="posts">
+        <template v-if="messages.length === 0">
+          <b-alert variant="info" show> No posts found for this client. </b-alert>
+        </template>
+        <template v-else>
+          <PostVue
+            v-for="message in messages"
+            :key="message._id.toString()"
+            :message="message"
+            :author="selectedClient"
+            :show-type="showType"
+          />
+        </template>
+      </div>
+    </b-card>
+  </div>
 </template>
 
 <style scoped>

@@ -104,6 +104,9 @@ export class TemporizzatiService {
 
         const timer = setInterval(async () => {
             const current = this.jobs.get(id) as TimerCount;
+            tempLogger.info(
+                `Creating new message for temporizzato ${id}, iteration ${current.numIter}, period ${temporizzati.periodo}`,
+            );
             try {
                 await createMessage(current.numIter);
             } catch (e) {

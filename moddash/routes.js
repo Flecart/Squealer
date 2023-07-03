@@ -17,6 +17,7 @@ export function stringFormat(template, args) {
 const moddashBase = '/api/moddash';
 const moddashPostBase = '/api/moddash/post';
 export const moddashPosts = '/api/moddash/posts';
+export const moddashDelete = '/api/moddash/deleteChannel/{0}';
 
 export const updateRoleRoute = `${moddashBase}/updateRole/{0}/{1}}`;
 export const channelRoute = `${moddashBase}/channel`;
