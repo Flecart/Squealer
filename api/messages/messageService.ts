@@ -56,23 +56,25 @@ export class MessageService {
         limit: number,
         sort?: MessageSortTypes,
     ): Promise<IMessageWithPages> {
-        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
+        const allMessages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
             async (message) => {
                 const channel = await ChannelModel.findOne({ name: message.channel });
                 if (channel !== null && isPublicChannel(channel)) return true;
                 else return false;
             },
         );
+
+        let messages: IMessage[];
         if (sort) {
             const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
-            messages = messages.sort(customSort).slice(page * limit, (page + 1) * limit);
+            messages = allMessages.sort(customSort).slice(page * limit, (page + 1) * limit);
         } else {
-            messages = messages.slice(page * limit, (page + 1) * limit);
+            messages = allMessages.slice(page * limit, (page + 1) * limit);
         }
 
         return {
-            messages: messages,
-            pages: Math.ceil(messages.length / limit),
+            messages,
+            pages: Math.ceil(allMessages.length / limit),
         } as IMessageWithPages;
     }
 
@@ -198,7 +200,6 @@ export class MessageService {
     }
 
     public async reactMessage(id: string, type: IReactionType, username: string): Promise<ReactionResponse> {
-        // get message from mongo
         const message = await MessageModel.findOne({ _id: new mongoose.Types.ObjectId(id) });
         if (message == null) throw new HttpError(404, 'Message not found');
         const userReaction = message.reaction.find((reaction) => reaction.id === username);

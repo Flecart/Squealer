@@ -8,7 +8,7 @@ import BuyModalVue from './BuyModal.vue'
 import PostVue from './Post.vue'
 import ChooseClientsVue from './ChooseClients.vue'
 import CurrentQuota from './CurrentQuota.vue'
-import { stringFormat } from '@/utils'
+import { stringFormat, ShowType } from '@/utils'
 
 const { currentClient: selectedClient, setClient: _ } =
   inject<currentClientType>(currentClientInject)!
@@ -16,34 +16,41 @@ const { currentClient: selectedClient, setClient: _ } =
 interface SortMode {
   title: string
   value: MessageSortTypes
+  type: ShowType
 }
 
 const messageSortModes: SortMode[] = [
   {
     title: 'By Popularity',
-    value: 'popularity'
+    value: 'popularity',
+    type: ShowType.POPULARITY
   },
   {
     title: 'By Unpopularity',
-    value: 'unpopularity'
+    value: 'unpopularity',
+    type: ShowType.POPULARITY
   },
   {
     title: 'By Reaction Number Asc',
-    value: 'reactions-asc'
+    value: 'reactions-asc',
+    type: ShowType.REACTIONS
   },
   {
     title: 'By Reaction Number Desc',
-    value: 'reactions-desc'
+    value: 'reactions-desc',
+    type: ShowType.REACTIONS
   },
   {
     title: 'By Controvery Risk',
-    value: 'risk'
+    value: 'risk',
+    type: ShowType.CONTROVERSY
   }
 ]
 
 const currentPage = ref<number>(0)
 const totalPages = ref<number>(1)
 const tabIndex = ref<number>(0)
+const showType = ref<ShowType>(ShowType.POPULARITY)
 
 fetchMessages(selectedClient.value.username, currentPage.value)
 watch(
@@ -51,6 +58,7 @@ watch(
   ([newValue, newPage, newPageIndex], [oldValue, oldPage, oldPageIndex]) => {
     if (newValue !== oldValue || newPage !== oldPage || newPageIndex !== oldPageIndex) {
       const sort = messageSortModes[newPageIndex].value
+      showType.value = messageSortModes[newPageIndex].type
       fetchMessages(newValue.username, newPage, sort)
     }
 
@@ -181,6 +189,7 @@ const setPageNumber = (page: number) => {
             :key="message._id.toString()"
             :message="message"
             :author="selectedClient"
+            :show-type="showType"
           />
         </template>
       </div>

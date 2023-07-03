@@ -19,20 +19,22 @@ watch(show, () => {
     <ClientSmmRequestVue />
     <header>
       <div class="content d-flex">
-        <b-button
-          variant="dark"
-          title="open sidebar"
-          aria-label="open sidebar"
-          class="outside-sidebar-toggler mr-2"
-          v-b-toggle.sidebar-no-header
-          :hidden="show"
-          :aria-hidden="show ? 'true' : 'false'"
-          aria-expanded="false"
-          aria-controls="sidebar-no-header"
-          tabindex="0"
-        >
-          <b-icon-caret-right-fill></b-icon-caret-right-fill>
-        </b-button>
+        <div class="d-flex align-items-center">
+          <b-button
+            variant="dark"
+            title="open sidebar"
+            aria-label="open sidebar"
+            class="outside-sidebar-toggler mr-2"
+            v-b-toggle.sidebar-no-header
+            :hidden="show"
+            :aria-hidden="show ? 'true' : 'false'"
+            aria-expanded="false"
+            aria-controls="sidebar-no-header"
+            tabindex="0"
+          >
+            <b-icon-caret-right-fill></b-icon-caret-right-fill>
+          </b-button>
+        </div>
         <router-view name="title"></router-view>
       </div>
     </header>
@@ -47,6 +49,7 @@ header {
   display: flex;
   align-items: center;
   margin-top: 1rem;
+  hyphens: auto;
 }
 
 h1,
@@ -72,9 +75,17 @@ main {
 }
 </style>
 
-<style>
+<style lang="scss">
+@import 'bootstrap/scss/bootstrap.scss';
+
 .content {
-  width: 70%;
+  width: 90%;
   margin: auto;
+}
+
+@media screen and (min-width: map-get($grid-breakpoints, md)) {
+  .content {
+    width: 70%;
+  }
 }
 </style>
