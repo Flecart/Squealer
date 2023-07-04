@@ -70,7 +70,6 @@ function getPosts() {
         filter.type = type;
     }
     const limit = document.getElementById('limit').value;
-    console.log(limit);
     if (limit) {
         filter.limit = limit;
     }
