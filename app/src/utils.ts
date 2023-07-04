@@ -13,24 +13,24 @@ export function toHumanReadableDate(datestring: string): string {
     if (diff < hour) {
         const minutes = Math.max(Math.floor(diff / minute), 0);
         if (minutes === 0) {
-            return 'ora';
+            return 'now';
         }
-        return `${minutes} minut${minutes > 1 ? 'i' : 'o'} fa`;
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     } else if (diff < day) {
         const hours = Math.floor(diff / hour);
-        return `${hours} or${hours > 1 ? 'e' : 'a'} fa`;
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
     } else if (diff < week) {
         const days = Math.floor(diff / day);
-        return `${days} giorn${days > 1 ? 'i' : 'o'} fa`;
+        return `${days} day${days > 1 ? 's' : ''} ago`;
     } else if (diff < month) {
         const weeks = Math.floor(diff / week);
-        return `${weeks} settiman${weeks > 1 ? 'e' : 'a'} fa`;
+        return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
     } else if (diff < year) {
         const months = Math.floor(diff / month);
-        return `${months} mes${months > 1 ? 'i' : 'e'} fa`;
+        return `${months} month{months > 1 ? 's' : ''} ago`;
     } else {
         const years = Math.floor(diff / year);
-        return `${years} ann${years > 1 ? 'i' : 'o'} fa`;
+        return `${years} year${years > 1 ? 's' : ''} ago`;
     }
 }
 
