@@ -457,7 +457,7 @@ export default function AddPost(): JSX.Element {
                 e.preventDefault();
             }
 
-            if (suggestions.length > 0) {
+            if (suggestions.length > 0 && currentChannel.length > 0) {
                 if (e.key === 'ArrowUp') {
                     setActiveSuggestionIdx((value) => Math.max(0, value - 1));
                 } else if (e.key === 'ArrowDown') {
@@ -575,23 +575,24 @@ export default function AddPost(): JSX.Element {
                 </Form.Text>
                 <div className="position-absolute w-50">
                     <ListGroup role="listbox">
-                        {suggestions.map((suggestion, index) => {
-                            return (
-                                <ListGroupItem
-                                    className="suggestion-list-item"
-                                    role="option"
-                                    key={index}
-                                    active={index === activeSuggestionIdx}
-                                    onClick={() => {
-                                        chooseSuggestion(index);
-                                    }}
-                                    style={{ zIndex: 2 }}
-                                    aria-label={'add channel ' + suggestion}
-                                >
-                                    {suggestion}
-                                </ListGroupItem>
-                            );
-                        })}
+                        {currentChannel.length > 0 &&
+                            suggestions.map((suggestion, index) => {
+                                return (
+                                    <ListGroupItem
+                                        className="suggestion-list-item"
+                                        role="option"
+                                        key={index}
+                                        active={index === activeSuggestionIdx}
+                                        onClick={() => {
+                                            chooseSuggestion(index);
+                                        }}
+                                        style={{ zIndex: 2 }}
+                                        aria-label={'add channel ' + suggestion}
+                                    >
+                                        {suggestion}
+                                    </ListGroupItem>
+                                );
+                            })}
                     </ListGroup>
                 </div>
             </div>
