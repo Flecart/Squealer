@@ -6,7 +6,7 @@ import { stringFormat, userRoute } from './routes.js';
 
     const source = document.getElementById(USER_SIDEBAR_ID).innerHTML;
     const template = Handlebars.compile(source);
-    const context = { name: 'Loading', img: '' };
+    const context = { username: '', name: 'Loading', img: '' };
     const html = template(context);
     document.getElementById('user-sidebar').innerHTML = html;
 
@@ -23,7 +23,8 @@ import { stringFormat, userRoute } from './routes.js';
         },
     }).then(async (response) => {
         const jsonResponse = await response.json();
-        context.name = jsonResponse.username;
+        context.username = jsonResponse.username;
+        context.name = jsonResponse.name;
         context.img = jsonResponse.profile_pic;
         document.getElementById('user-sidebar').innerHTML = template(context);
         if (jsonResponse.role !== 'moderator') {
