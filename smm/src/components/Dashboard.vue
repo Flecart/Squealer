@@ -22,26 +22,26 @@ interface SortMode {
 const messageSortModes: SortMode[] = [
   {
     title: 'By Popularity',
-    value: 'popularity',
-    type: ShowType.POPULARITY
-  },
-  {
-    title: 'By Unpopularity',
     value: 'unpopularity',
     type: ShowType.POPULARITY
   },
   {
-    title: 'By Reaction Number Asc',
-    value: 'reactions-asc',
-    type: ShowType.REACTIONS
+    title: 'By Unpopularity',
+    value: 'popularity',
+    type: ShowType.POPULARITY
   },
   {
-    title: 'By Reaction Number Desc',
+    title: 'By Reaction Number Asc',
     value: 'reactions-desc',
     type: ShowType.REACTIONS
   },
   {
-    title: 'By Controvery Risk',
+    title: 'By Reaction Number Desc',
+    value: 'reactions-asc',
+    type: ShowType.REACTIONS
+  },
+  {
+    title: 'By Controversy Risk',
     value: 'risk',
     type: ShowType.CONTROVERSY
   }
