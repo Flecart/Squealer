@@ -175,31 +175,37 @@
                                 <input type='number' class='form-control' id='love-{{_id}}' value='{{love}}' />
                                 <label class='form-label' for='angry-{{_id}}'>Angry</label>
                                 <input type='number' class='form-control' id='angry-{{_id}}' value='{{angry}}' />
-                                <button
-                                    type='button'
-                                    class='btn btn-primary'
-                                    data-bs-dismiss='modal'
-                                    onclick='changeReaction("{{_id}}")'
-                                >Submit</button>
+                                <div class='d-flex justify-content-center mt-2'>
+                                    <button
+                                        type='button'
+                                        class='btn btn-primary'
+                                        data-bs-dismiss='modal'
+                                        onclick='changeReaction("{{_id}}")'
+                                    >Submit</button>
+                                </div>
                             </form>
                             <hr />
                             <form>
                                 <label class='form-label' for='copy-channel-{{_id}}'>Copy to Channel</label>
                                 <input type='text' class='form-control' id='copy-channel-{{_id}}' value='{{channel}}' />
-                                <button
-                                    type='button'
-                                    class='btn btn-primary'
-                                    data-bs-dismiss='modal'
-                                    onclick='copyToChannel("{{_id}}")'
-                                >Submit</button>
+                                <div class='d-flex justify-content-center mt-2'>
+                                    <button
+                                        type='button'
+                                        class='btn btn-primary'
+                                        data-bs-dismiss='modal'
+                                        onclick='copyToChannel("{{_id}}")'
+                                    >Submit</button>
+                                </div>
                             </form>
                             <hr />
-                            <button
-                                type='button'
-                                class='btn btn-danger'
-                                data-bs-dismiss='modal'
-                                onclick='deletePost("{{_id}}")'
-                            >Delete</button>
+                            <div class='d-flex justify-content-center mt-2'>
+                                <button
+                                    type='button'
+                                    class='btn btn-danger'
+                                    data-bs-dismiss='modal'
+                                    onclick='deletePost("{{_id}}")'
+                                >Delete</button>
+                            </div>
 
                         </div>
                         <div class='modal-footer'>
@@ -335,7 +341,7 @@
                             <option value="video">Video</option>
                             <option value="maps">Maps</option>
                         </select>
-                        <label class="form-label" id="limit"> Limit of results is: </label>
+                        <label class="form-label" for="limit"> Limit of results is: </label>
                         <input
                             type="number"
                             id="limit"
