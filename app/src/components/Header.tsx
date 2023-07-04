@@ -1,10 +1,10 @@
 import { useContext, useState, useSyncExternalStore } from 'react';
 import { SideBar } from 'src/components/SideBar';
-import { Navbar, Container, Offcanvas, Stack, Col } from 'react-bootstrap';
+import { Navbar, Container, Offcanvas, Stack, Col, Alert } from 'react-bootstrap';
 import * as Icon from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { NotificationStore } from 'src/notification';
-import { AuthContext } from 'src/contexts';
+import { AuthContext, AlertContext } from 'src/contexts';
 import { LogoLight, LogoSize } from 'app/logos/LogosInfo';
 import 'src/scss/SideButton.scss';
 
@@ -33,6 +33,8 @@ function NotificationHeader(): JSX.Element {
 export function Header(): JSX.Element {
     const navigator = useNavigate();
     const [authState] = useContext(AuthContext);
+    const [alertState, setAlertState] = useContext(AlertContext);
+
     const [show, setShow] = useState(false);
     const handleClose = (): void => {
         setShow(false);
@@ -42,68 +44,81 @@ export function Header(): JSX.Element {
     };
 
     return (
-        <Navbar
-            variant="dark"
-            className="container-fluid text-white"
-            style={{ background: 'var(--bs-body-bg)' }}
-            expand="lg"
-            sticky="top"
-        >
-            <Offcanvas show={show} onHide={handleClose}>
-                <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>Menu</Offcanvas.Title>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-                    <SideBar />
-                </Offcanvas.Body>
-            </Offcanvas>
+        <>
+            <Navbar
+                variant="dark"
+                className="container-fluid text-white"
+                style={{ background: 'var(--bs-body-bg)' }}
+                expand="lg"
+                sticky="top"
+            >
+                <Offcanvas show={show} onHide={handleClose}>
+                    <Offcanvas.Header closeButton>
+                        <Offcanvas.Title>Menu</Offcanvas.Title>
+                    </Offcanvas.Header>
+                    <Offcanvas.Body>
+                        <SideBar />
+                    </Offcanvas.Body>
+                </Offcanvas>
 
-            <Container fluid>
-                <Col sx={3} className="d-flex justify-content-center">
-                    <button
-                        role="menu"
-                        onClick={handleShow}
-                        tabIndex={0}
-                        aria-label="navigation - menu"
-                        className="btn sideButton rounded-3 d-md-none"
-                    >
-                        <Icon.List aria-hidden="true" width={menuSize} height={menuSize} />
-                    </button>
-                </Col>
-
-                <Col sx={6}>
-                    <Navbar.Brand
-                        className="d-flex justify-content-center align-items-center mr-0"
-                        href="/"
-                        tabIndex={0}
-                    >
-                        <img
-                            src={LogoLight}
-                            width={LogoSize}
-                            height={LogoSize}
-                            className="d-inline-block align-top pe-1"
-                            alt=""
-                            aria-hidden="true"
-                        />
-                        <span className="fs-3">Squealer</span>
-                    </Navbar.Brand>
-                </Col>
-
-                <Col sx={3} className="d-flex justify-content-center">
-                    {authState !== null && (
+                <Container fluid>
+                    <Col sx={3} className="d-flex justify-content-center">
                         <button
-                            className="btn sideButton rounded-3"
-                            aria-label="notification page"
-                            onClick={() => {
-                                navigator('/notification');
-                            }}
+                            role="menu"
+                            onClick={handleShow}
+                            tabIndex={0}
+                            aria-label="navigation - menu"
+                            className="btn sideButton rounded-3 d-md-none"
+                        >
+                            <Icon.List aria-hidden="true" width={menuSize} height={menuSize} />
+                        </button>
+                    </Col>
+
+                    <Col sx={6}>
+                        <Navbar.Brand
+                            className="d-flex justify-content-center align-items-center mr-0"
+                            href="/"
                             tabIndex={0}
                         >
-                            <NotificationHeader />
-                        </button>
-                    )}
-                </Col>
-            </Container>
-        </Navbar>
+                            <img
+                                src={LogoLight}
+                                width={LogoSize}
+                                height={LogoSize}
+                                className="d-inline-block align-top pe-1"
+                                alt=""
+                                aria-hidden="true"
+                            />
+                            <span className="fs-3">Squealer</span>
+                        </Navbar.Brand>
+                    </Col>
+
+                    <Col sx={3} className="d-flex justify-content-center">
+                        {authState !== null && (
+                            <button
+                                className="btn sideButton rounded-3"
+                                aria-label="notification page"
+                                onClick={() => {
+                                    navigator('/notification');
+                                }}
+                                tabIndex={0}
+                            >
+                                <NotificationHeader />
+                            </button>
+                        )}
+                    </Col>
+                </Container>
+            </Navbar>
+            {alertState !== null && alertState.message !== '' && (
+                <Alert
+                    variant={alertState.type}
+                    onClose={() => {
+                        setAlertState(null);
+                    }}
+                    dismissible
+                >
+                    <p className="m-0">{alertState.message}</p>
+                </Alert>
+            )}
+        </>
     );
 }

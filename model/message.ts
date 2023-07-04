@@ -113,6 +113,7 @@ export const MessageModelName = 'Message';
 
 export interface MessageCreationRensponse {
     id: string;
+    type: SupportedContent;
     channel: string;
 }
 
