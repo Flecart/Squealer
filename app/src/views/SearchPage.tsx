@@ -91,14 +91,20 @@ export default function Search(): JSX.Element {
                 <input
                     className=" form-control h-12 px-4 text-lg text-gray-700 bg-gray-200 rounded-lg focus:outline-none focus:bg-white focus:shadow-outline"
                     type="text"
-                    placeholder="Search for messages"
+                    placeholder="Search for messages and channels"
                     aria-label="Search Bar Input"
                     onChange={(e) => {
                         setSearch(e.target.value);
                     }}
                 />
 
-                <Button onClick={handleSearch} onSubmit={handleSearch} className="" type="submit">
+                <Button
+                    onClick={handleSearch}
+                    variant="outline-light"
+                    onSubmit={handleSearch}
+                    className="ms-2"
+                    type="submit"
+                >
                     Search
                 </Button>
             </form>
