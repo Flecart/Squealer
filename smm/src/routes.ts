@@ -5,6 +5,7 @@ import GeolocalizationViewVue from './views/GeolocalizationView.vue'
 import GraphViewVue from './views/GraphView.vue'
 import PostMessageViewVue from '@/views/PostMessageView.vue'
 import NoClientsViewVue from '@/views/NoClientsView.vue'
+import NotFoundViewVue from '@/views/NotFoundView.vue'
 import Vue from 'vue'
 
 // @ts-ignore outside of root directory
@@ -90,6 +91,10 @@ const routes = [
     components: {
       default: NoClientsViewVue
     }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: NotFoundViewVue
   }
 ]
 
