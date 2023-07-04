@@ -719,8 +719,8 @@ export default function AddPost(): JSX.Element {
                 />
                 {error !== null && <Alert variant="danger">{error}</Alert>}
 
-                <div className="d-flex flex-row justify-content-center mb-3">
-                    <Form.Check // prettier-ignore
+                <Form.Group controlId="temporizeInput" className="d-flex flex-row justify-content-center mb-3">
+                    <Form.Check
                         type="switch"
                         label="Temporize Message"
                         name="temporize message"
@@ -732,7 +732,7 @@ export default function AddPost(): JSX.Element {
                             setGeolocationCoord(null);
                         }}
                     />
-                </div>
+                </Form.Group>
 
                 <Collapse in={showTemporize}>
                     <div id="temporized-section">
@@ -775,41 +775,47 @@ export default function AddPost(): JSX.Element {
                             Set the number of messages
                         </Form.Text>
 
-                        <Form.Group className="d-flex flex-row px-1">
-                            <Form.Label> Type: </Form.Label>
+                        <div className="d-flex flex-row px-1">
+                            <span> Type: </span>
                             <div className="d-flex flex-row justify-content-around w-100">
-                                <Form.Check
-                                    type="radio"
-                                    label="Wikipedia"
-                                    name="option"
-                                    value="wikipedia"
-                                    checked={selectedTempOption === 'wikipedia'}
-                                    onChange={(e) => {
-                                        setSelectedTempOption(e.target.value as TempSupportedContent);
-                                    }}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Image"
-                                    name="option"
-                                    value="image"
-                                    checked={selectedTempOption === 'image'}
-                                    onChange={(e) => {
-                                        setSelectedTempOption(e.target.value as TempSupportedContent);
-                                    }}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Text"
-                                    name="option"
-                                    value="text"
-                                    checked={selectedTempOption === 'text'}
-                                    onChange={(e) => {
-                                        setSelectedTempOption(e.target.value as TempSupportedContent);
-                                    }}
-                                />
+                                <Form.Group controlId="wikipedia-options">
+                                    <Form.Check
+                                        type="radio"
+                                        label="Wikipedia"
+                                        name="option"
+                                        value="wikipedia"
+                                        checked={selectedTempOption === 'wikipedia'}
+                                        onChange={(e) => {
+                                            setSelectedTempOption(e.target.value as TempSupportedContent);
+                                        }}
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="image-options">
+                                    <Form.Check
+                                        type="radio"
+                                        label="Image"
+                                        name="option"
+                                        value="image"
+                                        checked={selectedTempOption === 'image'}
+                                        onChange={(e) => {
+                                            setSelectedTempOption(e.target.value as TempSupportedContent);
+                                        }}
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="text-options">
+                                    <Form.Check
+                                        type="radio"
+                                        label="Text"
+                                        name="option"
+                                        value="text"
+                                        checked={selectedTempOption === 'text'}
+                                        onChange={(e) => {
+                                            setSelectedTempOption(e.target.value as TempSupportedContent);
+                                        }}
+                                    />
+                                </Form.Group>
                             </div>
-                        </Form.Group>
+                        </div>
 
                         <div className="d-flex flex-row justify-content-center">
                             <Button className="my-2" type="submit" onClick={sendTemporizedMessage}>
