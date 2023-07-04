@@ -72,7 +72,7 @@ initMongo()
         });
 
         server.use(`/${endpoint.SMM}`, express.static(path.resolve(__dirname, '../', endpoint.SMM)));
-        server.get(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
+        server.use(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
             res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'));
         });
 
