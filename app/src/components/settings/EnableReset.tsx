@@ -107,7 +107,7 @@ export default function EnebleReset(): JSX.Element {
                 </Form>
             ) : (
                 <Alert className="alert-form-bs" variant="success">
-                    Reset Password servivs is already enabled!
+                    Reset Password service is already enabled!
                 </Alert>
             )}
         </>
