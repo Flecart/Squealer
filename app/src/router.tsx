@@ -17,6 +17,7 @@ import { CreateChannel } from './views/CreateChannel';
 import SearchPage from './views/SearchPage';
 import Channels from './views/Channels';
 import Reset from './views/Reset';
+import Temporized from './views/Temporized';
 
 interface Props {
     children: JSX.Element;
@@ -53,6 +54,14 @@ const router = createBrowserRouter(
                 element={
                     <ProtectedRoute>
                         <SearchPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/tempo"
+                element={
+                    <ProtectedRoute>
+                        <Temporized />
                     </ProtectedRoute>
                 }
             />
