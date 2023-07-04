@@ -99,12 +99,14 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
                                         currentInput.current = e.target.value;
                                     }}
                                 />
-                                <Button variant="danger" onClick={deleteRequest}>
-                                    Delete currentRequest
-                                </Button>
-                                <Button variant="primary" onClick={updateCurrentRequest}>
-                                    Change currentRequest
-                                </Button>
+                                <div className="mt-3">
+                                    <Button variant="danger" className="me-2" onClick={deleteRequest}>
+                                        Delete currentRequest
+                                    </Button>
+                                    <Button variant="primary" className="ms-2" onClick={updateCurrentRequest}>
+                                        Change currentRequest
+                                    </Button>
+                                </div>
                             </Form.Group>
                         </Form>
                         {state.error !== null && <Alert variant="danger">{state.error}</Alert>}

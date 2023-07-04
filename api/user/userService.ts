@@ -167,4 +167,26 @@ export default class UserService {
             return user.username;
         });
     }
+
+    public async changeUsername(new_name: string, current_username: string): Promise<{ message: string }> {
+        const user = await UserModel.findOne({ username: current_username }, 'name');
+        if (user === null) {
+            throw new HttpError(400, 'User not found');
+        }
+
+        user.name = new_name;
+        await user.save();
+
+        return { message: 'Name changed' };
+    }
+
+    public async changeImage(user: string, img: string): Promise<string> {
+        const userRes = await UserModel.findOne({ username: user });
+        if (userRes === null) {
+            throw new HttpError(400, 'User not found');
+        }
+        userRes.profile_pic = img;
+        await userRes.save();
+        return 'success';
+    }
 }

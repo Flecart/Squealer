@@ -89,8 +89,8 @@ function Post({ message }: PostProps): JSX.Element {
                 <Image
                     src={`${imageBase}/${message.content.data as string}`}
                     alt="Immagine Post"
-                    className="mb-3 mt-2"
                     style={{ maxWidth: '500px' }}
+                    className="mb-3 mt-2"
                     fluid
                 />
             );
@@ -149,7 +149,7 @@ function Post({ message }: PostProps): JSX.Element {
                     className="w-100 float-end"
                     src={user?.profile_pic ?? '/anonymous-user.png'}
                     alt="profile image"
-                    style={{ minWidth: '3rem', maxWidth: '5rem' }}
+                    style={{ minWidth: '3rem', maxWidth: '5rem', aspectRatio: '1/1' }}
                     roundedCircle
                 />
             </Col>

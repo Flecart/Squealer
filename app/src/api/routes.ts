@@ -13,6 +13,8 @@ export const apiUserPayDebt = `${apiUserBase}/pay-debt`;
 export const apiUserNotifications = `${apiUserBase}/notifications`;
 export const apiUserSetNotification = `${apiUserBase}/notification/{0}`;
 export const getUserChannelSuggestions = `${apiUserBase}/suggestions`;
+export const apiChangeUsername = `${apiUserBase}/{0}/change-name`;
+export const apiChangeImage = `${apiUserBase}/{0}/change-image`;
 
 export const apiQuotaBase = `${apiBase}/user/quota`;
 export const apiQuota = `${apiQuotaBase}/buy`;
@@ -23,7 +25,6 @@ export const apiCreate = `${apiBase}/auth/create`;
 export const apiSettingReset = `${apiBase}/auth/setting-reset`;
 export const apiResetPassword = `${apiBase}/auth/reset-password`;
 export const apiChangePassword = `${apiAuthUserBase}/{0}/change-password`;
-export const apiChangeUsername = `${apiAuthUserBase}/{0}/change-username`;
 
 export const apiMessageBase = `${apiBase}/message`;
 export const apiMessageMultiple = `${apiMessageBase}/multiple`;

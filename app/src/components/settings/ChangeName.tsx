@@ -11,7 +11,7 @@ export default function ChangeUsername(): JSX.Element {
 
     const [authState] = useContext(AuthContext);
 
-    const [newUsername, setNewUsername] = useState('');
+    const [newName, setNewName] = useState('');
 
     const [pendingRequest, setPendingRequest] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export default function ChangeUsername(): JSX.Element {
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             setErrorMessage(null);
-            setNewUsername('');
+            setNewName('');
 
             if (!pendingRequest) {
                 if (authState == null) return;
@@ -30,12 +30,12 @@ export default function ChangeUsername(): JSX.Element {
                     {
                         method: 'POST',
                         body: JSON.stringify({
-                            new_username: newUsername,
+                            new_name: newName,
                         }),
                     },
                     authState,
                     () => {
-                        navigate(`/user/${newUsername}`);
+                        navigate(0);
                     },
                     (error) => {
                         setErrorMessage(() => error.message);
@@ -44,24 +44,24 @@ export default function ChangeUsername(): JSX.Element {
                 );
             }
         },
-        [newUsername],
+        [newName],
     );
 
     return (
         <Form className="form-form-bs" onSubmit={handleChangeUsername}>
             <FormGroup className="input-form-bs" controlId="NewUsername">
-                <Form.Label>New Username</Form.Label>
+                <Form.Label>New Name</Form.Label>
                 <Form.Control
                     type="text"
-                    value={newUsername}
+                    value={newName}
                     onChange={(e) => {
-                        setNewUsername(e.target.value);
+                        setNewName(e.target.value);
                     }}
-                    placeholder="Insert your new username"
+                    placeholder="Insert your new display name"
                 />
             </FormGroup>
             <Button className="button-setting-bs" variant="outline-success" type="submit">
-                Change Username
+                Change Name
             </Button>
             {errorMessage !== null && (
                 <Alert className="alert-form-bs" variant="danger">
