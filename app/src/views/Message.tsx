@@ -43,7 +43,7 @@ export default function Message(): JSX.Element {
         } else if (message === null) {
             return <Alert variant="danger">{error}</Alert>;
         } else {
-            return <Post message={message} />;
+            return <Post message={message} toMainMessage={false} />;
         }
     }
 

@@ -15,9 +15,10 @@ import * as Icon from 'react-bootstrap-icons';
 
 interface PostProps {
     message: IMessage;
+    toMainMessage?: boolean;
 }
 
-function Post({ message }: PostProps): JSX.Element {
+function Post({ message, toMainMessage = true }: PostProps): JSX.Element {
     const [user, setUser] = useState<IUser | null>(null);
 
     const [authState] = useContext(AuthContext);
@@ -73,9 +74,7 @@ function Post({ message }: PostProps): JSX.Element {
             (user) => {
                 setUser(() => user);
             },
-            (_) => {
-                // TODO: rifare la richiesta
-            },
+            (_) => {},
             true,
         );
     }, [message.creator]);
@@ -187,8 +186,11 @@ function Post({ message }: PostProps): JSX.Element {
                     </Row>
                     <Row
                         onClick={() => {
-                            navigator(`/message/${message._id.toString()}`);
+                            if (toMainMessage) {
+                                navigator(`/message/${message._id.toString()}`);
+                            }
                         }}
+                        style={{ cursor: toMainMessage ? 'pointer' : 'default' }}
                     >
                         {renderMessageContent()}
                     </Row>
