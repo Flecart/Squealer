@@ -66,7 +66,7 @@ export class FeedService {
                     0,
                 );
                 //voglio che sia inversamente proporzionale al tempo
-                const recentlyValue = -Math.log(((Date.now() - message.date.getTime()) / 1000) * 60 * 60);
+                const recentlyValue = -Math.log((Date.now() - message.date.getTime()) / (1000 * 60 * 60));
                 return {
                     message,
                     value: reactionValue + recentlyValue,
