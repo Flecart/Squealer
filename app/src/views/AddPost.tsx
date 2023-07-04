@@ -837,8 +837,10 @@ function activateRealtimeUpdates(
     authState: AuthResponse | null,
 ): void {
     const intervalRateSeconds = 5;
+    let hasMap: boolean = false;
     messageResponses.forEach((messageResponse) => {
         if (messageResponse.type === 'maps') {
+            hasMap = true;
             setIntervalX(
                 () => {
                     navigator.geolocation.getCurrentPosition(function (position) {
@@ -847,6 +849,7 @@ function activateRealtimeUpdates(
                             lng: position.coords.longitude,
                         };
                         fetchApi<null>(
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                             stringFormat(apiGeoUpdateRoute, [messageResponse.id]),
                             {
                                 method: 'POST',
@@ -865,4 +868,18 @@ function activateRealtimeUpdates(
             );
         }
     });
+
+    if (hasMap) {
+        setIntervalX(
+            () => {
+                const audio = new Audio('/beep.mp3');
+                audio.currentTime = 0;
+                audio.play().catch((err) => {
+                    console.log(err);
+                });
+            },
+            intervalRateSeconds * 1000,
+            Math.floor(numSeconds / intervalRateSeconds),
+        );
+    }
 }
