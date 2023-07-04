@@ -1,4 +1,4 @@
-import { Get, Body, Post, Route, Request, Response, Security } from '@tsoa/runtime';
+import { Delete, Path, Get, Body, Post, Route, Request, Response, Security } from '@tsoa/runtime';
 import { getUserFromRequest } from '@api/utils';
 import { HttpError } from '@model/error';
 import { ContentInput, type ITemporizzati } from '@model/temporizzati';
@@ -11,9 +11,16 @@ export class TemporizzatiController {
     @Response<ITemporizzati[]>(200, 'Messages')
     @Response<HttpError>(400, 'Bad request')
     public async getTemporizzati(@Request() request: any): Promise<ITemporizzati[]> {
-        return await new TemporizzatiService().getUser(getUserFromRequest(request));
+        return await new TemporizzatiService().getTemporizzati(getUserFromRequest(request));
     }
 
+    @Delete('{id}')
+    @Security('jwt')
+    @Response<ITemporizzati[]>(200, 'Messages')
+    @Response<HttpError>(400, 'Bad request')
+    public async delTemporizzati(@Request() request: any, @Path('id') path: string): Promise<ITemporizzati[]> {
+        return await new TemporizzatiService().deleteFromApi(path, getUserFromRequest(request));
+    }
     @Post('')
     @Security('jwt')
     @Response<ITemporizzati>(204, 'Message Created')

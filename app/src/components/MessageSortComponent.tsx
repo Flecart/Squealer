@@ -75,7 +75,6 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
             <Stack direction="vertical">
                 <div className="d-flex justify-content-center mb-4">
                     <Form.Select
-                        aria-label="Sort By selection"
                         value={sortBy.current}
                         onChange={(e) => {
                             e.preventDefault();

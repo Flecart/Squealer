@@ -128,6 +128,19 @@ export class TemporizzatiService {
         });
     }
 
+    public static async deleteFromApi(id: string, username: string): Promise<void> {
+        const temporizzato = await TemporizzatiModel.findOne({ _id: id });
+        if (temporizzato === null) return;
+        if (temporizzato.creator !== username) throw new HttpError(401, 'Unauthorized');
+        temporizzato.running = false;
+        temporizzato.save();
+        const current = this.jobs.get(id);
+        if (current !== undefined && current.interval !== undefined) {
+            clearInterval(current.interval);
+            this.jobs.delete(id);
+        }
+    }
+
     public static delete(id: string) {
         const current = this.jobs.get(id);
         if (current !== undefined && current.interval !== undefined) {
