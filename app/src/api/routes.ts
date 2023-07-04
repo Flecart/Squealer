@@ -31,6 +31,7 @@ export const apiMessageMultiple = `${apiMessageBase}/multiple`;
 export const apiMessageReaction = `${apiMessageBase}/{0}/reaction`;
 export const apiMessageParent = `${apiMessageBase}/{0}`;
 export const apiFeedBase = `${apiBase}/feed`;
+export const apiGeoUpdateRoute = `${apiBase}/message/geo/{0}`;
 
 export const apiChannelBase = `${apiBase}/channel`;
 export const apiChannels = `${apiChannelBase}/channels`;

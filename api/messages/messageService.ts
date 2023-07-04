@@ -153,6 +153,7 @@ export class MessageService {
         }
         return {
             id: savedMessage._id.toString(),
+            type: savedMessage.content.type,
             channel: savedMessage.channel,
         };
     }
@@ -172,6 +173,7 @@ export class MessageService {
         await message.save();
         return {
             id: message._id.toString(),
+            type: message.content.type,
             channel: message.channel,
         };
     }

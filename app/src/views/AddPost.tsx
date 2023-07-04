@@ -2,7 +2,7 @@ import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
 import { Form, Button, Alert, Image, Collapse, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { AuthContext } from 'src/contexts';
+import { AlertContext, type AlertType, AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import {
     type Maps,
@@ -14,6 +14,7 @@ import {
 import { useParams } from 'react-router';
 import { fetchApi } from 'src/api/fetch';
 import {
+    apiGeoUpdateRoute,
     apiMessageMultiple,
     apiMessageParent,
     apiTemporized,
@@ -32,13 +33,14 @@ import {
 import Map from 'src/components/Map';
 import PayDebt from 'src/components/PayDebt';
 import DebtWarning from 'src/components/DebtWarning';
-import { stringFormat, toEnglishString } from 'src/utils';
+import { setIntervalX, stringFormat, toEnglishString } from 'src/utils';
 import { quotaMaxExtra } from '@model/quota';
 import * as Icon from 'react-bootstrap-icons';
 import 'src/scss/SideButton.scss';
 import 'src/scss/Post.scss';
 import { Lock as LockIcon } from 'react-bootstrap-icons';
 import { type ISuggestion } from '@model/channel';
+import { type AuthResponse } from '@model/auth';
 
 enum SearchType {
     Hashtag,
@@ -48,6 +50,7 @@ enum SearchType {
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
+    const [alertState, setAlertState] = useContext(AlertContext);
     const navigate = useNavigate();
     const { parent } = useParams();
 
@@ -61,6 +64,7 @@ export default function AddPost(): JSX.Element {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
+    const [geolocationTimespan, setGeolocationTimespan] = useState<number>(0);
 
     const [error, setError] = useState<string | null>(null);
     const [info, setInfo] = useState<string | null>(null);
@@ -317,6 +321,7 @@ export default function AddPost(): JSX.Element {
                     setError(() => null);
                     setSelectedImage(null);
                     setGeolocationCoord(null);
+                    activateRealtimeUpdates(message, geolocationTimespan, authState, alertState, setAlertState);
                     navigate(`/message/${(message[0] as MessageCreationRensponse).id}`);
                 },
                 (error) => {
@@ -324,7 +329,17 @@ export default function AddPost(): JSX.Element {
                 },
             );
         },
-        [messageText, destinations, parent, displayParent, selectedImage, authState, user, geolocationCoord],
+        [
+            messageText,
+            destinations,
+            parent,
+            displayParent,
+            selectedImage,
+            authState,
+            user,
+            geolocationCoord,
+            geolocationTimespan,
+        ],
     );
 
     const RenderParentMessage = useCallback((): JSX.Element => {
@@ -393,6 +408,18 @@ export default function AddPost(): JSX.Element {
                         <Map positions={geolocationCoord.positions} />
                         <CloseButton />
                     </div>
+                    <Form.Select
+                        aria-label="Realtime geolocalization timespan"
+                        onChange={(e) => {
+                            setGeolocationTimespan(parseInt(e.target.value));
+                        }}
+                        className="my-2"
+                    >
+                        <option value="0">One Time</option>
+                        <option value={5 * 60}>5 minutes</option>
+                        <option value={15 * 60}>15 minutes</option>
+                        <option value={60 * 60}>1 hour</option>
+                    </Form.Select>
                 </>
             );
         } else {
@@ -414,7 +441,7 @@ export default function AddPost(): JSX.Element {
                 </Form.Group>
             );
         }
-    }, [selectedImage, geolocationCoord, user, maxLenghtChar, messageText]);
+    }, [selectedImage, geolocationCoord, user, maxLenghtChar, messageText, geolocationTimespan]);
 
     const ChannelInput = useCallback(() => {
         const [currentChannel, setCurrentChannel] = useState<string>('');
@@ -810,4 +837,72 @@ export default function AddPost(): JSX.Element {
             <>{info !== null && <Alert>{info}</Alert>}</>
         </SidebarSearchLayout>
     );
+}
+
+function activateRealtimeUpdates(
+    messageResponses: MessageCreationRensponse[],
+    numSeconds: number,
+    authState: AuthResponse | null,
+    alertState: AlertType | null,
+    setAlertState: React.Dispatch<React.SetStateAction<AlertType | null>>,
+): void {
+    const intervalRateSeconds = 30;
+    let hasMap: boolean = false;
+    messageResponses.forEach((messageResponse) => {
+        if (messageResponse.type === 'maps') {
+            hasMap = true;
+            setIntervalX(
+                () => {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        const currPosition = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        fetchApi<null>(
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            stringFormat(apiGeoUpdateRoute, [messageResponse.id]),
+                            {
+                                method: 'POST',
+                                body: JSON.stringify(currPosition),
+                            },
+                            authState,
+                            () => {},
+                            () => {},
+                        );
+
+                        console.log('sending position for message: ' + messageResponse.id);
+                    });
+                },
+                intervalRateSeconds * 1000,
+                Math.floor(numSeconds / intervalRateSeconds),
+            );
+        }
+    });
+
+    if (hasMap) {
+        setIntervalX(
+            () => {
+                const audio = new Audio('/beep.mp3');
+                audio.currentTime = 0;
+                audio.play().catch((err) => {
+                    console.log(err);
+                });
+            },
+            intervalRateSeconds * 1000,
+            Math.floor(numSeconds / intervalRateSeconds),
+        );
+
+        setIntervalX(
+            () => {
+                if (alertState === null) {
+                    setAlertState({
+                        type: 'info',
+                        message: 'Sending your position for geolocalization message',
+                    });
+                }
+            },
+            intervalRateSeconds * 1000,
+            Math.floor(numSeconds / intervalRateSeconds),
+        );
+    }
 }

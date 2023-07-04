@@ -108,3 +108,36 @@ export function stringFormat(template: string, args: string[]): string {
 
     return formatted;
 }
+
+export function setIntervalX(callback: () => void, delay: number, repetitions: number): void {
+    if (repetitions <= 0) return;
+
+    const intervalID = window.setInterval(() => {
+        const storageItem = localStorage.getItem(`${intervalID}-intervals`);
+        if (storageItem === null) {
+            window.clearInterval(intervalID);
+            return;
+        }
+
+        const x = parseInt(storageItem);
+        callback();
+        if (x - 1 === 0) {
+            localStorage.removeItem(`${intervalID}-intervals`);
+            window.clearInterval(intervalID);
+        }
+        localStorage.setItem(`${intervalID}-intervals`, (x - 1).toString());
+    }, delay);
+    localStorage.setItem(`${intervalID}-intervals`, repetitions.toString());
+}
+
+function isIntervalIdKey(key: string): boolean {
+    return key.endsWith('-intervals');
+}
+
+export function clearLocalstorageIntervals(): void {
+    Object.keys(localStorage)
+        .filter(isIntervalIdKey)
+        .forEach((key) => {
+            localStorage.removeItem(key);
+        });
+}
