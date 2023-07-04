@@ -177,7 +177,7 @@ export class ModdashService {
         const channels = await ChannelModel.find({
             name: { $regex: name, $options: 'i' },
             type: { $ne: ChannelType.USER },
-        }).limit(limit);
+        });
         switch (sortby) {
             case ChannelSortBy.POSTS:
                 channels.sort((a, b) => b.messages.length - a.messages.length);
@@ -186,7 +186,7 @@ export class ModdashService {
                 channels.sort((a, b) => b.users.length - a.users.length);
                 break;
         }
-        return channels;
+        return channels.slice(0, limit);
     }
 
     public async updateRole(userId: string, channelId: string, username: string, role: string): Promise<any> {
