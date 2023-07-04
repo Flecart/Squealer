@@ -2,7 +2,7 @@ import SidebarSearchLayout from 'src/layout/SidebarSearchLayout';
 import PurchaseQuota from 'src/components/posts/PurchaseQuota';
 import { Form, Button, Alert, Image, Collapse, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { AuthContext } from 'src/contexts';
+import { AlertContext, type AlertType, AuthContext } from 'src/contexts';
 import { useNavigate } from 'react-router-dom';
 import {
     type Maps,
@@ -50,6 +50,7 @@ enum SearchType {
 
 export default function AddPost(): JSX.Element {
     const [authState] = useContext(AuthContext);
+    const [alertState, setAlertState] = useContext(AlertContext);
     const navigate = useNavigate();
     const { parent } = useParams();
 
@@ -319,7 +320,7 @@ export default function AddPost(): JSX.Element {
                     setError(() => null);
                     setSelectedImage(null);
                     setGeolocationCoord(null);
-                    activateRealtimeUpdates(message, geolocationTimespan, authState);
+                    activateRealtimeUpdates(message, geolocationTimespan, authState, alertState, setAlertState);
                     navigate(`/message/${(message[0] as MessageCreationRensponse).id}`);
                 },
                 (error) => {
@@ -835,8 +836,10 @@ function activateRealtimeUpdates(
     messageResponses: MessageCreationRensponse[],
     numSeconds: number,
     authState: AuthResponse | null,
+    alertState: AlertType | null,
+    setAlertState: React.Dispatch<React.SetStateAction<AlertType | null>>,
 ): void {
-    const intervalRateSeconds = 5;
+    const intervalRateSeconds = 30;
     let hasMap: boolean = false;
     messageResponses.forEach((messageResponse) => {
         if (messageResponse.type === 'maps') {
@@ -877,6 +880,19 @@ function activateRealtimeUpdates(
                 audio.play().catch((err) => {
                     console.log(err);
                 });
+            },
+            intervalRateSeconds * 1000,
+            Math.floor(numSeconds / intervalRateSeconds),
+        );
+
+        setIntervalX(
+            () => {
+                if (alertState === null) {
+                    setAlertState({
+                        type: 'info',
+                        message: 'Sending your position for geolocalization message',
+                    });
+                }
             },
             intervalRateSeconds * 1000,
             Math.floor(numSeconds / intervalRateSeconds),

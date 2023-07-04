@@ -1,9 +1,9 @@
 import ReactDOM from 'react-dom/client';
 import './scss/Global.scss';
 import './scss/App.scss';
-import { AuthContext, ThemeContext } from './contexts';
+import { AlertContext, type AlertType, AuthContext, ThemeContext } from './contexts';
 import { RouterProvider } from 'react-router-dom';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { type AuthResponse } from '@model/auth';
 import usePersistState from './hooks/usePersistState';
 import { fetchApi } from './api/fetch';
@@ -20,6 +20,7 @@ export const authStorageKey = 'auth';
 function App(): JSX.Element {
     const [authState, setAuthState] = usePersistState<AuthResponse | null>(authStorageKey, null);
     const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
+    const [alertState, setAlertState] = useState<AlertType | null>(null);
 
     useEffect(() => {
         clearLocalstorageIntervals();
@@ -64,9 +65,12 @@ function App(): JSX.Element {
 
     return (
         <React.StrictMode>
+            {/* @ts-expect-error setAuthstate is fine */}
             <AuthContext.Provider value={[authState, setAuthState]}>
                 <ThemeContext.Provider value={[themeState, toggleTheme]}>
-                    <RouterProvider router={router} />
+                    <AlertContext.Provider value={[alertState, setAlertState]}>
+                        <RouterProvider router={router} />
+                    </AlertContext.Provider>
                 </ThemeContext.Provider>
             </AuthContext.Provider>
         </React.StrictMode>
