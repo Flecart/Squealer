@@ -87,7 +87,7 @@ export default function ChangePassword(): JSX.Element {
                 </Spinner>
             )}
             {successMessage !== null && (
-                <Alert className="alert-form-bs" variant="sucess">
+                <Alert className="alert-form-bs text-center" variant="success">
                     {successMessage}
                 </Alert>
             )}
