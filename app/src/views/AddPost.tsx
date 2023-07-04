@@ -775,7 +775,7 @@ export default function AddPost(): JSX.Element {
                             Set the number of messages
                         </Form.Text>
 
-                        <Form.Group className="d-flex flex-row px-1" controlId="typeTemporize">
+                        <Form.Group className="d-flex flex-row px-1">
                             <Form.Label> Type: </Form.Label>
                             <div className="d-flex flex-row justify-content-around w-100">
                                 <Form.Check
