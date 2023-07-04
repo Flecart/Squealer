@@ -12,7 +12,7 @@
     "build:server": "tsoa spec-and-routes && tsc && resolve-tspaths",
     "build:app": "yarn workspace app build",
     "build:smm": "yarn workspace smm build",
-    "build:moddash": "cp -r moddash build/moddash",
+    "build:moddash": "rm -rf build/moddash && cp -r moddash build/moddash",
     "prepare": "husky install",
     "commit": "cz",
     "deploy:flecs": "cd deploy && ansible-playbook playbook.yml --limit donbartolo",
