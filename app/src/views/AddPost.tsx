@@ -698,7 +698,7 @@ export default function AddPost(): JSX.Element {
 
                 <Collapse in={showTemporize}>
                     <div id="temporized-section">
-                        <Alert>Temporized Message are Send To only the first channel</Alert>
+                        <Alert>Note: You can set only one destination for temporized message</Alert>
                         <Form.Group controlId="periodInput" className="group-add-post m-0">
                             <Form.Label className="label-add-post"> Period: </Form.Label>
                             <Form.Control
