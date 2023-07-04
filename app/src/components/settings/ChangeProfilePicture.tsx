@@ -105,7 +105,8 @@ export default function ChangeProfilePicture({ user }: { user: IUser }): JSX.Ele
                         {state.file !== null && (
                             <Button
                                 aria-label="Upload Media"
-                                className="mt-2"
+                                className="button-setting-bs"
+                                variant="outline-success"
                                 onClick={() => {
                                     handleSubmit();
                                 }}

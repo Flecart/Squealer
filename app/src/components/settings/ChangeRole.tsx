@@ -84,14 +84,19 @@ export default function DeleteAccount(): JSX.Element {
                     ))}
                 </Form.Select>
 
-                <Button onClick={handleUpdateRole} disabled={pendingRequest}>
+                <Button
+                    onClick={handleUpdateRole}
+                    disabled={pendingRequest}
+                    className="button-setting-bs"
+                    variant="outline-success"
+                >
                     Update
                 </Button>
                 <Container>
                     {pendingRequest && (
                         <>
                             <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Cancellazione...</span>
+                                <span className="visually-hidden">Cancelling...</span>
                             </Spinner>
                         </>
                     )}
