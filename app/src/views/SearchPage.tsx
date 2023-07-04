@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Alert, Spinner } from 'react-bootstrap';
+import { Alert, Button, Spinner } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import { AuthContext } from 'src/contexts';
 import type SearchResult from '@model/search';
@@ -26,7 +26,7 @@ export default function Search(): JSX.Element {
     function Content(): JSX.Element {
         if (state.searching) {
             return (
-                <div className="flex flex-col items-center justify-center h-full">
+                <div className="d-flex   justify-content-center ">
                     <Spinner animation="border" role="status" />
                 </div>
             );
@@ -49,7 +49,9 @@ export default function Search(): JSX.Element {
         return (
             <>
                 {state.searchResults.channel.length !== 0 && (
-                    <ChannelListLoader channels={state.searchResults.channel} />
+                    <div className="mb-4">
+                        <ChannelListLoader channels={state.searchResults.channel} />
+                    </div>
                 )}
                 {state.searchResults.messages.length !== 0 && (
                     <MessageListPageLoader childrens={state.searchResults.messages} />
@@ -89,16 +91,22 @@ export default function Search(): JSX.Element {
                 <input
                     className=" form-control h-12 px-4 text-lg text-gray-700 bg-gray-200 rounded-lg focus:outline-none focus:bg-white focus:shadow-outline"
                     type="text"
-                    placeholder="Search for messages"
+                    placeholder="Search for messages and channels"
                     aria-label="Search Bar Input"
                     onChange={(e) => {
                         setSearch(e.target.value);
                     }}
                 />
 
-                <button onClick={handleSearch} onSubmit={handleSearch} className="btn" type="submit">
+                <Button
+                    onClick={handleSearch}
+                    variant="outline-light"
+                    onSubmit={handleSearch}
+                    className="ms-2"
+                    type="submit"
+                >
                     Search
-                </button>
+                </Button>
             </form>
         );
     }
