@@ -63,6 +63,7 @@ export default function AddPost(): JSX.Element {
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
 
     const [error, setError] = useState<string | null>(null);
+    const [info, setInfo] = useState<string | null>(null);
     const [user, setUser] = useState<IUser | null>(null);
 
     const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
@@ -245,7 +246,7 @@ export default function AddPost(): JSX.Element {
                 authState,
                 (temporized) => {
                     setError(() => null);
-                    console.log(temporized);
+                    setInfo(() => `Temporized Message Send Successfully check in channel ${channel}`);
                     // TODO: cambiare il feedback dei messaggi temporizzati in un secondo momento.
                 },
                 (error) => {
@@ -697,6 +698,7 @@ export default function AddPost(): JSX.Element {
 
                 <Collapse in={showTemporize}>
                     <div id="temporized-section">
+                        <Alert>Temporized Message are Send To only the first channel</Alert>
                         <Form.Group controlId="periodInput" className="group-add-post m-0">
                             <Form.Label className="label-add-post"> Period: </Form.Label>
                             <Form.Control
@@ -794,6 +796,7 @@ export default function AddPost(): JSX.Element {
                     debt={debt}
                 />
             </Form>
+            <>{info !== null && <Alert>{info}</Alert>}</>
         </SidebarSearchLayout>
     );
 }
