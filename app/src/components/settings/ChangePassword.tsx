@@ -36,7 +36,7 @@ export default function ChangePassword(): JSX.Element {
                     },
                     authState,
                     () => {
-                        setSuccessMessage('Password has been changed succesfully');
+                        setSuccessMessage('Password has been changed successfully');
                         setPendingRequest(false);
                     },
                     (error) => {
