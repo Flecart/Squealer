@@ -223,7 +223,11 @@ export default function AddPost(): JSX.Element {
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
-            const channel = destinations[0] as string;
+            const channel = destinations[0];
+            if (channel === undefined) {
+                setError(() => 'You must select a channel');
+                return;
+            }
 
             const temporizedContent: TemporizedContentInput = {
                 channel,
@@ -244,9 +248,9 @@ export default function AddPost(): JSX.Element {
                     body: JSON.stringify(temporizedContent),
                 },
                 authState,
-                (temporized) => {
+                () => {
                     setError(() => null);
-                    setInfo(() => `Temporized Message Send Successfully check in channel ${channel}`);
+                    setInfo(() => `Temporized Message send Successfully check in channel ${channel}`);
                     // TODO: cambiare il feedback dei messaggi temporizzati in un secondo momento.
                 },
                 (error) => {
