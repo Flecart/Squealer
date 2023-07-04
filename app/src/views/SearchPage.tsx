@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Alert, Spinner } from 'react-bootstrap';
+import { Alert, Button, Spinner } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import { AuthContext } from 'src/contexts';
 import type SearchResult from '@model/search';
@@ -26,7 +26,7 @@ export default function Search(): JSX.Element {
     function Content(): JSX.Element {
         if (state.searching) {
             return (
-                <div className="flex flex-col items-center justify-center h-full">
+                <div className="d-flex   justify-content-center ">
                     <Spinner animation="border" role="status" />
                 </div>
             );
@@ -98,9 +98,9 @@ export default function Search(): JSX.Element {
                     }}
                 />
 
-                <button onClick={handleSearch} onSubmit={handleSearch} className="btn" type="submit">
+                <Button onClick={handleSearch} onSubmit={handleSearch} className="" type="submit">
                     Search
-                </button>
+                </Button>
             </form>
         );
     }
