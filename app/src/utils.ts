@@ -129,3 +129,15 @@ export function setIntervalX(callback: () => void, delay: number, repetitions: n
     }, delay);
     localStorage.setItem(`${intervalID}-intervals`, repetitions.toString());
 }
+
+function isIntervalIdKey(key: string): boolean {
+    return key.endsWith('-intervals');
+}
+
+export function clearLocalstorageIntervals(): void {
+    Object.keys(localStorage)
+        .filter(isIntervalIdKey)
+        .forEach((key) => {
+            localStorage.removeItem(key);
+        });
+}

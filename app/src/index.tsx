@@ -11,6 +11,7 @@ import { apiUserNotification } from './api/routes';
 import { NotificationStore } from './notification';
 import router from './router';
 import { type NotificationRensponse } from '@model/user';
+import { clearLocalstorageIntervals } from './utils';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
@@ -19,6 +20,10 @@ export const authStorageKey = 'auth';
 function App(): JSX.Element {
     const [authState, setAuthState] = usePersistState<AuthResponse | null>(authStorageKey, null);
     const [themeState, setThemeState] = usePersistState<'light' | 'dark'>('theme', 'light');
+
+    useEffect(() => {
+        clearLocalstorageIntervals();
+    }, []);
 
     useEffect((): (() => void) => {
         if (authState !== null) {
