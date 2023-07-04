@@ -165,10 +165,10 @@ export default function Channels(): JSX.Element {
     function Content(): JSX.Element {
         if (pending)
             return (
-                <Stack>
-                    <h1>Loading channels</h1>
+                <div className="d-flex flex-column align-items-center">
+                    <h1>Caricamento Canali</h1>
                     <Spinner animation="border" />
-                </Stack>
+                </div>
             );
 
         if (error !== null)

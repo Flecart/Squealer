@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Button, Form, Spinner, Stack } from 'react-bootstrap';
 import { fetchApi } from 'src/api/fetch';
 import { AuthContext } from 'src/contexts';
@@ -14,7 +14,6 @@ interface MessageSortComponentState {
     loading: boolean;
     error: string | null;
     messageIds: string[] | null;
-    sortBy: string;
     firstTime: boolean;
 }
 
@@ -24,19 +23,18 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
         loading: false,
         error: null,
         messageIds: hasMessages ? messageIds : null,
-        sortBy: 'recent-asc',
         firstTime: hasMessages,
     };
     const [state, setState] = useState<MessageSortComponentState>(defState);
 
     const [auth] = useContext(AuthContext);
+    const sortBy = useRef('recent-asc');
 
     const getMessage = (): void => {
         if (state.loading) return;
         setState({ ...state, loading: true, error: null, firstTime: false });
-
         fetchApi<string[]>(
-            url + `?sort=${state.sortBy}`,
+            url + `?sort=${sortBy.current}`,
             reqInit,
             auth,
             (data) => {
@@ -51,7 +49,7 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
     useEffect(() => {
         if (state.firstTime) return;
         getMessage();
-    }, [state.sortBy]);
+    }, []);
     function Content(): JSX.Element {
         if (state.loading) {
             return (
@@ -62,10 +60,14 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
         } else if (state.error !== null) {
             return (
                 <div className="d-flex justify-content-center">
-                    <p>{state.error}</p>
-                    <Button variant="primary" onClick={getMessage}>
-                        Try again
-                    </Button>
+                    <div className="row">
+                        <p>{state.error}</p>
+                    </div>
+                    <div className="row">
+                        <Button variant="primary" onClick={getMessage}>
+                            Try again
+                        </Button>
+                    </div>
                 </div>
             );
         }
@@ -74,9 +76,11 @@ export default function MessageSortComponent({ messageIds, reqInit, url }: Messa
                 <div className="d-flex justify-content-center mb-4">
                     <Form.Select
                         aria-label="Sort By selection"
-                        value={state.sortBy}
+                        value={sortBy.current}
                         onChange={(e) => {
-                            setState({ ...state, sortBy: e.target.value });
+                            e.preventDefault();
+                            sortBy.current = e.target.value;
+                            getMessage();
                         }}
                     >
                         <option value="reactions-desc">Sort By: Reactions (desc)</option>

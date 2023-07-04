@@ -82,7 +82,7 @@ export default function Channel(): JSX.Element {
         }
         const MessageSortList = (
             <MessageSortComponent
-                messageIds={channel?.messages.map((a) => a.toString())}
+                messageIds={channel?.messages.map((a) => a.toString()).reverse()}
                 reqInit={{ method: 'GET' }}
                 url={`${apiChannelBase}/${channel.name.replace('#', '%23')}/messagesId`}
             />

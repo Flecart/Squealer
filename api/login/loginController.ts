@@ -69,18 +69,6 @@ export class LoginController extends Controller {
         );
     }
 
-    @Post('user/{username}/change-username')
-    @Security('jwt')
-    @Response<HttpError>(400, 'Bad request')
-    @SuccessResponse<AuthResponse>(200, 'Username changed')
-    public async changeUsername(
-        @Body() new_username: { new_username: string },
-        @Request() request: any,
-    ): Promise<{ message: string }> {
-        loginLogger.info(`[changeUsername] with username '${getUserFromRequest(request)}'`);
-        return new LoginService().changeUsername(new_username.new_username, getUserFromRequest(request));
-    }
-
     @Post('reset-password')
     @Response<HttpError>(400, 'Bad request')
     @SuccessResponse<AuthResponse>(200, 'Password Resetted')

@@ -36,7 +36,7 @@ export default function ChangePassword(): JSX.Element {
                     },
                     authState,
                     () => {
-                        setSuccessMessage('Password has been changed succesfully');
+                        setSuccessMessage('Password has been changed successfully');
                         setPendingRequest(false);
                     },
                     (error) => {
@@ -87,7 +87,7 @@ export default function ChangePassword(): JSX.Element {
                 </Spinner>
             )}
             {successMessage !== null && (
-                <Alert className="alert-form-bs" variant="sucess">
+                <Alert className="alert-form-bs text-center" variant="success">
                     {successMessage}
                 </Alert>
             )}

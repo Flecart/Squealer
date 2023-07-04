@@ -53,7 +53,7 @@ export default function EnebleReset(): JSX.Element {
                     },
                     authState,
                     (_otp) => {
-                        setSuccessMessage('Password Reset enabled sucessfully');
+                        setSuccessMessage('Password Reset enabled');
                         setOtp(_otp.otp);
                         setPendingRequest(false);
                     },
@@ -96,10 +96,10 @@ export default function EnebleReset(): JSX.Element {
                         </Spinner>
                     )}
                     {successMessage !== null && (
-                        <Alert className="alert-form-bs" variant="sucess">
+                        <Alert className="alert-form-bs text-center" variant="success">
                             {successMessage}
                             <br />
-                            Take great care of your recovery password:
+                            Take great care of your password:
                             <br />
                             {otp}
                         </Alert>
@@ -107,7 +107,7 @@ export default function EnebleReset(): JSX.Element {
                 </Form>
             ) : (
                 <Alert className="alert-form-bs" variant="success">
-                    Reset Password servivs is already enabled!
+                    Reset Password service is already enabled!
                 </Alert>
             )}
         </>

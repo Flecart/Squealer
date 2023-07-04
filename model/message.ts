@@ -1,13 +1,7 @@
 import type mongoose from 'mongoose';
 import type { HistoryUpdate } from '@model/history';
-/** 
-Commento per le api
-*/
-export type Img = Express.Multer.File;
 
-/** 
-Commento per le api
-*/
+export type Img = Express.Multer.File;
 
 export interface MapPosition {
     lat: number;
@@ -55,9 +49,6 @@ export function messageSort(a: IMessage, b: IMessage, type: MessageSortTypes): n
     }
 }
 
-/** 
-Commento per le api
-*/
 export interface IMessage {
     _id: mongoose.Types.ObjectId;
     channel: string; // il canale a cui appartiene il messaggio
@@ -136,13 +127,15 @@ export function sortMostRecent(a: IMessage, b: IMessage): number {
     return 0;
 }
 
+export const mapReactionToNumber = new Map<IReactionType, number>([
+    [IReactionType.ANGRY, -2],
+    [IReactionType.DISLIKE, -1],
+    [IReactionType.UNSET, 0],
+    [IReactionType.LIKE, 1],
+    [IReactionType.LOVE, 2],
+]);
+
 export function sortHighliths(a: IMessage, b: IMessage): number {
-    const mapReactionToNumber = new Map<IReactionType, number>();
-    mapReactionToNumber.set(IReactionType.ANGRY, -2);
-    mapReactionToNumber.set(IReactionType.DISLIKE, -1);
-    mapReactionToNumber.set(IReactionType.UNSET, 0);
-    mapReactionToNumber.set(IReactionType.LIKE, 1);
-    mapReactionToNumber.set(IReactionType.LOVE, 3);
     const toNumber = (reaction: IReaction): number => mapReactionToNumber.get(reaction.type) ?? 0;
     const na = a.reaction.map(toNumber).reduce((a, b) => a + b, 0);
     const nb = b.reaction.map(toNumber).reduce((a, b) => a + b, 0);
@@ -187,6 +180,7 @@ function sortRisk(a: IMessage, b: IMessage): number {
         }
         return negativeValue;
     };
+
     // provo a misurare quanto mi manca per diventare controverso.
     const aControversial = controversialCount(aPositive, aNegative);
     const bControversial = controversialCount(bPositive, bNegative);

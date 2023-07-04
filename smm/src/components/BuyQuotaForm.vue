@@ -64,22 +64,18 @@ function handleSubmit() {
       week: weekQuota.value,
       month: monthQuota.value
     } as IQuotas)
+  }).then((response) => {
+    loading.value = false
+    if (response.ok) {
+      alertVariant.value = 'success'
+      alertShow.value = true
+      alertText.value = 'Quota bought successfully'
+    } else {
+      alertVariant.value = 'danger'
+      alertShow.value = true
+      alertText.value = 'Error buying quota'
+    }
   })
-    .then((response) => {
-      loading.value = false
-      if (response.ok) {
-        alertVariant.value = 'success'
-        alertShow.value = true
-        alertText.value = 'Quota bought successfully'
-      } else {
-        alertVariant.value = 'danger'
-        alertShow.value = true
-        alertText.value = 'Error buying quota'
-      }
-    })
-    .catch((e) => {
-      console.log(e)
-    })
 }
 
 function handleMonthChange(value: number) {

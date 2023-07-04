@@ -11,6 +11,7 @@ import initMongo from './mongo';
 import { HttpError } from '@model/error';
 import logger from './logger';
 import { errors as joseErrors } from 'jose';
+import { periodicUpdateQuota } from './updatequota';
 import collectEvents from './history';
 import { startDefault } from './squealerDefault';
 
@@ -41,6 +42,7 @@ function logMiddleware(req: ExRequest, _res: ExResponse, next: Function) {
 }
 
 initMongo()
+    .then(async () => await periodicUpdateQuota())
     .then(async () => await startDefault())
     .then(collectEvents)
     .then(() => {
@@ -70,7 +72,7 @@ initMongo()
         });
 
         server.use(`/${endpoint.SMM}`, express.static(path.resolve(__dirname, '../', endpoint.SMM)));
-        server.get(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
+        server.use(`/${endpoint.SMM}`, (_req: ExRequest, res: ExResponse) => {
             res.sendFile(path.resolve(__dirname, `../${DEV_DIR}`, endpoint.SMM, 'index.html'));
         });
 

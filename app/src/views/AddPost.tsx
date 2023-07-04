@@ -63,6 +63,7 @@ export default function AddPost(): JSX.Element {
     const [geolocationCoord, setGeolocationCoord] = useState<Maps | null>(null);
 
     const [error, setError] = useState<string | null>(null);
+    const [info, setInfo] = useState<string | null>(null);
     const [user, setUser] = useState<IUser | null>(null);
 
     const [selectedTempOption, setSelectedTempOption] = useState<TempSupportedContent>('text');
@@ -230,7 +231,7 @@ export default function AddPost(): JSX.Element {
                     type: selectedTempOption,
                     data: '',
                 },
-                periodo: tempPeriod,
+                periodo: tempPeriod * 1000,
                 iterazioni: tempTimes,
             };
 
@@ -245,7 +246,7 @@ export default function AddPost(): JSX.Element {
                 authState,
                 (temporized) => {
                     setError(() => null);
-                    console.log(temporized);
+                    setInfo(() => `Temporized Message Send Successfully check in channel ${channel}`);
                     // TODO: cambiare il feedback dei messaggi temporizzati in un secondo momento.
                 },
                 (error) => {
@@ -503,21 +504,28 @@ export default function AddPost(): JSX.Element {
         }, [currentChannel]);
 
         function addChannelPrefix(channel: string, type: SearchType): string {
+            let finalString = channel;
             switch (type) {
                 case SearchType.Hashtag:
-                    return '#' + channel;
+                    if (!channel.startsWith('#')) {
+                        finalString = '#' + channel;
+                    }
+                    break;
                 case SearchType.User:
-                    return '@' + channel;
+                    if (!channel.startsWith('@')) {
+                        finalString = '@' + channel;
+                    }
+                    break;
                 case SearchType.Channel:
-                    return channel;
                 default:
-                    return channel;
+                    break;
             }
+            return finalString;
         }
 
         return (
             <div className="position-relative">
-                <Form.Group controlId="channelInput" className="group-add-post">
+                <Form.Group controlId="channelInput" className="group-add-post m-0">
                     <Form.Label className="label-add-post">Channel</Form.Label>
                     <Form.Control
                         onKeyDown={handleKeyDown}
@@ -525,11 +533,15 @@ export default function AddPost(): JSX.Element {
                             setCurrentChannel(e.target.value);
                         }}
                         value={currentChannel}
-                        placeholder="Enter Channel name, @ for users, # for hashtags"
+                        placeholder="Enter Channel name or destinations"
                         autoFocus={true}
                         autoComplete="off"
+                        aria-describedby="textChannel"
                     />
                 </Form.Group>
+                <Form.Text id="textChannel" className="text-add-post m-1">
+                    must use @ for users and # for hashtags
+                </Form.Text>
                 <div className="position-absolute w-50">
                     <ListGroup role="listbox">
                         {suggestions.map((suggestion, index) => {
@@ -697,6 +709,7 @@ export default function AddPost(): JSX.Element {
 
                 <Collapse in={showTemporize}>
                     <div id="temporized-section">
+                        <Alert>Note: You can set only one destination for temporized message</Alert>
                         <Form.Group controlId="periodInput" className="group-add-post m-0">
                             <Form.Label className="label-add-post"> Period: </Form.Label>
                             <Form.Control
@@ -713,7 +726,7 @@ export default function AddPost(): JSX.Element {
                             />
                         </Form.Group>
                         <Form.Text id="textPeriod" className="text-add-post">
-                            Set the Interval between messages
+                            Set the Interval between messages in seconds
                         </Form.Text>
 
                         <Form.Group controlId="timesInput" className="group-add-post m-0">
@@ -794,6 +807,7 @@ export default function AddPost(): JSX.Element {
                     debt={debt}
                 />
             </Form>
+            <>{info !== null && <Alert>{info}</Alert>}</>
         </SidebarSearchLayout>
     );
 }

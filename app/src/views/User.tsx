@@ -38,7 +38,14 @@ function User(): JSX.Element {
         <SidebarSearchLayout>
             <Container className="d-flex justify-content-center flex-column pb-4">
                 <Row className="py-3 m-auto" style={{ maxWidth: '10rem', minWidth: '10rem' }}>
-                    {user !== null && <Image src={user?.profile_pic} alt="profile image" roundedCircle />}
+                    {user !== null && (
+                        <Image
+                            src={user?.profile_pic}
+                            alt="profile image"
+                            roundedCircle
+                            style={{ maxWidth: '500px', aspectRatio: '1/1', padding: '0' }}
+                        />
+                    )}
                 </Row>
                 {/* TODO: mettere schermata di loading, tipo scheletons */}
                 <Row>

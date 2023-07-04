@@ -65,26 +65,6 @@ export class LoginService {
         return { message: 'Password changed' };
     }
 
-    public async changeUsername(new_username: string, current_username: string): Promise<{ message: string }> {
-        const authUser = await AuthUserModel.findOne({ username: current_username }, 'username salt password');
-        const user = await UserModel.findOne({ username: current_username }, 'username');
-        if (authUser === null || user === null) {
-            throw new HttpError(400, 'User not found');
-        }
-
-        authUser.username = new_username;
-        await authUser.save();
-
-        user.username = new_username;
-        await user.save();
-        // TODO: non vengono aggiornati i canali
-        // TODO: non vengono aggiornati i messaggi (con creator)
-        // TODO: non vengono aggiornati le richiestste di amicizia
-        // TODO: non vengono aggiornati i client
-
-        return { message: 'Username changed' };
-    }
-
     public async settingReset(user_password: string, username: string): Promise<Otp> {
         const authUser = await AuthUserModel.findOne({ username: username }, 'password salt');
 

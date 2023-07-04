@@ -1,13 +1,50 @@
 <script setup lang="ts">
-import type { IMessage, Maps } from '@model/message'
+import { IReactionType, type IMessage, type Maps, type IReaction, CriticMass } from '@model/message'
 import type { IUser } from '@model/user'
 import { squealerBaseURL } from '@/routes'
 import MapLeaflet from './MapLeaflet.vue'
+import { ShowType } from '@/utils'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   author: IUser
   message: IMessage
+  showType: ShowType
 }>()
+
+const negativeScore = computed(() => {
+  return props.message.reaction.reduce((acc: number, curr: IReaction) => {
+    switch (curr.type) {
+      case IReactionType.ANGRY:
+        return acc + 2
+      case IReactionType.DISLIKE:
+        return acc + 1
+      default:
+        return acc
+    }
+  }, 0)
+})
+
+const positiveScore = computed(() => {
+  return props.message.reaction.reduce((acc: number, curr: IReaction) => {
+    switch (curr.type) {
+      case IReactionType.LIKE:
+        return acc + 1
+      case IReactionType.LOVE:
+        return acc + 2
+      default:
+        return acc
+    }
+  }, 0)
+})
+
+const popularityScore = computed(() => {
+  return positiveScore.value - negativeScore.value
+})
+
+const reactionsNumber = computed(() => {
+  return props.message.reaction.length
+})
 
 function redirectToMessage(messageId: string) {
   window.location.href = `${squealerBaseURL}/message/${messageId}`
@@ -46,6 +83,34 @@ function redirectToMessage(messageId: string) {
       <template v-else-if="message.content.type === 'maps'">
         <MapLeaflet :positions="(message.content.data as Maps).positions" />
       </template>
+
+      <hr />
+      <div class="mt-2">
+        <template v-if="showType === ShowType.POPULARITY">
+          <span class="font-weight-bold">Popularity:</span> {{ popularityScore }}
+        </template>
+        <template v-else-if="showType === ShowType.REACTIONS">
+          <span class="font-weight-bold">Reactions:</span> {{ reactionsNumber }}
+        </template>
+        <template v-else-if="showType === ShowType.CONTROVERSY">
+          <div class="d-flex flex-wrap">
+            <div>
+              <span class="font-weight-bold" title="Positive reactions score">Positive: </span>
+              {{ positiveScore }}
+            </div>
+            <div>
+              <span class="font-weight-bold ml-2" title="Negative reactions score">Negative: </span>
+              {{ negativeScore }}
+            </div>
+            <div>
+              <span class="font-weight-bold ml-2" aria-label="critical mass" title="critical mass"
+                >CM:
+              </span>
+              {{ CriticMass }}
+            </div>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>

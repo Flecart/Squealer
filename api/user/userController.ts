@@ -11,6 +11,8 @@ import {
     Delete,
     Body,
     Query,
+    Response,
+    UploadedFile,
 } from '@tsoa/runtime';
 import UserService from './userService';
 import { getUserFromRequest } from '@api/utils';
@@ -19,6 +21,11 @@ import { NotificationRensponse } from '@model/user';
 
 import logger from '@server/logger';
 import { ISuggestion, defaultSuggestionLimit } from '@model/channel';
+
+import { UploadService } from '@api/upload/uploadService';
+import { FILE_BASE } from '@config/api';
+import { HttpError } from '@model/error';
+import { AuthResponse } from '@model/auth';
 
 const userLogger = logger.child({ label: 'user' });
 
@@ -78,7 +85,6 @@ export class UserController extends Controller {
         return new UserService().deleteUser(getUserFromRequest(request));
     }
 
-    // TODO: probabilmente le Quota sono da spostare in un controller sotto /api/user/Quota
     @Get('/quota')
     @Security('jwt')
     @SuccessResponse(200, 'Quota Retrieved')
@@ -114,5 +120,32 @@ export class UserController extends Controller {
     @SuccessResponse(200, 'Role Updated')
     public async payDebt(@Request() request: any): Promise<{ message: string }> {
         return await new UserService().payDebt(getUserFromRequest(request));
+    }
+
+    @Post('{username}/change-image')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(200, 'Image changed')
+    public async changeImage(
+        @Request() request: any,
+        @UploadedFile('file') file?: Express.Multer.File,
+    ): Promise<string> {
+        userLogger.info(`[changeImage] with username '${getUserFromRequest(request)}'`);
+        console.log(file);
+        if (file == null) throw new HttpError(400, 'No file provided');
+        const path = await new UploadService().uploadFile(file);
+        return new UserService().changeImage(getUserFromRequest(request), `${FILE_BASE}/${path.path}`);
+    }
+
+    @Post('{username}/change-name')
+    @Security('jwt')
+    @Response<HttpError>(400, 'Bad request')
+    @SuccessResponse<AuthResponse>(200, 'Username changed')
+    public async changeUsername(
+        @Body() new_username: { new_name: string },
+        @Request() request: any,
+    ): Promise<{ message: string }> {
+        userLogger.info(`[changeUsername] with name '${getUserFromRequest(request)}'`);
+        return new UserService().changeUsername(new_username.new_name, getUserFromRequest(request));
     }
 }

@@ -7,7 +7,7 @@ import { type IUser, UserRoles } from '@model/user';
 import { useNavigate } from 'react-router-dom';
 import { stringFormat } from 'src/utils';
 
-export default function DeleteAccount(): JSX.Element {
+export default function ChangeRole(): JSX.Element {
     const [authState] = useContext(AuthContext);
     const [pendingRequest, setPendingRequest] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -84,14 +84,19 @@ export default function DeleteAccount(): JSX.Element {
                     ))}
                 </Form.Select>
 
-                <Button onClick={handleUpdateRole} disabled={pendingRequest}>
+                <Button
+                    onClick={handleUpdateRole}
+                    disabled={pendingRequest}
+                    className="button-setting-bs"
+                    variant="outline-success"
+                >
                     Update
                 </Button>
                 <Container>
                     {pendingRequest && (
                         <>
                             <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Cancellazione...</span>
+                                <span className="visually-hidden">Loading...</span>
                             </Spinner>
                         </>
                     )}
