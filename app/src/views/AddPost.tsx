@@ -231,7 +231,7 @@ export default function AddPost(): JSX.Element {
                     type: selectedTempOption,
                     data: '',
                 },
-                periodo: tempPeriod,
+                periodo: tempPeriod * 1000,
                 iterazioni: tempTimes,
             };
 
@@ -518,7 +518,7 @@ export default function AddPost(): JSX.Element {
 
         return (
             <div className="position-relative">
-                <Form.Group controlId="channelInput" className="group-add-post">
+                <Form.Group controlId="channelInput" className="group-add-post m-0">
                     <Form.Label className="label-add-post">Channel</Form.Label>
                     <Form.Control
                         onKeyDown={handleKeyDown}
@@ -526,11 +526,15 @@ export default function AddPost(): JSX.Element {
                             setCurrentChannel(e.target.value);
                         }}
                         value={currentChannel}
-                        placeholder="Enter Channel name, @ for users, # for hashtags"
+                        placeholder="Enter Channel name or destinations"
                         autoFocus={true}
                         autoComplete="off"
+                        aria-describedby="textChannel"
                     />
                 </Form.Group>
+                <Form.Text id="textChannel" className="text-add-post m-1">
+                    must use @ for users and # for hashtags
+                </Form.Text>
                 <div className="position-absolute w-50">
                     <ListGroup role="listbox">
                         {suggestions.map((suggestion, index) => {
@@ -715,7 +719,7 @@ export default function AddPost(): JSX.Element {
                             />
                         </Form.Group>
                         <Form.Text id="textPeriod" className="text-add-post">
-                            Set the Interval between messages
+                            Set the Interval between messages in seconds
                         </Form.Text>
 
                         <Form.Group controlId="timesInput" className="group-add-post m-0">
