@@ -35,7 +35,7 @@ export default function ChangeUsername(): JSX.Element {
                     },
                     authState,
                     () => {
-                        navigate(0);
+                        navigate(`/user/${authState.username}`);
                     },
                     (error) => {
                         setErrorMessage(() => error.message);

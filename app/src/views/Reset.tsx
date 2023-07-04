@@ -92,7 +92,7 @@ export default function Reset(): JSX.Element {
                         )}
                     </Form>
                 ) : (
-                    <Alert className="alert-form-bs" variant="success">
+                    <Alert className="alert-form-bs text-center" variant="success">
                         Your password has been resetted with success. <br />
                         Your new password is:
                         <b>{resetPassword}</b>

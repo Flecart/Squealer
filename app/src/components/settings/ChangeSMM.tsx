@@ -13,7 +13,7 @@ interface State {
     currentRequest: string | null;
 }
 
-export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
+export default function ChangeSMM({ user }: { user: IUser }): JSX.Element {
     const [auth] = useContext(AuthContext);
     const currentInput = useRef<string>('');
     const [state, setState] = useState<State>({
@@ -101,10 +101,10 @@ export default function ChangeUsername({ user }: { user: IUser }): JSX.Element {
                                 />
                                 <div className="mt-3">
                                     <Button variant="danger" className="me-2" onClick={deleteRequest}>
-                                        Delete currentRequest
+                                        Delete current Request
                                     </Button>
                                     <Button variant="primary" className="ms-2" onClick={updateCurrentRequest}>
-                                        Change currentRequest
+                                        Change current Request
                                     </Button>
                                 </div>
                             </Form.Group>

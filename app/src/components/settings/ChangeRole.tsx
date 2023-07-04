@@ -7,7 +7,7 @@ import { type IUser, UserRoles } from '@model/user';
 import { useNavigate } from 'react-router-dom';
 import { stringFormat } from 'src/utils';
 
-export default function DeleteAccount(): JSX.Element {
+export default function ChangeRole(): JSX.Element {
     const [authState] = useContext(AuthContext);
     const [pendingRequest, setPendingRequest] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -96,7 +96,7 @@ export default function DeleteAccount(): JSX.Element {
                     {pendingRequest && (
                         <>
                             <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Cancelling...</span>
+                                <span className="visually-hidden">Loading...</span>
                             </Spinner>
                         </>
                     )}
