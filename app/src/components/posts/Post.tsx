@@ -89,6 +89,7 @@ function Post({ message }: PostProps): JSX.Element {
                 <Image
                     src={`${imageBase}/${message.content.data as string}`}
                     alt="Immagine Post"
+                    style={{ maxWidth: '500px' }}
                     className="mb-3 mt-2"
                     fluid
                 />
