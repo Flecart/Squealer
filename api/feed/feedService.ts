@@ -57,7 +57,7 @@ export class FeedService {
     }
 
     private bestPerCategory(message: IMessage[], limit?: number, user?: string): string[] {
-        if (user !== undefined) message = message.filter((message: IMessage) => message.creator === user);
+        if (user !== undefined) message = message.filter((message: IMessage) => message.creator !== user);
 
         const best = message
             .map((message) => {
