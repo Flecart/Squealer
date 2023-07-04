@@ -49,7 +49,9 @@ export default function Search(): JSX.Element {
         return (
             <>
                 {state.searchResults.channel.length !== 0 && (
-                    <ChannelListLoader channels={state.searchResults.channel} />
+                    <div className="mb-4">
+                        <ChannelListLoader channels={state.searchResults.channel} />
+                    </div>
                 )}
                 {state.searchResults.messages.length !== 0 && (
                     <MessageListPageLoader childrens={state.searchResults.messages} />

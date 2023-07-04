@@ -1,7 +1,7 @@
 import { ChannelType, type IChannel } from '@model/channel';
 import { type IUser } from '@model/user';
 import { useContext, useEffect, useReducer } from 'react';
-import { Alert, Spinner, Stack } from 'react-bootstrap';
+import { Alert, ListGroup, ListGroupItem, Spinner, Stack } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { fetchApi } from 'src/api/fetch';
 import { apiChannels, apiUser } from 'src/api/routes';
@@ -119,11 +119,15 @@ export function ChannelListLoader({ channels }: ChannelListLoaderProps): JSX.Ele
 export function ChannelList({ channels, user }: { channels: IChannel[]; user: IUser | null }): JSX.Element {
     return (
         <Stack>
-            {channels.map(
-                (channel: IChannel): JSX.Element => (
-                    <ChannelRow key={channel.name} channel={channel} user={user} />
-                ),
-            )}
+            <ListGroup>
+                {channels.map(
+                    (channel: IChannel): JSX.Element => (
+                        <ListGroupItem key={channel.name}>
+                            <ChannelRow key={channel.name} channel={channel} user={user} />
+                        </ListGroupItem>
+                    ),
+                )}
+            </ListGroup>
         </Stack>
     );
 }
@@ -147,12 +151,8 @@ function ChannelRow({ channel, user }: { channel: IChannel; user: IUser | null }
             </span>
 
             <span className="ms-auto">
-                {join && (
-                    <span className="pe-3" style={{ color: 'var(--bs-red)' }}>
-                        Joined
-                    </span>
-                )}
-                <span className="ms-auto ">{channel.type}</span>
+                {join && <span className="me-3 badge bg-danger ">Joined</span>}
+                <span className="ms-auto badge bg-primary">{channel.type}</span>
             </span>
         </Stack>
     );
