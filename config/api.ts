@@ -11,4 +11,4 @@ export const CLIENT_UPLOAD_DIR = `uploads`; // utilizzato per accedere al file d
 export const DEFAULT_UPLOAD_DIR = `${rootDir}/build/app/${CLIENT_UPLOAD_DIR}/`;
 
 // access hosted images
-export const FILE_BASE = process.env['NODE_ENV'] === 'development' ? 'https://localhost:8000' : '';
+export const FILE_BASE = process.env['NODE_ENV'] === 'development' ? 'http://localhost:8000' : '';

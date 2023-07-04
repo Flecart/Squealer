@@ -57,7 +57,7 @@ export default function ChangeUsername(): JSX.Element {
                     onChange={(e) => {
                         setNewName(e.target.value);
                     }}
-                    placeholder="Insert your new username"
+                    placeholder="Insert your new display name"
                 />
             </FormGroup>
             <Button className="button-setting-bs" variant="outline-success" type="submit">
