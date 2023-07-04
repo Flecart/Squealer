@@ -79,7 +79,7 @@ export function updateRole(id, user) {
 
 export function deleteChannel(name) {
     const authState = JSON.parse(localStorage.getItem('auth') ?? 'null');
-    fetch(stringFormat(moddashDelete, [name]), {
+    fetch(stringFormat(moddashDelete, [name]).replace('#', '%23'), {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
