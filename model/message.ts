@@ -141,7 +141,7 @@ export const mapReactionToNumber = new Map<IReactionType, number>([
     [IReactionType.DISLIKE, -1],
     [IReactionType.UNSET, 0],
     [IReactionType.LIKE, 1],
-    [IReactionType.LOVE, 3],
+    [IReactionType.LOVE, 2],
 ]);
 
 export function sortHighliths(a: IMessage, b: IMessage): number {
