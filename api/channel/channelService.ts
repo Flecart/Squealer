@@ -71,13 +71,11 @@ export class ChannelService {
             name: { $regex: prefixRegex },
             type: { $ne: ChannelType.USER },
         });
-        console.log(channels);
 
         // ritorno solamente i canali in cui l'utente può scrivere.
         const writableChannels = channels.filter((channel) => {
             return canUserWriteTochannel(channel, user);
         });
-        console.log(writableChannels);
 
         return writableChannels.slice(0, limit).map((channel) => channel.name);
     }
