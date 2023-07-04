@@ -29,14 +29,12 @@ fetch(getVipClientRequestRoute, {
   .then((data) => {
     const clientRequestData = data as IUser[]
     clientRequest.value = clientRequestData
-    console.log(data)
   })
   .catch((error) => {
     console.error('Error:', error)
   })
 
 watch(clientRequest, () => {
-  console.log('called')
   if (clientRequest.value.length > 0) {
     lastClient.value = clientRequest.value[0]
   } else {
