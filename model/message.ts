@@ -1,13 +1,7 @@
 import type mongoose from 'mongoose';
 import type { HistoryUpdate } from '@model/history';
-/** 
-Commento per le api
-*/
-export type Img = Express.Multer.File;
 
-/** 
-Commento per le api
-*/
+export type Img = Express.Multer.File;
 
 export interface MapPosition {
     lat: number;
@@ -55,9 +49,6 @@ export function messageSort(a: IMessage, b: IMessage, type: MessageSortTypes): n
     }
 }
 
-/** 
-Commento per le api
-*/
 export interface IMessage {
     _id: mongoose.Types.ObjectId;
     channel: string; // il canale a cui appartiene il messaggio
@@ -189,6 +180,7 @@ function sortRisk(a: IMessage, b: IMessage): number {
         }
         return negativeValue;
     };
+
     // provo a misurare quanto mi manca per diventare controverso.
     const aControversial = controversialCount(aPositive, aNegative);
     const bControversial = controversialCount(bPositive, bNegative);
