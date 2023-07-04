@@ -46,16 +46,6 @@ export class LoginService {
         throw new HttpError(401, 'Invalid username or password, cant login');
     }
 
-    public async changeImage(user: string, img: string): Promise<string> {
-        const userRes = await UserModel.findOne({ username: user });
-        if (userRes === null) {
-            throw new HttpError(400, 'User not found');
-        }
-        userRes.profile_pic = img;
-        await userRes.save();
-        return 'success';
-    }
-
     public async changePassword(
         old_password: string,
         new_password: string,
@@ -73,22 +63,6 @@ export class LoginService {
         authUser.password = this._hashPassword(authUser.salt, new_password);
         await authUser.save();
         return { message: 'Password changed' };
-    }
-
-    public async changeUsername(new_name: string, current_username: string): Promise<{ message: string }> {
-        const user = await UserModel.findOne({ username: current_username }, 'username');
-        if (user === null) {
-            throw new HttpError(400, 'User not found');
-        }
-
-        user.name = new_name;
-        await user.save();
-        // TODO: non vengono aggiornati i canali
-        // TODO: non vengono aggiornati i messaggi (con creator)
-        // TODO: non vengono aggiornati le richiestste di amicizia
-        // TODO: non vengono aggiornati i client
-
-        return { message: 'Name changed' };
     }
 
     public async settingReset(user_password: string, username: string): Promise<Otp> {
