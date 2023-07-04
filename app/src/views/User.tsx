@@ -43,7 +43,7 @@ function User(): JSX.Element {
                             src={user?.profile_pic}
                             alt="profile image"
                             roundedCircle
-                            style={{ maxWidth: '500px', aspectRatio: '1/1' }}
+                            style={{ maxWidth: '500px', aspectRatio: '1/1', padding: '0' }}
                         />
                     )}
                 </Row>

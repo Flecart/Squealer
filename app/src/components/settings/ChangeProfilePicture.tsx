@@ -1,20 +1,18 @@
 import { Alert, Button, Form, FormGroup, Image, Row, Spinner } from 'react-bootstrap';
 import { useContext, useRef, useState } from 'react';
 import { AuthContext } from 'src/contexts';
-// import { fetchApi } from 'src/api/fetch';
-// import { apiChangeUsername } from 'src/api/routes';
 import { useNavigate } from 'react-router-dom';
 import { type IUser } from '@model/user';
 import { fetchApi } from 'src/api/fetch';
 import { apiChangeImage } from 'src/api/routes';
 import { stringFormat } from 'src/utils';
-// import { stringFormat } from 'src/utils';
 
 interface ChangeProfilePictureState {
     file: File | null;
     loading: boolean;
     error: string | null;
 }
+
 export default function ChangeProfilePicture({ user }: { user: IUser }): JSX.Element {
     const navigate = useNavigate();
 
@@ -63,7 +61,7 @@ export default function ChangeProfilePicture({ user }: { user: IUser }): JSX.Ele
                         <Image
                             src={state.file === null ? user.profile_pic : URL.createObjectURL(state.file)}
                             alt="profile image "
-                            style={{ maxWidth: '500px', aspectRatio: '1/1' }}
+                            style={{ maxWidth: '500px', aspectRatio: '1/1', padding: '0' }}
                             roundedCircle
                             onClick={() => {
                                 if (hiddenFileInput !== null) {
@@ -107,6 +105,8 @@ export default function ChangeProfilePicture({ user }: { user: IUser }): JSX.Ele
                         {state.file !== null && (
                             <Button
                                 aria-label="Upload Media"
+                                className="button-setting-bs"
+                                variant="outline-success"
                                 onClick={() => {
                                     handleSubmit();
                                 }}
