@@ -17,14 +17,19 @@ import ChangeProfilePicture from 'src/components/settings/ChangeProfilePicture';
 
 export default function Settings(): JSX.Element {
     const [authState] = useContext(AuthContext);
-    const naviagator = useNavigate();
+    const navigator = useNavigate();
     const [user, setUser] = useState<IUser | null>(null);
-    if (authState === null) {
-        naviagator('/login');
-        return <></>;
-    }
 
     useEffect(() => {
+        if (authState === null) {
+            navigator('/login');
+            return <></>;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (authState === null) return;
+
         fetchApi<IUser>(
             stringFormat(apiUser, [authState.username]),
             {
