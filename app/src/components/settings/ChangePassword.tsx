@@ -54,7 +54,7 @@ export default function ChangePassword(): JSX.Element {
             <FormGroup className="input-form-bs" controlId="OldPassword">
                 <Form.Label>Old Password</Form.Label>
                 <Form.Control
-                    type="text"
+                    type="password"
                     value={oldPassword}
                     onChange={(e) => {
                         setOldPassword(e.target.value);

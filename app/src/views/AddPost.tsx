@@ -227,7 +227,11 @@ export default function AddPost(): JSX.Element {
     const sendTemporizedMessage = useCallback(
         (event?: React.FormEvent<HTMLButtonElement>) => {
             event?.preventDefault();
-            const channel = destinations[0] as string;
+            const channel = destinations[0];
+            if (channel === undefined) {
+                setError(() => 'You must select a channel');
+                return;
+            }
 
             const temporizedContent: TemporizedContentInput = {
                 channel,
@@ -248,9 +252,9 @@ export default function AddPost(): JSX.Element {
                     body: JSON.stringify(temporizedContent),
                 },
                 authState,
-                (temporized) => {
+                () => {
                     setError(() => null);
-                    setInfo(() => `Temporized Message Send Successfully check in channel ${channel}`);
+                    setInfo(() => `Temporized Message send Successfully check in channel ${channel}`);
                     // TODO: cambiare il feedback dei messaggi temporizzati in un secondo momento.
                 },
                 (error) => {
@@ -453,7 +457,7 @@ export default function AddPost(): JSX.Element {
                 e.preventDefault();
             }
 
-            if (suggestions.length > 0) {
+            if (suggestions.length > 0 && currentChannel.length > 0) {
                 if (e.key === 'ArrowUp') {
                     setActiveSuggestionIdx((value) => Math.max(0, value - 1));
                 } else if (e.key === 'ArrowDown') {
@@ -571,23 +575,24 @@ export default function AddPost(): JSX.Element {
                 </Form.Text>
                 <div className="position-absolute w-50">
                     <ListGroup role="listbox">
-                        {suggestions.map((suggestion, index) => {
-                            return (
-                                <ListGroupItem
-                                    className="suggestion-list-item"
-                                    role="option"
-                                    key={index}
-                                    active={index === activeSuggestionIdx}
-                                    onClick={() => {
-                                        chooseSuggestion(index);
-                                    }}
-                                    style={{ zIndex: 2 }}
-                                    aria-label={'add channel ' + suggestion}
-                                >
-                                    {suggestion}
-                                </ListGroupItem>
-                            );
-                        })}
+                        {currentChannel.length > 0 &&
+                            suggestions.map((suggestion, index) => {
+                                return (
+                                    <ListGroupItem
+                                        className="suggestion-list-item"
+                                        role="option"
+                                        key={index}
+                                        active={index === activeSuggestionIdx}
+                                        onClick={() => {
+                                            chooseSuggestion(index);
+                                        }}
+                                        style={{ zIndex: 2 }}
+                                        aria-label={'add channel ' + suggestion}
+                                    >
+                                        {suggestion}
+                                    </ListGroupItem>
+                                );
+                            })}
                     </ListGroup>
                 </div>
             </div>
@@ -719,8 +724,8 @@ export default function AddPost(): JSX.Element {
                 />
                 {error !== null && <Alert variant="danger">{error}</Alert>}
 
-                <div className="d-flex flex-row justify-content-center mb-3">
-                    <Form.Check // prettier-ignore
+                <Form.Group controlId="temporizeInput" className="d-flex flex-row justify-content-center mb-3">
+                    <Form.Check
                         type="switch"
                         label="Temporize Message"
                         name="temporize message"
@@ -732,7 +737,7 @@ export default function AddPost(): JSX.Element {
                             setGeolocationCoord(null);
                         }}
                     />
-                </div>
+                </Form.Group>
 
                 <Collapse in={showTemporize}>
                     <div id="temporized-section">
@@ -775,41 +780,47 @@ export default function AddPost(): JSX.Element {
                             Set the number of messages
                         </Form.Text>
 
-                        <Form.Group className="d-flex flex-row px-1" controlId="typeTemporize">
-                            <Form.Label> Type: </Form.Label>
+                        <div className="d-flex flex-row px-1">
+                            <span> Type: </span>
                             <div className="d-flex flex-row justify-content-around w-100">
-                                <Form.Check
-                                    type="radio"
-                                    label="Wikipedia"
-                                    name="option"
-                                    value="wikipedia"
-                                    checked={selectedTempOption === 'wikipedia'}
-                                    onChange={(e) => {
-                                        setSelectedTempOption(e.target.value as TempSupportedContent);
-                                    }}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Image"
-                                    name="option"
-                                    value="image"
-                                    checked={selectedTempOption === 'image'}
-                                    onChange={(e) => {
-                                        setSelectedTempOption(e.target.value as TempSupportedContent);
-                                    }}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Text"
-                                    name="option"
-                                    value="text"
-                                    checked={selectedTempOption === 'text'}
-                                    onChange={(e) => {
-                                        setSelectedTempOption(e.target.value as TempSupportedContent);
-                                    }}
-                                />
+                                <Form.Group controlId="wikipedia-options">
+                                    <Form.Check
+                                        type="radio"
+                                        label="Wikipedia"
+                                        name="option"
+                                        value="wikipedia"
+                                        checked={selectedTempOption === 'wikipedia'}
+                                        onChange={(e) => {
+                                            setSelectedTempOption(e.target.value as TempSupportedContent);
+                                        }}
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="image-options">
+                                    <Form.Check
+                                        type="radio"
+                                        label="Image"
+                                        name="option"
+                                        value="image"
+                                        checked={selectedTempOption === 'image'}
+                                        onChange={(e) => {
+                                            setSelectedTempOption(e.target.value as TempSupportedContent);
+                                        }}
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="text-options">
+                                    <Form.Check
+                                        type="radio"
+                                        label="Text"
+                                        name="option"
+                                        value="text"
+                                        checked={selectedTempOption === 'text'}
+                                        onChange={(e) => {
+                                            setSelectedTempOption(e.target.value as TempSupportedContent);
+                                        }}
+                                    />
+                                </Form.Group>
                             </div>
-                        </Form.Group>
+                        </div>
 
                         <div className="d-flex flex-row justify-content-center">
                             <Button className="my-2" type="submit" onClick={sendTemporizedMessage}>

@@ -52,7 +52,11 @@ const totalPages = ref<number>(1)
 const tabIndex = ref<number>(0)
 const showType = ref<ShowType>(ShowType.POPULARITY)
 
-fetchMessages(selectedClient.value.username, currentPage.value)
+fetchMessages(
+  selectedClient.value.username,
+  currentPage.value,
+  messageSortModes[tabIndex.value].value
+)
 watch(
   [selectedClient, currentPage, tabIndex],
   ([newValue, newPage, newPageIndex], [oldValue, oldPage, oldPageIndex]) => {
@@ -70,7 +74,7 @@ watch(
 
 const messages = ref<IMessage[]>([])
 
-function fetchMessages(currentClient: string, page: number, sort: MessageSortTypes = 'popularity') {
+function fetchMessages(currentClient: string, page: number, sort: MessageSortTypes) {
   return fetch(`${stringFormat(getClientMessageRoute, [currentClient])}?page=${page}&sort=${sort}`)
     .then((response) => response.json())
     .then((data: IMessageWithPages) => {
