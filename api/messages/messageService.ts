@@ -34,13 +34,16 @@ const messageServiceLog = logger.child({ label: 'messageService' });
 
 export class MessageService {
     public async getUserMessagesId(username: string, sort?: MessageSortTypes): Promise<string[]> {
-        let messages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
-            async (message) => {
+        const messagesUnfilter = await Promise.all(
+            (
+                await MessageModel.find({ creator: username, channel: { $ne: null } })
+            ).map(async (message) => {
                 const channel = await ChannelModel.findOne({ name: message.channel });
-                if (channel !== null && isPublicChannel(channel)) return true;
-                else return false;
-            },
+                if (channel !== null && isPublicChannel(channel)) return message;
+                else return null;
+            }),
         );
+        let messages = messagesUnfilter.filter((message) => message !== null) as IMessage[];
 
         if (sort) {
             const customSort = (a: IMessage, b: IMessage) => messageSort(a, b, sort);
@@ -56,13 +59,16 @@ export class MessageService {
         limit: number,
         sort?: MessageSortTypes,
     ): Promise<IMessageWithPages> {
-        const allMessages = (await MessageModel.find({ creator: username, channel: { $ne: null } })).filter(
-            async (message) => {
+        const allMessagesUnfilter = await Promise.all(
+            (
+                await MessageModel.find({ creator: username, channel: { $ne: null } })
+            ).map(async (message) => {
                 const channel = await ChannelModel.findOne({ name: message.channel });
-                if (channel !== null && isPublicChannel(channel)) return true;
-                else return false;
-            },
+                if (channel !== null && isPublicChannel(channel)) return message;
+                else return null;
+            }),
         );
+        const allMessages = allMessagesUnfilter.filter((message) => message !== null) as IMessage[];
 
         let messages: IMessage[];
         if (sort) {
