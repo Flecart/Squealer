@@ -63,4 +63,4 @@ For the full documentation see [here](https://github.com/Flecart/Squealer/blob/m
 
 -   [Xuanqiang "Angelo" Huang](https://github.com/flecart)
 -   [Giovanni Spadaccini](https://github.com/giospada)
--   [Luca Panariello](httips://github.com/Lukirby)
+-   [Luca Panariello](https://github.com/Lukirby)
