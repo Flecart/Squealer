@@ -64,3 +64,10 @@ For the full documentation see [here](https://github.com/Flecart/Squealer/blob/m
 -   [Xuanqiang "Angelo" Huang](https://github.com/flecart)
 -   [Giovanni Spadaccini](https://github.com/giospada)
 -   [Luca Panariello](https://github.com/Lukirby)
+
+
+# Demo
+
+View of the Main app:
+
+![main app demo](https://github.com/Flecart/Squealer/blob/main/images/demo.png)
